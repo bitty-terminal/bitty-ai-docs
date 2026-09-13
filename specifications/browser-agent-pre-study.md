@@ -15,22 +15,22 @@ sidebar_order: 28
 > **normative**, and not **Compatible**. This document surveys candidate Browser
 > and Agent panel integration via the Panel Runtime and Event Bus contract as
 > a prerequisite for a future Panel Platform, reconciled with the accepted
-> [TerminalRegistry and View Lifecycle Contract](terminal-registry-view-lifecycle-rfc.md)
+> [TerminalRegistry and View Lifecycle Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/terminal-registry-view-lifecycle-rfc.md)
 > (CTX-0117, `6f30c2f`, Accepted plus Experimental Implementation `c0aadd2`/`a8735d0`),
 > the accepted
-> [Workspace Compositor Specification](workspace-compositor.md)
+> [Workspace Compositor Specification](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md)
 > (CTX-0118, `c3a2928`, Accepted, no experimental implementation), and the
 > draft
-> [Panel Runtime and Event Bus Pre-Study](panel-runtime-pre-study.md)
+> [Panel Runtime and Event Bus Pre-Study](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-pre-study.md)
 > (CTX-0119, `9032d1e`, `Draft` not **Accepted** — requested `05e8803` in task
 > description, candidate only, no implementation, bounded PR-1..PR-12), plus the
 > first-party
-> [Project plugin](https://github.com/bitty-terminal/bitty/blob/main/docs/product/plugin-roadmap.md)
+> [Project plugin](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/plugin-roadmap.md)
 > (`bitty-terminal.project`, `Draft`, bundled-disabled). It proposes no
 > implementation, authorizes no shipped, stable, or compatibility-guaranteed
 > behavior, and does not weaken any normative control in the
-> [Security Overview](../../../security/overview.md), [Threat Model](../../../security/threat-model.md),
-> [Isolation Resource RFC](isolation-resource-rfc.md), [Plugin Platform RFC](plugin-platform-rfc.md),
+> [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md), [Threat Model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md),
+> [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md), [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md),
 > or [IPC and Agent RFC](ipc-agent-rfc.md).
 > The lifecycle is `Draft -> experimental review evidence -> Accepted -> Verified -> Compatible`
 > (spec) and `Draft -> experimental review evidence -> Accepted -> normative` (document);
@@ -67,22 +67,22 @@ In scope for this research (candidate, not normative):
 Out of scope and owned elsewhere:
 
 - VT parser, grid, cursor, mode, damage, and reply invariants (OQ-007,
-  [Terminal State RFC](terminal-state-rfc.md));
+  [Terminal State RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/terminal-state-rfc.md));
 - text segmentation, width, bidi, shaping, atlas, and DPI contracts
-  ([Text and Rendering RFC](text-rendering-rfc.md), draft);
+  ([Text and Rendering RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/text-rendering-rfc.md), draft);
 - image, scene, zone, and structured transport beyond `Browser` surface handle
-  ([Rich Presentation RFC](rich-presentation-rfc.md));
+  ([Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md));
 - Platform adapter ownership and `winit` key and pointer normalization
-  ([Input and Pointer Contract](input-pointer-rfc.md), draft);
+  ([Input and Pointer Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/input-pointer-rfc.md), draft);
 - Plugin API v1, capability grammar, manifest, and three-level queue budgets
-  (OQ-011/012/013, [Plugin Platform RFC](plugin-platform-rfc.md));
+  (OQ-011/012/013, [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md));
 - per-plugin VM, instruction, memory, task, and queue enforcement (OQ-014,
-  [Isolation Resource RFC](isolation-resource-rfc.md));
+  [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md));
 - IPC wire framing, discovery, peer-credential auth, and per-connection rate
   limits RC-9/RC-10, and the `AgentMessage`/`AgentSession` envelope
   ([IPC and Agent RFC](ipc-agent-rfc.md));
 - daemon, session persistence across reboots, and remote UI trust boundaries
-  ([ADR 0008 - Headless](../../../decisions/adrs/ADR-0008-headless.md), post-v1.0).
+  ([ADR 0008 - Headless](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md), post-v1.0).
 
 This document is the research deposit for CTX-0120
 (`Priority: P2 | Area: product | Labels: docs,area:product,P2 | Milestone: v0.1.0 | RFC: OQ-014 | Task: CTX-0120`)
@@ -90,30 +90,30 @@ and does not close an open question on its own.
 
 ## Relationship to accepted sources
 
-| Area                 | Accepted fact (cite)                                                                                                                                                                                                                                                                                                             | How this research reconciles (candidate)                                                                                                                                                                                                                                                                                           |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Topology             | One-way DAG, `Terminal -> Snapshot` only, 16-crate workspace per [ADR 0003](../../../decisions/adrs/ADR-0003-core-workspace-topology.md) (OQ-005)                                                                                                                                                                                | Browser `WebView` and Agent `AgentSession` would live in `bitty-runtime`/`bitty-ui` or `bitty-agent` plus `bitty-mcp` without reversing DAG edges; `bitty-vt`/`bitty-term-state`/`bitty-pty` stay dependency-free; `bitty-render` reads only snapshots and scene, not web process handles                                          |
-| Terminal lifecycle   | `TerminalRegistry` as single owner of PTY handles, `TerminalId != ViewId`, `RuntimeId`/`PersistentId`/`Generation`, bounded `64`/`32`/`16` per [TerminalRegistry and View Lifecycle Contract](terminal-registry-view-lifecycle-rfc.md) (CTX-0117, `6f30c2f`)                                                                     | Browser and Agent panels reuse the same generation rule for `PanelId` plus `BrowserSurfaceId` or `AgentId`; no Browser or Agent panel holds a PTY file descriptor; terminal-backed Agent context consumes snapshots, not PTY fd, and Browser navigation reuses `LogicalRect` per `View` without PTY resize                         |
-| Workspace compositor | `Instance -> Window -> Workspace -> LayoutTree -> View` with `H`/`V` `ratio [0.1,0.9]`, Core-owned `gaps_in 4`/`gaps_out 6`/`border 2`/`radius 6`, `LayoutProvider` pure `propose` per [Workspace Compositor Specification](workspace-compositor.md) (CTX-0118, `c3a2928`)                                                       | Browser and Agent are candidate extensions of `View` content (`ViewContent::Browser(BrowserSurfaceId)` already accepted as `Browser` view type, and `ViewContent::Panel(PanelId)` candidate from panel pre-study for Agent); no new tiling primitive; decoration stays Core-owned                                                  |
-| Panel Runtime        | `PanelId` versus `ViewId`/`TerminalId` with generation, command `owner.name:command`, overlay `4+1`, focus MRU no Lua hot path, bus `owner.name:topic` `8 KiB`/`32`/`64`/`1024`/`8192` `DropOldest` per [Panel Runtime and Event Bus Pre-Study](panel-runtime-pre-study.md) (CTX-0119, `9032d1e` / requested `05e8803`)          | Browser uses Panel lifecycle `Declared -> Created -> Mounted -> Focused -> Suspended -> Disposed` with `browser.embed` gate; Agent uses same lifecycle plus `AgentSession` plus Event Bus observation; both fit inside PR-1..PR-12 without new global budget; `PanelRuntime` remains per-Window host, no cross-window topic escape |
-| Project plugin       | `bitty-terminal.project` candidate first-party: project discovery and session presentation, constrained `fs.read:PROJECT_GLOB`, session metadata, `v1` bundled-disabled per [Plugin Roadmap](../product/plugin-roadmap.md) (`Draft`)                                                                                             | Project remains the only plugin allowed a constrained project discovery read; Browser and Agent do not invent a second project discovery path: Agent `project` ContextProvider and Browser file-URL navigation both validate against the same `PROJECT_GLOB` and session metadata via qualified requests                           |
-| Plugin platform      | One VM per `(PluginId, generation)`, deny-by-default capabilities, observation versus interception, four interception points, `DropOldest` default per [Plugin Platform RFC](plugin-platform-rfc.md)                                                                                                                             | Browser lifecycle and Agent tool dispatch follow the same generation rule; Browser UI is a host-owned surface, not a Lua render hook; MCP and Agent traffic reuses observation queues, not a new interception point                                                                                                                |
-| Isolation            | Per-subscription `64`, per-plugin `1024`/`256 KiB`, global `8192`/`2 MiB` with `DropOldest`, RC-1 `10^7`/`50 ms`/`8 ms`, RC-2 `32 MiB`, RC-3 `512 MiB` aggregate, RC-9/RC-10 IPC quotas per [Isolation Resource RFC](isolation-resource-rfc.md)                                                                                  | Browser and Agent plus MCP budgets are sized to fit inside the same three-level envelope plus RC-1..RC-3 and RC-9/RC-10 without borrowing; Browser process memory is accounted under RC-3 aggregate, not as a new per-VM free pool                                                                                                 |
-| IPC and Agent        | Bounded `256 KiB` frame, `512 KiB` in-flight, `64` pending, scopes per request, peer-credential auth per [IPC and Agent RFC](ipc-agent-rfc.md); bounded `AgentMessage`/`SideQueue`/`AgentSession` plus consent ledger                                                                                                            | MCP transport, if cross-process, reuses the same framing and scope model; Agent Browser uses the same scopes plus `agent.*` and `browser.*` families; no TCP listener and no ambient bearer token                                                                                                                                  |
-| AI Architecture      | Draft ModelProvider `ai.model`, ContextProvider (`workspace`/`project`/`git`/`diagnostics`/`terminal`) with Stable Id hierarchy and `32 KiB` Context Budget, four Agent levels `inspect`/`self`/`workspace`/`all`, ephemeral `AgentWorkspace`, Tool Bus via MCP per [AI Architecture](ai-architecture.md) (`Draft`, P2 post-1.0) | This pre-study does not propose a second ModelProvider or ContextProvider; it surveys how those draft providers could be hosted as Panel content via the same hosts and how Browser as a `ContextProvider` source (bounded snapshot) would consume the same `32 KiB` budget                                                        |
+| Area                 | Accepted fact (cite)                                                                                                                                                                                                                                                                                                                                                                                   | How this research reconciles (candidate)                                                                                                                                                                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Topology             | One-way DAG, `Terminal -> Snapshot` only, 16-crate workspace per [ADR 0003](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0003-core-workspace-topology.md) (OQ-005)                                                                                                                                                                                                   | Browser `WebView` and Agent `AgentSession` would live in `bitty-runtime`/`bitty-ui` or `bitty-agent` plus `bitty-mcp` without reversing DAG edges; `bitty-vt`/`bitty-term-state`/`bitty-pty` stay dependency-free; `bitty-render` reads only snapshots and scene, not web process handles                                          |
+| Terminal lifecycle   | `TerminalRegistry` as single owner of PTY handles, `TerminalId != ViewId`, `RuntimeId`/`PersistentId`/`Generation`, bounded `64`/`32`/`16` per [TerminalRegistry and View Lifecycle Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/terminal-registry-view-lifecycle-rfc.md) (CTX-0117, `6f30c2f`)                                                            | Browser and Agent panels reuse the same generation rule for `PanelId` plus `BrowserSurfaceId` or `AgentId`; no Browser or Agent panel holds a PTY file descriptor; terminal-backed Agent context consumes snapshots, not PTY fd, and Browser navigation reuses `LogicalRect` per `View` without PTY resize                         |
+| Workspace compositor | `Instance -> Window -> Workspace -> LayoutTree -> View` with `H`/`V` `ratio [0.1,0.9]`, Core-owned `gaps_in 4`/`gaps_out 6`/`border 2`/`radius 6`, `LayoutProvider` pure `propose` per [Workspace Compositor Specification](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md) (CTX-0118, `c3a2928`)                                              | Browser and Agent are candidate extensions of `View` content (`ViewContent::Browser(BrowserSurfaceId)` already accepted as `Browser` view type, and `ViewContent::Panel(PanelId)` candidate from panel pre-study for Agent); no new tiling primitive; decoration stays Core-owned                                                  |
+| Panel Runtime        | `PanelId` versus `ViewId`/`TerminalId` with generation, command `owner.name:command`, overlay `4+1`, focus MRU no Lua hot path, bus `owner.name:topic` `8 KiB`/`32`/`64`/`1024`/`8192` `DropOldest` per [Panel Runtime and Event Bus Pre-Study](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-pre-study.md) (CTX-0119, `9032d1e` / requested `05e8803`) | Browser uses Panel lifecycle `Declared -> Created -> Mounted -> Focused -> Suspended -> Disposed` with `browser.embed` gate; Agent uses same lifecycle plus `AgentSession` plus Event Bus observation; both fit inside PR-1..PR-12 without new global budget; `PanelRuntime` remains per-Window host, no cross-window topic escape |
+| Project plugin       | `bitty-terminal.project` candidate first-party: project discovery and session presentation, constrained `fs.read:PROJECT_GLOB`, session metadata, `v1` bundled-disabled per [Plugin Roadmap](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/plugin-roadmap.md) (`Draft`)                                                                                                       | Project remains the only plugin allowed a constrained project discovery read; Browser and Agent do not invent a second project discovery path: Agent `project` ContextProvider and Browser file-URL navigation both validate against the same `PROJECT_GLOB` and session metadata via qualified requests                           |
+| Plugin platform      | One VM per `(PluginId, generation)`, deny-by-default capabilities, observation versus interception, four interception points, `DropOldest` default per [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md)                                                                                                                     | Browser lifecycle and Agent tool dispatch follow the same generation rule; Browser UI is a host-owned surface, not a Lua render hook; MCP and Agent traffic reuses observation queues, not a new interception point                                                                                                                |
+| Isolation            | Per-subscription `64`, per-plugin `1024`/`256 KiB`, global `8192`/`2 MiB` with `DropOldest`, RC-1 `10^7`/`50 ms`/`8 ms`, RC-2 `32 MiB`, RC-3 `512 MiB` aggregate, RC-9/RC-10 IPC quotas per [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md)                                                                          | Browser and Agent plus MCP budgets are sized to fit inside the same three-level envelope plus RC-1..RC-3 and RC-9/RC-10 without borrowing; Browser process memory is accounted under RC-3 aggregate, not as a new per-VM free pool                                                                                                 |
+| IPC and Agent        | Bounded `256 KiB` frame, `512 KiB` in-flight, `64` pending, scopes per request, peer-credential auth per [IPC and Agent RFC](ipc-agent-rfc.md); bounded `AgentMessage`/`SideQueue`/`AgentSession` plus consent ledger                                                                                                                                                                                  | MCP transport, if cross-process, reuses the same framing and scope model; Agent Browser uses the same scopes plus `agent.*` and `browser.*` families; no TCP listener and no ambient bearer token                                                                                                                                  |
+| AI Architecture      | Draft ModelProvider `ai.model`, ContextProvider (`workspace`/`project`/`git`/`diagnostics`/`terminal`) with Stable Id hierarchy and `32 KiB` Context Budget, four Agent levels `inspect`/`self`/`workspace`/`all`, ephemeral `AgentWorkspace`, Tool Bus via MCP per [AI Architecture](ai-architecture.md) (`Draft`, P2 post-1.0)                                                                       | This pre-study does not propose a second ModelProvider or ContextProvider; it surveys how those draft providers could be hosted as Panel content via the same hosts and how Browser as a `ContextProvider` source (bounded snapshot) would consume the same `32 KiB` budget                                                        |
 
 Where this research selects a threshold it refines those sources; it does not move
 a requirement between owners and does not create a bypass.
 
 ## Normative sources this pre-study does not weaken
 
-- [Security Overview](../../../security/overview.md) (invariants 1-10, especially 2 deny-by-default, 3 presentation never Terminal Truth, 4 no hot-path Lua, 6 MCP read-only with untrusted observation, 7 bounded inputs, 9 secret minimization).
-- [Threat Model](../../../security/threat-model.md) (T-01 parser wedge, T-06 plugin escape, T-07 starvation, T-09 IPC takeover, T-10 MCP confused deputy, T-13 Terminal Truth).
-- [Core and Plugin Boundaries](../architecture/core-boundaries.md) and [Architecture Overview](../architecture/overview.md).
-- [Terminal State RFC](terminal-state-rfc.md), [Rich Presentation RFC](rich-presentation-rfc.md), [Configuration Model RFC](configuration-model-rfc.md).
-- [Plugin Platform RFC](plugin-platform-rfc.md) (OQ-011/012/013) and [Isolation Resource RFC](isolation-resource-rfc.md) (OQ-014).
-- [IPC and Agent RFC](ipc-agent-rfc.md) (OQ-018) and [ADR 0008 Headless](../../../decisions/adrs/ADR-0008-headless.md).
-- [Default Distribution RFC](default-distribution-rfc.md) (OQ-002), [Package Lifecycle RFC](package-lifecycle-rfc.md) (OQ-021), [Package Follow-up RFC](package-followup-rfc.md) (OQ-022/026-029).
+- [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md) (invariants 1-10, especially 2 deny-by-default, 3 presentation never Terminal Truth, 4 no hot-path Lua, 6 MCP read-only with untrusted observation, 7 bounded inputs, 9 secret minimization).
+- [Threat Model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md) (T-01 parser wedge, T-06 plugin escape, T-07 starvation, T-09 IPC takeover, T-10 MCP confused deputy, T-13 Terminal Truth).
+- [Core and Plugin Boundaries](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/architecture/core-boundaries.md) and [Architecture Overview](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/architecture/overview.md).
+- [Terminal State RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/terminal-state-rfc.md), [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md), [Configuration Model RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/configuration-model-rfc.md).
+- [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md) (OQ-011/012/013) and [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md) (OQ-014).
+- [IPC and Agent RFC](ipc-agent-rfc.md) (OQ-018) and [ADR 0008 Headless](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md).
+- [Default Distribution RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/default-distribution-rfc.md) (OQ-002), [Package Lifecycle RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/package-lifecycle-rfc.md) (OQ-021), [Package Follow-up RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/package-followup-rfc.md) (OQ-022/026-029).
 
 ## Terminology
 
@@ -187,7 +187,7 @@ Rules under research:
    any process allocation.
 2. Navigation is host-mediated: `browser.navigate(surface, url)` validates the URL
    against a declared allowlist (`https` by default, `file` requires distinct
-   `browser.file-url` per [Isolation Resource RFC](isolation-resource-rfc.md) R-005
+   `browser.file-url` per [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md) R-005
    `FileUrlActivation`), checks `browser.navigation` scope, and forwards to the
    embedder. A `file://` or `http://` outside the allowlist fails with
    `NavigationDenied`. `javascript:` style inline navigation is denied as
@@ -336,7 +336,7 @@ never escapes its `(AgentId, generation)` owner without an explicit read grant.
    priority with `truncated_bytes` and `truncated_providers[]`.
 4. Project-scoped memory: `project` provider data comes from declarative project
    config and the `bitty-terminal.project` discovery result, never from executing
-   project Lua. Project trust follows [Configuration Model RFC](configuration-model-rfc.md)
+   project Lua. Project trust follows [Configuration Model RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/configuration-model-rfc.md)
    project trust: narrowing only, no workspace or cloned-repo widening of retained
    memory.
 5. Redaction: every memory record that may carry secrets is typed `SecretField`
@@ -407,7 +407,7 @@ never escapes its `(AgentId, generation)` owner without an explicit read grant.
 
 Before any release, the `v1` enabled set is empty: a fresh install with no user
 configuration starts core only, identical to `bitty --safe`, per
-[Default Distribution RFC](default-distribution-rfc.md) (OQ-002).
+[Default Distribution RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/default-distribution-rfc.md) (OQ-002).
 Bundled presence adds zero active VM, queue, handler, or resident cost until
 explicitly enabled; enabling is a user action with capability consent and the
 permission-diff gate (R-016) for capability-increasing updates. The following
@@ -432,7 +432,7 @@ Rules under research for the matrix:
    surfaces, handlers, timers, and queues are zero until the user explicitly
    enables them via `ConfigPlan` with per-capability consent.
 2. Promotion criteria for any future enabled-by-default addition remain the six
-   gates from [Default Distribution RFC](default-distribution-rfc.md):
+   gates from [Default Distribution RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/default-distribution-rfc.md):
    lightweight budget proof (PB-1 `<= 100 ms` p50 cold start, PB-2 `<= 80 MiB`
    idle one window, PB-7 `<= 1%` CPU idle must hold), capability minimality,
    failure isolation (no crash of host), hot-path exclusion (`Platform -> Router`
@@ -600,18 +600,18 @@ authorized as shipped, stable, or compatibility-guaranteed behavior by this
 draft. Each requires its own RFC or ADR with independent architecture, security,
 and performance review before it can be claimed.
 
-| Excluded                                                                          | Why deferred                                                                                                                                      | What this research does instead                                                                                                         |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Daemon `bittyd` and session persistence across reboots                            | Post-v1.0 per [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md); trust boundary not reviewed here                                          | Process-scoped Browser plus Agent only; persistence is at most `AgentWorkspace` rehydration with explicit `agent.memory:persist`        |
-| Remote UI and cross-host MCP transport                                            | New trust boundary with cross-machine auth (`mTLS` or SSH tunnel) not evaluated                                                                   | No remote wire format, no TCP listener, no remote capability mapping; MCP reuses current-user IPC framing if needed                     |
-| Multi-window as global server for Browser or Agent                                | Window stays native OS object per [Workspace Compositor](workspace-compositor.md); orchestrating many windows adds focus, DPI, and lifetime costs | One `Instance` owns `Window`s; Browser and Agent work is single-window first; cross-window topics deferred                              |
-| WASM or helper-process strong isolation for Browser or Agent beyond embedder      | Native in-process plugins remain rejected per [Threat Model](../../../security/threat-model.md); WASM/helper design needs its own RFC             | In-process Lua VM isolation per OQ-014 remains the only in-process boundary; Browser embedder already owns a web process                |
-| Browser per-window process budget beyond RC-3 aggregate                           | `browser.embed` is already high-risk plus `Browser` view type already requires dedicated isolation; new ceiling needs its own RFC                 | Browser surfaces reuse `browser.embed` gate and existing RC-3 aggregate; BA-1 `8` panels is the only Browser ceiling here               |
-| Agent autonomous browsing or navigation without user-initiated `browser.navigate` | Agent-driven `file://` or cross-origin `https` without explicit `browser.navigation` plus destination consent would bypass Browser isolation      | Agent may request navigation only through `browser.navigate` with the same capability and allowlist gate as any panel                   |
-| Persistent Agent memory by default                                                | Default persistence would carry secrets across restarts; `agent.memory:persist` plus `0600` plus `7`-day retention needs explicit consent         | Ephemeral `32` turns plus `AgentWorkspace` `64`/`2 MiB`; persistence is opt-in, counted, and wipe-verified                              |
-| New global file, network, or process ambient for Lua or Agent                     | Violates [Security Overview](../../../security/overview.md) invariant 2 and T-10                                                                  | Browser and Agent obtain those only via explicit `fs.read:PROJECT_GLOB`/`network.connect:DESTINATION`/`process.spawn:CONSTRAINT`        |
-| New hot-path Agent pre-encode interception                                        | Would put Lua or Agent on the hot path per [Input and Pointer Contract](input-pointer-rfc.md)                                                     | Agent observes via commands, `focus.changed` plus bus observation only, never via hot-path interception                                 |
-| Distribution or marketplace ownership (`bitty-dev`, `LazyBitty`, `awesome-bitty`) | Owned by [Default Distribution RFC](default-distribution-rfc.md) and future panel distribution RFC                                                | Research notes presets as configuration composition, not as a new bundled-enabled set; Browser and Agent are not bundled before release |
+| Excluded                                                                          | Why deferred                                                                                                                                                                                                                     | What this research does instead                                                                                                         |
+| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Daemon `bittyd` and session persistence across reboots                            | Post-v1.0 per [ADR 0008](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md); trust boundary not reviewed here                                                                      | Process-scoped Browser plus Agent only; persistence is at most `AgentWorkspace` rehydration with explicit `agent.memory:persist`        |
+| Remote UI and cross-host MCP transport                                            | New trust boundary with cross-machine auth (`mTLS` or SSH tunnel) not evaluated                                                                                                                                                  | No remote wire format, no TCP listener, no remote capability mapping; MCP reuses current-user IPC framing if needed                     |
+| Multi-window as global server for Browser or Agent                                | Window stays native OS object per [Workspace Compositor](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md); orchestrating many windows adds focus, DPI, and lifetime costs | One `Instance` owns `Window`s; Browser and Agent work is single-window first; cross-window topics deferred                              |
+| WASM or helper-process strong isolation for Browser or Agent beyond embedder      | Native in-process plugins remain rejected per [Threat Model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md); WASM/helper design needs its own RFC                                         | In-process Lua VM isolation per OQ-014 remains the only in-process boundary; Browser embedder already owns a web process                |
+| Browser per-window process budget beyond RC-3 aggregate                           | `browser.embed` is already high-risk plus `Browser` view type already requires dedicated isolation; new ceiling needs its own RFC                                                                                                | Browser surfaces reuse `browser.embed` gate and existing RC-3 aggregate; BA-1 `8` panels is the only Browser ceiling here               |
+| Agent autonomous browsing or navigation without user-initiated `browser.navigate` | Agent-driven `file://` or cross-origin `https` without explicit `browser.navigation` plus destination consent would bypass Browser isolation                                                                                     | Agent may request navigation only through `browser.navigate` with the same capability and allowlist gate as any panel                   |
+| Persistent Agent memory by default                                                | Default persistence would carry secrets across restarts; `agent.memory:persist` plus `0600` plus `7`-day retention needs explicit consent                                                                                        | Ephemeral `32` turns plus `AgentWorkspace` `64`/`2 MiB`; persistence is opt-in, counted, and wipe-verified                              |
+| New global file, network, or process ambient for Lua or Agent                     | Violates [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md) invariant 2 and T-10                                                                                              | Browser and Agent obtain those only via explicit `fs.read:PROJECT_GLOB`/`network.connect:DESTINATION`/`process.spawn:CONSTRAINT`        |
+| New hot-path Agent pre-encode interception                                        | Would put Lua or Agent on the hot path per [Input and Pointer Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/input-pointer-rfc.md)                                                     | Agent observes via commands, `focus.changed` plus bus observation only, never via hot-path interception                                 |
+| Distribution or marketplace ownership (`bitty-dev`, `LazyBitty`, `awesome-bitty`) | Owned by [Default Distribution RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/default-distribution-rfc.md) and future panel distribution RFC                                                | Research notes presets as configuration composition, not as a new bundled-enabled set; Browser and Agent are not bundled before release |
 
 Claiming any excluded behavior by citing this pre-study is a documentation
 hygiene violation. Cross-document references must preserve the deferred status.
@@ -655,8 +655,8 @@ This research creates no ambient authority and does not weaken any P0 gate:
 
 All controls above are candidate until the implementing tasks deliver focused
 tests, fuzz corpora, and independent security-auditor review per
-[P0 Acceptance Criteria](../../../security/p0-acceptance-criteria.md) and the
-[Risk Evidence RFC](risk-evidence-rfc.md).
+[P0 Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md) and the
+[Risk Evidence RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/risk-evidence-rfc.md).
 
 ## Reconciliation with Panel Runtime, Project plugin, and Workspace Compositor
 
@@ -665,7 +665,7 @@ Browser and Agent RFC would sit on the draft Panel Runtime plus Project plugin
 plus Workspace Compositor without revising them:
 
 - **Hierarchy**: `Instance -> Window -> Workspace -> LayoutTree -> View` stays
-  authoritative per [Workspace Compositor](workspace-compositor.md). Browser is a
+  authoritative per [Workspace Compositor](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md). Browser is a
   candidate `ViewContent::Browser(BrowserSurfaceId)` (already accepted type) and
   Agent is a candidate `ViewContent::Panel(PanelId)` whose panel content is an
   agent surface; neither adds a second tiling primitive. Without an accepted
@@ -685,7 +685,7 @@ plus Workspace Compositor without revising them:
   new global budget family.
 - **Project plugin**: `bitty-terminal.project` (`Draft`, bundled-disabled,
   `fs.read:PROJECT_GLOB` constrained, `32`/`64`/`1024`/`8192`) stays authoritative
-  for project discovery and session presentation per [Plugin Roadmap](../product/plugin-roadmap.md).
+  for project discovery and session presentation per [Plugin Roadmap](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/plugin-roadmap.md).
   This research proposes that `project` remains the only plugin allowed a
   constrained project discovery read; Browser `file://` navigation and Agent
   `project` ContextProvider both validate against the same `PROJECT_GLOB` and
@@ -693,7 +693,7 @@ plus Workspace Compositor without revising them:
   discovery rule is introduced.
 - **Focus**: focus MRU per workspace, `View focused: bool`, and the rule
   `Platform -> Router -> focused View/Panel -> keymap -> encoder -> PTY` are
-  authoritative per [TerminalRegistry and View Lifecycle Contract](terminal-registry-view-lifecycle-rfc.md).
+  authoritative per [TerminalRegistry and View Lifecycle Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/terminal-registry-view-lifecycle-rfc.md).
   The panel pre-study proposes that the router read `focused Panel` as an
   alternative target with identical MRU and `no_focus` counter semantics; this
   research proposes that Browser and Agent share that same router without a new
@@ -718,7 +718,7 @@ plus Workspace Compositor without revising them:
   `64`/`2 MiB`, conversational `32`/`64 KiB`, plus empty `v1` enabled set (BA-11)
   as sibling ceilings that fit inside the same validation and do not silently clamp.
 - **Exclusions**: daemon, remote UI, and live PTY migration remain deferred per
-  [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md) and per the explicit
+  [ADR 0008](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md) and per the explicit
   exclusion tables of both accepted contracts plus the draft panel pre-study;
   this research preserves those deferrals and introduces no cross-process or
   cross-window Browser or Agent transfer.
@@ -818,19 +818,19 @@ This research pre-study is **draft** (`Draft` not `Accepted`/`Verified`, no
 experimental implementation, not `Compatible`) and must not be cited as
 shipped, stable, or compatibility-guaranteed behavior. Remaining open items
 above require follow-up RFCs or tasks per the
-[documentation workflow](../../../development/documentation-workflow.md) and
-[open-question register](../../../decisions/open-questions.md).
+[documentation workflow](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/development/documentation-workflow.md) and
+[open-question register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ## References
 
-- [Panel Runtime and Event Bus Pre-Study](panel-runtime-pre-study.md) (`Draft`, CTX-0119, `9032d1e` / requested `05e8803`)
-- [Workspace Compositor Specification](workspace-compositor.md) (`Accepted`, CTX-0118, `c3a2928`)
-- [TerminalRegistry and View Lifecycle Contract](terminal-registry-view-lifecycle-rfc.md) (`Accepted`, CTX-0117, `6f30c2f`)
-- [Plugin Roadmap](../product/plugin-roadmap.md) (`Draft`, Project plugin `bitty-terminal.project`)
+- [Panel Runtime and Event Bus Pre-Study](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-pre-study.md) (`Draft`, CTX-0119, `9032d1e` / requested `05e8803`)
+- [Workspace Compositor Specification](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md) (`Accepted`, CTX-0118, `c3a2928`)
+- [TerminalRegistry and View Lifecycle Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/terminal-registry-view-lifecycle-rfc.md) (`Accepted`, CTX-0117, `6f30c2f`)
+- [Plugin Roadmap](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/plugin-roadmap.md) (`Draft`, Project plugin `bitty-terminal.project`)
 - [AI Architecture](ai-architecture.md) (`Draft`, P2 deferred)
-- [Isolation Resource RFC](isolation-resource-rfc.md) (`Accepted`, OQ-014)
-- [Plugin Platform RFC](plugin-platform-rfc.md) (`Accepted`, OQ-011/012/013)
+- [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md) (`Accepted`, OQ-014)
+- [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md) (`Accepted`, OQ-011/012/013)
 - [IPC and Agent RFC](ipc-agent-rfc.md) (`Accepted`, OQ-018)
-- [Rich Presentation RFC](rich-presentation-rfc.md) (`Accepted`, OQ-008/015/016)
+- [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md) (`Accepted`, OQ-008/015/016)
 - WebView embedders: `wry` (WebView) plus `webkitgtk`/`webview2`/`wkwebview` as non-normative embedder candidates
 - MCP: Model Context Protocol as non-normative Tool Bus wire candidate
