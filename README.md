@@ -5,12 +5,11 @@ independent AI-core sub-platform of Bitty. It owns the English-language
 architecture, specification, provider, context, and reference documentation for
 the AI core.
 
-**Current state: bootstrap skeleton (CTX-0187 Phase 1).** The repository was
-created empty and scaffolded with the docs-quality toolchain and governance
-files only. No AI-core documents have been migrated yet; migration is a later,
-separately tracked phase. The `bitty-ai` implementation repository does not
-exist yet; this documentation repository is bootstrapped ahead of it. This
-README describes the repository contract, not migrated content.
+**Current state: AI-core corpus migrated (CTX-0001).** The AI-core documents
+were imported from `bitty-docs` (`docs/projects/bitty/specifications/` at
+`c664214`) with history preserved. Canonical content lives in root topic trees;
+this repository's process documents stay under `docs/`. Every cross-repository
+link uses an absolute URL.
 
 ## Scope
 
@@ -41,8 +40,8 @@ Cross-project contracts and registers are linked, never copied.
 The repository is intended to be mounted at `bitty-ai/docs` as a Git submodule
 once the `bitty-ai` implementation repository exists, so documentation
 version-matches the implementation it describes. The standalone repository is
-fully self-contained and passes its own gates. Until content migration lands,
-the tree contains only the documentation map and the development workflow.
+fully self-contained and passes its own gates. AI-core content lives in root
+topic trees; this repository's process documents stay under `docs/`.
 
 ## Structure
 
@@ -50,7 +49,7 @@ the tree contains only the documentation map and the development workflow.
 | -------------------------------- | ------------------------------------------------------------ |
 | `docs/README.md`                 | Documentation map and authority rules for this repository.   |
 | `docs/development/`              | Contributor workflow and the normative documentation policy. |
-| `docs/<topic>/`                  | Canonical AI-core documents (to be migrated).                |
+| `<topic>/`                       | Canonical AI-core documents (currently `specifications/`).   |
 | `TODO.md`                        | Work register for this repository.                           |
 | `AGENTS.md`                      | Agent scope, CarryCtx workflow, and local gate rules.        |
 | `.github/scripts/check-docs.mjs` | Links, metadata, language, budgets, and hygiene checks.      |
@@ -61,8 +60,9 @@ the tree contains only the documentation map and the development workflow.
 - The
   [documentation workflow](https://github.com/bitty-terminal/bitty-ai-docs/blob/main/docs/development/documentation-workflow.md)
   is normative for authoring, metadata, status, and review.
-- Every document under `docs/` carries the flat frontmatter schema and declares
-  its own status; design intention must never read as implemented behavior.
+- Every canonical document (root topic trees and `docs/`) carries the flat
+  frontmatter schema and declares its own status; design intention must never
+  read as implemented behavior.
 - When statements conflict, the canonical bitty-docs security corpus takes
   precedence. Implementation claims require evidence from the owning code
   repository.
