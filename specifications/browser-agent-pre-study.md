@@ -38,6 +38,13 @@ sidebar_order: 28
 > below are candidate research values that require a reviewed acceptance decision
 > before implementation may claim them.
 
+**Repository archival note (2026-09-14).** This pre-study references
+`bitty-mcp` as the candidate host of the MCP tool surface (relationship table,
+terminology, and later sections). `bitty-mcp` was archived on 2026-09-14 and
+its MCP tool-surface functionality is covered by `bitty-ai`; the research text
+below is retained as written at its CTX-0120 review, and the ownership change
+stays tracked by [OQ-081](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+
 ## Purpose and scope
 
 Bitty has an accepted single-owner lifecycle for terminals and views and an
