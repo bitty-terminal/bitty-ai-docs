@@ -11,11 +11,11 @@ sidebar_order: 23
 
 # AI Architecture
 
-> Status: **draft** (frontmatter `draft`) for post-1.0 AI architecture covering ModelProvider, ContextProvider, Tool Bus, and Agent layers. This document proposes the ModelProvider (`ai.model` `list_models`/`complete`/`stream`/`cancel`), ContextProvider (workspace, project, git, diagnostics, terminal) with Stable Id hierarchy Instance/Window/Workspace/View/Terminal, a token-first context budget and request contract (OQ-066), and semantic zones, Agent four levels (inspect/self/workspace/all), ephemeral AgentWorkspace, Rich streaming (Markdown/Diff/ToolCard), Tool Bus via MCP, and privacy-first controls. It does not describe implemented behavior, does not authorize shipped, stable, normative, or compatibility-guaranteed behavior, and does not close [OQ-018](../decisions/open-questions.md) which remains closed by [IPC and Agent RFC](ipc-agent-rfc.md) on 2026-08-29. Experimental implementation may exist as review evidence but carries no compatibility promise and does not constitute acceptance. Acceptance requires independent category-owner, docs-curator, and security-reviewer evidence. Lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`.
+> Status: **draft** (frontmatter `draft`) for post-1.0 AI architecture covering ModelProvider, ContextProvider, Tool Bus, and Agent layers. This document proposes the ModelProvider (`ai.model` `list_models`/`complete`/`stream`/`cancel`), ContextProvider (workspace, project, git, diagnostics, terminal) with Stable Id hierarchy Instance/Window/Workspace/View/Terminal, a token-first context budget and request contract (OQ-066), and semantic zones, Agent four levels (inspect/self/workspace/all), ephemeral AgentWorkspace, Rich streaming (Markdown/Diff/ToolCard), Tool Bus via MCP, and privacy-first controls. It does not describe implemented behavior, does not authorize shipped, stable, normative, or compatibility-guaranteed behavior, and does not close [OQ-018](../../../decisions/open-questions.md) which remains closed by [IPC and Agent RFC](ipc-agent-rfc.md) on 2026-08-29. Experimental implementation may exist as review evidence but carries no compatibility promise and does not constitute acceptance. Acceptance requires independent category-owner, docs-curator, and security-reviewer evidence. Lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`.
 
 ## Purpose and scope
 
-Bitty is an agent-friendly, not agent-centric terminal. [Product vision](../product/vision.md) and [Core and Plugin Boundaries](../architecture/core-boundaries.md) keep AI and Agent experiences outside the terminal core as optional integrations, preferentially in plugins, while [IPC and Agent RFC](ipc-agent-rfc.md) already defines the accepted bounded IPC framing, wire, auth, scopes, and bounded `AgentMessage`/`AgentObservation`/`SideQueue`/`AgentSession` contracts that close [OQ-018](../decisions/open-questions.md) at the design level.
+Bitty is an agent-friendly, not agent-centric terminal. [Product vision](../product/vision.md) and [Core and Plugin Boundaries](../architecture/core-boundaries.md) keep AI and Agent experiences outside the terminal core as optional integrations, preferentially in plugins, while [IPC and Agent RFC](ipc-agent-rfc.md) already defines the accepted bounded IPC framing, wire, auth, scopes, and bounded `AgentMessage`/`AgentObservation`/`SideQueue`/`AgentSession` contracts that close [OQ-018](../../../decisions/open-questions.md) at the design level.
 
 This specification extends that baseline for post-1.0 AI work. It answers how a model, context, tool, and agent layer compose without entering the terminal, render, or input hot paths, without binding the core to a model vendor or prompt system, and without weakening the privacy, capability, or budget controls already normative.
 
@@ -38,7 +38,7 @@ Out of scope (owned elsewhere):
 - Rich-block, scene, image, and structured-transport renderer contracts beyond the Rich streaming integration (owned by [Rich Presentation RFC](rich-presentation-rfc.md) under OQ-008/OQ-015/OQ-016).
 - Plugin API v1 namespaces, capability grammar, manifest schema, event pipeline classes, and lifecycle generations (owned by [Plugin Platform RFC](plugin-platform-rfc.md) under OQ-011/OQ-012/OQ-013).
 - Per-plugin instruction, CPU, memory, queue, and task enforcement mechanics (owned by [Isolation Resource RFC](isolation-resource-rfc.md) under OQ-014).
-- Lua runtime, standard-library subset, module resolution, and diagnostics (owned by [Lua Runtime RFC](lua-runtime-rfc.md) and [ADR 0005](../decisions/adrs/ADR-0005-lua-pins-and-stdlib.md), [ADR 0006](../decisions/adrs/ADR-0006-os-env-policy.md), [ADR 0007](../decisions/adrs/ADR-0007-async-gc.md)).
+- Lua runtime, standard-library subset, module resolution, and diagnostics (owned by [Lua Runtime RFC](lua-runtime-rfc.md) and [ADR 0005](../../../decisions/adrs/ADR-0005-lua-pins-and-stdlib.md), [ADR 0006](../../../decisions/adrs/ADR-0006-os-env-policy.md), [ADR 0007](../../../decisions/adrs/ADR-0007-async-gc.md)).
 - Configuration pipeline, layers, and project-trust mechanics (owned by [Configuration Model RFC](configuration-model-rfc.md) under OQ-010).
 - CLI grammar, command registry, and exit codes (owned by [CLI Contract RFC](cli-contract-rfc.md) under OQ-017).
 
@@ -46,10 +46,10 @@ This document introduces no new trust boundary. Every transition into a privileg
 
 ## Normative sources this specification must not weaken
 
-- [Security Overview](../security/overview.md): default posture that PTY, plugins, projects, IPC/MCP/Agent, packages, and reference repos are untrusted until a narrow grant, invariants 1 through 10, trust-boundary table, capability families, and the rule that deferral must not create a bypass.
-- [Threat Model](../security/threat-model.md): boundary map `PTY bytes | Lua plugin | IPC/MCP -> Bitty core`, section `MCP, Agents, and DevTools` (T-10, R-013) with untrusted-observation labeling, and section `IPC, CLI, and child processes` (T-09, R-011, R-012).
-- [Security Risk Register](../security/risk-register.md): R-011 (IPC scope escalation), R-012 (child credential leak), R-013 (confused deputy via terminal output), R-014 (secret exposure via traces).
-- [P0 Security Acceptance Criteria](../security/p0-acceptance-criteria.md): P0-AC-021 through P0-AC-026, P0-AC-013, and the verification-method conventions.
+- [Security Overview](../../../security/overview.md): default posture that PTY, plugins, projects, IPC/MCP/Agent, packages, and reference repos are untrusted until a narrow grant, invariants 1 through 10, trust-boundary table, capability families, and the rule that deferral must not create a bypass.
+- [Threat Model](../../../security/threat-model.md): boundary map `PTY bytes | Lua plugin | IPC/MCP -> Bitty core`, section `MCP, Agents, and DevTools` (T-10, R-013) with untrusted-observation labeling, and section `IPC, CLI, and child processes` (T-09, R-011, R-012).
+- [Security Risk Register](../../../security/risk-register.md): R-011 (IPC scope escalation), R-012 (child credential leak), R-013 (confused deputy via terminal output), R-014 (secret exposure via traces).
+- [P0 Security Acceptance Criteria](../../../security/p0-acceptance-criteria.md): P0-AC-021 through P0-AC-026, P0-AC-013, and the verification-method conventions.
 - [Core and Plugin Boundaries](../architecture/core-boundaries.md): mechanism versus policy split, Terminal Truth ownership, declarative UI, two security domains (`TerminalSecurityPolicy` versus `PluginCapabilities`), and the rule that AI and Agent layers remain outside the core.
 - [Architecture Overview](../architecture/overview.md): the candidate data-flow invariants, the one-way DAG rule for layers, and the spine `bitty-ipc` / `bitty-agent` placement (the `bitty-agent` crate remains `Implemented` but not yet `Verified` and does not imply shipped behavior).
 - [IPC and Agent RFC](ipc-agent-rfc.md): bounded framing 256 KiB, channel caps, wire envelope v1, peer-credential auth, scope families, RC-9/RC-10, `AgentId`/`AgentMessage`/`AgentObservation`/`SideQueue`/`AgentSession`, consent ledger, and streaming chunking that this RFC reuses without redefining caps.
@@ -103,14 +103,14 @@ Status: **proposed contract**. Numbered for reference; none is implemented by th
 
 ### Provider configuration and credential references (candidate)
 
-Status: **candidate, non-normative**. This subsection extends MP-10 without changing it; [OQ-054 and OQ-055](../decisions/open-questions.md) track the unresolved parts, and the storage tiers are recorded in the [Plugin Roadmap](../product/plugin-roadmap.md) secrets direction.
+Status: **candidate, non-normative**. This subsection extends MP-10 without changing it; [OQ-054 and OQ-055](../../../decisions/open-questions.md) track the unresolved parts, and the storage tiers are recorded in the [Plugin Roadmap](../product/plugin-roadmap.md) secrets direction.
 
 - **MPC-1 Provider entries.** Candidate configuration shape: `ai.providers.<id>.kind = openai_compatible | anthropic | ollama`, each with an optional `base_url`, `models[]`, and privacy class. `openai_compatible` covers self-hosted and local servers, `ollama` is the local-only default, and `anthropic` is a remote provider. Provider kinds are transport adapters, never capability grants: a remote kind still requires the accepted `network.connect` grant and `ai.provider` consent, and a `local-only` provider performs no network I/O (MP-3).
 - **MPC-2 Credential references, never inline keys.** A provider declares `api_key_env` (the name of a host-allowlisted environment variable) or `api_key_cmd` (argv whose stdout is the secret, for example a password-manager lookup), never an inline key; configuration containing a literal key value fails validation. Resolution happens on the Rust host side, and Lua, plugins, diagnostics, and traces never receive the value, reusing MP-10 and ADR 0006 redaction and audit rules.
 - **MPC-3 Resolution order and project overrides.** Explicit user or CLI selection wins over profile configuration, which wins over project-level selection. A project may select among already-granted providers and models but may not introduce a credential reference, raise a `privacy_class`, or enable a provider the user has not consented to; violations fail closed with a source-attributed diagnostic.
 - **MPC-4 No implementation claim.** No provider configuration, credential reference, keyring, or `secrets.env` path is implemented today; `bitty-agent` owns no LLM I/O and no API-key handling, and `bitty-config` has no provider schema. This subsection records direction only.
-- **MPC-5 Canonical wire protocols and Lua provider presets (candidate).** Rust implements only three canonical wire-protocol adapters: `openai_compatible` (`POST /v1/chat/completions`, covering OpenAI, OpenRouter, DeepSeek, Groq, Ollama, vLLM, and compatible local gateways), `anthropic_messages` (`POST /v1/messages`), and `gemini_content` (`POST /v1beta/models/{model}:generateContent` and `:streamGenerateContent`). A provider entry names a protocol plus a base URL, models, and privacy class; the host must not accumulate vendor-specific branches beyond these adapters. Provider presets are declarative Lua data rather than compiled tables: a candidate official preset plugin (`bitty-ai-providers`) ships the common entries, and users may register their own (`ai.register_provider(id, entry)`) so model renames, base-URL changes, custom headers, and private gateways never require a Rust rebuild. Preset data cannot widen consent or capability (MPC-1 through MPC-3 still apply). Rust owns streaming and the hard gates: SSE parsing with present-cadence backpressure and cancellation, connection pooling and retry, credential resolution, the CP-5 context budget, and MCP tool-bus schema and permission validation. Lua owns presets, agent and subagent roles, prompt assembly, conversation trees, slash commands, and card UI. Tracked as [OQ-080](../decisions/open-questions.md).
-- **MPC-6 `bitty-ai` distribution boundary (candidate).** `bitty-ai` is an independently installed and versioned plugin and repository (Rust workspace plus a Lua front end), not a bundled Core feature. Core keeps a neutral `bitty-agent` protocol skeleton and the `bitty-mcp` adapter so users who prefer external harnesses (for example Claude Code, Hermes Agent, or others) pay no AI weight or supply-chain surface and can still run `bitty-ai` standalone or headless. Installing the plugin yields the full experience through the same manifest, capability, and lazy-trigger path as any other plugin. Tracked as [OQ-081](../decisions/open-questions.md).
+- **MPC-5 Canonical wire protocols and Lua provider presets (candidate).** Rust implements only three canonical wire-protocol adapters: `openai_compatible` (`POST /v1/chat/completions`, covering OpenAI, OpenRouter, DeepSeek, Groq, Ollama, vLLM, and compatible local gateways), `anthropic_messages` (`POST /v1/messages`), and `gemini_content` (`POST /v1beta/models/{model}:generateContent` and `:streamGenerateContent`). A provider entry names a protocol plus a base URL, models, and privacy class; the host must not accumulate vendor-specific branches beyond these adapters. Provider presets are declarative Lua data rather than compiled tables: a candidate official preset plugin (`bitty-ai-providers`) ships the common entries, and users may register their own (`ai.register_provider(id, entry)`) so model renames, base-URL changes, custom headers, and private gateways never require a Rust rebuild. Preset data cannot widen consent or capability (MPC-1 through MPC-3 still apply). Rust owns streaming and the hard gates: SSE parsing with present-cadence backpressure and cancellation, connection pooling and retry, credential resolution, the CP-5 context budget, and MCP tool-bus schema and permission validation. Lua owns presets, agent and subagent roles, prompt assembly, conversation trees, slash commands, and card UI. Tracked as [OQ-080](../../../decisions/open-questions.md).
+- **MPC-6 `bitty-ai` distribution boundary (candidate).** `bitty-ai` is an independently installed and versioned plugin and repository (Rust workspace plus a Lua front end), not a bundled Core feature. Core keeps a neutral `bitty-agent` protocol skeleton and the `bitty-mcp` adapter so users who prefer external harnesses (for example Claude Code, Hermes Agent, or others) pay no AI weight or supply-chain surface and can still run `bitty-ai` standalone or headless. Installing the plugin yields the full experience through the same manifest, capability, and lazy-trigger path as any other plugin. Tracked as [OQ-081](../../../decisions/open-questions.md).
 
 ## ContextProvider
 
@@ -223,15 +223,15 @@ claim needs a benchmark before any number is used.
 The unifying candidate principle behind the reading, compression, and evidence
 directions is stated here once and referenced below: **give the model the
 minimum sufficient context while preserving a path back to complete evidence**
-([OQ-059](../decisions/open-questions.md), [OQ-062](../decisions/open-questions.md),
-[OQ-065](../decisions/open-questions.md)).
+([OQ-059](../../../decisions/open-questions.md), [OQ-062](../../../decisions/open-questions.md),
+[OQ-065](../../../decisions/open-questions.md)).
 
 ### Warp comparison dimensions (candidate)
 
 Status: **direction, non-normative**. The closed-cloud-terminal row above is
 expanded here into the dimensions that matter to this draft. The Warp
 description follows the external URL observation in the
-[Reference Project Register](../project/reference-projects.md) (public product
+[Reference Project Register](../../../project/reference-projects.md) (public product
 behavior from [Warp documentation](https://docs.warp.dev/); no local snapshot,
 not audited) and makes no claim about its internals.
 
@@ -276,7 +276,7 @@ without changing it:
   fullest experience, not a required one.
 - The state projection flows inward only: task and checkpoint data inform
   context; nothing in the stack grants capability or self-accepts a review.
-  Tracked as [OQ-060](../decisions/open-questions.md).
+  Tracked as [OQ-060](../../../decisions/open-questions.md).
 
 ### Native agent services and tool projection (candidate)
 
@@ -322,14 +322,14 @@ the CLI does not own behavior the service lacks. Candidate rules:
   the model-facing task surface remains in-process and typed.
 - **NAS-3 External managers remain integration targets.** A CarryCtx or
   `ctxctl` adapter stays a candidate backend behind the store traits above
-  ([OQ-060](../decisions/open-questions.md)), so projects already using them
+  ([OQ-060](../../../decisions/open-questions.md)), so projects already using them
   can project their state in, while the native services remain usable without
   any external installation.
 
 No native task, agent, workspace, context, or evidence service exists today;
 `bitty-agent` remains a bounded message and tool-description crate with no LLM
 I/O, and the `ctxctl` measurements remain tool-level observations. Tracked as
-[OQ-067](../decisions/open-questions.md).
+[OQ-067](../../../decisions/open-questions.md).
 
 ## Candidate runtime contracts
 
@@ -428,7 +428,7 @@ per-item metadata â€” source, freshness, priority, token cost, trust, and hash â
 so assembly, ranking, and truncation stay deterministic and attributable at
 any budget. Whether a model profile may select a different budget from the
 accepted default is undecided and tracked as
-[OQ-066](../decisions/open-questions.md); nothing in this paragraph weakens
+[OQ-066](../../../decisions/open-questions.md); nothing in this paragraph weakens
 `CP-5` until an amendment accepts it.
 
 ### Fresh child sessions and AgentTree
@@ -478,7 +478,7 @@ process, environment, credential, CPU, memory, disk, process-count, wall-time,
 PTY, and device dimensions remain separately bounded. SSH credentials and
 scope tokens follow the existing child-environment and P0-AC-023 rules. This
 is a target abstraction, not a headless-daemon or remote-UI commitment; the
-post-v1.0 deferral and trust-boundary gate in [ADR 0008](../decisions/adrs/ADR-0008-headless.md)
+post-v1.0 deferral and trust-boundary gate in [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md)
 remain authoritative.
 
 ### Tool Bus programmatic calls and availability
@@ -555,7 +555,7 @@ does not change `TB-6` or any other accepted cap.
   model- and provider-dependent, and one legacy session in the same snapshot
   was entirely serial. No Bitty batching mechanism exists today.
 
-Tracked as [OQ-071](../decisions/open-questions.md).
+Tracked as [OQ-071](../../../decisions/open-questions.md).
 
 ### Changes, outcomes, and restore boundaries
 
@@ -601,7 +601,7 @@ Journal candidate above with transaction and overlay semantics.
   and attributed; the accepted restore-domain separation (workspace versus
   conversation) still applies.
 
-Tracked as [OQ-064](../decisions/open-questions.md).
+Tracked as [OQ-064](../../../decisions/open-questions.md).
 
 ### Hook authority and observation labeling
 
@@ -690,14 +690,14 @@ repo_overview -> search -> outline / project map -> symbol
   direction below. None of them replaces accepted build or test verification;
   presenting their results as first-class attributed UI (a diagnostics or
   evidence view) is a candidate native advantage
-  ([OQ-063](../decisions/open-questions.md)).
+  ([OQ-063](../../../decisions/open-questions.md)).
 - **Bounded and attributed.** Every read result is bounded, carries its
   origin, and enters the context budget like any other provider; reading more
   never bypasses capability or consent.
 
-Tracked as [OQ-062](../decisions/open-questions.md); language-service
+Tracked as [OQ-062](../../../decisions/open-questions.md); language-service
 discovery and diagnostics are tracked as
-[OQ-063](../decisions/open-questions.md).
+[OQ-063](../../../decisions/open-questions.md).
 
 ### Spatial multi-agent orchestration
 
@@ -738,7 +738,7 @@ operation says so.
   private side channel; human decisions are attributed and audited like any
   other principal, and approval remains an explicit consented action (CRE-1,
   SMO-2).
-- Tracked as [OQ-058](../decisions/open-questions.md).
+- Tracked as [OQ-058](../../../decisions/open-questions.md).
 
 ### Agent identity separation and projection (candidate)
 
@@ -758,7 +758,7 @@ An agent may have zero panels, one panel, or several views; it may run headless
 and be observed through a CLI; and one execution may be projected to a panel
 that did not start it. Presentation focus and visibility remain
 non-authoritative (SMO-2). Tracked as
-[OQ-061](../decisions/open-questions.md).
+[OQ-061](../../../decisions/open-questions.md).
 
 ### Multi-agent message envelope and delivery (candidate)
 
@@ -777,7 +777,7 @@ Candidate kinds include `DelegationRequest`, `DelegationResult`, `Observation`,
 delivery rules: bounded payloads under the accepted framing, `message_id`-based
 deduplication, deadline and expiry handling, cancellation, and fail-closed
 routing to a dead or unregistered recipient. Tracked within
-[OQ-058](../decisions/open-questions.md).
+[OQ-058](../../../decisions/open-questions.md).
 
 ### Capability-enforced roles and subagent dispatch
 
@@ -819,8 +819,8 @@ ParentAuthority`, further limited by the role profile; a role can never
   role is a policy template; an agent is a runtime instance of that template,
   so several agents can share one role without sharing state. The sandbox
   layer is part of the enforcement scope tracked as
-  [OQ-057](../decisions/open-questions.md).
-- Tracked as [OQ-057](../decisions/open-questions.md).
+  [OQ-057](../../../decisions/open-questions.md).
+- Tracked as [OQ-057](../../../decisions/open-questions.md).
 
 ### Role, model, and capability orthogonality (candidate)
 
@@ -850,7 +850,7 @@ Candidate model direction:
   broader than a coding agent without widening Core.
 
 Model availability, routing execution, and per-purpose model binding are
-undecided; tracked as [OQ-069](../decisions/open-questions.md).
+undecided; tracked as [OQ-069](../../../decisions/open-questions.md).
 
 ### Agent growth pipeline and proposal approval (candidate)
 
@@ -882,7 +882,7 @@ Stable behavior change -> Policy / agent-profile proposal
 
 Whether a learned skill becomes durable project data or session-scoped state,
 and which approval surface versions it, is undecided; tracked as
-[OQ-070](../decisions/open-questions.md).
+[OQ-070](../../../decisions/open-questions.md).
 
 ### Semantic output compression for agent context
 
@@ -910,7 +910,7 @@ output into agent context using OSC 133 zones and exit codes:
   terminal output into instruction or policy channels (T-10/R-013).
 - **SOC-6 Off the hot path.** Compression runs in the cold path on committed
   state snapshots and never in the parser or render path.
-- Tracked as [OQ-059](../decisions/open-questions.md).
+- Tracked as [OQ-059](../../../decisions/open-questions.md).
 
 ### Semantic execution results and progressive disclosure (candidate)
 
@@ -947,11 +947,11 @@ Two candidate rules make the ladder reliable:
   The candidate pipeline escalates from edit, parser, formatter, and
   language-service diagnostics through fast lint and targeted tests to a full
   build or test run, and never treats a diagnostic as a passed verification
-  ([OQ-063](../decisions/open-questions.md)).
+  ([OQ-063](../../../decisions/open-questions.md)).
 
 Retrieval by reference is a retrieval reference, not authority: it re-reads
 committed output under the same scoping and untrusted labeling as SOC-5.
-Tracked as [OQ-059](../decisions/open-questions.md).
+Tracked as [OQ-059](../../../decisions/open-questions.md).
 
 ### CarryCtx as the durable task layer
 
@@ -975,7 +975,7 @@ not as an authority surface:
   network path in the integration; it can request work but cannot grant
   capability, bypass consent, or self-accept a review. Task completion remains
   an independent human/commander decision.
-- Tracked as [OQ-060](../decisions/open-questions.md).
+- Tracked as [OQ-060](../../../decisions/open-questions.md).
 
 ### Evidence and provenance (candidate)
 
@@ -997,7 +997,7 @@ not permission to read.
 - Debug, audit, replay, and human review are the primary consumers of the
   same reference graph.
 
-Tracked as [OQ-065](../decisions/open-questions.md).
+Tracked as [OQ-065](../../../decisions/open-questions.md).
 
 ### Candidate build sequence (candidate)
 
@@ -1031,9 +1031,9 @@ Status: **candidate, non-normative**. This extends Tool Bus validation (TB-3)
 and consent (TB-4) with the command-side risk model recorded from the local
 research note `015.md`; the note is provenance, not evidence. It changes no
 accepted TB rule, adds no capability, and claims no implementation. Tracked as
-[OQ-087](../decisions/open-questions.md); the terminal-side interlock is
+[OQ-087](../../../decisions/open-questions.md); the terminal-side interlock is
 specified in the [IPC and Agent RFC](ipc-agent-rfc.md#candidate-sensitive-input-interlock-and-interaction-policy-oq-086)
-candidate sensitive-input interlock ([OQ-086](../decisions/open-questions.md)).
+candidate sensitive-input interlock ([OQ-086](../../../decisions/open-questions.md)).
 
 - **CRA-1 Risk tiers.** Every agent-initiated command is classified before
   dispatch: read-only inspection proceeds under the caller's existing scopes;
@@ -1256,21 +1256,21 @@ These are out of this draft and remain tracked as follow-up work; they must not 
 - Retention and audit-log lifetime for agent turns, tool results, and elevated context (remains an open item; no normative retention period is set by this draft).
 - Whether `bitty-ai` repository creation, the BA-4 crate layout, and the BA-6 pressure-test gate enter acceptance with this RFC or as a separate `bitty-ai` staging decision.
 
-The 2026-09-13 docs `CTX-0169` direction additions are registered as cross-document questions: role capability mapping and enforcement ([OQ-057](../decisions/open-questions.md)), spatial panel topology and event routing ([OQ-058](../decisions/open-questions.md)), semantic output-compression rules and budget interaction ([OQ-059](../decisions/open-questions.md)), and the CarryCtx durable-task integration boundary ([OQ-060](../decisions/open-questions.md)). The `CTX-0168` provider-credential direction is registered as [OQ-054 and OQ-055](../decisions/open-questions.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
+The 2026-09-13 docs `CTX-0169` direction additions are registered as cross-document questions: role capability mapping and enforcement ([OQ-057](../../../decisions/open-questions.md)), spatial panel topology and event routing ([OQ-058](../../../decisions/open-questions.md)), semantic output-compression rules and budget interaction ([OQ-059](../../../decisions/open-questions.md)), and the CarryCtx durable-task integration boundary ([OQ-060](../../../decisions/open-questions.md)). The `CTX-0168` provider-credential direction is registered as [OQ-054 and OQ-055](../../../decisions/open-questions.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
 
-The 2026-09-13 docs `CTX-0171` consolidation of the AI-architecture research note adds the platform-stack picture and the CarryCtx-as-optional-backend caveat ([OQ-060](../decisions/open-questions.md)), agent identity separation and projection ([OQ-061](../decisions/open-questions.md)), progressive code reading and repository index ([OQ-062](../decisions/open-questions.md)), language-service integration ([OQ-063](../decisions/open-questions.md)), transactional edit and workspace overlay ([OQ-064](../decisions/open-questions.md)), evidence and provenance ([OQ-065](../decisions/open-questions.md)), and context budget profiles ([OQ-066](../decisions/open-questions.md)), together with the Warp comparison dimensions and the candidate build sequence. None of these additions changes the draft status of this document or the accepted contracts it cites.
+The 2026-09-13 docs `CTX-0171` consolidation of the AI-architecture research note adds the platform-stack picture and the CarryCtx-as-optional-backend caveat ([OQ-060](../../../decisions/open-questions.md)), agent identity separation and projection ([OQ-061](../../../decisions/open-questions.md)), progressive code reading and repository index ([OQ-062](../../../decisions/open-questions.md)), language-service integration ([OQ-063](../../../decisions/open-questions.md)), transactional edit and workspace overlay ([OQ-064](../../../decisions/open-questions.md)), evidence and provenance ([OQ-065](../../../decisions/open-questions.md)), and context budget profiles ([OQ-066](../../../decisions/open-questions.md)), together with the Warp comparison dimensions and the candidate build sequence. None of these additions changes the draft status of this document or the accepted contracts it cites.
 
-The 2026-09-13 docs `CTX-0172` consolidation of the follow-up AI-architecture research note adds the native agent-service and tool-projection direction ([OQ-067](../decisions/open-questions.md)), role/model/capability orthogonality ([OQ-069](../decisions/open-questions.md)), the agent growth pipeline ([OQ-070](../decisions/open-questions.md)), and the `.bitty/` project-directory direction ([OQ-068](../decisions/open-questions.md)) recorded with the configuration documentation. None of these additions changes the draft status of this document or the accepted contracts it cites.
+The 2026-09-13 docs `CTX-0172` consolidation of the follow-up AI-architecture research note adds the native agent-service and tool-projection direction ([OQ-067](../../../decisions/open-questions.md)), role/model/capability orthogonality ([OQ-069](../../../decisions/open-questions.md)), the agent growth pipeline ([OQ-070](../../../decisions/open-questions.md)), and the `.bitty/` project-directory direction ([OQ-068](../../../decisions/open-questions.md)) recorded with the configuration documentation. None of these additions changes the draft status of this document or the accepted contracts it cites.
 
-The 2026-09-13 docs `CTX-0173` consolidation of the batching research note adds the tool-call batching and round-trip economy direction ([OQ-071](../decisions/open-questions.md)) and extends the language-service direction with user-provisioned language tools and formatting/code-action fast feedback (still [OQ-063](../decisions/open-questions.md)). None of these additions changes the draft status of this document or the accepted contracts it cites.
+The 2026-09-13 docs `CTX-0173` consolidation of the batching research note adds the tool-call batching and round-trip economy direction ([OQ-071](../../../decisions/open-questions.md)) and extends the language-service direction with user-provisioned language tools and formatting/code-action fast feedback (still [OQ-063](../../../decisions/open-questions.md)). None of these additions changes the draft status of this document or the accepted contracts it cites.
 
-The 2026-09-13 `014.md` review consolidation adds the token-first context request and artifact contract (extends [OQ-066](../decisions/open-questions.md)), the Panel/Execution separation and core ontology ([OQ-084](../decisions/open-questions.md)), the Lua-orchestration/host-execution boundary, the semantic command store, and the sandbox trust-level model ([OQ-085](../decisions/open-questions.md)); the provider-convention and opaque-capability refinements are recorded in [Plugin reuse and providers](plugin-reuse-and-providers.md) and the widget-level RichSurface refinement in the [Rich Presentation RFC](rich-presentation-rfc.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
+The 2026-09-13 `014.md` review consolidation adds the token-first context request and artifact contract (extends [OQ-066](../../../decisions/open-questions.md)), the Panel/Execution separation and core ontology ([OQ-084](../../../decisions/open-questions.md)), the Lua-orchestration/host-execution boundary, the semantic command store, and the sandbox trust-level model ([OQ-085](../../../decisions/open-questions.md)); the provider-convention and opaque-capability refinements are recorded in [Plugin reuse and providers](plugin-reuse-and-providers.md) and the widget-level RichSurface refinement in the [Rich Presentation RFC](rich-presentation-rfc.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
 
 These are not blockers for this draft; they will be decided in a follow-up Agent or Tool Bus amendment with independent review.
 
 ## Acceptance criteria and lifecycle
 
-This RFC is **draft**. It does not self-accept and does not close an open question beyond its linkage to [OQ-018](../decisions/open-questions.md). The lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`; only `Accepted` or `normative` documents authorize shipped, stable, or compatibility-guaranteed behavior. Draft text carries no compatibility promise and does not form public reference.
+This RFC is **draft**. It does not self-accept and does not close an open question beyond its linkage to [OQ-018](../../../decisions/open-questions.md). The lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`; only `Accepted` or `normative` documents authorize shipped, stable, or compatibility-guaranteed behavior. Draft text carries no compatibility promise and does not form public reference.
 
 Acceptance will require:
 
@@ -1309,8 +1309,8 @@ is a native workspace platform rather than a TUI redrawn inside one grid.
   oh-my-pi, Claude Code) are inputs to the Lua policy layer; their TUI shells
   are not reused.
 - **Boundaries.** Multi-agent routing remains
-  [OQ-058](../decisions/open-questions.md); window forms and the unified `Mod`
-  contract remain [OQ-052](../decisions/open-questions.md); plugin-supplied
+  [OQ-058](../../../decisions/open-questions.md); window forms and the unified `Mod`
+  contract remain [OQ-052](../../../decisions/open-questions.md); plugin-supplied
   presentation stays capability-gated per the Panel Runtime pre-study.
 
 ## Workspace-anchored multi-agent runtime: panels as leased workstations (candidate)
@@ -1318,7 +1318,7 @@ is a native workspace platform rather than a TUI redrawn inside one grid.
 Status: **candidate, non-normative**. Recorded from the user's
 "company / floor / workstation" model for multi-agent work (2026-09-13). It
 refines the spatial orchestration question in
-[OQ-058](../decisions/open-questions.md) and composes with the AI workspace
+[OQ-058](../../../decisions/open-questions.md) and composes with the AI workspace
 composition above. Technically this is a workspace-anchored (spatially
 anchored) multi-agent runtime: agent context is anchored in a persistent
 execution environment rather than only in conversation memory, and humans and
@@ -1349,15 +1349,15 @@ agents share that environment state instead of relaying tokens.
 - **Humans are co-workers.** A human occupies a panel on the same canvas, can
   take over or hand work back, and uses the same lease vocabulary.
 - **Boundary.** The panel lease, description, and handoff contract is tracked
-  as [OQ-083](../decisions/open-questions.md); role panels, event kinds, and
-  lifecycle coupling remain [OQ-058](../decisions/open-questions.md); the
+  as [OQ-083](../../../decisions/open-questions.md); role panels, event kinds, and
+  lifecycle coupling remain [OQ-058](../../../decisions/open-questions.md); the
   execution model and identifier relationships are tracked as
-  [OQ-084](../decisions/open-questions.md). No lease, description, roaming, or
+  [OQ-084](../../../decisions/open-questions.md). No lease, description, roaming, or
   handoff mechanism is implemented today.
 
 ## References
 
-- Bitty topic evidence this RFC extends: [Product vision](../product/vision.md), [Architecture Overview](../architecture/overview.md), [Core and Plugin Boundaries](../architecture/core-boundaries.md), [Plugin System](../extensibility/plugin-system.md), [Rich Content](../interfaces/rich-content.md), [CLI](../interfaces/cli.md), [Security Overview](../security/overview.md), [Threat Model](../security/threat-model.md), [P0 Acceptance Criteria](../security/p0-acceptance-criteria.md), [Technology Strategy](../project/technology-strategy.md).
+- Bitty topic evidence this RFC extends: [Product vision](../product/vision.md), [Architecture Overview](../architecture/overview.md), [Core and Plugin Boundaries](../architecture/core-boundaries.md), [Plugin System](../extensibility/plugin-system.md), [Rich Content](../interfaces/rich-content.md), [CLI](../interfaces/cli.md), [Security Overview](../../../security/overview.md), [Threat Model](../../../security/threat-model.md), [P0 Acceptance Criteria](../../../security/p0-acceptance-criteria.md), [Technology Strategy](../../../project/technology-strategy.md).
 - Prior RFCs this RFC composes with: [IPC and Agent RFC](ipc-agent-rfc.md), [Rich Presentation RFC](rich-presentation-rfc.md), [Plugin Platform RFC](plugin-platform-rfc.md), [Isolation Resource RFC](isolation-resource-rfc.md), [Configuration Model RFC](configuration-model-rfc.md), [CLI Contract RFC](cli-contract-rfc.md), [DevTools RFC](devtools-rfc.md).
-- Related deferred direction: [ADR 0008](../decisions/adrs/ADR-0008-headless.md) keeps headless daemon and remote UI work post-v1.0; [Reference Project Register](../project/reference-projects.md) defines how local snapshots are used as untrusted research evidence. The panel vision is not yet present on this branch, so no link is asserted here.
+- Related deferred direction: [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md) keeps headless daemon and remote UI work post-v1.0; [Reference Project Register](../../../project/reference-projects.md) defines how local snapshots are used as untrusted research evidence. The panel vision is not yet present on this branch, so no link is asserted here.
 - Provenance, non-normative: `tmp/research/chatgpt-2026-08-30-3.md` (research snapshot read 2026-08-30) supplied the candidate runtime directions; the local Hermes Agent snapshot at revision `dce2ecb8a9428aedf69e959bd15d7a9fa15eae01` (MIT) supplied corroborating observations from `README.md`, `AGENTS.md`, `agent/context_engine.py`, `agent/memory_provider.py`, `agent/memory_manager.py`, `hermes_state_search.py`, and `hermes_state_portability.py`. These sources are not Bitty dependencies or authority. The 2026-09-13 `CTX-0171` consolidation additionally used the user's AI-architecture research note snapshot `recording/research/010.md` (workspace scratch, read-only; renamed `010.md.completed` once consolidated); its additions remain candidate direction, not authority. The 2026-09-13 `CTX-0172` consolidation used the follow-up snapshot `recording/research/011.md` (workspace scratch, read-only; renamed `011.md.completed` once consolidated) for the native-service, role/model, growth-pipeline, and `.bitty/` directions; they remain candidate direction, not authority. The 2026-09-13 `CTX-0173` consolidation used the follow-up snapshot `recording/research/012.md` (workspace scratch, read-only; renamed `012.md.completed` once consolidated) for the tool-call batching and round-trip economy direction and the user-provisioned language-tool direction; they remain candidate direction, not authority.

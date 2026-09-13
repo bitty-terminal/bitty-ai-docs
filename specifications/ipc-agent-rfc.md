@@ -12,11 +12,11 @@ sidebar_order: 18
 # IPC and Agent RFC
 
 > Status: **accepted** on 2026-08-29 by the project initiator. This document defines the accepted bounded IPC framing, wire, auth, scopes, and Agent bounded messages, auth, consent, and streaming for
-> [OQ-018](../decisions/open-questions.md) at the design level; it closes [OQ-018](../decisions/open-questions.md). It does not describe implemented
+> [OQ-018](../../../decisions/open-questions.md) at the design level; it closes [OQ-018](../../../decisions/open-questions.md). It does not describe implemented
 > behavior, does not authorize shipped, stable, normative, or
 > compatibility-guaranteed behavior, and does not weaken any normative security control. Experimental implementation may exist as review evidence but carries no
 > compatibility promise beyond the accepted contract. Acceptance was per independent category-owner, docs-curator, and security-auditor review (CTX-0076) with P0 sign-off on 2026-08-29; see [P0 Review Sign-off](#p0-review-sign-off) and the
-> [P0 review checklist](../reviews/p0-review-checklist.md). The lifecycle is `Draft -> experimental review evidence -> Accepted (2026-08-29) -> normative`.
+> [P0 review checklist](../../../reviews/p0-review-checklist.md). The lifecycle is `Draft -> experimental review evidence -> Accepted (2026-08-29) -> normative`.
 
 ## Purpose and scope
 
@@ -47,11 +47,11 @@ In scope: the local-user IPC surface that powers `bitty ctl`, local MCP
 clients, and the local Agent adapter. Out of scope:
 
 - remote TCP or headless-daemon detach/reattach design
-  ([OQ-020](../decisions/open-questions.md));
+  ([OQ-020](../../../decisions/open-questions.md));
 - DevTools record/replay and debug-protocol versioning beyond the
-  IPC-mediated `debug.inspect` scope ([OQ-019](../decisions/open-questions.md));
-- image protocol decoding, storage, and renderer contracts ([OQ-008](../decisions/open-questions.md));
-- package sources, registry, and signature verification ([OQ-022](../decisions/open-questions.md));
+  IPC-mediated `debug.inspect` scope ([OQ-019](../../../decisions/open-questions.md));
+- image protocol decoding, storage, and renderer contracts ([OQ-008](../../../decisions/open-questions.md));
+- package sources, registry, and signature verification ([OQ-022](../../../decisions/open-questions.md));
 - per-plugin VM, queue, instruction, and memory enforcement mechanics beyond
   the IPC/MCP client ceilings (owned by
   [Isolation Resource RFC](isolation-resource-rfc.md) under OQ-014).
@@ -66,18 +66,18 @@ The following are normative and override every proposal here. If any mechanism,
 default value, or failure behavior below weakens them, the normative text wins
 and this RFC must be corrected:
 
-- [Security Overview](../security/overview.md): invariants 1 through 10,
+- [Security Overview](../../../security/overview.md): invariants 1 through 10,
   especially invariant 5 (IPC is local-user-only by default and every operation
   has an explicit scope) and invariant 6 (MCP and Agent access is read-only by
   default; terminal content remains untrusted observation data, never
   instruction text), capability families, trust-boundary table, and the rule
   that deferral to P1/P2 must not create a P0 bypass.
-- [Threat Model](../security/threat-model.md): boundary map
+- [Threat Model](../../../security/threat-model.md): boundary map
   `PTY bytes | Lua plugin | IPC / MCP -> Bitty core`, sections
   "IPC, CLI, and child processes" (T-09, R-011, R-012) and "MCP, Agents, and
   DevTools" (T-10, R-013), plus general requirements for bounded parsing (T-01)
   and fail-closed behavior.
-- [Security Risk Register](../security/risk-register.md): R-011 (IPC scope
+- [Security Risk Register](../../../security/risk-register.md): R-011 (IPC scope
   escalation), R-012 (credential leak via environment/SSH), R-013 (confused
   deputy via terminal output), R-014 (secret exposure via traces), plus R-001
   (parser bounds) where framing is analogous.
@@ -90,7 +90,7 @@ and this RFC must be corrected:
 This RFC defines the accepted mechanisms, thresholds, and verification plans for those
 normative gates. It introduces no new trust boundary, no bypass API, and no
 relaxation; per
-[documentation workflow](../development/documentation-workflow.md) change
+[documentation workflow](../../../development/documentation-workflow.md) change
 trigger rules, any future change to a trust boundary itself updates the
 security corpus first.
 
@@ -296,9 +296,9 @@ versioned separately per the CLI candidate contract.
   at connect via `GetNamedPipeClientProcessId` plus token SID comparison,
   equivalent to the Unix peer-credential check.
 - No TCP listener exists by default. Any future remote UI or headless daemon
-  TCP path belongs to [OQ-020](../decisions/open-questions.md) and requires its
-  own ADR with explicit authentication (mTLS or equivalent), not a silent
-  broadening of this transport.
+  TCP path belongs to [OQ-020](../../../decisions/open-questions.md) and
+  requires its own ADR with explicit authentication (mTLS or equivalent), not
+  a silent broadening of this transport.
 
 ### Child scopes
 
@@ -347,7 +347,7 @@ Notes:
 - `debug` scopes are fully distinct from IPC scopes; connecting to the debug
   transport grants none of them until explicit elevation.
 - The families align with the capability families in
-  [Security Overview](../security/overview.md) and the register in
+  [Security Overview](../../../security/overview.md) and the register in
   [Plugin Platform RFC](plugin-platform-rfc.md); the IPC surface reuses the
   same taxonomy but remains server-enforced independently of plugin grants.
 
@@ -487,9 +487,9 @@ Created -> Running <-> WaitingToolResult -> Completed
 
 Agent clients authenticate exactly like other IPC clients: via the current-user
 transport and peer-credential check. No API key or bearer token is introduced
-by this RFC. A future daemon or remote UI that needs cross-machine auth belongs
-to [OQ-020](../decisions/open-questions.md) and requires its own ADR; this RFC
-does not pre-create a credential that such a future would leak.
+by this RFC. A future daemon or remote UI that needs cross-machine auth
+belongs to [OQ-020](../../../decisions/open-questions.md) and requires its own
+ADR; this RFC does not pre-create a credential that such a future would leak.
 
 Per-client Agent identity is the pair `(authenticated UID, AgentId)`. Two agents
 from the same UID with different `AgentId` values have separate consent ledgers
@@ -553,7 +553,7 @@ exists only so the `Assistant -> ToolCall -> ToolResult` loop is testable
 without host dispatch. Real execution happens in the host/runtime that mediates
 Capability-checked dispatch, rate limits, per-client scopes, consent prompts, and
 audit — all of which belong to the runtime/IPC host under
-[OQ-018](../decisions/open-questions.md) and are not implemented inside
+[OQ-018](../../../decisions/open-questions.md) and are not implemented inside
 `bitty-agent`. This keeps the Agent crate pure-data and headlessly testable on
 both Linux CI and the `windows-latest` job, and keeps the future migration path
 `AgentMessage -> bitty_ipc::Frame` a thin adapter without cap redefinition.
@@ -638,11 +638,11 @@ Numbered for reference; none is implemented by this RFC alone:
 
 > Status: **candidate addendum**, non-normative. This section records direction
 > from the local research note `015.md`; the note is provenance, not evidence.
-> It does not reopen [OQ-018](../decisions/open-questions.md), does not change
+> It does not reopen [OQ-018](../../../decisions/open-questions.md), does not change
 > `frontmatter.status: accepted`, changes no accepted scope, and claims no
 > implementation. It tightens — never relaxes — the accepted rule that
 > `terminal.input` requires a separate per-client consent grant. Tracked as
-> [OQ-086](../decisions/open-questions.md).
+> [OQ-086](../../../decisions/open-questions.md).
 
 The accepted contract treats inspect, input, and manage as different scopes
 ([Authorization and scopes](#authorization-and-scopes)). This candidate adds a
@@ -664,7 +664,7 @@ exists, for the case where a terminal program is reading a secret without echo.
      only.
   2. _Destructive or privileged confirmation_ (echo on, command classified at
      high risk by the [AI Architecture](ai-architecture.md#command-risk-classification-and-syntax-level-audit-candidate)
-     candidate command audit, [OQ-087](../decisions/open-questions.md)): no
+     candidate command audit, [OQ-087](../../../decisions/open-questions.md)): no
      automatic reply; an explicit human decision is required.
   3. _Safe interactive prompt_ (echo on, no risk classification): an agent may
      auto-reply only under the accepted authority of its own dispatch and a
@@ -705,9 +705,9 @@ two differ.
 
 ## Programmable workspace IPC advantages
 
-> Status: **addendum** to the accepted contract of 2026-08-29. This section is a surgical addendum that does not reopen [OQ-018](../decisions/open-questions.md), does not change `frontmatter.status: accepted`, and does not claim daemon, session-persistence, or remote-UI implementation. It re-expresses the advantages that the programmable workspace direction in the [Workspace Compositor](workspace-compositor.md) (Draft) and the [Product Vision](../product/vision.md) draw from the accepted IPC surface below. Future Panel ownership belongs in a dedicated Panel contract; future CLI ownership belongs in the [CLI](../interfaces/cli.md) contract. Where this addendum mentions a long-term daemon, multi-window server, session save/restore, or SSH-tunnel remote use, that use is deferred per [ADR 0008 - Headless Daemon](../decisions/adrs/ADR-0008-headless.md) (post-v1.0, trust-boundary gate) and is described here only as an IPC-shaped candidate.
+> Status: **addendum** to the accepted contract of 2026-08-29. This section is a surgical addendum that does not reopen [OQ-018](../../../decisions/open-questions.md), does not change `frontmatter.status: accepted`, and does not claim daemon, session-persistence, or remote-UI implementation. It re-expresses the advantages that the programmable workspace direction in the [Workspace Compositor](workspace-compositor.md) (Draft) and the [Product Vision](../product/vision.md) draw from the accepted IPC surface below. Future Panel ownership belongs in a dedicated Panel contract; future CLI ownership belongs in the [CLI](../interfaces/cli.md) contract. Where this addendum mentions a long-term daemon, multi-window server, session save/restore, or SSH-tunnel remote use, that use is deferred per [ADR 0008 - Headless Daemon](../../../decisions/adrs/ADR-0008-headless.md) (post-v1.0, trust-boundary gate) and is described here only as an IPC-shaped candidate.
 
-This section consolidates programmable-workspace advantages from the untracked temporary local research file `chatgpt-2026-08-30-2.md`, including candidate IPC, workspace, and prior-art rationale. That file is an untrusted local research input outside the canonical repository, is not a canonical or reproducible evidence source, and is not supported by any line-level verification claim. For durable evidence and stable provenance, consult the [Reference Project Register](../project/reference-projects.md). The accepted contract and the security corpus override this temporary research where they conflict. Every candidate below reuses — and does not relax — the guarantees the accepted contract requires and defines: IPC is local-user-local by default (no TCP listener), MCP and Agent access is read-only by default, every operation has an explicit server-evaluated scope, peer credentials are checked before privileged work, framing is bounded (`256 KiB` frame, `512 KiB` in-flight, depth 32), and rate limits RC-9/RC-10 with shed-newest and attribution are required by that contract.
+This section consolidates programmable-workspace advantages from the untracked temporary local research file `chatgpt-2026-08-30-2.md`, including candidate IPC, workspace, and prior-art rationale. That file is an untrusted local research input outside the canonical repository, is not a canonical or reproducible evidence source, and is not supported by any line-level verification claim. For durable evidence and stable provenance, consult the [Reference Project Register](../../../project/reference-projects.md). The accepted contract and the security corpus override this temporary research where they conflict. Every candidate below reuses — and does not relax — the guarantees the accepted contract requires and defines: IPC is local-user-local by default (no TCP listener), MCP and Agent access is read-only by default, every operation has an explicit server-evaluated scope, peer credentials are checked before privileged work, framing is bounded (`256 KiB` frame, `512 KiB` in-flight, depth 32), and rate limits RC-9/RC-10 with shed-newest and attribution are required by that contract.
 
 The same composition intuition appears in the vision documents:
 
@@ -773,7 +773,7 @@ IPC transport alone does not guarantee process crash isolation or restart. A fut
 - **Resource isolation:** accepted per-client quotas, bounded channels, and chunk ceilings prevent a peer from growing host memory (T-01 defense via [Transport and bounded framing](#transport-and-bounded-framing) and [Rate limits and budgets](#rate-limits-and-budgets)).
 - **Permission isolation:** a future plugin process holding a socket handle would gain no authority beyond what the host grants per request (see [Authorization and scopes](#authorization-and-scopes)).
 
-Native in-process plugins (`dlopen`) remain rejected through P0/P1 per the trust-boundary text in this RFC and [ADR 0008](../decisions/adrs/ADR-0008-headless.md). WASM or a helper process with scoped IPC are candidate higher-isolation directions, not an implementation or restart guarantee.
+Native in-process plugins (`dlopen`) remain rejected through P0/P1 per the trust-boundary text in this RFC and [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md). WASM or a helper process with scoped IPC are candidate higher-isolation directions, not an implementation or restart guarantee.
 
 ### Candidate multi-language SDK and long-term compatibility rationale
 
@@ -874,7 +874,7 @@ Bitty state { windows, workspaces, panels, layouts, processes }
   restore  -> rehydrate bounded workspaces and panels
 ```
 
-Every deferred claim in this subsection is gated by [ADR 0008](../decisions/adrs/ADR-0008-headless.md): v1.0 ships single-process only, there is no `bittyd` binary, service file, autostart, or TCP listener; staged scope is detach/attach and persistent sessions with explicit caps on terminals per daemon, scrollback cells, image bytes, and aggregate memory; and the acceptance gate for any future daemon includes local peer-credential and scope parity at least as tight as RC-9/RC-10, secret minimization, and `bitty --safe` with the daemon disabled. No implementation claim is made by this addendum.
+Every deferred claim in this subsection is gated by [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md): v1.0 ships single-process only, there is no `bittyd` binary, service file, autostart, or TCP listener; staged scope is detach/attach and persistent sessions with explicit caps on terminals per daemon, scrollback cells, image bytes, and aggregate memory; and the acceptance gate for any future daemon includes local peer-credential and scope parity at least as tight as RC-9/RC-10, secret minimization, and `bitty --safe` with the daemon disabled. No implementation claim is made by this addendum.
 
 ### SSH-tunnel remote (deferred)
 
@@ -887,11 +887,11 @@ Local Bitty UI  --SSH tunnel / mTLS-->  Remote bitty-agent / daemon
   Remote Terminal  <--------------------  Remote PTY host
 ```
 
-The accepted baseline remains Unix socket `0700`/`0600` / Windows named pipe current-user ACL with no TCP listener by default ([Trust-boundary alignment](#trust-boundary-alignment) and [Authentication](#authentication)); remote `TCP` belongs to the explicit network-auth ADR described in [ADR 0008](../decisions/adrs/ADR-0008-headless.md) and is not a silent broadening of this transport. The remote rendering path, if ever accepted, would consume a bounded snapshot/damage stream per the [Rich Presentation RFC](rich-presentation-rfc.md) and [Workspace Compositor](workspace-compositor.md), not raw PTY bytes.
+The accepted baseline remains Unix socket `0700`/`0600` / Windows named pipe current-user ACL with no TCP listener by default ([Trust-boundary alignment](#trust-boundary-alignment) and [Authentication](#authentication)); remote `TCP` belongs to the explicit network-auth ADR described in [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md) and is not a silent broadening of this transport. The remote rendering path, if ever accepted, would consume a bounded snapshot/damage stream per the [Rich Presentation RFC](rich-presentation-rfc.md) and [Workspace Compositor](workspace-compositor.md), not raw PTY bytes.
 
 ### Candidate request plus event dual model (RPC plus Event Stream)
 
-The candidate shape for a future workspace is an `RPC + Event Stream` dual model, informed by prior art. It is an addendum only and does not reopen, amend, or expand the already-closed [OQ-018](../decisions/open-questions.md) contract, or accept these names:
+The candidate shape for a future workspace is an `RPC + Event Stream` dual model, informed by prior art. It is an addendum only and does not reopen, amend, or expand the already-closed [OQ-018](../../../decisions/open-questions.md) contract, or accept these names:
 
 - **RPC (request/response):** `panel.create`, `panel.close`, `panel.focus`, `workspace.create`, `workspace.switch`, `command.execute`, `terminal.spawn`, `terminal.write`.
 - **Events (async subscription):** `panel.created`, `panel.closed`, `panel.focused`, `workspace.changed`, `terminal.cwd_changed`, `terminal.command_started`, `terminal.command_finished`, `git.branch_changed`.
@@ -938,14 +938,14 @@ Hyprland IPC      ─┘
 
 | Prior art                                                                                                                                                                                                                      | What it proved viable for Bitty's workspace direction                                                                                                                                                       | How Bitty re-expresses it (without copying the wire)                                                                                                                                              |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **tmux** `server -> session -> window -> pane -> client` and `-C`/`-CC` control mode                                                                                                                                           | A long-lived per-user server owning multiple windows/panes with a `RPC + async Event Stream` text protocol; remote clients can map server windows/panes onto native UI (e.g. iTerm2 via tmux control mode). | Candidate input to future workspace and daemon design; multi-window daemon and session persistence remain deferred per [ADR 0008](../decisions/adrs/ADR-0008-headless.md).                        |
+| **tmux** `server -> session -> window -> pane -> client` and `-C`/`-CC` control mode                                                                                                                                           | A long-lived per-user server owning multiple windows/panes with a `RPC + async Event Stream` text protocol; remote clients can map server windows/panes onto native UI (e.g. iTerm2 via tmux control mode). | Candidate input to future workspace and daemon design; multi-window daemon and session persistence remain deferred per [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md).                  |
 | **kitty** remote control (`kitten @ launch`, `send-text`, `focus-window`, `ls` over a socket) and `panel` (Wayland layer-shell dock)                                                                                           | Lightweight `CLI -> IPC -> Panel Manager` path and terminal-powered desktop surfaces.                                                                                                                       | Candidate input to future CLI and Panel RFCs; `bitty msg`, `bittyctl`, and panel verbs are not accepted here.                                                                                     |
 | **WezTerm** `wezterm.mux` (`windows`, `tabs`, `panes`, `workspaces`, `domains`) and `wezterm cli` (`activate-pane`, `split-pane`, `spawn`, `get-text`, `send-text` via `$WEZTERM_UNIX_SOCKET`) with local/Unix/SSH/TLS domains | Programmable workspace, mux, and domain architecture with a discoverable Unix socket; strong precedent for environment-based discovery and multi-domain execution.                                          | Candidate input to future workspace, CLI, and remote-domain design; `BITTY_SOCKET` remains accepted only as the advisory identifier described earlier, not as acceptance of WezTerm-like methods. |
 | **Hyprland IPC** (`hyprctl dispatch`, `hyprctl clients`, `keyword`) and **Waybar** (`modules-left/center/right`)                                                                                                               | A compositor IPC for scripts, status bars, and plugins to observe and control tiling and workspaces.                                                                                                        | Candidate input to future Panel/CLI and Status System ownership; candidate `bittyctl` commands are not accepted here.                                                                             |
 
 The candidate thesis of the second research snapshot is preserved: the novelty, if any, is not a single row of that comparison but the composition of `Zellij`-style first-class non-PTY `Panel` and plugin UI, `kitty`-style remote control, `WezTerm`-style mux and workspace, `tmux`-style server and control mode, `Emacs`-style `Buffer + Window + Panel type` application model, and `Warp`-style integrated surface into the terminal emulator's own application model. The reference set for any future Panel RFC is therefore `Zellij Plugin API + tmux Control Mode + kitty Remote Control + Emacs Buffer/Window model` alongside the accepted IPC and plugin specs, studied without vendoring or wire-format copying. These are research leads, not accepted claims about Bitty's capabilities.
 
-The mapping clarifies the present versus deferred boundary: the local, scoped, bounded IPC and the candidate `Panel` and `PanelSurface` typing are being explored in the [Workspace Compositor](workspace-compositor.md) draft; future Panel and CLI ownership remains open. Daemon ownership, detach/reattach, persistent sessions, and network remote are not part of the accepted IPC contract and remain behind the [ADR 0008](../decisions/adrs/ADR-0008-headless.md) gate.
+The mapping clarifies the present versus deferred boundary: the local, scoped, bounded IPC and the candidate `Panel` and `PanelSurface` typing are being explored in the [Workspace Compositor](workspace-compositor.md) draft; future Panel and CLI ownership remains open. Daemon ownership, detach/reattach, persistent sessions, and network remote are not part of the accepted IPC contract and remain behind the [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md) gate.
 
 <!-- markdownlint-enable MD013 -->
 
@@ -1127,10 +1127,10 @@ Acceptance of this RFC on 2026-08-29 applies these same-change updates
   scope tables; candidate capability-group bullets are replaced by the accepted
   scope families; the `BITTY_SOCKET`/`BITTY_INSTANCE_ID` variables are documented
   as advisory-only identifiers, not credentials.
-- [Threat Model](../security/threat-model.md): the IPC/MCP and Agent sections
+- [Threat Model](../../../security/threat-model.md): the IPC/MCP and Agent sections
   link to this RFC for the accepted transport, framing, scope, and consent
   mechanisms; no new trust boundary is added.
-- [Security Overview](../security/overview.md): invariant 5 and 6 gain the
+- [Security Overview](../../../security/overview.md): invariant 5 and 6 gain the
   accepted framing and scope mechanism as their P0 implementation path (still
   requiring implementation evidence before any closure of P0 acceptance criteria).
 - [Isolation Resource RFC](isolation-resource-rfc.md): IR-D3 and RC-9/RC-10 are
@@ -1163,18 +1163,18 @@ These were out of this RFC's scope at draft and remain tracked as follow-up work
 
 ## Acceptance criteria
 
-This RFC is accepted on 2026-08-29 and closes [OQ-018](../decisions/open-questions.md) at the design level. The following criteria were satisfied per the [open-question register](../decisions/open-questions.md) close rule:
+This RFC is accepted on 2026-08-29 and closes [OQ-018](../../../decisions/open-questions.md) at the design level. The following criteria were satisfied per the [open-question register](../../../decisions/open-questions.md) close rule:
 
 1. Independent review by the security-auditor, category-owners, and docs-curator accepted the instance selection, transport and framing, wire and auth, scope families, rate limits RC-9/RC-10, Agent bounded messages, consent and streaming, and the verification plan without weakening any normative P0 gate.
-2. Affected registers were synchronized in the same change: [open-questions.md](../decisions/open-questions.md), [decision register](../decisions/index.md), [specifications README](../specifications/README.md), and [P0 review checklist](../reviews/p0-review-checklist.md) moved OQ-018 from `Draft` to `Accepted` per the close rule; [CLI](../interfaces/cli.md) and [threat model](../security/threat-model.md) now reference the accepted contract.
+2. Affected registers were synchronized in the same change: [open-questions.md](../../../decisions/open-questions.md), [decision register](../../../decisions/index.md), [specifications README](README.md), and [P0 review checklist](../../../reviews/p0-review-checklist.md) moved OQ-018 from `Draft` to `Accepted` per the close rule; [CLI](../interfaces/cli.md) and [threat model](../../../security/threat-model.md) now reference the accepted contract.
 3. No element weakens a normative P0 gate; any discovered conflict returns the conflicting clause to revision rather than downgrading the gate.
-4. Draft text in this file was updated to record acceptance date and initiator, frontmatter became `accepted`, and links from [Proposed Delivery Sequence](../product/proposed-delivery-sequence.md) and the [decision register](../decisions/index.md) reflect the accepted composition without claiming implementation.
+4. Draft text in this file was updated to record acceptance date and initiator, frontmatter became `accepted`, and links from [Proposed Delivery Sequence](../product/proposed-delivery-sequence.md) and the [decision register](../../../decisions/index.md) reflect the accepted composition without claiming implementation.
 
 Closes OQ-018: this RFC closes that open question at the design level; the register rows are updated per the open-question register rules. The lifecycle is `Draft -> experimental review evidence -> Accepted (2026-08-29) -> normative`.
 
 ## P0 Review Sign-off
 
-> P0 review per CTX-0076 tracks acceptance of OQ-018 via this RFC. Frontmatter is `accepted` and [open-questions.md](../decisions/open-questions.md) is updated per its close rule. This section records passing sign-off and closes OQ-018.
+> P0 review per CTX-0076 tracks acceptance of OQ-018 via this RFC. Frontmatter is `accepted` and [open-questions.md](../../../decisions/open-questions.md) is updated per its close rule. This section records passing sign-off and closes OQ-018.
 
 <!-- markdownlint-disable MD013 -->
 
@@ -1183,14 +1183,14 @@ Closes OQ-018: this RFC closes that open question at the design level; the regis
 | security-auditor                      | `bitty-security`  | pass    | R-011, R-012, R-013, R-014, T-09, T-10, T-01, P0-AC-016/017/018/019/020, 256 KiB framing, `SO_PEERCRED`/`LOCAL_PEERCRED`, scopes, RC-9/RC-10, untrusted-observation labeling, secret minimization                                                                                            | 2026-08-28 |
 | category-owner (security-and-quality) | `bitty-quality`   | pass    | Instance selection precedence, transport framing `256 KiB`/`512 KiB`, bounded channels `MAX_CHANNEL_CAPACITY` 256 / `MAX_PENDING_REQUESTS` 64 / `DEFAULT_TRANSPORT_CAPACITY` 64, wire envelope `v1`, method validation, auth, scopes, streaming, `bitty-ipc`/`bitty-agent` headless evidence | 2026-08-29 |
 | category-owner (architecture)         | `bitty-architect` | pass    | Wire protocol `v1`, scope families, Agent bounded messages and consent/streaming, failure semantics FS-IP1..FS-IP7, threat-model mapping complete                                                                                                                                            | 2026-08-29 |
-| docs-curator                          | `bitty-curator`   | pass    | Frontmatter `accepted`, lifecycle `Draft -> experimental review evidence -> Accepted (2026-08-29) -> normative`, links to [CLI](../interfaces/cli.md) and [Threat Model](../security/threat-model.md) and [P0 review checklist](../reviews/p0-review-checklist.md), English-only             | 2026-08-29 |
+| docs-curator                          | `bitty-curator`   | pass    | Frontmatter `accepted`, lifecycle `Draft -> experimental review evidence -> Accepted (2026-08-29) -> normative`, links to [CLI](../interfaces/cli.md) and [Threat Model](../../../security/threat-model.md) and [P0 review checklist](../../../reviews/p0-review-checklist.md), English-only | 2026-08-29 |
 
 <!-- markdownlint-enable MD013 -->
 
 <!-- markdownlint-disable MD013 -->
 
 As of 2026-08-29, the IPC and Agent contracts remain design contracts per
-[ADR 0003](../decisions/adrs/ADR-0003-core-workspace-topology.md) and the
+[ADR 0003](../../../decisions/adrs/ADR-0003-core-workspace-topology.md) and the
 [Proposed Delivery Sequence](../product/proposed-delivery-sequence.md);
 crate presence does not imply shipped behavior.
 
@@ -1206,7 +1206,7 @@ crate presence does not imply shipped behavior.
   IR-D3, RC-9, RC-10 (accepted, this RFC adopts them as the IPC/Agent
   contribution to that table).
 - P0 acceptance criteria source for the verification style:
-  [P0 Security Acceptance Criteria](../security/p0-acceptance-criteria.md).
+  [P0 Security Acceptance Criteria](../../../security/p0-acceptance-criteria.md).
 - Official prior art used as non-normative research leads:
   [Zellij plugins](https://zellij.dev/documentation/plugins.html),
   [Zellij plugin and pipe](https://zellij.dev/documentation/zellij-plugin-and-pipe.html),

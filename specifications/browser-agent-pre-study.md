@@ -29,7 +29,7 @@ sidebar_order: 28
 > (`bitty-terminal.project`, `Draft`, bundled-disabled). It proposes no
 > implementation, authorizes no shipped, stable, or compatibility-guaranteed
 > behavior, and does not weaken any normative control in the
-> [Security Overview](../security/overview.md), [Threat Model](../security/threat-model.md),
+> [Security Overview](../../../security/overview.md), [Threat Model](../../../security/threat-model.md),
 > [Isolation Resource RFC](isolation-resource-rfc.md), [Plugin Platform RFC](plugin-platform-rfc.md),
 > or [IPC and Agent RFC](ipc-agent-rfc.md).
 > The lifecycle is `Draft -> experimental review evidence -> Accepted -> Verified -> Compatible`
@@ -82,7 +82,7 @@ Out of scope and owned elsewhere:
   limits RC-9/RC-10, and the `AgentMessage`/`AgentSession` envelope
   ([IPC and Agent RFC](ipc-agent-rfc.md));
 - daemon, session persistence across reboots, and remote UI trust boundaries
-  ([ADR 0008 - Headless](../decisions/adrs/ADR-0008-headless.md), post-v1.0).
+  ([ADR 0008 - Headless](../../../decisions/adrs/ADR-0008-headless.md), post-v1.0).
 
 This document is the research deposit for CTX-0120
 (`Priority: P2 | Area: product | Labels: docs,area:product,P2 | Milestone: v0.1.0 | RFC: OQ-014 | Task: CTX-0120`)
@@ -92,7 +92,7 @@ and does not close an open question on its own.
 
 | Area                 | Accepted fact (cite)                                                                                                                                                                                                                                                                                                             | How this research reconciles (candidate)                                                                                                                                                                                                                                                                                           |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Topology             | One-way DAG, `Terminal -> Snapshot` only, 16-crate workspace per [ADR 0003](../decisions/adrs/ADR-0003-core-workspace-topology.md) (OQ-005)                                                                                                                                                                                      | Browser `WebView` and Agent `AgentSession` would live in `bitty-runtime`/`bitty-ui` or `bitty-agent` plus `bitty-mcp` without reversing DAG edges; `bitty-vt`/`bitty-term-state`/`bitty-pty` stay dependency-free; `bitty-render` reads only snapshots and scene, not web process handles                                          |
+| Topology             | One-way DAG, `Terminal -> Snapshot` only, 16-crate workspace per [ADR 0003](../../../decisions/adrs/ADR-0003-core-workspace-topology.md) (OQ-005)                                                                                                                                                                                | Browser `WebView` and Agent `AgentSession` would live in `bitty-runtime`/`bitty-ui` or `bitty-agent` plus `bitty-mcp` without reversing DAG edges; `bitty-vt`/`bitty-term-state`/`bitty-pty` stay dependency-free; `bitty-render` reads only snapshots and scene, not web process handles                                          |
 | Terminal lifecycle   | `TerminalRegistry` as single owner of PTY handles, `TerminalId != ViewId`, `RuntimeId`/`PersistentId`/`Generation`, bounded `64`/`32`/`16` per [TerminalRegistry and View Lifecycle Contract](terminal-registry-view-lifecycle-rfc.md) (CTX-0117, `6f30c2f`)                                                                     | Browser and Agent panels reuse the same generation rule for `PanelId` plus `BrowserSurfaceId` or `AgentId`; no Browser or Agent panel holds a PTY file descriptor; terminal-backed Agent context consumes snapshots, not PTY fd, and Browser navigation reuses `LogicalRect` per `View` without PTY resize                         |
 | Workspace compositor | `Instance -> Window -> Workspace -> LayoutTree -> View` with `H`/`V` `ratio [0.1,0.9]`, Core-owned `gaps_in 4`/`gaps_out 6`/`border 2`/`radius 6`, `LayoutProvider` pure `propose` per [Workspace Compositor Specification](workspace-compositor.md) (CTX-0118, `c3a2928`)                                                       | Browser and Agent are candidate extensions of `View` content (`ViewContent::Browser(BrowserSurfaceId)` already accepted as `Browser` view type, and `ViewContent::Panel(PanelId)` candidate from panel pre-study for Agent); no new tiling primitive; decoration stays Core-owned                                                  |
 | Panel Runtime        | `PanelId` versus `ViewId`/`TerminalId` with generation, command `owner.name:command`, overlay `4+1`, focus MRU no Lua hot path, bus `owner.name:topic` `8 KiB`/`32`/`64`/`1024`/`8192` `DropOldest` per [Panel Runtime and Event Bus Pre-Study](panel-runtime-pre-study.md) (CTX-0119, `9032d1e` / requested `05e8803`)          | Browser uses Panel lifecycle `Declared -> Created -> Mounted -> Focused -> Suspended -> Disposed` with `browser.embed` gate; Agent uses same lifecycle plus `AgentSession` plus Event Bus observation; both fit inside PR-1..PR-12 without new global budget; `PanelRuntime` remains per-Window host, no cross-window topic escape |
@@ -107,13 +107,13 @@ a requirement between owners and does not create a bypass.
 
 ## Normative sources this pre-study does not weaken
 
-- [Security Overview](../security/overview.md) (invariants 1-10, especially 2 deny-by-default, 3 presentation never Terminal Truth, 4 no hot-path Lua, 6 MCP read-only with untrusted observation, 7 bounded inputs, 9 secret minimization).
-- [Threat Model](../security/threat-model.md) (T-01 parser wedge, T-06 plugin escape, T-07 starvation, T-09 IPC takeover, T-10 MCP confused deputy, T-13 Terminal Truth).
+- [Security Overview](../../../security/overview.md) (invariants 1-10, especially 2 deny-by-default, 3 presentation never Terminal Truth, 4 no hot-path Lua, 6 MCP read-only with untrusted observation, 7 bounded inputs, 9 secret minimization).
+- [Threat Model](../../../security/threat-model.md) (T-01 parser wedge, T-06 plugin escape, T-07 starvation, T-09 IPC takeover, T-10 MCP confused deputy, T-13 Terminal Truth).
 - [Core and Plugin Boundaries](../architecture/core-boundaries.md) and [Architecture Overview](../architecture/overview.md).
 - [Terminal State RFC](terminal-state-rfc.md), [Rich Presentation RFC](rich-presentation-rfc.md), [Configuration Model RFC](configuration-model-rfc.md).
 - [Plugin Platform RFC](plugin-platform-rfc.md) (OQ-011/012/013) and [Isolation Resource RFC](isolation-resource-rfc.md) (OQ-014).
-- [IPC and Agent RFC](ipc-agent-rfc.md) (OQ-018) and [ADR 0008 Headless](../decisions/adrs/ADR-0008-headless.md).
-- [Default Distribution RFC](../specifications/default-distribution-rfc.md) (OQ-002), [Package Lifecycle RFC](package-lifecycle-rfc.md) (OQ-021), [Package Follow-up RFC](package-followup-rfc.md) (OQ-022/026-029).
+- [IPC and Agent RFC](ipc-agent-rfc.md) (OQ-018) and [ADR 0008 Headless](../../../decisions/adrs/ADR-0008-headless.md).
+- [Default Distribution RFC](default-distribution-rfc.md) (OQ-002), [Package Lifecycle RFC](package-lifecycle-rfc.md) (OQ-021), [Package Follow-up RFC](package-followup-rfc.md) (OQ-022/026-029).
 
 ## Terminology
 
@@ -407,7 +407,7 @@ never escapes its `(AgentId, generation)` owner without an explicit read grant.
 
 Before any release, the `v1` enabled set is empty: a fresh install with no user
 configuration starts core only, identical to `bitty --safe`, per
-[Default Distribution RFC](../specifications/default-distribution-rfc.md) (OQ-002).
+[Default Distribution RFC](default-distribution-rfc.md) (OQ-002).
 Bundled presence adds zero active VM, queue, handler, or resident cost until
 explicitly enabled; enabling is a user action with capability consent and the
 permission-diff gate (R-016) for capability-increasing updates. The following
@@ -432,7 +432,7 @@ Rules under research for the matrix:
    surfaces, handlers, timers, and queues are zero until the user explicitly
    enables them via `ConfigPlan` with per-capability consent.
 2. Promotion criteria for any future enabled-by-default addition remain the six
-   gates from [Default Distribution RFC](../specifications/default-distribution-rfc.md):
+   gates from [Default Distribution RFC](default-distribution-rfc.md):
    lightweight budget proof (PB-1 `<= 100 ms` p50 cold start, PB-2 `<= 80 MiB`
    idle one window, PB-7 `<= 1%` CPU idle must hold), capability minimality,
    failure isolation (no crash of host), hot-path exclusion (`Platform -> Router`
@@ -602,16 +602,16 @@ and performance review before it can be claimed.
 
 | Excluded                                                                          | Why deferred                                                                                                                                      | What this research does instead                                                                                                         |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Daemon `bittyd` and session persistence across reboots                            | Post-v1.0 per [ADR 0008](../decisions/adrs/ADR-0008-headless.md); trust boundary not reviewed here                                                | Process-scoped Browser plus Agent only; persistence is at most `AgentWorkspace` rehydration with explicit `agent.memory:persist`        |
+| Daemon `bittyd` and session persistence across reboots                            | Post-v1.0 per [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md); trust boundary not reviewed here                                          | Process-scoped Browser plus Agent only; persistence is at most `AgentWorkspace` rehydration with explicit `agent.memory:persist`        |
 | Remote UI and cross-host MCP transport                                            | New trust boundary with cross-machine auth (`mTLS` or SSH tunnel) not evaluated                                                                   | No remote wire format, no TCP listener, no remote capability mapping; MCP reuses current-user IPC framing if needed                     |
 | Multi-window as global server for Browser or Agent                                | Window stays native OS object per [Workspace Compositor](workspace-compositor.md); orchestrating many windows adds focus, DPI, and lifetime costs | One `Instance` owns `Window`s; Browser and Agent work is single-window first; cross-window topics deferred                              |
-| WASM or helper-process strong isolation for Browser or Agent beyond embedder      | Native in-process plugins remain rejected per [Threat Model](../security/threat-model.md); WASM/helper design needs its own RFC                   | In-process Lua VM isolation per OQ-014 remains the only in-process boundary; Browser embedder already owns a web process                |
+| WASM or helper-process strong isolation for Browser or Agent beyond embedder      | Native in-process plugins remain rejected per [Threat Model](../../../security/threat-model.md); WASM/helper design needs its own RFC             | In-process Lua VM isolation per OQ-014 remains the only in-process boundary; Browser embedder already owns a web process                |
 | Browser per-window process budget beyond RC-3 aggregate                           | `browser.embed` is already high-risk plus `Browser` view type already requires dedicated isolation; new ceiling needs its own RFC                 | Browser surfaces reuse `browser.embed` gate and existing RC-3 aggregate; BA-1 `8` panels is the only Browser ceiling here               |
 | Agent autonomous browsing or navigation without user-initiated `browser.navigate` | Agent-driven `file://` or cross-origin `https` without explicit `browser.navigation` plus destination consent would bypass Browser isolation      | Agent may request navigation only through `browser.navigate` with the same capability and allowlist gate as any panel                   |
 | Persistent Agent memory by default                                                | Default persistence would carry secrets across restarts; `agent.memory:persist` plus `0600` plus `7`-day retention needs explicit consent         | Ephemeral `32` turns plus `AgentWorkspace` `64`/`2 MiB`; persistence is opt-in, counted, and wipe-verified                              |
-| New global file, network, or process ambient for Lua or Agent                     | Violates [Security Overview](../security/overview.md) invariant 2 and T-10                                                                        | Browser and Agent obtain those only via explicit `fs.read:PROJECT_GLOB`/`network.connect:DESTINATION`/`process.spawn:CONSTRAINT`        |
+| New global file, network, or process ambient for Lua or Agent                     | Violates [Security Overview](../../../security/overview.md) invariant 2 and T-10                                                                  | Browser and Agent obtain those only via explicit `fs.read:PROJECT_GLOB`/`network.connect:DESTINATION`/`process.spawn:CONSTRAINT`        |
 | New hot-path Agent pre-encode interception                                        | Would put Lua or Agent on the hot path per [Input and Pointer Contract](input-pointer-rfc.md)                                                     | Agent observes via commands, `focus.changed` plus bus observation only, never via hot-path interception                                 |
-| Distribution or marketplace ownership (`bitty-dev`, `LazyBitty`, `awesome-bitty`) | Owned by [Default Distribution RFC](../specifications/default-distribution-rfc.md) and future panel distribution RFC                              | Research notes presets as configuration composition, not as a new bundled-enabled set; Browser and Agent are not bundled before release |
+| Distribution or marketplace ownership (`bitty-dev`, `LazyBitty`, `awesome-bitty`) | Owned by [Default Distribution RFC](default-distribution-rfc.md) and future panel distribution RFC                                                | Research notes presets as configuration composition, not as a new bundled-enabled set; Browser and Agent are not bundled before release |
 
 Claiming any excluded behavior by citing this pre-study is a documentation
 hygiene violation. Cross-document references must preserve the deferred status.
@@ -655,8 +655,8 @@ This research creates no ambient authority and does not weaken any P0 gate:
 
 All controls above are candidate until the implementing tasks deliver focused
 tests, fuzz corpora, and independent security-auditor review per
-[P0 Acceptance Criteria](../security/p0-acceptance-criteria.md) and the
-[Risk Evidence RFC](../specifications/risk-evidence-rfc.md).
+[P0 Acceptance Criteria](../../../security/p0-acceptance-criteria.md) and the
+[Risk Evidence RFC](risk-evidence-rfc.md).
 
 ## Reconciliation with Panel Runtime, Project plugin, and Workspace Compositor
 
@@ -718,7 +718,7 @@ plus Workspace Compositor without revising them:
   `64`/`2 MiB`, conversational `32`/`64 KiB`, plus empty `v1` enabled set (BA-11)
   as sibling ceilings that fit inside the same validation and do not silently clamp.
 - **Exclusions**: daemon, remote UI, and live PTY migration remain deferred per
-  [ADR 0008](../decisions/adrs/ADR-0008-headless.md) and per the explicit
+  [ADR 0008](../../../decisions/adrs/ADR-0008-headless.md) and per the explicit
   exclusion tables of both accepted contracts plus the draft panel pre-study;
   this research preserves those deferrals and introduces no cross-process or
   cross-window Browser or Agent transfer.
@@ -818,8 +818,8 @@ This research pre-study is **draft** (`Draft` not `Accepted`/`Verified`, no
 experimental implementation, not `Compatible`) and must not be cited as
 shipped, stable, or compatibility-guaranteed behavior. Remaining open items
 above require follow-up RFCs or tasks per the
-[documentation workflow](../development/documentation-workflow.md) and
-[open-question register](../decisions/open-questions.md).
+[documentation workflow](../../../development/documentation-workflow.md) and
+[open-question register](../../../decisions/open-questions.md).
 
 ## References
 
