@@ -399,6 +399,8 @@ read.
 - [Context Management Architecture](context-management.md) (Draft): session
   journal, projection, and multi-level pipeline this proposal refines for
   prefix stability.
+- [Prompt Layering Design](prompt-layering-design.md) (Draft): prompt-text
+  layering whose stable-before-dynamic assembly order aligns with this design.
 - [v0.1 Implementation Profile](implementation-profile-v0.1.md) (Draft):
   L0+L1 scope gate marking Planner, epoch, and L2+ material as later
   proposals.
