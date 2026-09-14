@@ -217,6 +217,235 @@ retention, and replay-contract choices stay with AIQ-51 through AIQ-5C, and
 any durable recording stays under PP-4 (No on-disk persistence without
 consent) with PP-2 (Typed redaction).
 
+## Provider and transport separation
+
+This section distills only the `bitty-ai`/network-relevant tail of workspace
+research `029.md.completed` (lines 1574-2018 of 2018 lines,
+`sha256:c3c71ae509850c7383e1b89bb03c81761365327108fa3fc1efe996feaae1dcc3`).
+
+Verification:
+
+```text
+sha256sum $BITTY_WORKSPACE/recording/research/029.md.completed
+wc -l $BITTY_WORKSPACE/recording/research/029.md.completed
+```
+
+Expected: the hash above with `2018` lines. The source is written in Chinese
+and is preserved untranslated under its existing name; this section is an
+English critical distillation, not a translation. The source file was already
+marked `.completed` by the sibling track and is shared with the
+terminal-docs track; it is intentionally not renamed. Lines 1-1573
+(`bitty-core` network-free shape, plugin-via-git) are `bitty`-side and are
+excluded here: the terminal-docs repository owns them. Within lines
+1574-2018, every `bitty`-side row (terminal core, Lua plugin gateway, weather
+plugin, Plugin Manager external git) is marked out of scope below; this
+section decides only the `bitty-ai` side. The tail names no crate versions;
+every provider name, transport kind, and endpoint shape below is a
+point-in-time observation from September 2026, never a pin or approval.
+
+Duplicate-check outcome: the kernel-no-network rule (Kernel principle), the
+consolidated provider adapter map (Provider adapter), and the MSRV decision
+points above already cover this document's prior surface. This section adds
+only the delta: four-layer provider/transport layering with an `HttpTransport`
+sketch and test transports, a feature-flag isolation sketch, shared-transport
+with separate permission models, a unified internal model protocol as future
+direction, and draft dispositions for the tail's three no-network rules. It
+fits here because each item is a dependency-boundary facet of the same
+std-only kernel proposal; no new specification is created and no navigation
+change is needed. Everything below is a post-v0.1 proposal, not a
+commitment. The v0.1 posture is restated, not weakened: v0.1 runs behind a
+`FakeProvider` with no network access in v0.1 code paths per the
+[v0.1 Implementation Profile](implementation-profile-v0.1.md).
+
+### Agent to transport layering as direction
+
+The tail proposes (lines 1574-1674) a four-layer shape rather than letting
+the agent call an HTTP client directly:
+
+```text
+Agent
+  ↓
+Model abstraction
+  ↓
+Provider
+  ↓
+Transport
+```
+
+The rationale (lines 1637-1652) is that not every provider needs the public
+internet. Observed transport kinds from the source, unverified here: OpenAI,
+Anthropic, Gemini, and OpenRouter over HTTPS; Ollama, LM Studio, and
+`llama.cpp` over localhost HTTP or a local process; embedded and mock
+providers with no network at all. No endpoint URL, port, or protocol version
+is adopted by this section.
+
+The tail sketches two async provider traits (lines 1613-1631), `Provider`
+with `complete` and `LanguageModel` with `stream`. Judgment: both sketches
+are future direction only. The current runtime keeps its sync provider-turn
+shape (`ProviderTurn`/`Fragment` lineage in the experimental slice,
+`FakeProvider` with no network in v0.1); no async runtime, HTTP client, or
+TLS stack enters `bitty-ai-runtime` now. Any async adoption needs its own
+reviewed contract, OQ resolution, and implementation evidence, consistent
+with the split-only-on-real-boundary sequencing.
+
+The tail's crate-boundary sketch (lines 1777-1822: `bitty-ai-core`,
+`bitty-ai-agent`, `bitty-ai-tools`, `bitty-ai-context`,
+`bitty-ai-provider-api`, per-vendor provider crates,
+`bitty-ai-transport-http`) is illustrative future shape, not a plan. Stale
+`bitty-ai-core` crate naming below is translated to the current
+`bitty-ai-runtime` single-crate scope; the former core crate name is deleted
+on the implementation track per AI-0011 (not verified here). The
+anti-pattern stays: no `bitty-ai-runtime` depending on `reqwest`, directly
+or transitively, because every dependent would then inherit the HTTP/TLS
+tree. Per-vendor splits happen only on genuinely divergent lifecycles,
+release cadences, or feature sets.
+
+### HttpTransport split and test transports
+
+The tail proposes (lines 1678-1733) separating vendor logic from HTTP
+mechanics so `OpenAiProvider` owns protocol mapping while an `HttpTransport`
+abstraction owns bytes on the wire, with `ReqwestTransport`,
+`CurlTransport`, `MockTransport`, `ProxyTransport`, and `RecordedTransport`
+as future backends. Accepted as test-value direction, post-v0.1 only:
+
+```rust
+trait HttpTransport {
+    async fn request(
+        &self,
+        request: HttpRequest,
+    ) -> Result<HttpResponse>;
+}
+
+struct OpenAiProvider<T: HttpTransport> {
+    transport: T,
+}
+```
+
+Unit tests would then drive `Agent` through `OpenAIProvider` over a
+`MockHttpTransport` or `RecordedTransport` without reaching a vendor
+endpoint. No transport trait, backend, or vendor crate is adopted now; each
+needs its own contract, redaction evidence under PP-2 (Typed redaction),
+and fail-closed tests showing no ambient filesystem, process, or network
+authority leaks past MP-3 (Local-first default) and AG-4 (Least privilege
+at dispatch).
+
+### Feature-flag isolation sketch as direction
+
+The tail sketches (lines 1737-1773) Cargo features such as
+`provider-openai`, `provider-anthropic`, and `http-native`, so a local-only
+build like `cargo build --no-default-features --features provider-ollama`
+yields agent, tools, context, and Ollama with no public-internet client, and
+a future Unix-socket or subprocess Ollama path could drop the HTTP client
+entirely. Recorded as direction only: no feature names, crate names, or
+default-feature choices are adopted, and the sketch does not authorize
+removing or adding any dependency. Any future flag layout must preserve the
+v0.1 zero-new-dependency gate until its own increment explicitly adopts an
+adapter.
+
+### Shared transport implementation, separate permission models
+
+The tail proposes (lines 1826-1894) sharing the transport implementation
+between plugin HTTP and AI providers while keeping their permission models
+separate: a plugin HTTP gateway with a permission layer (permission check,
+host allowlist, sandbox, rate limit, user consent) beside a trusted provider
+path for Bitty's own provider component. Judgment: only the `bitty-ai` half
+is in scope here. The `bitty`-side rows — weather plugin over `bitty.http`,
+the Lua plugin HTTP gateway, the `bitty-http-core` naming, and Plugin
+Manager external git — belong to the terminal-docs and plugins-docs tracks
+and are marked out of scope; nothing here decides them.
+
+On the `bitty-ai` side, "trusted" in the source means the provider does not
+pass through the plugin sandbox, not that it carries ambient authority. A
+post-v0.1 provider path still requires the accepted gates unchanged:
+MP-3 (Local-first default) for the network grant, MP-10 (API-key handling)
+for credential references with typed redaction, TB-3 (Validation before
+dispatch) and TB-4 (Capability and consent per tool) at the Tool Bus, AG-4
+(Least privilege at dispatch) at dispatch, and PP-2 (Typed redaction) with
+PP-4 (No on-disk persistence without consent) for any diagnostic, trace, or
+recorded transport payload. Sharing a transport implementation must never
+share or widen consent scope.
+
+### Unified internal model protocol as future direction
+
+The tail proposes (lines 1898-1983) a Bitty-internal protocol so the agent
+never handles vendor framing: providers differ in authentication, streaming
+protocol, tool-calling format, reasoning fields, usage accounting, and cache
+metadata, with future candidates named as observations (Claude Messages API,
+Gemini API, Responses API, OpenAI-compatible, local `llama.cpp`, Ollama, AWS
+Bedrock, Azure OpenAI, Vertex AI, custom enterprise endpoints). Each vendor
+stream (SSE, HTTP chunks, Anthropic events, OpenAI events, Gemini
+candidates) would be consumed inside the provider adapter and re-emitted as
+a uniform event stream over a uniform request shape, sketched in the source
+as:
+
+```rust
+struct ModelRequest {
+    messages: Vec<Message>,
+    tools: Vec<ToolDefinition>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
+}
+```
+
+```rust
+enum ModelEvent {
+    TextDelta(String),
+    ReasoningDelta(String),
+    ToolCallStart { /* ... */ },
+    ToolCallDelta { /* ... */ },
+    ToolCallEnd { /* ... */ },
+    Usage(Usage),
+    Finished,
+}
+```
+
+Recorded as future direction only. The current sync provider-turn shape
+stays; these async request/event sketches are not adopted, add no
+`ModelRequest` or `ModelEvent` type, and decide no streaming, tool-schema,
+or accounting semantics. Canonical serialization, stable-prefix ordering,
+cache-key, and routing-scope rules stay with AIQ-12 and AIQ-13; provider
+transport and bridge placement stay with AIQ-36 with generic execution
+ownership under AIQ-38; per-action authorization stays with AIQ-33. No new
+identifier is proposed: each facet reuses its existing OQ.
+
+### Draft dispositions for the tail's three no-network rules
+
+The tail closes (lines 1985-2018) with three rules and an expanded matrix.
+Recorded here as draft dispositions, translating stale naming and marking
+`bitty`-side rows out of scope. The source text, with `bitty-ai-core`
+translated in brackets:
+
+> 1. `bitty-core` has no network dependency.
+> 2. `bitty-ai-runtime` [`bitty-ai-core` in the source] has no network dependency.
+> 3. Network exists only behind explicit transport/provider boundaries.
+
+Dispositions:
+
+1. `bitty-core` has no network dependency: `bitty`-side, out of scope.
+   Terminal-docs owns it; recorded here only as a dependency of the
+   layering, not decided.
+2. `bitty-ai-runtime` has no network dependency: proposal rationale
+   consistent with the Kernel principle and the v0.1 `FakeProvider`
+   no-network posture, not a new normative requirement. The stale
+   `bitty-ai-core` crate name maps to the current `bitty-ai-runtime`
+   single crate, whose former core-crate name is deleted on the
+   implementation track per AI-0011 (not verified here).
+3. Network exists only behind explicit transport/provider boundaries:
+   proposal rationale consistent with dependency inversion and the adapter
+   boundary map, not a new normative requirement. Enforcement still flows
+   through the existing controls: MP-3 (Local-first default), MP-10
+   (API-key handling), TB-3 (Validation before dispatch), TB-4
+   (Capability and consent per tool), AG-4 (Least privilege at dispatch),
+   PP-2 (Typed redaction), and PP-4 (No on-disk persistence without
+   consent), which this section does not weaken.
+
+The expanded matrix (lines 1998-2014: terminal core without HTTP/TLS, AI
+runtime without HTTP/TLS, AI provider with optional HTTP, Lua plugin with
+optional network capability, Plugin Manager with external git) is treated
+the same way: the AI-runtime row restates the v0.1 posture as proposal
+rationale, the AI-provider row is a post-v0.1 proposal, and the
+terminal/plugin/manager rows are out of scope here.
+
 ## MSRV decision points are open, not actions
 
 The workspace baseline in the source is Rust `1.85` for both `bitty` and
