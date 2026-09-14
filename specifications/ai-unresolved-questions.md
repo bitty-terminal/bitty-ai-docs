@@ -1,0 +1,125 @@
+---
+title: AI Unresolved Questions
+description: Local research choices with feature prerequisites and proposed review routing
+category: specifications
+audience: mixed
+document_type: register
+status: draft
+website_publish: false
+sidebar_order: 22
+---
+
+# AI Unresolved Questions
+
+This local draft preserves 51 identifiers, including aliases, not 51 independent
+questions. It assigns no owners, release milestones or accepted global OQs.
+Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
+All non-alias choices remain open; no accepted decision is made here.
+
+## Blocking meaning and proposed routing
+
+**Prerequisite** blocks enabling the named feature until its mechanism and
+evidence satisfy the stated control. A reviewed safe profile may explicitly
+exclude that feature; no such release profile is selected here. **Design** is a
+choice for the named feature, not a general release blocker. **Scope** requires
+a release/profile decision before deriving milestone gates. These replace the
+unsupported global Yes/No classifications.
+
+Routing names are proposed reviewer domains, not assigned owners: AI runtime,
+terminal/IPC/panel, security, code intelligence, CarryCtx/lifecycle, plugin API,
+and standalone AI product. The commander must identify accountable owners before
+promotion. Required controls are not reopened: authentication, least privilege,
+consent, isolation, budgets, truthful disclosure and secret minimization remain
+mandatory. P0-AC-026 and AI PP-2/PP-4 require pre-queue/pre-write redaction and
+consented recording; open mechanisms cannot defer those controls.
+
+## Context management
+
+Details: [context management](context-management.md).
+
+| ID     | Open choice                                           | Blocking feature and rationale                                                   | Proposed routing               |
+| ------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------ |
+| AIQ-01 | Per-request versus incremental context generation     | Design: view cadence and invalidation                                            | AI runtime                     |
+| AIQ-02 | Compression backend selection                         | Design: routing within provider consent and budget                               | AI runtime, security           |
+| AIQ-03 | Artifact expiry and reference invalidation            | Prerequisite: retained artifacts must honor deletion and bounds                  | AI runtime, security           |
+| AIQ-04 | Selection priority versus durable retention authority | Prerequisite: pinning cannot override consent or expiry                          | AI runtime, security           |
+| AIQ-05 | Background maintenance scheduling/consistency         | Design: preserve bounded responsive admission                                    | AI runtime                     |
+| AIQ-06 | Re-expansion after projection compaction              | Design: only surviving authorized originals are recoverable; see AIQ-57          | AI runtime                     |
+| AIQ-07 | Cross-session memory retrieval mechanism              | Prerequisite: consent, freshness and deletion propagation                        | AI runtime, security           |
+| AIQ-08 | MCP schema cache invalidation                         | Prerequisite: stale schemas cannot authorize changed effects                     | AI runtime, security           |
+| AIQ-09 | Skill format/versioning and ecosystem compatibility   | Design: loading declarations grants no execution authority                       | AI runtime, plugin API         |
+| AIQ-10 | Task lifecycle authority and CarryCtx backend/handoff | Design: one lifecycle authority for integration; AIQ-56 is its persistence alias | AI runtime, CarryCtx/lifecycle |
+| AIQ-11 | Context injection-defense enforcement evidence        | Prerequisite: untrusted observations cannot control maintenance policy           | AI runtime, security           |
+
+## Commands and tools
+
+Details: [command/tool architecture](command-tool-architecture.md).
+
+| ID     | Open choice                                                  | Blocking feature and rationale                                                | Proposed routing                   |
+| ------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------- |
+| AIQ-31 | Trait/lint/review enforcement of Core/Lua split              | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
+| AIQ-32 | Workflow-to-AI-Core promotion review                         | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
+| AIQ-33 | Unified authorization/isolation backend                      | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
+| AIQ-34 | Command registration API and versioning                      | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
+| AIQ-35 | Git primitives versus high-level wrappers                    | Design: structured API or bounded authorized execution                        | AI runtime                         |
+| AIQ-36 | Native versus MCP tool transport and bridge placement        | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
+| AIQ-37 | Structured exec result schema                                | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
+| AIQ-38 | Generic execution and registry ownership across repositories | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
+
+## Agent coordination
+
+Details: [agent coordination](agent-coordination.md).
+
+| ID     | Open choice                                       | Blocking feature and rationale                                                        | Proposed routing                                |
+| ------ | ------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| AIQ-21 | Service compatibility-key validation/invalidation | Prerequisite: incompatible targets/overlays must not share state                      | AI runtime, code intelligence                   |
+| AIQ-22 | Cross-scope service non-disclosure mechanism      | Prerequisite: prove isolation or exclude sharing; filtering alone is not proof        | code intelligence, security                     |
+| AIQ-23 | Lease heartbeat and crash reconciliation          | Prerequisite: bounded supervised ownership cannot rely on destructors                 | AI runtime, terminal/IPC                        |
+| AIQ-24 | Atomic ancestor/global budget reservation         | Prerequisite: concurrent delegation cannot overspend or double-spend                  | AI runtime, security                            |
+| AIQ-25 | Measured depth/fan-out limits                     | Prerequisite: bounded delegation admission                                            | AI runtime, security                            |
+| AIQ-26 | Independent review evidence criteria              | Prerequisite: acceptance cannot derive from self-review/shared PASS                   | AI runtime, CarryCtx/lifecycle                  |
+| AIQ-27 | Context graph traversal/cycle mechanism           | Prerequisite: bounded retrieval under adversarial references                          | AI runtime, security                            |
+| AIQ-28 | Critical-message acknowledgement and recovery     | Prerequisite: assignment/approval/cancel cannot silently drop or imply effect success | AI runtime, CarryCtx/lifecycle                  |
+| AIQ-29 | Optional Panel/execution projection bindings      | Design: presentation movement cannot move execution targets                           | AI runtime, terminal/panel                      |
+| AIQ-2A | No-UI execution feature profile                   | Scope: bounded work versus persistent services needs explicit selection               | AI runtime, terminal/IPC, standalone AI product |
+| AIQ-2B | Supervisor crash recovery/adoption                | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
+| AIQ-2C | Interactive writer fencing                        | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
+
+## Code intelligence
+
+Details: [code intelligence](code-intelligence.md).
+
+| ID     | Open choice                                          | Blocking feature and rationale                                             | Proposed routing              |
+| ------ | ---------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------- |
+| AIQ-41 | Document overlay coordination                        | Prerequisite: conflicting buffers cannot silently share semantic state     | code intelligence             |
+| AIQ-42 | Alias of AIQ-22: privileged-server filtering         | Same prerequisite as AIQ-22; retained identifier, no independent closure   | code intelligence, security   |
+| AIQ-43 | Incomplete fingerprint handling                      | Prerequisite: disable generic reuse/coalescing when equivalence is unknown | code intelligence, security   |
+| AIQ-44 | Cache invalidation granularity                       | Prerequisite: stale inputs cannot produce a falsely current PASS           | code intelligence             |
+| AIQ-45 | Effectful coalescing equivalence/isolation mechanism | Prerequisite: every waiter has its own grant; otherwise disable coalescing | code intelligence, security   |
+| AIQ-46 | Syntax fallback disclosure format                    | Prerequisite: fallback must be distinguishable from semantic evidence      | code intelligence             |
+| AIQ-47 | Diagnostic rate limits and prioritization            | Prerequisite: bounded attributed subscriptions                             | code intelligence, security   |
+| AIQ-48 | Warm-service/restart policy                          | Design: bounded supervisor policy within required isolation limits         | code intelligence, AI runtime |
+
+## Persistence and evidence
+
+Details: [persistence/evidence](persistence-evidence.md).
+
+| ID     | Open choice                                                            | Blocking feature and rationale                                                              | Proposed routing                            |
+| ------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| AIQ-51 | Schema and transaction boundaries                                      | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
+| AIQ-52 | State reconstruction versus effect re-execution contract               | Prerequisite: replay must not silently rerun effects                                        | AI runtime, security                        |
+| AIQ-53 | Backend and optional search index                                      | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
+| AIQ-54 | Cross-store retention policy authority                                 | Prerequisite: host limits constrain user/tool preferences                                   | AI runtime, security                        |
+| AIQ-55 | Deletion/expiry and derived-record invalidation                        | Prerequisite: remove payloads, summaries, caches and indexes consistently                   | AI runtime, security                        |
+| AIQ-56 | Alias of AIQ-10: CarryCtx persistence integration                      | Same design classification as AIQ-10; backend/handoff facet, not separate lifecycle owner   | AI runtime, CarryCtx/lifecycle              |
+| AIQ-57 | Reconstruction after deletion, expiry or destructive journal reduction | Prerequisite: disclose missing evidence; projection-only compaction need not lose originals | AI runtime, security                        |
+| AIQ-58 | Per-reader evidence sharing enforcement                                | Prerequisite: cache references cannot leak broader authority                                | AI runtime, security                        |
+| AIQ-59 | Unknown effect reconciliation and retry eligibility                    | Prerequisite: event log alone grants neither exactly-once nor safe retry                    | AI runtime, terminal/IPC, security          |
+| AIQ-5A | Typed redaction markers and invalidation mechanism                     | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
+| AIQ-5B | Bounded authorized observability queries                               | Design: query needs and performance evidence; optional FTS                                  | AI runtime                                  |
+| AIQ-5C | Standalone AI persistence/release profile                              | Scope: neither ephemeral v0.1 nor post-1.0 deferral is decided                              | standalone AI product, AI runtime, security |
+
+AIQ-10/56 and AIQ-22/42 are stable aliases, not removed or renumbered IDs.
+Any promotion must reconcile all references and retain the alias mapping.
+Other overlapping topics (for example context priority and cross-store retention)
+retain their distinct facets; this register claims no count of independent OQs.

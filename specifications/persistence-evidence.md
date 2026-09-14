@@ -1,0 +1,157 @@
+---
+title: Persistence and evidence architecture
+description: Draft journal evidence projection indexing and replay tradeoffs under mandatory privacy controls
+category: architecture
+audience: contributor
+document_type: specification
+status: draft
+website_publish: false
+sidebar_order: 34
+---
+
+# Persistence and evidence architecture
+
+This draft compares session journals, execution evidence and event-oriented
+storage. These are overlapping design dimensions, not mutually exclusive
+backends. No schema, backend, release milestone or persistence requirement is
+selected here. The terminal architecture's historical post-1.0 AI scope does
+not settle standalone `bitty-ai` release requirements. An ephemeral initial
+profile and durable recovery are alternatives needing an explicit scope decision.
+
+**Draft relationships:** [Context management](context-management.md),
+[agent coordination](agent-coordination.md), and
+[code intelligence](code-intelligence.md). These drafts accept no mechanisms.
+
+## Source provenance
+
+- **Original recording 022:** workspace-relative
+  `recording/research/022.md.completed`, SHA-256
+  `f23ef66ec262e6f429a04b190926a82ac45f614536c6f3e4003a2b2bcebbc52f`,
+  1,368 lines. Lines 460-518 propose session versus projection; 716-778
+  discuss compaction with retained entries. Unconditional retention is corrected
+  below, not adopted from the recording.
+- **Original recording 021:** `recording/research/021.md.completed`, SHA-256
+  `b6607d330887f42133e989be70dd4791aaac0ec1723441d01461fb9631403da9`,
+  3,378 lines. Lines 262-456 motivate lint/build sharing and revision caches.
+- **Critical synthesis:** [research 021, evidence reuse](research/research-distillation-021.md#lint-build-test-and-evidence-reuse).
+  The imported CTX-0007 draft's lines 280-309 contain the candidate eligibility
+  sequence and scheduling analysis. These are synthesis additions, not recording
+  022 lines 280-309, and not proof of any upstream or Bitty implementation.
+- **Earlier recordings:** [013/017/018 coverage ledger](research/research-coverage-ledger.md#source-identity)
+  binds full hashes and topic ranges. In particular, 018:470-527 and 602-654
+  discuss session/events and SQLite/FTS5 respectively. Storage/index proposals
+  are distinct from replay guarantees.
+- **Separately inspected upstream:** Hermes Agent at
+  `b6b53c69a6ed49cb099cf1bfe76b5e6edd718e5a`,
+  `agent/turn_tool_round.py:45-140` (`run_tool_round`), MIT in `LICENSE:1-21`.
+  It stages and persists an assistant message before effects and stops the round
+  on persistence failure. This observation is recorded in the
+  [primary-source ledger](research/research-distillation-013-017-018.md#primary-source-inspection-ledger),
+  not in recording 022. It does not establish exactly-once effects, complete
+  event sourcing, FTS5 requirements or Bitty behavior. Read-only reinspection
+  on 2026-09-14 executes no upstream code.
+
+## Privacy and retention boundary
+
+The normative security corpus, especially P0-AC-026, overrides every recording
+example. [AI Architecture PP-2/PP-4](ai-architecture.md#privacy-first)
+reconciles pre-queue typed redaction and consent for disk recording with that
+baseline. A bounded in-memory session and consented durable storage are distinct.
+
+Completeness or losslessness means only fidelity to **authorized, redacted,
+still-retained records**. It never promises capture of all conversation, file
+reads, input or raw logs. Input recording is off by default and separately opt-in;
+clipboard and raw environment are absent by default. Durable recording needs
+applicable explicit consent, minimization, redaction before queue/write, user-only
+storage and exact export preview. Consent does not authorize unredacted secrets.
+
+Retention is bounded. Deletion/expiry propagates to payloads, evidence, derived
+summaries, indexes, caches and referenced artifacts. Tombstones preserve only
+permitted absence metadata, not deleted sensitive content. Re-expansion returns
+typed unavailable for missing records; neither backup recovery nor replay may
+resurrect deleted, expired or never-recorded content. Logical immutability does
+not override deletion. The exact propagation and reconstruction protocol is open,
+but privacy controls are not optional pending that choice.
+
+## Design dimensions
+
+| Dimension              | Candidate meaning                                                                                      | Limit                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| Journal representation | Ordered, append-oriented session entries, including retained conversation and tool evidence references | Completeness limited by consent, redaction, retention and capture bounds         |
+| Context projection     | Selected working set or summary built from authorized sources                                          | Compaction changes provider input, not necessarily journal bytes                 |
+| Execution evidence     | Results, input fingerprints, execution identity, completeness and attribution                          | May be independent of any conversation, shared only under reader authorization   |
+| Storage backend        | SQLite, structured files, append-oriented log or hybrid                                                | No backend selected; transaction and failure semantics need evidence             |
+| Search index           | Optional FTS5 or another index over retained fields                                                    | An event log does not require full-text search; deletion must invalidate indexes |
+| Replay/reconstruction  | Rebuild supported state from retained ordered records                                                  | Not a permission to rerun tools; no automatic exactly-once or rollback guarantee |
+
+### Session journal and projection
+
+The journal proposal separates captured facts from the next provider view.
+Structured outputs, deduplication, selective summaries, compaction entries and
+provider-native compression are candidate projection operations. Projection
+compaction is compatible with replay when the original journal is retained.
+Only destructive journal reduction, deletion, expiry or missing records limit
+reconstruction. A summary cannot recreate omitted bytes or certify original tool
+outcomes. Backend choice and recovery contract remain open.
+
+### Execution evidence and reuse
+
+Evidence may be stored in a journal, referenced by events, or held separately;
+it is not necessarily a subset of a conversation event log. A result records an
+execution identity, fingerprint, tool/adapter version, outcome, exit state,
+timestamps, completeness and retained evidence references. A candidate sequence:
+
+1. Validate caller, captured target/generation, effect class, budgets and consent.
+2. Resolve a bounded input manifest and reuse policy. Unknown relevant inputs
+   disable generic caching and effectful coalescing.
+3. Coalesce only proven compatible authorized work, with independent waiter
+   cancellation and distinct per-request attribution.
+4. Record bounded redacted outcome metadata, durably only where consented.
+5. Reauthorize each reader and validate freshness before delivery; disclose
+   `reused from execution` versus `executed now`.
+
+Fingerprinting includes untracked/generated/deleted inputs, submodule and symlink
+state, overlays, tool identity/version, argv, target/cwd, dependency resolution,
+environment identity and isolation policy. See [code intelligence](code-intelligence.md#verification-fingerprinting)
+for the full proposal and complexity. Mutable-tree checks cannot prove a coherent
+snapshot. Cache hits are not grants, and cached PASS is not independent approval.
+
+### Event-oriented storage and recovery
+
+An ordered event representation can support state reconstruction, with or without
+SQL or full-text indexing. Durable intent before an effect is a useful upstream
+observation, not sufficient evidence of exactly-once execution. A crash between
+an effect and acknowledgement produces `Unknown`; inspect state or obtain user
+direction before retry. Cancellation before dispatch prevents effects from
+starting; cancellation after dispatch cannot promise reversal. State replay and
+effect re-execution are separate operations, and effects require current grants.
+
+## Unresolved design choices
+
+Stable identifiers live in the [local AI research register](ai-unresolved-questions.md),
+not the accepted global OQ register:
+
+1. **AIQ-51 Schema:** Which representations and transaction boundaries support the selected feature profile?
+2. **AIQ-52 Replay:** Which states can be reconstructed, and what evidence distinguishes replay from effect re-execution?
+3. **AIQ-53 Backend/index:** Which backend meets bounded storage/query needs, and is optional full-text indexing useful?
+4. **AIQ-54 Retention authority:** How are user preferences and tool metadata constrained by host policy?
+5. **AIQ-55 Deletion/GC:** How do expiry and deletion invalidate all derived records and references?
+6. **AIQ-56 CarryCtx:** Alias of AIQ-10 for lifecycle ownership; the persistence facet asks whether a backend or explicit handoff is appropriate.
+7. **AIQ-57 Reconstruction limits:** After retention expiry, deletion or destructive journal reduction, what state remains reconstructible and how is missing evidence disclosed? Projection-only compaction does not require deleting originals.
+8. **AIQ-58 Sharing:** Which mechanism proves per-reader non-disclosure across authorization scopes?
+9. **AIQ-59 Effects:** How are unknown outcomes reconciled without unsafe retries or fictitious exactly-once guarantees?
+10. **AIQ-5A Redaction representation:** What typed markers and invalidation protocol implement mandatory pre-queue/pre-write redaction? The timing requirement is already fixed.
+11. **AIQ-5B Observability:** Which bounded authorized queries are required, including explicit truncation and absent evidence?
+12. **AIQ-5C Release scope:** Which standalone AI profile needs durable state and when? Neither ephemeral v0.1 nor post-1.0 persistence is selected here.
+
+## Evidence and verification boundary
+
+The inspected `bitty-ai` revision
+`3623c6b3ce33e97c1c493109ec6356219d0c9722` has a real experimental slice
+(`crates/bitty-ai-slice/src/session.rs:68-136`), not evidence of this proposed
+store/replay runtime. Before enabling persistence/reuse/recovery, obtain an
+explicit scoped design and independent security review, then evidence for
+consent/redaction, deletion propagation, authorization, bounded storage, crash
+reconciliation and replay semantics. Measure storage overhead, query latency and
+GC behavior for the selected workload. This document authorizes no prototype or
+product implementation and makes no release commitment.

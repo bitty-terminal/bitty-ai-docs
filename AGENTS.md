@@ -17,7 +17,8 @@
   the AI-core corpus from `bitty-docs` (`docs/projects/bitty/specifications/`
   at `c664214`). Terminal-platform and plugin-ecosystem documents remain in the
   `bitty-terminal-docs` and `bitty-plugins-docs` repositories. The `bitty-ai`
-  implementation repository does not exist yet.
+  implementation exists at `3623c6b3ce33e97c1c493109ec6356219d0c9722`
+  (inspected 2026-09-14): an experimental slice, not the complete proposed runtime.
 - Never describe a planned, proposed, or unverified feature as implemented.
 
 ## Read before acting
