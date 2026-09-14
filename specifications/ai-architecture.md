@@ -1290,6 +1290,25 @@ The 2026-09-13 `014.md` review consolidation adds the token-first context reques
 
 These are not blockers for this draft; they will be decided in a follow-up Agent or Tool Bus amendment with independent review.
 
+## Future RFC split direction (proposal, no acceptance)
+
+This umbrella document stays draft; [v0.1 Implementation Profile](implementation-profile-v0.1.md)
+is the current narrow scope gate. When freezing becomes necessary, split narrow
+contracts out of this umbrella instead of accepting this document as a whole.
+Candidate splits only, each requiring its own independent review and evidence
+before any acceptance:
+
+- Provider Contract v1 (ModelProvider operations, capability matching, selection policy primitives).
+- Context Request v1 (token-first request, budget, artifacts, attribution, truncation).
+- Runtime Identity v1 (protocol versus runtime identity separation, run, session, and execution handles).
+- Tool Dispatch v1 (validation before dispatch, authorization backend, outcome disclosure).
+- Prompt Assembly v1 (stable-before-dynamic layer order, assembly precedence, capability separation).
+
+This list proposes split boundaries only. It accepts no mechanism, closes no
+open question, revises no R1-R6 draft disposition, and proposes no new
+identifier; each future RFC reuses existing open-question identifiers and needs
+its own contract, review, and implementation evidence.
+
 ## Acceptance criteria and lifecycle
 
 This RFC is **draft**. It does not self-accept and does not close an open question beyond its linkage to [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). The lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`; only `Accepted` or `normative` documents authorize shipped, stable, or compatibility-guaranteed behavior. Draft text carries no compatibility promise and does not form public reference.

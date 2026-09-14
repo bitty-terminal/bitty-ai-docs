@@ -95,7 +95,7 @@ layers, from most stable to most dynamic:
 [5] Runtime / Current Turn    <- dynamic per turn
 ```
 
-Accepted as organizational direction: stable content precedes dynamic content,
+**Draft disposition: adopt.** Stable content precedes dynamic content,
 and each layer has a distinct owner and override rule. Layer names are
 organizational; they create no new provider kinds, consent scopes, or
 capability grants.
@@ -109,7 +109,7 @@ semantics including headed versus headless presentation; independent Agent
 and Panel lifetimes; tool-use principles; and the rule to use available tools
 rather than inventing environment state.
 
-Judgment: accept the direction with three constraints. First, the contract
+Judgment: **draft disposition: adopt with three constraints.** First, the contract
 must stay short (see below) and must describe semantics and rules only;
 interfaces belong to tool schemas, not prose (source lines 56-111: prompt
 explains semantics and rules, schema explains the interface). Second, the
@@ -125,8 +125,8 @@ as replacement of Core; the enforcement mechanism is open (facet of AIQ-31).
 ### Layer 2: User Global Instructions
 
 User-owned preferences unrelated to the runtime itself, for example style,
-tool preferences, and standing safety rules (source lines 175-203). Accepted:
-this layer is fully user-editable and travels across projects. It configures
+tool preferences, and standing safety rules (source lines 175-203). **Draft disposition: adopt.**
+This layer is fully user-editable and travels across projects. It configures
 desired behavior only; it grants no capability (see below).
 
 ### Layer 3: Project `.bitty` Manifest
@@ -137,7 +137,7 @@ instructions plus a structured manifest rather than one giant Markdown file
 `instructions.md`, `agents/`, `skills/`, `tools/`, `mcp/`, `hooks/`,
 `context/`).
 
-Judgment: accept the manifest direction, qualify the sketch. The tree layout,
+Judgment: **draft disposition: adopt the manifest direction; qualify the sketch.** The tree layout,
 file names, and `config.lua` shape are illustrative proposals, not an adopted
 schema. Canonical `.bitty` coverage stays in the 013/017/018 distillation;
 precedence follows its built-in to user to project to session/CLI order
@@ -154,7 +154,7 @@ plus user plus project instructions with role-specific guidance (source lines
 309-364). The source sketches reviewer-style profiles with narrowed tool and
 skill lists.
 
-Judgment: qualify by scope. Per the CTX-0009 rescope (single-agent execution
+Judgment: **draft disposition: qualify by scope.** Per the CTX-0009 rescope (single-agent execution
 ownership only) and the [v0.1 Implementation Profile](implementation-profile-v0.1.md)
 single-agent gate, profiles in v0.1 are single-agent only. Multi-agent profile
 sets (coding, reviewer, debugger, researcher, planner teams, delegation
@@ -168,7 +168,7 @@ deny further, never a grant the dispatcher must honor (see next section).
 
 Per-turn facts (working directory, branch, task, turn instruction) assembled
 as a trailing runtime-delta block plus the current turn (source lines 583-636).
-Accepted direction: dynamic values must not be interpolated into layers
+**Draft disposition: adopt.** Dynamic values must not be interpolated into layers
 [1]..[4]; they belong in the trailing block, consistent with the
 stable-before-dynamic rule in the prefix-cache design. The `ContextPlan`
 struct sketch (`core, user, project, agent, history, runtime, current`) and
@@ -190,14 +190,14 @@ Panel/Agent    Project rules        Tool Registry
 semantics      Agent profile        Permissions / runtime policy
 ```
 
-Accepted as a normative-facing proposal with one hard enforcement rule:
+**Draft disposition: adopt as proposal with one hard enforcement rule:**
 
 > **A prompt never grants a capability.**
 
 A profile or instruction reading `You can access the network` must not by
 itself produce a network tool. Capabilities come only from the capability
 registry, tool registry, plugin permissions, and runtime policy evaluated at
-dispatch. The source example is adopted as required behavior: if the prompt
+dispatch. The source example is proposed as required behavior (**draft disposition: adopt**): if the prompt
 says an agent may inspect panels but the runtime denies `panel.close`, an
 attempt to close a panel fails closed at the dispatcher. This matches the
 existing rule that roles are enforced at the IPC and capability layer and the
@@ -219,8 +219,8 @@ instead of front-loaded: a `runtime.describe()` sketch returning runtime
 capabilities, a `runtime.describe("panel")` sketch for detail, and a
 `help.topic("panel")` or skill-load sketch for deep knowledge.
 
-Judgment: accept the size-and-direction reasoning; mark every sketched API
-name as an unaccepted sketch. No `runtime.describe`, `help.topic`, or catalog
+Judgment: **draft disposition: adopt the size-and-direction reasoning; every sketched API
+name stays unaccepted.** No `runtime.describe`, `help.topic`, or catalog
 function name is adopted here. The direction maps onto two existing
 candidates: progressive discovery (`discover -> describe -> explicitly
 resolve -> load a bounded fragment`, with discovery never executing plugins
@@ -316,7 +316,7 @@ interfaces live in tool schemas and deep knowledge loads on demand through
 introspection or skills, consistent with the progressive-discovery direction
 above.
 
-Guiding principle from the source, adopted here as proposal rationale only:
+Guiding principle from the source, recorded here as proposal rationale only:
 
 > **Core teaches semantics, Tools expose capabilities, Skills teach
 > workflows.**
@@ -343,7 +343,7 @@ The source's assembly sketch (lines 583-636, 705-717):
 [CURRENT TURN] Turn instruction               <- most dynamic
 ```
 
-Accepted as consistent with the prefix-cache layer order (stable tool
+**Draft disposition: adopt as consistent** with the prefix-cache layer order (stable tool
 schemas and loaded skills sit with layers [2]..[4]; conversation history
 grows append-only; tool results and runtime state stay trailing). This
 proposal adds no serialization rule of its own: deterministic encoding,
@@ -359,7 +359,7 @@ contract: Agent lifetime is independent of Panel lifetime; headed panels are
 user-visible presentation while headless panels may serve as agent working
 areas; agents may enter, leave, and hand over panels.
 
-Accepted as contract content with the existing reconciliation retained: the
+**Draft disposition: adopt as contract content** with the existing reconciliation retained: the
 `Agent -> ExecutionContext <- Panel` model in
 [Agent Coordination Architecture](agent-coordination.md) governs. Headed
 versus headless describes presentation, not authority or persistence.

@@ -98,7 +98,7 @@ The source proposes (lines 1-6, 29-88) that the deterministic agent runtime
 stay dependency-free and network-free, with third-party crates confined to
 boundary adapters.
 
-Accepted as direction:
+**Draft disposition: adopt:**
 
 - `bitty-ai-runtime` keeps its current shape: an agent kernel and state
   machine over traits and domain types (`agent`, `context`, `provider`,
@@ -171,7 +171,7 @@ handling)).
 The source proposes (lines 218-308) deriving tool argument types into JSON
 Schema with `schemars` and validating model-produced JSON arguments with
 `jsonschema`, so hand-written field checks do not become the validation
-story. Accepted as direction with the existing order preserved: size bound,
+story. **Draft disposition: adopt with the existing order preserved:** size bound,
 then schema validation per TB-3 (Validation before dispatch), then typed
 deserialization, then permission and effect classification per TB-4
 (Capability and consent per tool), then dispatch. Validation never widens
@@ -306,7 +306,7 @@ The tail proposes (lines 1678-1733) separating vendor logic from HTTP
 mechanics so `OpenAiProvider` owns protocol mapping while an `HttpTransport`
 abstraction owns bytes on the wire, with `ReqwestTransport`,
 `CurlTransport`, `MockTransport`, `ProxyTransport`, and `RecordedTransport`
-as future backends. Accepted as test-value direction, post-v0.1 only:
+as future backends. **Draft disposition: adopt as test-value direction, post-v0.1 only:**
 
 ```rust
 trait HttpTransport {
