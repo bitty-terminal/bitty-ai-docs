@@ -13,8 +13,8 @@ accumulating here.
       `docs/projects/bitty/specifications/` at `c664214` with history preserved;
       rewrite cross-repository links to absolute URLs; preserve each document's
       status and `website_publish` flag.
-- [ ] Later phase: wire this repository into `bitty-ai` as the `docs/`
-      submodule once the implementation repository exists.
+- [x] Wire this repository into `bitty-ai` as the `docs/` submodule
+      (AI-0004, AI-0007): gitlink tracks canonical main.
 
 ## Blocked / open
 
