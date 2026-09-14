@@ -33,12 +33,10 @@ the repository root; this repository's own process documents live under
   [bitty-plugins-docs](https://github.com/bitty-terminal/bitty-plugins-docs)
   (plugin ecosystem). Documents migrated to those repositories are referenced
   from surviving pages by absolute cross-repository URL.
-- Read-only inspection on 2026-09-14 confirmed the initialized `bitty-ai/docs`
-  submodule at `39b4c7568a8807e0940bd298660c972db0cfa92a`, introduced by
-  `b6d3d6c495607f6bb2660b5442cfefcf350b486e`. The sibling's HEAD
-  `3623c6b3ce33e97c1c493109ec6356219d0c9722` contains an experimental slice;
-  see [inspected scope](../specifications/research/research-distillation-013-017-018.md#current-bitty-ai-evidence).
-  Its mounted revision does not include these uncommitted reconciliation drafts.
+- `bitty-ai/docs` is a pinned submodule of this repository. Pinned revisions
+  move with integration needs; point-in-time inspection details live with the
+  research evidence (see [inspected scope](../specifications/research/research-distillation-013-017-018.md#current-bitty-ai-evidence)),
+  not in this map.
 
 ## Content trees
 

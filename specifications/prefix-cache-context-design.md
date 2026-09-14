@@ -72,7 +72,7 @@ dynamic:
 [7] Current Turn                            <- most dynamic
 ```
 
-Accepted direction: stable content precedes dynamic content. Dynamic values
+**Draft disposition: adopt.** Stable content precedes dynamic content. Dynamic values
 (current time, working directory, branch, model name, remaining budget,
 terminal or panel dimensions, token usage) must not be interpolated into
 layers [1]..[4]. They belong in layer [6] or [7], preferably inside a trailing
@@ -80,7 +80,7 @@ runtime-delta block, or behind an on-demand tool (`git.status()`,
 `panel.inspect()`, `workspace.inspect()`) rather than embedded every turn
 (source lines 33-95, 429-520).
 
-Qualified: the exact seven-layer split is a proposal, not a contract. The
+**Draft disposition: qualify.** The exact seven-layer split is a proposal, not a contract. The
 normative budget, attribution, and consent boundaries stay where
 [AI Architecture](ai-architecture.md) CP-5 (Budget) and CP-6 (Artifacts) put
 them. Layer names here are organizational; they do not create new provider
@@ -88,12 +88,12 @@ kinds, Stable Id levels, or consent scopes.
 
 ## The eight design invariants
 
-Source lines 1320-1350 propose eight invariants. Each is evaluated below with
-autonomous judgment: accept, qualify, or mark open.
+Source lines 1320-1350 propose eight invariants. Each is evaluated below as a
+draft disposition: adopt, qualify, reject, or open.
 
 ### 1. Context is append-only by default
 
-Accept as direction. Within one epoch, each request should extend the previous
+**Draft disposition: adopt.** Within one epoch, each request should extend the previous
 prefix (`A B C`, then `A B C D`, then `A B C D E`) rather than rewriting
 earlier segments (source lines 740-798). This is the highest-leverage property
 for agent loops, where consecutive tool-call turns otherwise share almost all
@@ -108,7 +108,7 @@ Tombstones must not retain deleted sensitive payloads.
 
 ### 2. Stable content precedes dynamic content
 
-Accept. This is the layering rule above. Concretely: build the static system
+**Draft disposition: adopt.** This is the layering rule above. Concretely: build the static system
 prompt once per epoch (`build_static_system_prompt()`), and move per-turn
 values (budgets, clocks, counts, dimensions) to a trailing turn-context block
 or to addressable tools (source lines 800-868). Token-budget text is the
@@ -117,15 +117,14 @@ prompt invalidates the whole prefix every turn.
 
 ### 3. Tool and skill serialization is deterministic
 
-Accept as a requirement on any future cache claim, but mark the mechanism
-open. The source correctly observes (lines 98-260) that `HashMap` iteration
+**Draft disposition: adopt as requirement on any future cache claim; mechanism open.** The source correctly observes (lines 98-260) that `HashMap` iteration
 order, JSON key order, whitespace, newlines, section order, path
 normalization, and number formatting all change the token stream without
 changing semantics. A canonical encoding (fixed tool order, fixed field order,
 fixed section order, normalized paths) is therefore a prerequisite for stable
 prefixes.
 
-Open: who owns the canonical serializer, what its exact byte-level rules are,
+**Draft disposition: open.** Who owns the canonical serializer, what its exact byte-level rules are,
 and how conformance is tested. The source proposes a `ContextSerializer` and a
 `Canonical Context Encoding` protocol (lines 200-260). This draft records the
 direction without adopting that type name or encoding as a contract. Proposed
@@ -133,7 +132,7 @@ tracking: AIQ-12.
 
 ### 4. Dynamic runtime state is referenced, not embedded, whenever possible
 
-Accept as direction, consistent with CP-6 (Artifacts). The source principle
+**Draft disposition: adopt**, consistent with CP-6 (Artifacts). The source principle
 (source lines 509-520) is that context is not a database: panel state, agent
 lists, environment, full `git status`, and large outputs should be
 addressable references (`panel://`, `artifact://`, task-scoped URIs with typed
@@ -147,20 +146,20 @@ outside the agent prefix unless explicitly requested (source lines 1079-1120).
 
 ### 5. Context mutation creates an explicit epoch boundary
 
-Accept as direction; mark the epoch type open. The source proposes treating
+**Draft disposition: adopt; epoch type open.** The source proposes treating
 `/compact`, registry changes, skill changes, and model switches as
 `epoch++` events followed by one cold prefill, after which the new prefix is
 stable again (lines 684-738). Explicit invalidation is preferable to silent
 drift because it makes cache behavior debuggable.
 
-Open: the exact `ContextEpoch` schema (`system_version`, `toolset_version`,
+**Draft disposition: open.** The exact `ContextEpoch` schema (`system_version`, `toolset_version`,
 `skillset_version`, `project_context_version`, `summary_version` in the
 source) is a proposal, not an adopted type. Epochs are beyond-v0.1 (see
 [v0.1 scope](#v01-scope-boundary) below).
 
 ### 6. Tool, skill, and plugin registry changes are versioned
 
-Accept as direction; mark the snapshot type open. The source proposes an
+**Draft disposition: adopt; snapshot type open.** The source proposes an
 immutable `ToolRegistrySnapshot { version, tools, digest }` held constant for
 a whole session and bumped only by explicit enable, disable, or add operations
 (lines 344-426). The same treatment applies to session skills: a fixed core
@@ -168,14 +167,14 @@ skill set plus an explicitly versioned session skill set, never per-turn
 reselection (lines 264-342). Per-turn MCP re-enumeration with rephrased
 descriptions is the failure mode this rule prevents.
 
-Open: snapshot representation, digest algorithm, and where versioning lives
+**Draft disposition: open.** Snapshot representation, digest algorithm, and where versioning lives
 (runtime versus host). The source sketch is illustrative. This rule refines
 but does not replace the MCP schema invalidation question already tracked as
 AIQ-08.
 
 ### 7. Compaction is a structural operation, not silent mutation
 
-Accept, consistent with the existing Level 2 and Level 3 analysis in
+**Draft disposition: adopt**, consistent with the existing Level 2 and Level 3 analysis in
 [Context Management Architecture](context-management.md). The source argument
 (lines 523-682) is that editing an early segment (for example at 5K of 100K
 tokens) invalidates the following 95K of cache, so apparently small local
@@ -192,7 +191,7 @@ through the governed deletion path.
 
 ### 8. Cache locality is part of scheduling
 
-Qualify narrowly. Within the scope of this repository, the acceptable reading
+**Draft disposition: qualify.** Within the scope of this repository, the acceptable reading
 is: context assembly order, registry versioning, and epoch discipline should
 consider cache locality alongside budget and freshness. Broader readings about
 inference-cluster routing are qualified in the provider section below:
@@ -221,13 +220,13 @@ with per-section hashes so unchanged sections skip re-serialization (lines
 
 Judgment:
 
-- Accept the requirement: without deterministic serialization, all other
+- **Draft disposition: adopt.** Without deterministic serialization, all other
   prefix work is void.
 - Record the block-hash sketch as an optimization proposal, not a contract.
   Local content hashes can avoid redundant serialization work, but they are
   not prefix-cache keys; the cache key is a property of the provider-side
   token prefix, scoped per provider and model (see below).
-- Reject any reading in which a content hash substitutes for consent,
+- **Draft disposition: reject.** Any reading in which a content hash substitutes for consent,
   redaction, or budget accounting. Identical bytes from different owners or
   generations are not interchangeable.
 

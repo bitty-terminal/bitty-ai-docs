@@ -89,7 +89,7 @@ not deleted:
 
 ## Sequencing
 
-1. This profile reviewed and accepted as the v0.1 scope gate.
+1. This draft profile reviewed; acceptance as the v0.1 scope gate remains pending.
 2. `bitty-ai-runtime` skeleton plus migration of stable slice primitives.
 3. L0+L1 context behaviors behind the slice acceptance suite.
 4. Cross-repository G-2/G-3 (`terminal.snapshot`, generic tool dispatch)
@@ -104,6 +104,7 @@ built first; it does not settle the architecture.
 
 ## Evidence and verification boundary
 
-No product code exists for this profile yet. Promises above are scope
-selections, not implementation claims. Normative security and IPC obligations
-override any experimental adoption stated here.
+Experimental implementation evidence exists on the implementation track
+(runtime skeleton); this profile remains draft with acceptance pending.
+Promises above are scope selections, not implementation claims. Normative
+security and IPC obligations override any experimental adoption stated here.
