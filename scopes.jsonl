@@ -24,3 +24,5 @@
 {"created_at":"2026-09-14T12:27:49.549181283+00:00","id":"01M2FY6KXDR96RCR7NZQ80JVGP","kind":"include","pattern":"AGENTS.md","project_id":"01M2DX0M8M9QRK81KFR0BMPKJV","task_id":"01M2FY605M3NT3QP3Z293J1MZ1"}
 {"created_at":"2026-09-14T18:38:16.075700151+00:00","id":"01M2GKCXGB1EDYH3Z0GW1Y8P09","kind":"include","pattern":"specifications/execution-ownership-r1.md","project_id":"01M2DX0M8M9QRK81KFR0BMPKJV","task_id":"01M2G5R0RJYRR7RH91MHHW8RG9"}
 {"created_at":"2026-09-14T18:38:16.113646173+00:00","id":"01M2GKCXHHMBPF23RE4XFM2M3H","kind":"include","pattern":"docs/README.md","project_id":"01M2DX0M8M9QRK81KFR0BMPKJV","task_id":"01M2G5R0RJYRR7RH91MHHW8RG9"}
+{"created_at":"2026-09-14T19:51:15.154726689+00:00","id":"01M2GQJHYJFBCZXKK5A55VTDYQ","kind":"include","pattern":"specifications/bitty-side-integration-input.md","project_id":"01M2DX0M8M9QRK81KFR0BMPKJV","task_id":"01M2GKJE1CK7H81J0KKRATDW1M"}
+{"created_at":"2026-09-14T19:51:15.182647199+00:00","id":"01M2GQJHZE4KEXYJPMV8XDM03A","kind":"include","pattern":"docs/README.md","project_id":"01M2DX0M8M9QRK81KFR0BMPKJV","task_id":"01M2GKJE1CK7H81J0KKRATDW1M"}
