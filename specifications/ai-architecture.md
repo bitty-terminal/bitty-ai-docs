@@ -44,6 +44,16 @@ Out of scope (owned elsewhere):
 
 This document introduces no new trust boundary. Every transition into a privileged host primitive stays behind the capability, scope, budget, and consent gates already normative in the security corpus.
 
+## Related specifications
+
+These draft elaborations accept no new mechanisms. “Extends” describes a topic relationship, not accepted authority. The historical post-1.0 scope of this terminal-facing architecture does not decide standalone AI release requirements (local AIQ-5C).
+
+- [Context Management Architecture](context-management.md) (Draft): Session journal model, context view projection, and multi-level compression pipeline. Extends CP-5, CP-6, CP-7.
+- [Command and Tool Architecture](command-tool-architecture.md) (Draft): Core versus Lua boundary, slash command registry, and tool runtime separation. Extends Tool Bus (TB-1..TB-3).
+- [Agent Coordination Architecture](agent-coordination.md) (Draft): Multi-agent workspace services, supervision, teams, delegation, and panel lifecycle under AG-4 (Least privilege at dispatch) and AG-5 (Orchestration versus execution).
+- [Code Intelligence Architecture](code-intelligence.md) (Draft): LSP sharing, stateful mediation, verification fingerprinting, and lint/build/test reuse. Extends agent-coordination service supervision.
+- [Persistence and Evidence Architecture](persistence-evidence.md) (Draft): Journal representation, execution evidence, projection, optional indexing and replay. Backend and standalone release scope remain unresolved.
+
 ## Normative sources this specification must not weaken
 
 - [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md): default posture that PTY, plugins, projects, IPC/MCP/Agent, packages, and reference repos are untrusted until a narrow grant, invariants 1 through 10, trust-boundary table, capability families, and the rule that deferral must not create a bypass.
@@ -92,7 +102,7 @@ Status: **proposed contract**. Numbered for reference; none is implemented by th
 - **MP-4 `list_models`.** `ai.model.list_models()` returns the registry snapshot filtered to models whose capability set is compatible with the caller's granted scopes. No secret material is returned; API keys, if any, are never inline in the list.
 - **MP-5 `complete`.** `ai.model.complete({ model, messages, context_refs, tools })` executes one synchronous turn. `model` must name a registry-known model, `messages` is bounded by the resolved CP-5 context budget (the `32 KiB` candidate default) combined, `context_refs` enumerates Stable Ids resolved server-side, and `tools` enumerates Tool Bus names validated against the caller's Tool Bus consent. A request that would exceed the Context Budget fails at the boundary with a typed `BudgetExceeded` before provider I/O.
 - **MP-6 `stream`.** `ai.model.stream({ model, messages, context_refs, tools })` returns a chunked `StreamHandle` where each chunk is a Rich streaming fragment (`Markdown`, `Diff`, or `ToolCard`) at most `256 KiB` decoded bytes, carrying `seq`/`total`/`final`, matching RC-10 chunking and the framing discipline from [IPC and Agent RFC](ipc-agent-rfc.md). Backpressure sheds oldest buffered chunks with a countable metric; there is no silent loss for request/response acknowledgement.
-- **MP-7 `cancel`.** `ai.model.cancel(handle)` is idempotent and fail-closed: it abandons the provider request, drops buffered chunks, increments a cancellation metric, and leaves no partial tool dispatch. Cancellation may be invoked at any chunk boundary.
+- **MP-7 `cancel`.** Proposed `ai.model.cancel(handle)` is idempotent: abandon the provider request, drop buffered chunks, count cancellation and prevent further dispatch. Before dispatch, incomplete streamed tool arguments and cancelled proposals cause no tool effect. After dispatch, request cancellation of owned execution, but report completed effects or `Unknown` and reconcile before retry; cancellation cannot roll back already-started effects. One waiter's cancellation does not stop shared work still needed by another authorized waiter. Cancellation may be requested at any chunk boundary.
 - **MP-8 Deterministic timeouts.** Every provider call carries `now_ms` from the caller and observes `DEFAULT_REQUEST_TIMEOUT_MS = 5 s`, `DEFAULT_MCP_TIMEOUT_MS = 10 s` for tool-mediated streaming, and hard ceiling `MAX_REQUEST_TIMEOUT_MS = 30 s`, checked deterministically, reusing the timeout discipline already accepted for IPC.
 
 ### Budgets, cross-RFC sharing, and redaction
@@ -141,6 +151,8 @@ No other provider exists in v1. Adding a provider requires a reviewed amendment 
 - **CP-6 Artifacts.** Providers return `ContextArtifact { summary, structured metadata, references, chunks, provenance }`. A caller may drill down with `expand(context_id, section)` under the same consent, budget, attribution, and untrusted-surface rules rather than receiving an unbounded dump by default. Delivery stays RC-10 chunked (`256 KiB` ceiling) for forward compatibility as `seq`/`total`/`final`; a benign peer's context assembly is not blocked by a hostile peer's large request because quotas are per-client (RC-9 sharing).
 - **CP-7 Determinism and testability.** Context assembly is deterministic for a given `now_ms`, provider snapshot, and Stable Id set. Headless tests supply a seeded `now_ms` and in-memory provider snapshots; no wall-clock, filesystem, or network I/O enters the `bitty-agent` budget computation.
 
+**See also**: [Context Management Architecture](context-management.md) for the multi-level compression pipeline and session journal model.
+
 ### Semantic zones
 
 - **CP-8 Zone source.** Semantic zones are the authoritative terminal-state boundaries already accepted in [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md) and produced by the terminal state machine under OQ-007, derived from OSC 7 (cwd) / OSC 133 (prompt/input/command/output) marks, each with `line_id` anchoring and ordering. The ContextProvider does not parse PTY bytes to invent zones; it consumes the core-owned `SemanticZone` records derived from OSC 7 (cwd) / OSC 133 (prompt/input/command/output) marks.
@@ -170,6 +182,8 @@ Rules:
 - **AG-3 No ambient trust.** Level checks are server-side on every request from the authenticated identity. A client that inserts a `level` field cannot escalate; the server ignores it and evaluates the real consent ledger.
 - **AG-4 Least privilege at dispatch.** Each `ToolCall` is authorized against both the caller's Agent level and the tool's required scope. A `workspace` level does not imply `terminal.input.all` / `terminal.manage`, `debug.control`, `config.modify`, `plugin.manage`, or `process.spawn`; `terminal.input.all` / `terminal.manage` remain separate scopes requiring their own consent grant. Those each require their own scope plus consent.
 - **AG-5 Orchestration versus execution.** Lua policy owns orchestration: model choice, strategy, tool list, and turn limits. The host owns execution semantics: cancellation, timeouts, token and cost accounting, tool-permission enforcement, concurrency, backpressure, retry, streaming lifecycle, resource quotas, audit logging, and the execution state machine. A plugin loop that repeatedly drives generation cannot escape host control.
+
+**See also**: [Agent Coordination Architecture](agent-coordination.md) for multi-agent teams, delegation patterns, and evidence-based coordination.
 
 ### AgentWorkspace
 
@@ -1025,6 +1039,8 @@ The Tool Bus is the host-owned dispatch surface where agent tool calls are valid
 - **TB-6 Budgets and backpressure.** Tool Bus dispatch reuses RC-9/RC-10 sharing: at most `8` tool calls per assistant turn, each result `<= 16 KiB`, per-connection rate and concurrency caps apply, and observation streams drop oldest with counted metrics. Long tool outputs are chunked at RC-10.
 - **TB-7 Host execution only.** The `bitty-agent` crate never executes a tool. `ToolRegistry::stub_invoke` exists only for deterministic tests. Real execution happens in the host/runtime that mediates capability-checked dispatch, rate limits, per-client scopes, consent prompts, and audit — matching the separation already accepted for `bitty-agent`.
 
+**See also**: [Command and Tool Architecture](command-tool-architecture.md) for the Core versus Lua boundary, slash command registry, and tool runtime separation.
+
 ### Command risk classification and syntax-level audit (candidate)
 
 Status: **candidate, non-normative**. This extends Tool Bus validation (TB-3)
@@ -1140,7 +1156,7 @@ All criteria are **proposed** and become acceptance gates only when the implemen
 
 ### ModelProvider operations
 
-- Given any registry content and caller scopes, `list_models` reflects exactly the granted models, `complete` respects the Context Budget before I/O, `stream` obeys RC-10 chunking and `seq`/`total` invariants, and `cancel` leaves no partial dispatch. Verification: `unit` + `adversarial` with registry and scope matrix, budget-exceeded corpus, and concurrent-stream sweep.
+- Given any registry content and caller scopes, `list_models` reflects exactly the granted models, `complete` respects the Context Budget before I/O, and `stream` obeys RC-10 chunking and `seq`/`total` invariants. Cancellation before dispatch starts no effects; after dispatch it prevents new admission and reports completed or Unknown effects for reconciliation without a rollback claim. Verification: `unit` + `adversarial` with registry/scope matrix, budget-exceeded corpus, concurrent-stream sweep, and cancellation races on both sides of dispatch.
 
 ### ContextProvider and Stable Ids
 
@@ -1221,6 +1237,12 @@ implemented by this RFC alone.
   of a Plugin API abstraction gap to fix at the primitive level, not as a
   feature request to grant. This gate is a reviewer rule, not an automated
   check.
+
+### Draft registry and transport reconciliation
+
+MP-1's earlier `bitty-agent`/`bitty-runtime` registry-location alternatives conflict with BA-2/BA-3 if interpreted as placing provider implementation, model selection, LLM I/O or API keys in terminal Core. Preserve BA-2/BA-3: the terminal-side registry can validate generic service metadata and mediate authorized requests; provider registry implementation and I/O belong in the independent AI helper. Exact registry split and owning crates remain draft choices, not permission to implement either contradictory location.
+
+Similarly TB-1's MCP transport proposal and the direct-spool rejection below do not settle the later native-tool proposal. [Command/tool reconciliation](command-tool-architecture.md#tool-runtime-what-belongs-in-core) keeps native and MCP paths under the same schema, caller/target authorization, consent, budget, redaction and outcome rules. Bypass spools remain rejected. Transport selection and generic backend ownership require review (local AIQ-36/AIQ-38); native implementation is not authority for AI code in the terminal process. ExecutionContext may exist without a Panel or shell; a Panel is an optional projection.
 
 ### Sub-platform verification (proposed)
 
