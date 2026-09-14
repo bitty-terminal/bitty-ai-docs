@@ -20,3 +20,7 @@ accumulating here.
 
 - Further AI-core topic trees (architecture, context, providers, reference)
   land as reviewed content is produced; empty placeholder pages are avoided.
+- Vertical-slice pressure-test gaps G-1 through G-6
+  ([AI Vertical Slice Pressure Test](specifications/ai-vertical-slice-pressure-test.md))
+  are proposals owned by `bitty`, `bitty-terminal-docs`, and `bitty-docs`; they
+  are tracked there and not resolved in this repository.

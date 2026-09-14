@@ -38,9 +38,9 @@ the repository root; this repository's own process documents live under
 
 ## Content trees
 
-| Tree              | Entry points                                                                                                                                                                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `specifications/` | [AI Architecture](../specifications/ai-architecture.md) (Draft), [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted), [Browser and Agent Panel Integration Pre-Study](../specifications/browser-agent-pre-study.md) (Draft). |
+| Tree              | Entry points                                                                                                                                                                                                                                                                                                                                 |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `specifications/` | [AI Architecture](../specifications/ai-architecture.md) (Draft), [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted), [AI Vertical Slice Pressure Test](../specifications/ai-vertical-slice-pressure-test.md) (Draft), [Browser and Agent Panel Integration Pre-Study](../specifications/browser-agent-pre-study.md) (Draft). |
 
 New topic trees are created only as real content lands; empty placeholder pages
 are not added.
