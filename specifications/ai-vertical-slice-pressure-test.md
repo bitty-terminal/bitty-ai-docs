@@ -144,8 +144,10 @@ reconciliations of surface that already exists.
 
 ## Relationship to open questions
 
-- OQ-066 (context budget model): the slice uses the accepted `32 KiB`-class
-  ceiling and a caller byte ceiling; it does not decide token-first profiles.
+- OQ-066 (context budget model): the slice exercises a candidate `32 KiB`-class
+  budget (`CP-5`) and a caller byte ceiling. The `32 KiB` default is a
+  candidate profile under OQ-066, not an accepted core bound; the slice does
+  not decide token-first profiles.
 - OQ-080 (provider wire adapters and presets): the slice uses only a
   deterministic local provider; it decides no wire protocol or preset location.
 - OQ-081 (distribution boundary): the slice assumes an out-of-process consumer
