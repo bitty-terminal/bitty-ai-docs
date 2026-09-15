@@ -23,9 +23,9 @@ sidebar_order: 42
 
 ## Scope and method
 
-Inspection point is `bitty` `main` at `789b6b2` (read-only), covering eleven
+Inspection point is `bitty` `main` at `2cbb1fb` (read-only), covering twelve
 landed pull requests in merge order: the six items verified at `eef983e`
-plus a five-item window:
+plus a six-item window:
 
 - `327064f` docs reconciliation (#702).
 - `9bbc1a6` bounded `terminal.snapshot` service (#703).
@@ -38,18 +38,19 @@ plus a five-item window:
 - `e84da34` bundled git-panel removal from the catalog (#713).
 - `1007ba8` config-format hygiene (#719).
 - `789b6b2` crate README map (#721).
+- `2cbb1fb` Phase-A live host binding (#723).
 
 Local `git log --oneline -1` in the `bitty` checkout reads `eef983e`
-(stale, behind `origin/main`); the five window commits above were verified
-read-only at the pinned `789b6b2` revision without fetch or checkout
-mutation. `origin/main` additionally resolves to `2cbb1fb` (#723), which is
+(stale, behind `origin/main`); the six window commits above were verified
+read-only at the pinned `2cbb1fb` revision without fetch or checkout
+mutation. `origin/main` additionally resolves to `65aac5c` (#725), which is
 outside this inspection point and is not covered here.
 
 Method per item was first-hand source read (`outline`, then targeted
 `symbol` or narrow `read`), integration and unit test enumeration, and a
 read-only comparison against the `bitty-ai` slice consumer
 (`bitty-ai/crates/bitty-ai-slice`, pinned `bitty-ipc` git revision
-`64e17095ee2f54b3482807cd133fadb9af949925`). Line numbers below refer to
+`2cbb1fbed82814c157359b71dd8efbb4be0c36e7`). Line numbers below refer to
 `bitty` `main` at the inspection point. Test counts count `#[test]`
 attributes in the cited files.
 
@@ -86,6 +87,38 @@ disposition follows, one sentence each.
 BII-09 and BII-10 ordering observations still hold: the window work runs
 outside the gateway groups without reordering them.
 
+## Window delta `789b6b2..2cbb1fb`
+
+The window is a single commit, `2cbb1fb` (#723, parent `789b6b2`),
+verified first-hand at the pinned revision without fetch or checkout
+mutation. `git diff --stat 789b6b2..2cbb1fb` shows 11 files with 1765
+insertions: the new `crates/bitty-ipc/src/host_bridge.rs` (749 lines) plus
+`crates/bitty-ipc/src/lib.rs` export, the new
+`crates/bitty-rich/src/projection.rs` (389 lines) plus `lib.rs` export and
+`Cargo.toml` edge, the new `crates/bitty-runtime/src/host_bridge.rs` (464
+lines) plus `lib.rs` export, and the `plugin_runtime/spawn.rs` production
+authorizer wiring with its `services.rs` comment and `spawn_surface.rs`
+test update. Existing gateway files are byte-identical in this window
+(`git diff 789b6b2..2cbb1fb -- crates/bitty-ipc/src/scope.rs
+crates/bitty-ipc/src/snapshot.rs crates/bitty-ipc/src/tool_dispatch.rs
+crates/bitty-ipc/src/execution.rs crates/bitty-ipc/src/rich_fragment.rs
+crates/bitty-ipc/src/bridge.rs` is empty), so prior evidence-bar anchors
+hold at `2cbb1fb` (`snapshot.rs` 710 lines with the `terminal.snapshot`
+mapping under `terminal.inspect` in `scope.rs:383`; `tool_dispatch.rs` 894
+lines; `execution.rs` 1531 lines; `bridge.rs` 401 lines with `publish =
+true` at `Cargo.toml:11`; `rich_fragment.rs` 494 lines; `scope.rs` still
+registers no fragment wire method).
+
+- #723 (`2cbb1fb`): the `bitty-ipc` live-bridge half (bounded live store,
+  live snapshot and read-only inspect providers, `HostCaller` bind), the
+  `bitty-rich` text-first fragment-to-`RichBlock` projection, the
+  `bitty-runtime` live-read helpers, and the Layer-2 production spawn
+  authorizer wiring. Per-BII disposition is recorded in the BII-01 through
+  BII-07 sections below; BII-08 Delivered and Gap claims are unchanged.
+
+BII-09 and BII-10 ordering observations still hold: the window work binds
+the landed gateway groups to live host state without reordering them.
+
 ## BII-01 Bounded terminal snapshot host service
 
 Request: host-registered, zone-scoped, bounded `terminal.snapshot` handler
@@ -105,11 +138,25 @@ unit plus 10 integration, including missing-handler fail-closed
 unknown-method denial, terminal mismatch denial, bounded budgets, zone
 narrowing, char-boundary truncation, and untrusted-surface labeling.
 
-Gap: the service is pure data, bounded, and headless with a caller-supplied
-provider function; there is no live terminal binding, no live
-generation-change read test, and no redaction implementation in the
-inspected module. Deterministic snapshots under live generation change and
-redaction remain sequel host wiring.
+Gap: the service shape is unchanged at `2cbb1fb`, and the live-binding
+IPC half is now delivered by #723 (`2cbb1fb`):
+`crates/bitty-ipc/src/host_bridge.rs` (749 lines) adds a bounded live
+store (`MAX_LIVE_SNAPSHOTS` at `host_bridge.rs:90`, `live_snapshot_store`
+at `host_bridge.rs:104`, `publish_live_snapshot` at `host_bridge.rs:119`)
+with a live provider (`live_snapshot_provider` at `host_bridge.rs:142`,
+`live_snapshot_count` at `host_bridge.rs:158`), served through the
+unchanged `SnapshotService::dispatch` path with the provider-echo match.
+Tests: 13 unit tests in `host_bridge.rs`, including publish-serves-through
+dispatch, miss-is-`NotFound`, bad-grammar rejection, fail-closed capacity,
+and truncation flagging. The `bitty-runtime` half
+(`crates/bitty-runtime/src/host_bridge.rs`, 464 lines) adds committed-state
+read helpers (`live_snapshot_data` at `host_bridge.rs:101`,
+`publish_live_snapshot` at `host_bridge.rs:137`,
+`live_snapshot_service` at `host_bridge.rs:143`; 7 unit tests), but
+`git grep` at `2cbb1fb` shows no production publish call-site outside
+those tests and no socket or transport wiring. Deterministic snapshots
+under live generation change in production, redaction, and live transport
+therefore remain sequel host wiring.
 
 ## BII-02 Generic host tool dispatch method
 
@@ -131,9 +178,19 @@ missing-handler denials, effect opt-in paths, oversized argument and result
 denials, target mismatch denial, and shared per-client scope consent
 (`consent_is_shared_per_client_scope_not_per_tool`).
 
-Gap: providers are caller-supplied test doubles; no real capability backend
-(filesystem, process, terminal, view, configuration, plugin effects) is
-wired, and no MCP path is proven. Live tool effects remain sequel work.
+Gap: generic providers are still caller-supplied test doubles, and no MCP
+path is proven. For the read-only inspect slice only, #723 (`2cbb1fb`)
+delivers live providers through the unchanged dispatch prefix:
+`INSPECT_TEXT_TOOL` (`host_bridge.rs:93`) with `inspect_text_spec`
+(`host_bridge.rs:196`) and `inspect_text_provider` (`host_bridge.rs:255`),
+`INSPECT_STATUS_TOOL` (`host_bridge.rs:96`) with `inspect_status_spec`
+(`host_bridge.rs:212`) and `inspect_status_provider`
+(`host_bridge.rs:287`), registered by `register_live_inspect_tools`
+(`host_bridge.rs:324`) behind the existing scope, consent, and effect
+gates. The `bitty-runtime` helper `live_tool_service`
+(`runtime/host_bridge.rs:154`) registers exactly those two read-only
+tools; effect tools stay deny-by-default (`NotFound`). Live tool effects
+beyond read-only inspect remain sequel work.
 
 ## BII-03 Authorization gate before every real effect
 
@@ -154,8 +211,16 @@ generation resolution, no effect policy beyond the `allow_effects`
 boolean, and no budget reservation or accounting. The consent type
 (`ConsentLedger`) is reused across modules, but a single shared ledger and
 a single shared budget path across native and MCP paths with a shared
-gate-order proof are not shown. Effectful tools therefore remain gated by
-shape, scope, opt-in, and consent only.
+gate-order proof are not shown. The trust-binding choke point is now
+delivered IPC-side by #723 (`2cbb1fb`): `HostCaller`
+(`host_bridge.rs:350`) with `bind` (`host_bridge.rs:369`) requires an
+already-attested `VerifiedPeer`, shape-checks the `client_id` against 64
+bytes, and carries only server-evaluated scopes plus the server clock, so
+scope smuggling and clock rewinding fail by construction at that site.
+UID-to-`client_id` allocation on the socket accept boundary and per-tool
+consent granularity remain sequel work as documented in the module.
+Effectful tools therefore remain gated by shape, scope, opt-in, and
+consent only.
 
 ## BII-04 Generic supervised execution backend
 
@@ -176,12 +241,23 @@ environment policy is closed (`Isolated` or `Explicit` with no ambient
 inheritance). Tests: 13 unit plus 11 integration, including scope,
 consent, opt-in, budget, target mismatch, and closed environment proofs.
 
-Gap: the module header states it owns no socket, spawns no process,
-performs no I/O, and depends on no workspace crate beyond `bitty-ipc`
-itself. There is no PTY or process handle ownership, no isolation or
-cleanup wiring, no executable allowlist enforcement, and no Panel
-projection wiring. Headless execution without Panel or shell is the
-default provider shape only.
+Gap: the `bitty-ipc` module header still states it owns no socket, spawns
+no process, performs no I/O, and depends on no workspace crate beyond
+`bitty-ipc` itself. There is no PTY or process handle ownership, no
+isolation or cleanup wiring, and no Panel projection wiring. Executable
+allowlist enforcement is now wired on the Layer-2 spawn path by #723
+(`2cbb1fb`): `HostToolsAuthorizer` (`spawn.rs:422`) with `authorize`
+(`spawn.rs:429`) validates `(tool, args)` against the accepted
+`[tools.git]` predicates, `git_spawn_backend` (`spawn.rs:1008`) closes
+over `HostToolsAuthorizer` (`spawn.rs:1014`) with activation wiring
+(`plugin_runtime/mod.rs:639`), and `DenyAllAuthorizer` (`spawn.rs:390`)
+remains as the fail-closed baseline for tests. The generic allowlisted
+execution helper `authorized_execution_provider`
+(`runtime/host_bridge.rs:182`) routes through that authorizer plus the
+real-process runner, but `git grep` at `2cbb1fb` shows it is referenced
+only by its own tests, with no production `ExecutionService` dispatch
+wiring. Headless execution without Panel or shell therefore remains the
+default provider shape outside the Layer-2 spawn path.
 
 ## BII-05 Structured execution outcome with Unknown reconciliation
 
@@ -203,8 +279,12 @@ plus `resolve_preserves_attribution` (integration).
 
 Gap: cancellation races on both sides of live dispatch and post-dispatch
 `Unknown` outcomes against real processes are not proven; reconciliation
-is a stored-outcome query over headless doubles. No rollback is claimed,
-which matches the BII request.
+is still a stored-outcome query, exercised over headless doubles and over
+the test-only `authorized_execution_provider`
+(`runtime/host_bridge.rs:182`). The Layer-2 success table now carries
+`execution_id` (`spawn.rs:861`) as the attribution handle for explicit
+host reconcile (`spawn.rs:1005`). No rollback is claimed, which matches
+the BII request.
 
 ## BII-06 Versioned bridge client SDK for out-of-process consumers
 
@@ -228,10 +308,13 @@ consent, expiry, params-bound, correlation, and no-partial-state proofs.
 Gap: the crate version follows the workspace version rather than an
 independent SDK versioning proof, and no external consumer build without
 an internal-crate Git dependency is shown in the inspected repositories.
-Read-only comparison shows `bitty-ai` still pins `bitty-ipc` by Git revision
-(`bitty-ai-slice/Cargo.toml:18`, rev `64e1709`) with the prior
-consumption shape. Stable-release substitution therefore remains sequel
-consumer work.
+Read-only comparison shows `bitty-ai` now pins `bitty-ipc` by Git revision
+(`bitty-ai-slice/Cargo.toml:18`, rev
+`2cbb1fbed82814c157359b71dd8efbb4be0c36e7`) with the prior consumption
+shape: AI-0039 verified `64e1709..2cbb1fb` additive for `bitty-ipc`
+shapes, and AI-0040 wires that pin's live snapshot and inspect providers
+into `LiveBittyHost` as mapping proof only. Stable-release substitution
+therefore remains sequel consumer work.
 
 ## BII-07 Bounded rich scene-fragment transport
 
@@ -252,11 +335,24 @@ grammar rejection, duplicate-before-capacity, capacity, generation-scoped
 sequence sharing, trust labeling, over-ceiling DTO rejection, and FIFO
 drain.
 
-Gap: the contract carries text plus zone only; there is no Markdown, diff,
-or tool-card typed fragment. No wire method is registered (`scope.rs`
-unchanged), and live render or projection wiring to scene blocks is
-explicitly sequel work. Authorization, consent, and provider-echo checks
-for a future serving method are absent by design.
+Gap: the transport contract still carries text plus zone only; there is
+no Markdown, diff, or tool-card typed fragment. The text-first projection
+is now delivered as a pure helper by #723 (`2cbb1fb`):
+`crates/bitty-rich/src/projection.rs` (389 lines) with `ProjectedBlock`
+(`projection.rs:54`), `ProjectionError` (`projection.rs:73`), and
+`project_fragments` (`projection.rs:168`), joining one generation's
+fragments in `seq` order into a single-text-span `RichBlock`
+(`SceneNode::Text` at `projection.rs:221`, `BlockAnchor::Zone` at
+`projection.rs:228`) with over-budget fail-closed at 256 KiB
+(`projection.rs:206`). Tests: 11 unit tests, covering order
+normalization, mixed terminal and generation denial, duplicate denial,
+gap tolerance, truncation propagation, budget denial, and untrusted
+labeling. No wire method is registered (`scope.rs:383` still lists only
+the terminal methods; `rich_fragment.rs` is byte-identical in this
+window), and `git grep` at `2cbb1fb` shows no production render
+call-site for the projection outside its own export and tests.
+Authorization, consent, and provider-echo checks for a future serving
+method are absent by design.
 
 ## Panel capability decoupling for AI-specific surface
 
@@ -285,11 +381,16 @@ BII-05 first), meeting at the bridge when the gateway exists.
 
 Observed: the `bitty` side landed the gateway shapes in the proposed
 grouping (snapshot, then dispatch with consent, then execution with
-structured outcomes), followed by the bridge boundary and the fragment
-transport, with the Panel review as a docs-only record. The `bitty-ai`
-slice comparison still runs against deterministic doubles through the real
-`bitty-ipc` bridge with `terminal.snapshot` fail-closed coverage. This
-note makes no claim about track completeness on either side.
+structured outcomes), followed by the bridge boundary, the fragment
+transport, and the live-binding half with the text-first projection and
+the production spawn authorizer (#723), with the Panel review as a
+docs-only record. The `bitty-ai` slice comparison now pins `bitty-ipc`
+at `2cbb1fb` (AI-0039) and serves the same `BittyHost` trait through both
+`FakeHost` (deterministic scripted path) and `LiveBittyHost` wired to the
+live snapshot provider plus the live read-only inspect tools (AI-0040,
+mapping proof through the real dispatch paths with published `SnapshotData`
+fixtures, no socket, process, PTY, or transport claim). This note makes no
+claim about track completeness on either side.
 
 ## BII-10 Suggested build order for the bitty track
 
@@ -300,7 +401,7 @@ bridge client SDK (BII-06), fragment ingestion (BII-07), Panel cleanup
 (BII-08).
 
 Observed: `bitty` `main` follows that group order for code items
-(#703, #705, #707, #709, #711), with the Panel reconciliation record
+(#703, #705, #707, #709, #711, #723), with the Panel reconciliation record
 (#702) landed first as docs-only input rather than last as code cleanup.
 Each code group landed with its linked evidence bar of bounded validation
 and fail-closed tests. Whether the order satisfies the `bitty`
@@ -309,14 +410,17 @@ repository is for that repository to decide.
 ## Research 023 G-2 and G-3 confirmation
 
 Research 023 G-2 (`terminal.snapshot` host service) maps to BII-01 and is
-addressed in shape by #703 as a bounded service under `terminal.inspect`.
-Research 023 G-3 (generic Tool Bus dispatch) maps to BII-02 with BII-03
+addressed in shape by #703 as a bounded service under `terminal.inspect`,
+with the live-binding IPC half added by #723 as a bounded store plus live
+providers. Research 023 G-3 (generic Tool Bus dispatch) maps to BII-02 with BII-03
 and is addressed in shape by #705 as generic dispatch with per-tool
-consent. The remaining 023 gaps stay where the BII input puts them:
+consent, with live read-only inspect providers plus the `HostCaller` bind
+added by #723. The remaining 023 gaps stay where the BII input puts them:
 packaging (G-1) is addressed in shape by the publishable bridge boundary
 (#709) without consumer substitution proof, transport (G-4) is addressed
-in shape by text-first fragments (#711) without typed fragments or render
-wiring, and design reconciliation items stay candidate docs (#702).
+in shape by text-first fragments (#711) plus the text-first projection
+(#723) without typed fragments or render wiring, and design reconciliation
+items stay candidate docs (#702).
 
 ## Explicit non-requests and open-question disposition
 
@@ -336,19 +440,22 @@ Delivered in shape on `bitty` `main`: bounded snapshot, generic dispatch
 with per-tool consent, execution shapes with a structured `Unknown`
 query path, a publishable bridge client, text-first fragment ingestion,
 and a candidate Panel reconciliation record, each with deterministic
-bounded tests and fail-closed denials. The `eef983e..789b6b2` window adds
-no new gateway shape: Layer-2 plugin spawn surface plus allowlist
-enforcement, git-panel catalog removal, hygiene, and crate maps leave the
-gateway claims above unchanged.
+bounded tests and fail-closed denials. The `789b6b2..2cbb1fb` window adds
+the live-binding IPC half (bounded live store with live snapshot and
+read-only inspect providers plus `HostCaller` bind), the text-first
+fragment-to-`RichBlock` projection helper, the `bitty-runtime`
+committed-state read helpers, and the Layer-2 production spawn
+authorizer wiring with `DenyAll` retained as the baseline.
 
-Still missing for a live-host claim: live terminal and process or PTY
-wiring, real capability backends, unified gate order with generation,
+Still missing for a live-host claim: production publish call-sites and
+live terminal and process or PTY wiring with transport, real capability
+backends beyond read-only inspect, unified gate order with generation,
 schema, policy, and budget accounting, live cancellation and
 acknowledgement-loss proofs, consumer substitution off the pinned
-revision, typed rich fragments with render wiring, and executed Panel
-demotion with negative-evidence code proof. No acceptance decision for
-the `bitty` repository is made here; follow-up scope belongs to the
-commander and the owning repositories.
+revision, typed rich fragments with render wiring and a serving wire
+method, and executed Panel demotion with negative-evidence code proof. No
+acceptance decision for the `bitty` repository is made here; follow-up
+scope belongs to the commander and the owning repositories.
 
 ## References
 
