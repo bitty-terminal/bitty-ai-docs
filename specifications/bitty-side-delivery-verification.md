@@ -23,8 +23,9 @@ sidebar_order: 42
 
 ## Scope and method
 
-Inspection point is `bitty` `main` at `eef983e` (read-only), covering six
-landed pull requests in merge order:
+Inspection point is `bitty` `main` at `789b6b2` (read-only), covering eleven
+landed pull requests in merge order: the six items verified at `eef983e`
+plus a five-item window:
 
 - `327064f` docs reconciliation (#702).
 - `9bbc1a6` bounded `terminal.snapshot` service (#703).
@@ -32,14 +33,58 @@ landed pull requests in merge order:
 - `cf3ac8b` generic execution backend with structured outcome (#707).
 - `a61c291` publishable bridge client boundary (#709).
 - `eef983e` bounded scene-fragment ingestion transport (#711).
+- `9830edb` bounded consent-gated `process.spawn` surface (#717).
+- `64e1709` host `[tools.*]` fail-closed enforcement (#716).
+- `e84da34` bundled git-panel removal from the catalog (#713).
+- `1007ba8` config-format hygiene (#719).
+- `789b6b2` crate README map (#721).
+
+Local `git log --oneline -1` in the `bitty` checkout reads `eef983e`
+(stale, behind `origin/main`); the five window commits above were verified
+read-only at the pinned `789b6b2` revision without fetch or checkout
+mutation. `origin/main` additionally resolves to `2cbb1fb` (#723), which is
+outside this inspection point and is not covered here.
 
 Method per item was first-hand source read (`outline`, then targeted
 `symbol` or narrow `read`), integration and unit test enumeration, and a
 read-only comparison against the `bitty-ai` slice consumer
 (`bitty-ai/crates/bitty-ai-slice`, pinned `bitty-ipc` git revision
-`3c9cfea6f9481aac32cbf5b657043f94d3fe273b`). Line numbers below refer to
+`64e17095ee2f54b3482807cd133fadb9af949925`). Line numbers below refer to
 `bitty` `main` at the inspection point. Test counts count `#[test]`
 attributes in the cited files.
+
+## Window delta `eef983e..789b6b2`
+
+The window touches no `bitty-ipc` service source: `git diff --stat
+eef983e..789b6b2 -- crates/bitty-ipc` shows only the added
+`crates/bitty-ipc/README.md` map. Service line counts and evidence-bar
+anchors are unchanged at `789b6b2` (`snapshot.rs` 710 lines with the
+`terminal.snapshot` mapping under `terminal.inspect` in `scope.rs:383`;
+`tool_dispatch.rs` 894 lines; `execution.rs` 1531 lines; `bridge.rs` 401
+lines with `publish = true` at `Cargo.toml:11`; `rich_fragment.rs` 494
+lines; `scope.rs` still registers no fragment wire method). Per-commit
+disposition follows, one sentence each.
+
+- #717 (`9830edb`): the new `plugin_runtime/spawn.rs` consent-gated
+  real-process surface reuses `ExecutionService`, `ExecutionResult`, scope,
+  and consent types but modifies no `bitty-ipc` gateway file, so BII-01
+  through BII-05 Delivered and Gap claims are unchanged.
+- #716 (`64e1709`): the new `plugin-host/tools.rs` pure-validation
+  allowlist for Layer-2 manifest `[tools.git]` modifies no IPC dispatch or
+  authorization file, so BII-02 and BII-03 Delivered and Gap claims are
+  unchanged.
+- #713 (`e84da34`): the bundled git-panel catalog removal deletes
+  `runtime/git_panel.rs` with no Core API change and no `ai_panel.rs` change,
+  so it is not AI-specific demotion and BII-08 Delivered and Gap claims are
+  unchanged.
+- #719 (`1007ba8`): config-format hygiene only, touching no capability,
+  gateway, Panel, or IPC file, so no BII-01 through BII-10 claim changes.
+- #721 (`789b6b2`): crate README maps only, including the `bitty-ipc` crate
+  map with no versioning or consumption change, so BII-06 Delivered is
+  unchanged and only the consumer-pin reference below moves.
+
+BII-09 and BII-10 ordering observations still hold: the window work runs
+outside the gateway groups without reordering them.
 
 ## BII-01 Bounded terminal snapshot host service
 
@@ -184,7 +229,7 @@ Gap: the crate version follows the workspace version rather than an
 independent SDK versioning proof, and no external consumer build without
 an internal-crate Git dependency is shown in the inspected repositories.
 Read-only comparison shows `bitty-ai` still pins `bitty-ipc` by Git revision
-(`bitty-ai-slice/Cargo.toml:18`, rev `3c9cfea`) with the prior
+(`bitty-ai-slice/Cargo.toml:18`, rev `64e1709`) with the prior
 consumption shape. Stable-release substitution therefore remains sequel
 consumer work.
 
@@ -291,7 +336,10 @@ Delivered in shape on `bitty` `main`: bounded snapshot, generic dispatch
 with per-tool consent, execution shapes with a structured `Unknown`
 query path, a publishable bridge client, text-first fragment ingestion,
 and a candidate Panel reconciliation record, each with deterministic
-bounded tests and fail-closed denials.
+bounded tests and fail-closed denials. The `eef983e..789b6b2` window adds
+no new gateway shape: Layer-2 plugin spawn surface plus allowlist
+enforcement, git-panel catalog removal, hygiene, and crate maps leave the
+gateway claims above unchanged.
 
 Still missing for a live-host claim: live terminal and process or PTY
 wiring, real capability backends, unified gate order with generation,
