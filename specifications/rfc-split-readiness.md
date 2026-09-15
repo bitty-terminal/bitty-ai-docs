@@ -235,8 +235,8 @@ Gaps blocking a split:
 
 Split Request For Comments boundary draft (for a future task, not accepted here):
 
-- In scope: `ContextRequest` shape (`max_tokens`, `max_bytes`, priority,
-  detail level), token-first resolution order, counted truncation with
+- In scope: `ContextRequest` shape (`max_tokens`, `max_bytes`,
+  `current_generation`), token-first resolution order, counted truncation with
   `truncated_tokens` plus `truncated_bytes` plus `truncated_providers`,
   artifact externalization with `artifact://` references, Stable Id
   attribution, and typed absence for dangling references.
