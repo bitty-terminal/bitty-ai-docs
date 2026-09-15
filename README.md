@@ -35,6 +35,12 @@ This repository does not own:
 
 Cross-project contracts and registers are linked, never copied.
 
+The four projected AI-core topic trees — `architecture/`, `context/`,
+`providers/`, and `reference/` — are plans, not directories: the
+[documentation map](https://github.com/bitty-terminal/bitty-ai-docs/blob/main/docs/README.md)
+records each tree's owning open questions, prerequisite specifications, and
+landing order, and no tree exists until reviewed content lands.
+
 ## Composition
 
 The repository is intended to be mounted at `bitty-ai/docs` as a Git submodule
