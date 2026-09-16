@@ -231,3 +231,107 @@ distillation tracks.
   `fragment_transport.rs` pre-split/reassembly rule with 30 tests in
   `fragment_mapping.rs`; `justfile` `gitleaks_version`, `.gitleaks.toml`
   rule-scoped allowlist head, `.github/workflows/ci.yml` Secret scan job.
+
+## Addendum (2026-09-16): AIQ-13 close-ready recommendation
+
+> Status: **recommendation only**. This addendum recommends the owner
+> review AIQ-13 for closure; it closes nothing. The
+> [AI Unresolved Questions](../ai-unresolved-questions.md) register stays
+> byte-identical: the AIQ-13 row keeps its needs-evidence verdict until the
+> owner acts. No AIQ or OQ identifier is created or closed here, and no
+> normative contract is modified.
+
+### What changed since the triage
+
+Two `bitty-ai` merges landed after the `839e9c3` evidence pin, both in
+`crates/bitty-ai-runtime` (read-only inspection; no repository modified):
+
+- AI-0082 `fdb37c5e92abb62ec6963f003437d5a16c5535d2`
+  (`test(prefix-cache): provider-scoped key mechanism plus hit-rate
+evidence (#157)`): **merged** into `bitty-ai` `main`, ancestor of
+  current head `a8d342251ec5a49d79208cf5f72772572442a8bb`. It adds
+  `src/cache_key.rs` (194 lines) and `tests/cache_key.rs` (333 lines,
+  7 tests at merge).
+- AI-0084 `944efdf78dbf2b1a8b85ac9784c1161373bcf7c8`
+  (`test(prefix-cache): length-aware stable-prefix boundary for cache
+keys`): **still open** at task time (branch
+  `ctx-AI-0084/test-marker-collision`, one commit ahead of `main`;
+  `merge-base --is-ancestor` against `main` fails). It hardens the
+  marker boundary and adds one alias-proof test (7 to 8 tests).
+
+### Key-scope half: mechanism plus measured evidence
+
+`CacheKey` pins `(provider_id, model_id, scope, stable_prefix_hash,
+prefix_len)`. Equality and hashing cover every field, which is the
+key-scope rule stated as code: same bytes under a different route compare
+unequal, and the same route-plus-bytes compares equal. `CacheScope` is the
+three-variant routing scope (`Session`: reusable across turns of one
+session; `Turn`: one turn only; `Round`: one provider round only), and a
+`Session` key never equals a `Turn` key over the same bytes. The register's
+"no cross-provider reuse" bar is met by the `key_scope_inequality_matrix`
+test: single-axis provider, model, scope, and stable-region variations each
+break equality, with an identical rebuild as the equality control.
+Construction fails closed (`CacheKeyError`: invalid provider/model ids,
+empty or over-bound bytes, marker-free bytes yield no key).
+
+The hit-rate evidence is the scripted 10-round harness
+(`hit_rate_harness_repeated_heads_hit_changed_heads_miss`): stable heads
+repeat with a fresh tail every round, pinning 7 hits out of 10 rounds
+(70%), three distinct heads circulated. Every repeat-head round hits
+(tail-independence) and every changed-head round misses
+(head-sensitivity). It is a mechanism demonstration, not a performance
+claim, and the harness says so inline — which is exactly the
+register's "measured hit-rate evidence" bar: a pinned, reproducible
+measurement of the mechanism behaving as specified.
+
+### Why the recommendation is conditional on AI-0084
+
+AI-0082 computes the stable boundary by first-occurrence scan for the
+`[layer:runtime-turn len=` marker. Stable-layer text may legally carry
+that literal (text validation rejects only CR/NUL), so two prompts whose
+stable bytes differ only after an embedded literal alias to one key — a
+real collision the merged code does not exclude. AI-0084 replaces the
+scan with length-aware walking over the length-prefixed section layout
+(`stable_prefix_len` skips each section by its declared `len=`, hopping
+over embedded header-shaped bytes; malformed tails fail closed) and pins
+the fix with `embedded_marker_in_stable_text_must_not_alias_keys`
+(equal-length stable texts differing past an embedded literal share the
+true boundary but hash and compare unequal). Until AI-0084 merges, the
+key-scope half carries a known aliasing hole, so the recommendation is:
+**close-ready CONDITIONAL on AI-0084 merge**, citing both merges at
+closure time.
+
+### Routing-scope half: narrows but does not block
+
+The register's second half — implicit versus explicit caching — remains
+undecided, and this addendum selects nothing. It does not block closure
+because the close-ready bar is the mechanism plus the non-reuse rule, not
+the routing policy: `CacheScope` already encodes the routing boundary as
+key material (a `Session` key is unusable as a `Turn` key by construction),
+so whichever implicit/explicit policy the owner later selects operates
+inside keys that cannot leak across providers, models, or scopes. The
+undecided half narrows AIQ-13's remainder to a pure policy choice with its
+keying substrate already proven; recommend the owner either close AIQ-13
+on the key-scope evidence (both merges cited) and track implicit/explicit
+routing as a follow-up, or keep AIQ-13 open narrowed to that policy
+choice. Either way the AIQ-13 needs-evidence row is superseded by this
+addendum pending owner review.
+
+### Verification record (addendum)
+
+- `bitty-ai` `main` head at inspection:
+  `a8d342251ec5a49d79208cf5f72772572442a8bb` (AI-0083).
+- AI-0082 merged: `merge-base --is-ancestor fdb37c5 main` passes;
+  `fdb37c5e92abb62ec6963f003437d5a16c5535d2`.
+- AI-0084 open: `merge-base --is-ancestor 944efdf main` fails; branch
+  `ctx-AI-0084/test-marker-collision` exists locally and at
+  `origin/ctx-AI-0084/test-marker-collision`; no open PR found via
+  `gh pr list` (empty result).
+- Code re-verified read-only on `bitty-ai` `main`:
+  `crates/bitty-ai-runtime/src/cache_key.rs` (194 lines; `CacheScope`,
+  `CacheKey`, `CacheKeyError`, `stable_prefix_len`, `fnv1a64`);
+  `crates/bitty-ai-runtime/tests/cache_key.rs` (333 lines, 7 `#[test]`
+  items; 8 with AI-0084 checked out).
+- Register untouched: AIQ-13 row in
+  [AI Unresolved Questions](../ai-unresolved-questions.md) still reads
+  needs-evidence; `git diff --stat` for the register must be empty.
