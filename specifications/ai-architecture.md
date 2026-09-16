@@ -13,6 +13,8 @@ sidebar_order: 23
 
 > Status: **draft** (frontmatter `draft`) for post-1.0 AI architecture covering ModelProvider, ContextProvider, Tool Bus, and Agent layers. This document proposes the ModelProvider (`ai.model` `list_models`/`complete`/`stream`/`cancel`), ContextProvider (workspace, project, git, diagnostics, terminal) with Stable Id hierarchy Instance/Window/Workspace/View/Terminal, a token-first context budget and request contract (OQ-066), and semantic zones, Agent four levels (inspect/self/workspace/all), ephemeral AgentWorkspace, Rich streaming (Markdown/Diff/ToolCard), Tool Bus via MCP, and privacy-first controls. It does not describe implemented behavior, does not authorize shipped, stable, normative, or compatibility-guaranteed behavior, and does not close [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md) which remains closed by [IPC and Agent RFC](ipc-agent-rfc.md) on 2026-08-29. Experimental implementation may exist as review evidence but carries no compatibility promise and does not constitute acceptance. Acceptance requires independent category-owner, docs-curator, and security-reviewer evidence. Lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`.
 
+Candidacy in this document is declared per section: every candidate or direction section states its standing in a `Status:` line, and its heading carries a matching marker. This document is a draft and contains no accepted normative body, so candidate material is not yet consolidated into a normative form. Convergence of the candidate sections into a single closing non-normative section is therefore deferred to a future acceptance and layout decision. Provenance: review-11 `D-P2-3`, remedy `R-12` (`research/review/2026-09-15/11-docs.md`).
+
 ## Purpose and scope
 
 Bitty is an agent-friendly, not agent-centric terminal. [Product vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/vision.md) and [Core and Plugin Boundaries](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/architecture/core-boundaries.md) keep AI and Agent experiences outside the terminal core as optional integrations, preferentially in plugins, while [IPC and Agent RFC](ipc-agent-rfc.md) already defines the accepted bounded IPC framing, wire, auth, scopes, and bounded `AgentMessage`/`AgentObservation`/`SideQueue`/`AgentSession` contracts that close [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md) at the design level.
@@ -207,7 +209,7 @@ Streaming delivers incremental agent output into the presentation model without 
 - **RS-5 Chunking and attribution.** Chunks obey RC-10 (`256 KiB` decoded bytes, `seq`/`total`/`final`). Each streamed logical turn is decomposed into these chunks; reordering or loss is detectable via `seq`. Budget accounting attributes every chunk to its `(AgentId, StreamHandle, generation)`.
 - **RS-6 No hot-path execution.** Rich streaming never runs inside the parser, render, or input hot paths synchronously. It is a cold-path composition that posts damage, preserving P0-AC-015 and invariant 4.
 
-## Comparative positioning versus existing agent harnesses
+## Comparative positioning versus existing agent harnesses (direction, non-normative)
 
 Status: **direction, non-normative**. This section records the comparative positioning from the originating analysis (message m0481). External products are grouped and summarized at a high level from public product behavior; they are not audited or benchmarked here, and no claim is made about their internals. The Bitty column lists candidate differentiators to validate, not shipped capabilities.
 
@@ -281,7 +283,7 @@ Bitty terminal  (execution and presentation layer)
 ```
 
 Three candidate rules extend
-[CarryCtx as the durable task layer](#carryctx-as-the-durable-task-layer)
+[CarryCtx as the durable task layer](#carryctx-as-the-durable-task-layer-candidate)
 without changing it:
 
 - The stack is an architecture picture, not a dependency chain: `bitty-ai` must
@@ -715,7 +717,7 @@ Tracked as [OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/
 discovery and diagnostics are tracked as
 [OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
-### Spatial multi-agent orchestration
+### Spatial multi-agent orchestration (candidate)
 
 Status: **candidate, non-normative**. A candidate topology maps durable roles
 to spatial panels instead of a single transcript: Commander, Implementer,
@@ -795,7 +797,7 @@ deduplication, deadline and expiry handling, cancellation, and fail-closed
 routing to a dead or unregistered recipient. Tracked within
 [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
-### Capability-enforced roles and subagent dispatch
+### Capability-enforced roles and subagent dispatch (candidate)
 
 Status: **candidate, non-normative**. Roles are candidate capability sets
 enforced at the IPC/capability layer and the Tool Bus, never by prompt text.
@@ -900,7 +902,7 @@ Whether a learned skill becomes durable project data or session-scoped state,
 and which approval surface versions it, is undecided; tracked as
 [OQ-070](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
-### Semantic output compression for agent context
+### Semantic output compression for agent context (candidate)
 
 Status: **candidate, non-normative**. Candidate rules for compressing command
 output into agent context using OSC 133 zones and exit codes:
@@ -969,7 +971,7 @@ Retrieval by reference is a retrieval reference, not authority: it re-reads
 committed output under the same scoping and untrusted labeling as SOC-5.
 Tracked as [OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
-### CarryCtx as the durable task layer
+### CarryCtx as the durable task layer (candidate)
 
 Status: **candidate, non-normative**. CarryCtx is a local-first durable
 task/worktree/checkpoint manager (SQLite state shared by linked worktrees;
