@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044
 category: specifications
 audience: mixed
 document_type: register
@@ -14,7 +14,7 @@ sidebar_order: 21
 This ledger maps specific source topics to the
 [distillation](research-distillation-013-017-018.md), to the
 [prefix-cache context design](../prefix-cache-context-design.md) for record
-025, and to the 039/040/041 companion distillations, rather than claiming
+025, and to the 039/040/041/044 companion distillations, rather than claiming
 that an entire recording or specification is covered. Line ranges are
 inclusive, verified against the local recordings identified below. Repeated
 examples are condensed, not adopted as API definitions.
@@ -296,19 +296,28 @@ are excluded from every range).
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions.
 
-## Source identity: records 039, 040, and 041 (partial)
+## Source identity: records 039, 040, 041, and 044 (partial)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. All three files are
+or evidence that the records' factual claims are true. All four files are
 untracked in the research repository, so provenance is path plus SHA-256, and
 none of the files was renamed, edited, or staged by the distilling task: the
-`bitty`-side pass still needs all three.
+`bitty`-side pass still needs all four.
 
 | Source                   | Lines | Bytes   | SHA-256                                                            |
 | ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
 | `research/origin/039.md` | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
 | `research/origin/040.md` | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
 | `research/origin/041.md` | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
+| `research/origin/044.md` | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
+
+Record 044 is a single pass with twenty-eight numbered sections plus a
+four-point follow-up with its own mechanism-versus-semantics split, boundary
+table, repository placement, IPC contract, and worked example; no duplication
+handling applies. The fingerprint above was verified at task start and
+re-verified at task end with no change, so the CTX-0045 growth pattern did
+not trigger: the 044 body distills the whole verified file
+(`044.md:1-2630`), and any later append is uncovered.
 
 Record 039 is five pasted rounds of one 15-section conversation: rounds 1-4
 (`039.md:46-1258`, `1259-2471`, `2472-3684`, `3685-4897`) are byte-identical
@@ -336,17 +345,19 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040/041 partial distillations
+## Disposition: 039/040/041/044 partial distillations
 
 The companion drafts are
 [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
 [Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md),
+[IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md),
 and
-[IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md).
+[Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All three are draft discussion syntheses: the layered models they
+exclusions. All four are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
-two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer) are candidate inputs
+two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
+Execution Supervisor with the mechanism-versus-semantics split) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
@@ -421,7 +432,63 @@ RFC, which the 041 draft references without restating.
 | 736-761      | IPC-plugin fit list and characteristics (section 12, second half)                          | 041 split section; retain as AI placement rule and heuristic needing per-case review.                                         |
 | 765-821      | Closing three-layer model; Capability Layer; capability list; downstream motivation        | 041 layer section; candidate input only; weakest structural claim; do not merge silently with the 040 layering.               |
 
-## Explicit exclusions: records 039, 040, and 041
+## Topic-level traceability: record 044 (partial)
+
+Section names below refer to the companion 044 distillation unless a linked
+existing document is named. All tool, method, event, struct, and enum names
+are discussion inputs; the accepted Agent and IPC vocabulary stays with the
+IPC and Agent RFC, which the 044 draft references without restating. The
+whole verified file (`044.md:1-2630`) was distilled; no head-versus-tail
+split applies.
+
+| Source lines | Topic                                                       | Disposition / destination                                                                         |
+| ------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 1-36         | Harness anecdote and opening questions                      | 044 boundary context; motivates the synthesis, not a distilled claim.                             |
+| 37-60        | Core thesis: supervisor and Job Service, not stronger spawn | 044 thesis section; retain layering as candidate objective; defer ownership, packaging, schedule. |
+| 61-148       | Harness table; pueue detachment, groups, dependencies, logs | 044 survey section; retain waiting and subscription principles; borrow-design-not-backend.        |
+| 149-224      | OpenCode event-driven notification                          | 044 survey section; retain event-over-polling direction; PTY-session shape is backend detail.     |
+| 225-268      | Codex process protocol; polling critique                    | 044 survey section; retain no-model-polling rule; deficiency claims are author opinion.           |
+| 269-308      | Claude background tasks, Monitor, session separation        | 044 survey section; retain process-job versus agent-task separation.                              |
+| 309-356      | Cursor Agent/Run split, event stream, subscriptions         | 044 survey section; retain subscription direction as target shape.                                |
+| 357-411      | Four-object model and invariance claims                     | 044 four-object section; retain separation as candidate; invariance conditioned on Lifetime.      |
+| 412-476      | Job not belonging to Panel; mailbox routing                 | 044 routing section; retain routing direction; mailbox mechanics undecided.                       |
+| 477-523      | Owner plus Subscriber; observe versus control               | 044 ownership section; permission names unreviewed; enforcement stays host-side.                  |
+| 524-593      | Agent-killed disposition; Lifetime sketch                   | 044 lifetime section; explicit-policy direction; Detached durability deferred.                    |
+| 594-654      | Pre-exit quiescence gate as mechanism                       | 044 gate section; invariant direction; gate mechanics need owning-task design.                    |
+| 655-723      | Hard, idle, and retention clocks; anti-default rule         | 044 timeout section; retain clock separation; uniform kill rule rejected.                         |
+| 724-765      | Job kind taxonomy                                           | 044 kind section; heuristic needing per-case review, not a decision procedure.                    |
+| 766-808      | Closed-stdin default; PTY only for interactive              | 044 stdin section; retain default-closed direction; spawn-options shape open.                     |
+| 809-849      | Supervisor-held output; bounded completion                  | 044 output section; retain retention-and-reference direction; bounds open.                        |
+| 850-918      | Completion as Critical Message; Unknown rule                | 044 completion section; consistency note; critical semantics stay R5-owned.                       |
+| 919-997      | Three partition classes and resume cursor                   | 044 partition section; retain taxonomy; no supervisor inference.                                  |
+| 998-1052     | Structured outcomes; OOM rule; tree kill                    | 044 outcome section; enum unreviewed; OOM backends unevidenced.                                   |
+| 1053-1110    | No-default retry; Unknown-inspect-first                     | 044 retry section; consistency note; vocab and backoff open.                                      |
+| 1111-1188    | `exec` and `job_*` tool sketches                            | Excluded; unreviewed tool surface; proposes no accepted command or tool.                          |
+| 1189-1233    | Argument vectors versus shell default                       | Read, not distilled; `bitty`-side detail with R2-owned consequences.                              |
+| 1234-1286    | Visibility console mockup                                   | Excluded; illustration without data contract or authorization analysis.                           |
+| 1287-1344    | Owner handoff with generation                               | Read; restates R5 fencing for Jobs; no new mechanism.                                             |
+| 1345-1410    | Observation versus Critical events; no-wake rule            | 044 progress section; retain split and no-wake direction.                                         |
+| 1411-1455    | Input-needed event; WaitingInput; secret boundary           | 044 input section; candidate direction; needs security review.                                    |
+| 1456-1499    | SQLite metadata with filesystem logs and artifact refs      | 044 persistence section; all post-v0.1 under R6; schema open.                                     |
+| 1500-1554    | v0.1 boundary; three-phase sketch                           | 044 boundary section; scope carried; phases are staging opinion.                                  |
+| 1555-1653    | Borrow-design synthesis and architecture diagram            | 044 survey close; retain composition direction; proposes no backend.                              |
+| 1654-1730    | Dedicated-supervisor-document proposal                      | Recorded as author proposal; no document created or adopted here.                                 |
+| 1731-1755    | Mechanism versus semantics framing                          | 044 framing section; retain framing as candidate.                                                 |
+| 1756-1851    | Job-to-Task binding cut with workspace refs                 | 044 binding section; raw-path execution rejected.                                                 |
+| 1852-1931    | Authoritative `ExecutionResult` layer                       | 044 result section; retain anti-conflation and credibility ordering.                              |
+| 1932-2011    | Semantic `JobResult` and artifact layers                    | 044 result section; interpretation-above-fact layering.                                           |
+| 2012-2094    | Host capability enforcement                                 | 044 security section; consistent with the CTX-0047 comparison.                                    |
+| 2095-2123    | AI-side claim and ownership semantics                       | 044 security section; retain coordination ownership.                                              |
+| 2124-2181    | Dual staleness with dual generations                        | 044 security section; retain distinction as load-bearing.                                         |
+| 2182-2263    | Cancel mechanism versus policy                              | 044 cancel section; outcomes reported, never assumed.                                             |
+| 2264-2316    | Supervisor-held deadlines; policy selection                 | 044 timeout section; retain deadline-holding direction.                                           |
+| 2317-2366    | Timeout-versus-Failed analysis; outcome split               | 044 timeout section; strongest timing claim; interpretation stays policy.                         |
+| 2367-2396    | Full boundary table                                         | 044 boundary section; candidate input; interface cells are vocabulary.                            |
+| 2397-2499    | Repository placement; wrapper principle                     | 044 placement section; retain agnosticism rule and principle.                                     |
+| 2500-2526    | Shared generic IPC direction                                | 044 placement section; operation names propose no wire method.                                    |
+| 2527-2630    | T128, J31, and E77 worked example                           | 044 example section; binding illustration, not registry.                                          |
+
+## Explicit exclusions: records 039, 040, 041, and 044
 
 - 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
   application-services, editor-application, and startup-performance sections
@@ -455,6 +522,15 @@ RFC, which the 041 draft references without restating.
   discussion inputs, not adopted wire, event, CLI, or permission interfaces.
   Agent lifecycle, events, and semantics stay with the accepted IPC and
   Agent RFC, which the 041 draft references without restating.
+- 044 `exec` and `job_*` tool sketches, the visibility console mockup, the
+  `execution.*` IPC sketches, the `ExecutionResult` and `JobResult` struct
+  sketches, the `Lifetime`, `JobKind`, outcome, and cancel enums, the
+  shell-versus-argv attribution detail, and the three-phase rollout are
+  unreviewed discussion inputs, not adopted commands, tools, events, wire
+  formats, types, defaults, or schedules. Shell-versus-argv mechanics are
+  `bitty`-side execution design with R2-owned consequences; the console
+  mockup proposes no accepted view. Durability, crash adoption, detached
+  long-lived jobs, and any supervisor daemon stay post-v0.1 under R6.
 - This task does not close identity, workspace-overlay, CarryCtx backend,
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions, and it changes no normative contract.
