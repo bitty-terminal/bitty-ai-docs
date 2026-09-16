@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045
 category: specifications
 audience: mixed
 document_type: register
@@ -14,7 +14,7 @@ sidebar_order: 21
 This ledger maps specific source topics to the
 [distillation](research-distillation-013-017-018.md), to the
 [prefix-cache context design](../prefix-cache-context-design.md) for record
-025, and to the 039/040/041/044 companion distillations, rather than claiming
+025, and to the 039/040/041/044/045 companion distillations, rather than claiming
 that an entire recording or specification is covered. Line ranges are
 inclusive, verified against the local recordings identified below. Repeated
 examples are condensed, not adopted as API definitions.
@@ -296,13 +296,13 @@ are excluded from every range).
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions.
 
-## Source identity: records 039, 040, 041, and 044 (partial)
+## Source identity: records 039, 040, 041, 044, and 045 (partial)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. All four files are
+or evidence that the records' factual claims are true. All five files are
 untracked in the research repository, so provenance is path plus SHA-256, and
 none of the files was renamed, edited, or staged by the distilling task: the
-`bitty`-side pass still needs all four.
+`bitty`-side pass still needs all five.
 
 | Source                   | Lines | Bytes   | SHA-256                                                            |
 | ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
@@ -310,6 +310,14 @@ none of the files was renamed, edited, or staged by the distilling task: the
 | `research/origin/040.md` | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
 | `research/origin/041.md` | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
 | `research/origin/044.md` | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
+| `research/origin/045.md` | 914   | 14,827  | `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0` |
+
+Record 045 is a single pass with one framing diagram, one core principle,
+twelve numbered sections plus a closing strengths section; no duplication
+handling applies. The fingerprint above was verified at task start and
+re-verified at task end with no change, so the CTX-0045 growth pattern did
+not trigger: the 045 body distills the whole verified file
+(`045.md:1-914`), and any later append is uncovered.
 
 Record 044 is a single pass with twenty-eight numbered sections plus a
 four-point follow-up with its own mechanism-versus-semantics split, boundary
@@ -345,19 +353,21 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040/041/044 partial distillations
+## Disposition: 039/040/041/044/045 partial distillations
 
 The companion drafts are
 [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
 [Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md),
 [IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md),
+[Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md),
 and
-[Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md).
+[Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All four are draft discussion syntheses: the layered models they
+exclusions. All five are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
 two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
-Execution Supervisor with the mechanism-versus-semantics split) are candidate inputs
+Execution Supervisor with the mechanism-versus-semantics split, four-layer
+safety boundary with the intersection-only authority rule) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
@@ -488,7 +498,35 @@ split applies.
 | 2500-2526    | Shared generic IPC direction                                | 044 placement section; operation names propose no wire method.                                    |
 | 2527-2630    | T128, J31, and E77 worked example                           | 044 example section; binding illustration, not registry.                                          |
 
-## Explicit exclusions: records 039, 040, 041, and 044
+## Topic-level traceability: record 045 (partial)
+
+Section names below refer to the companion 045 distillation unless a linked
+existing document is named. All budget, capability, call, error, and scope
+names are discussion inputs; the accepted Agent and IPC vocabulary stays with
+the IPC and Agent RFC, which the 045 draft references without restating. The
+whole verified file (`045.md:1-914`) was distilled; no head-versus-tail
+split applies.
+
+| Source lines | Topic                                                           | Disposition / destination                                                                          |
+| ------------ | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 1-25         | Four-layer diagram; Lua-decides-how principle                   | 045 architecture section; retain layering and principle as candidate; Lua never self-authorizes.   |
+| 27-52        | Review-workflow agent counts; Host-User-Project effective value | 045 ceiling section; retain intersection rule; numbers are illustration; strictest-wins.           |
+| 54-89        | Commander budget tree; fan-out counterexample; budget sketch    | 045 ceiling section; retain attenuation invariant; struct unreviewed; Lua schedules inside budget. |
+| 93-168       | Resource enforcement; cgroup and Job Objects backends           | Excluded; `bitty`-side host design; backends and limit names are host evidence.                    |
+| 172-241      | Panel lease sketch; handoff; Lua scheduling discipline          | Read; lease mechanism is `bitty`-side; discipline split already carried above.                     |
+| 245-320      | `.env` and credential authorization model                       | Excluded; `bitty`-side filesystem authorization; no-bypass kept as boundary context.               |
+| 324-381      | Secret-handle pattern; host injection; four never-hold places   | 045 secret section; retain handle direction; URI and store mechanics open.                         |
+| 385-437      | Root and sudo escalation; approval flow                         | Excluded; `bitty`-side privilege authorization; envelope unreviewed.                               |
+| 441-479      | Hard versus Policy versus Strategy table                        | 045 classification section; retain `bitty-ai`-owned rows only; no mechanism adopted.               |
+| 483-546      | Self-grant counterexample; six-way intersection; shrink-only    | 045 intersection section; retain shrink-only rule; `bitty-ai` computes three factors.              |
+| 550-601      | Subagent no-copy rule; narrowing illustration; subset invariant | 045 subagent section; retain invariant as candidate; profiles and scopes are illustration.         |
+| 605-667      | Commander as Lua concept; eight primitives; team shapes         | 045 commander section; retain vocabulary cut; primitive list is vocabulary; roles stay in Lua.     |
+| 670-727      | User-Hygiene split; preventable versus user-only                | 045 hygiene section; retain split; example bindings are illustration; system first.                |
+| 731-787      | Four-layer stack; intersection priority; path narrowing         | 045 intersection section; retain composition order and strictest-wins.                             |
+| 791-850      | Controlled-request Lua API; raw-escape-hatch note; error names  | 045 API section; retain request direction; sandbox restriction needs its own task.                 |
+| 854-914      | Primitives list; official harness; unbreakable boundaries       | 045 API section; retain placement; behavior-versus-boundary principle kept.                        |
+
+## Explicit exclusions: records 039, 040, 041, 044, and 045
 
 - 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
   application-services, editor-application, and startup-performance sections
@@ -531,6 +569,28 @@ split applies.
   `bitty`-side execution design with R2-owned consequences; the console
   mockup proposes no accepted view. Durability, crash adoption, detached
   long-lived jobs, and any supervisor daemon stay post-v0.1 under R6.
+- 045 host resource enforcement (CPU, RAM, GPU, disk, cgroup, RLIMIT,
+  process-group, GPU-backend, filesystem-quota, and Job Objects backends),
+  the panel-lease mechanism with generation-fenced handoff, `.env`, `.ssh`,
+  and credentials authorization, and root and sudo escalation are
+  `bitty`-side terminal or host design with config-owned and Lua-workflow
+  rows. Their AI-facing consequences (intersection-only authority,
+  runtime-enforced spawn budgets, subagent attenuation, Commander-as-Lua
+  vocabulary cut, secret handles, delegation semantics, and the
+  User-Hygiene split) are retained in the 045 distillation; no host
+  enforcement, lease, authorization, or escalation implementation is
+  distilled into an AI requirement.
+- 045 `DelegationBudget` fields, `agent.spawn`, `execution.spawn`,
+  `execution.run`, `panel.acquire`, and `fs.read` call shapes, the
+  `PrivilegeRequest` envelope, the `BudgetExceeded`,
+  `ResourceLimitExceeded`, `ExecutionBudgetExhausted`, and
+  `ConcurrencyLimitReached` error names, capability and scope names, profile
+  names, path patterns, numeric ceilings, the four-layer stack, and the
+  raw-escape-hatch (`os.execute`, `io.open`) restriction note are unreviewed
+  discussion inputs, not adopted budgets, calls, envelopes, errors,
+  interfaces, defaults, or plans. Agent lifecycle, events, and semantics
+  stay with the accepted IPC and Agent RFC, which the 045 draft references
+  without restating.
 - This task does not close identity, workspace-overlay, CarryCtx backend,
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions, and it changes no normative contract.
