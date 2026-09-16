@@ -358,6 +358,44 @@ read as closing an open question, creating a daemon, or changing the accepted
 IPC, plugin, isolation, CLI, or security contracts above. Any adopted version
 must receive its own review and verification evidence.
 
+### Extension-point layering and Capability Layer as unmerged candidates (candidate)
+
+Status: **candidate, non-normative**. This subsection compares two unmerged
+layering candidates — the 040 extension-point layering and the 041 Capability
+Layer — without merging them and without accepting either. Both stay candidate
+inputs; the merge decision is explicitly deferred.
+
+Common ground: both candidates stack native primitives at the bottom, a
+framework or host-plugin middle, and extension plugins on top, with
+capabilities and permissions mediated between layers rather than inherited
+across them. An extension attaches only through a declared, reviewable seam,
+and its relationship to a powerful host confers no capability by itself.
+
+Differences: the [040 distillation](research/research-distillation-040-bitty-ai.md)
+proposes typed extension points (`bitty-ai.model`, `bitty-ai.tool`,
+`bitty-ai.context`, `bitty-ai.memory`, `bitty-ai.compactor`, `bitty-ai.agent`,
+`bitty-ai.command`, `bitty-ai.ui`), manifest-declared host dependence resolved
+at install time, permission non-inheritance, and per-domain versioned service
+APIs, while its native-versus-framework split (`bitty-ai-runtime` versus
+`bitty-ai`; `Native Primitive -> Framework Plugin -> Extension Plugin`) stays
+its weakest claim. The [041 distillation](research/research-distillation-041-bitty-ai.md)
+proposes `bitty-ai` as an out-of-process daemon on the IPC side of Core, a
+Capability Layer with Lua, IPC, and CLI frontends over one capability model
+(the Bitty Capability Protocol framing), IPC-native permission enforcement at
+the boundary, and Agent/Panel lifecycle separation carried over IPC. Method,
+event, manifest, and capability names in both distillations are discussion
+vocabulary, not accepted schemas or protocols.
+
+Deferred decision: whether the two layerings merge, coexist, or one is dropped
+stays undecided. Settling the merge needs named evidence: an owner for each
+layer, a packaging contract, a versioning and compatibility policy, and IPC
+transport maturity sufficient to carry the Capability Layer enforcement claims.
+Until that evidence exists, neither candidate constrains the other.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) and
+[provider plugin boundary](provider-plugin-boundary.md) are unaffected by this
+comparison.
+
 ### Progressive discovery
 
 The candidate `DiscoveryProvider` gives the Agent a bounded index before it
