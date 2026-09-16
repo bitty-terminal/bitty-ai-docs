@@ -541,6 +541,145 @@ priority, closes no open question, and changes the status of no AIQ
 entry; `bitty`-side decisions stay with the `bitty` repository through
 its own review.
 
+## Window addendum `db283e6..cfeffa2` (read-only git inspection; fetch only, no checkout mutation)
+
+Verified read-only at the local `bitty` checkout after an object-only
+`git fetch` (no checkout, reset, or working-tree mutation):
+`git rev-list --count db283e6..cfeffa2` reads 6, and
+`git log --format='%h %s' db283e6..cfeffa2` lists, oldest first, `3e1dfb3`
+PTY lifecycle and reader/writer semantics (#781), `6b5d4ad` changelog
+record of the wave (#791), `317d4b4` hyperlink O(1) lookup and hashed id
+space (#807), `7993786` headless latency work-floor gate (#809), `6a9ee85`
+filesystem overbroad-pattern close (#800), and `cfeffa2` checked caret and
+tilde bounds (#794). Endpoints resolve to
+`db283e6bba9aa6a468c96b6b71cf04a7161a689e` and
+`cfeffa2d8e1387029850940af2b64877dbfbe25f`. The window is the wave tail
+plus follow-ups: the last wave fix (#781), the wave changelog record
+(#791), and four follow-ups from wave review findings
+(#794, #800, #807, #809). No file under `crates/bitty-ipc/` is touched
+(`git log db283e6..cfeffa2 -- crates/bitty-ipc` is empty), so every
+BII-01 through BII-10 Delivered and Gap claim and every prior evidence-bar
+anchor holds at `cfeffa2` by identity.
+
+Three movements reach AI-side verification surfaces: PTY and host-call
+deadline semantics (#781), the execution/latency evidence gate (#809), and
+the BII-07 crate boundary row (#807). None changes a BII claim. Per-item
+disposition follows.
+
+- `3e1dfb3` (#781, `crates/bitty-pty/src/{pty,reader,writer}.rs`,
+  `crates/bitty-lua/src/host.rs` with `crates/bitty-lua/tests/host_bridge.rs`,
+  and `crates/bitty-runtime/src/runtime/{pty,panes}.rs` plus PTY test
+  suites; 541 insertions, 88 deletions): PTY lifecycle and reader/writer
+  semantics in `bitty-pty` (489/585/111 lines at `cfeffa2`), with two
+  contract-relevant changes and call-site updates. `Drop for Pty` kills and
+  reaps through a bounded `wait_timeout` (`DROP_REAP_TIMEOUT`, 5 s,
+  `pty.rs:34`; reap at `pty.rs:486`) instead of blocking indefinitely, and
+  a child that outlives the bound is left to the kernel as documented;
+  `PtyReader::spawn` is fallible and `Pty::take_reader` (`pty.rs:151`)
+  claims the reader only on success; the reader distinguishes clean EOF
+  from pump failure with `PtyRecv::{Chunk,Empty,Eof,Error}`
+  (`reader.rs:146`), `recv_timeout` (`reader.rs:244`) returning `Ok(None)`
+  versus `Err(RecvTimeoutError::Disconnected)`, `recv` returning
+  `io::Result<Option<Vec<u8>>>`, and `pump_error()` (`reader.rs:284`)
+  exposing an owned failure record; the writer implements the
+  newline-plus-`^D` drop-EOT sequence; and the PTY-master
+  `EIO`-after-slave-close condition maps to clean EOF on every Unix target
+  (Windows unchanged). In `bitty-lua`, the cheap-call bridge guard splits
+  into `bounded` (`host.rs:553`, read-only calls keep the post-delivery
+  deadline check) and `bounded_mutation` (`host.rs:587`, pre-call check
+  only, used by `store.set` at `host.rs:930` and `notify.show` at
+  `host.rs:993`), so a committed mutating effect is delivered instead of
+  being discarded as `E_TIMEOUT`. BII-04 and BII-05 claims are unchanged:
+  these semantics live in the `bitty-pty` host primitive and the Lua
+  bridge, not in the `bitty-ipc` execution service, which is byte-identical
+  in this window and still owns no process or PTY handle.
+- `7993786` (#809, `crates/bitty-perf/src/latency.rs` 949 lines plus
+  `benches/latency_real.rs`): the headless latency budget gate moves off
+  deschedule-prone shipped percentiles onto the noise-robust work floor
+  (`min_work_ms < HEADLESS_WORK_FLOOR_CEILING_MS`, `latency.rs:78`, PB-4
+  p50 8 ms x `HEADLESS_SHARED_RUNNER_FACTOR` 4 at `latency.rs:61` = 32 ms),
+  keeps a documented work-tail pathology guard
+  (`HEADLESS_WORK_TAIL_CEILING_MS`, `latency.rs:84`, 15 ms x
+  `HEADLESS_SHARED_RUNNER_TAIL_FACTOR` 8 at `latency.rs:73` = 120 ms), and
+  reduces wall clock to a single liveness bound. Exact PB-4 verdicts stay
+  pinned deterministically by `pb4_work_budget_classification_is_exact`
+  (`latency.rs:784`), and the noise-discrimination probe
+  `headless_work_budget_discriminates_scheduler_noise_from_work`
+  (`latency.rs:668`) injects controlled stalls through
+  `measure_latency_with_hook` (`latency.rs:294`) and `NoiseSite`
+  (`latency.rs:267`). `bitty-perf` is a `publish = false` bench-harness
+  crate consumed by `bitty-app` dev tracing and benches; it owns no
+  production execution path and no IPC surface, so BII-04 and BII-05
+  claims are unchanged.
+- `317d4b4` (#807, `crates/bitty-term-state/src/state.rs`,
+  `crates/bitty-term-state/src/state/hash.rs`,
+  `crates/bitty-term-state/src/canonical.rs`,
+  `crates/bitty-term-state/src/lib.rs` plus tests,
+  `crates/bitty-rich/src/lib.rs`):
+  `State::hyperlink_entry` (`state.rs:751`) returns to O(1) front-id
+  arithmetic over the FIFO window (`checked_sub`/`get` with a defensive id
+  check) instead of a linear scan of up to `HYPERLINK_TABLE_MAX` 1024
+  entries (`state.rs:58`); the u32-wrap behavior is documented as id reuse
+  after a full table clear; and `next_hyperlink_id` joins the canonical
+  state hash with `CANONICAL_HASH_VERSION` bumped 5 -> 6
+  (`canonical.rs:35`). Inside `bitty-rich` only the crate-level bounds row
+  changed (oldest evicted, evicted ids fail closed, new links keep
+  working); `crates/bitty-rich/src/projection.rs` is byte-identical, so
+  BII-07 Delivered and Gap claims are unchanged.
+
+The remaining items touch no BII gap file:
+
+- `6b5d4ad` (#791): `CHANGELOG.md` only (169 insertions), recording the
+  merged wave; no code, capability, or IPC file changes.
+- `6a9ee85` (#800): `crates/bitty-plugin-host/src/manifest.rs` only; the
+  filesystem capability predicate now requires a literal first child under
+  a `~` root and normalizes separators and ASCII case, closing the
+  overbroad home and `.`/empty-segment bypasses found in wave review. This
+  is plugin manifest validation on the capability-request path, not the IPC
+  gateway, so BII-01 through BII-10 claims are unchanged.
+- `cfeffa2` (#794): `crates/bitty-package/src/requirement.rs` replaces the
+  unchecked caret/tilde upper-bound increment with `checked_add` and a
+  clean `PackageError` for unrepresentable bounds, with shorthand
+  regression coverage in `bitty-package`,
+  `bitty-plugin-host/src/registry.rs`, and the
+  `bitty-runtime/src/plugin_runtime/package.rs` test module (test-only
+  hunk). Package constraint evaluation, not the IPC gateway; DEC-0008
+  keeps zero-padded comparator spellings, and no BII claim changes.
+
+Zero-touch confirmations in this window (`git log db283e6..cfeffa2 -- <path>`
+per path, all read-only):
+
+| Path                                                 | Window result                                                                                                                                                                                          |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `crates/bitty-ipc/` (whole crate)                    | Empty: no file touched, covering `wire.rs`, `channel.rs`, `bridge.rs`, `execution.rs`, `tool_dispatch.rs`, `snapshot.rs`, `rich_fragment.rs`, `host_bridge.rs`, `scope.rs`, `mcp.rs`, and `limits.rs`. |
+| `crates/bitty-agent/src/message.rs`                  | Empty: the `ContentTrust` label is unchanged at `cfeffa2`; BII-06 Delivered and Gap claims hold.                                                                                                       |
+| `crates/bitty-runtime/src/ai_panel.rs`               | Empty: no further movement on the #736 deprecation alias; the BII-08 Gap claim is unchanged.                                                                                                           |
+| `crates/bitty-runtime/src/plugin_runtime/spawn.rs`   | Empty: the Layer-2 production spawn authorizer wiring is unchanged; the BII-04 Gap wording holds.                                                                                                      |
+| `crates/bitty-runtime/src/host_bridge.rs`            | Empty: the committed-state read helpers are unchanged.                                                                                                                                                 |
+| `crates/bitty-rich/src/projection.rs`                | Empty: the text-first fragment projection helper is unchanged.                                                                                                                                         |
+| `crates/bitty-runtime/src/plugin_runtime/package.rs` | One commit only: `cfeffa2` (#794), whose hunk is inside `mod tests` (two `evaluate_compat` cases), with no production change.                                                                          |
+| `crates/bitty-lua/tests/host_bridge.rs`              | One commit only: `3e1dfb3` (#781), test additions for the deadline semantics above.                                                                                                                    |
+
+RFC synchronization check: the
+[IPC and Agent Protocol RFC](ipc-agent-rfc.md) Versioning section (wire
+version `1` as the only version, discovery and `hello` advertisement) is
+untouched by this window: neither `crates/bitty-ipc/src/wire.rs` nor
+`crates/bitty-agent/src/message.rs` changes, so no RFC edit accompanies
+this addendum and the #787 negotiation landing from the prior window
+remains envelope plumbing with no wire version bump.
+
+Conclusion restated unchanged: still missing for a live-host claim are
+production publish call-sites and live terminal and process or PTY wiring
+with transport, real capability backends beyond read-only inspect, unified
+gate order with generation, schema, policy, and budget accounting, live
+cancellation and acknowledgement-loss proofs, consumer substitution off
+the pinned revision, typed rich fragments with render wiring and a
+serving wire method, and executed Panel demotion with negative-evidence
+code proof. This addendum grants no acceptance, sets no `bitty`-side
+priority, closes no open question, and changes the status of no AIQ
+entry; `bitty`-side decisions stay with the `bitty` repository through
+its own review.
+
 ## Conclusion: what was delivered and what remains missing
 
 Delivered in shape on `bitty` `main`: bounded snapshot, generic dispatch
