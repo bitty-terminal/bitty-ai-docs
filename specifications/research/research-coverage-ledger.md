@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, and partial 039/040/041
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041
 category: specifications
 audience: mixed
 document_type: register
@@ -12,10 +12,12 @@ sidebar_order: 21
 # Research coverage ledger
 
 This ledger maps specific source topics to the
-[distillation](research-distillation-013-017-018.md), rather than claiming that
-an entire recording or specification is covered. Line ranges are inclusive,
-verified against the local recordings identified below. Repeated examples are
-condensed, not adopted as API definitions.
+[distillation](research-distillation-013-017-018.md), to the
+[prefix-cache context design](../prefix-cache-context-design.md) for record
+025, and to the 039/040/041 companion distillations, rather than claiming
+that an entire recording or specification is covered. Line ranges are
+inclusive, verified against the local recordings identified below. Repeated
+examples are condensed, not adopted as API definitions.
 
 ## Source identity
 
@@ -177,6 +179,123 @@ files, recorded with concrete source paths in the companion
 Aider's exact missing paths are recorded there. Neither clean source nor a
 license file proves runtime correctness, security completeness, dependency
 compatibility, or a production-ready Bitty feature.
+
+## Source identity: record 025 (partial, already distilled)
+
+Paths are workspace-relative; these are content fingerprints, not Git commits
+or evidence that the record's factual claims are true. The origin file is
+tracked in the research repository; the distilling task neither renamed,
+edited, nor staged it.
+
+| Source                   | Lines | Bytes  | SHA-256                                                            |
+| ------------------------ | ----- | ------ | ------------------------------------------------------------------ |
+| `research/origin/025.md` | 1,404 | 17,288 | `e2adbbcb22a6e4e84b2e4eef5ad955c5dbb89d292ad2091d021fefb873d85b6a` |
+
+Record 025 is a single pass with one framing principle, twenty-three numbered
+sections, and a closing pipeline summary; no duplication handling applies.
+The fingerprint above matches `origin/025.md.completed`: the
+same content carries the `.completed` suffix because the distillation
+([Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md),
+`sidebar_order: 26`, CTX-0017) recorded its conclusions in this repository.
+
+Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/025.md.completed"`
+plus `wc -l -c` on the same path. The distillation's provenance block cites
+the pre-rename `recording/research/025.md` copy (1,404 lines, same SHA-256);
+that staging path no longer exists at the workspace root, so verify against
+the current `research/origin/025.md.completed` path.
+
+## Disposition: 025 partial distillation (Captured, Vulnerable)
+
+The companion draft is
+[Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md)
+(`sidebar_order: 26`): stable-before-dynamic layering, deterministic
+serialization, session-pinned registry snapshots, append-only epochs with
+structural compaction, provider qualifications, and privacy controls, with a
+v0.1 scope boundary marking the planner, epoch, snapshot, content-addressed
+block, routing, multi-agent, and observability material as later proposals.
+It is a draft discussion synthesis: the layering, epoch, snapshot, planner,
+content-addressed block, and routing models it records are candidate inputs
+to the draft AI architecture and its related draft dispositions, not accepted
+contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
+The draft creates no AIQ or OQ identifier and closes none; it proposes
+AIQ-12 (canonical serialization, Closed adopted-draft) and AIQ-13
+(provider-scoped cache key and routing scope), whose register state stays
+with [AI Unresolved Questions](../ai-unresolved-questions.md). Source
+repositories under `recording/references` remain untrusted read-only
+research material.
+
+The 025 design covers context assembly only (ordering, canonicalization,
+snapshots, epochs, observability). Provider-side cache behavior discussed in
+025 sections 19-20 (routing, stickiness) is qualified, not adopted: no
+cross-provider key-value reuse, no breakpoint or pricing standard, and no
+v0.1 routing or affinity contract. The companion `CacheKey`/`CacheScope`
+mechanism in the sibling `bitty-ai` runtime (read-only evidence, never
+modified here) is the code-side traceability for the key-scope question,
+not an implementation of the 025 design: main at `a8d3422` carries
+AI-0082 (`fdb37c5`, tests `crates/bitty-ai-runtime/tests/cache_key.rs`)
+with a provider-scoped `(provider_id, model_id, scope,
+stable_prefix_hash, prefix_len)` key and FNV-1a-64 digest over the stable
+prefix. The marker-collision fix (AI-0084, length-aware stable-prefix
+boundary, no naive marker scan) is still an unmerged branch
+(`origin/ctx-AI-0084/test-marker-collision` at `944efdf`, no PR number
+resolves; open PR list is empty) at the time of writing: **record 025 is
+Captured (Vulnerable) — the open collision stands until AI-0084 merges.**
+
+## Topic-level traceability: record 025 (partial)
+
+Section names below refer to the companion 025 design unless a linked
+existing document is named. Source section numbers are the record's own
+`# N.` headings; source ranges below map each section to its body (the
+`---` separators at 31, 96, 198, 262, 342, 427, 473, 521, 585, 682, 738,
+798, 838, 868, 936, 986, 1027, 1077, 1122, 1174, 1223, 1291, 1318, and 1351
+are excluded from every range).
+
+| Source lines | Topic                                                                             | Disposition / destination                                                                                                                                              |
+| ------------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1-29         | Framing principle: longest-common-prefix stability; stable-to-dynamic layer order | 025 stable-prefix layering section; adopt stable-before-dynamic ordering, dynamic values in trailing layers or behind on-demand tools; seven-layer split is proposal.  |
+| 33-94        | 1. Stable System Prompt; build once per epoch, per-turn values trailing           | 025 layering and invariant 2; adopt static system prompt with trailing turn-context block; defer serializer ownership.                                                 |
+| 98-196       | 2. Deterministic Tool Schema; fixed ordering and field shape                      | 025 invariant 3 and deterministic-serialization section; adopt determinism as requirement on any future cache claim; canonical type and encoding open.                 |
+| 200-260      | 3. Fully deterministic Serialization; canonical encoding proposal                 | 025 deterministic-serialization section; adopt canonical ordering prerequisite; block-hash sketch is optimization proposal, never a consent or budget substitute.      |
+| 264-340      | 4. Stable Skill ordering; fixed core plus versioned session set                   | 025 invariant 6; adopt snapshot direction with explicit versioning; snapshot type, digest, and placement open; overlaps AIQ-08.                                        |
+| 344-425      | 5. MCP/plugin Session Snapshot; pinned listings, no per-turn re-enumeration       | 025 invariants 5-6 and registry-snapshot section; adopt versioned session-pinned snapshots; representation and owner open.                                             |
+| 429-471      | 6. Runtime State placement; full state trailing, never leading                    | 025 layering and invariant 4; adopt references-over-embedding consistent with CP-6; drill-down never widens authority.                                                 |
+| 475-519      | 7. On-demand state; references over inline dumps                                  | 025 invariant 4; adopt addressable references with typed unavailability; panel state stays outside the agent prefix unless requested.                                  |
+| 523-583      | 8. Append-only history; no silent mid-history rewrites                            | 025 invariant 1 and invariant 7; adopt append-only within one epoch with governed deletion propagation; tombstones retain no sensitive payload.                        |
+| 587-680      | 9. Low-frequency structural `/compact`; newest-segment compression                | 025 invariant 7; adopt structural compaction over background rewriting; undo and disclosure tracked as AIQ-06 with its AIQ-57 facet.                                   |
+| 684-736      | 10. Context Epoch; explicit invalidation boundary                                 | 025 invariant 5 and epoch section; adopt explicit epoch boundary; epoch schema beyond-v0.1, overlaps AIQ-06 without a new identifier.                                  |
+| 740-796      | 11. Agent-loop hit rate; append-only consecutive turns                            | 025 invariant 1; retained as working hypothesis; no measured hit-rate claim; measurement requires replayed-trace evidence.                                             |
+| 800-836      | 12. No per-turn System Prompt regeneration                                        | 025 invariant 2; adopt build-once-per-epoch static prompt; token-budget counters trailing.                                                                             |
+| 840-866      | 13. Token Budget placement; budget text trailing or on demand                     | 025 invariant 2; adopt trailing budget placement; sharpest invalidation example retained as illustration.                                                              |
+| 870-934      | 14. Repository Context snapshots plus deltas; explicit refresh                    | 025 registry-snapshot section; adopt immutable project snapshot with trailing deltas; refresh authorization is an AIQ-03/AIQ-04 facet, no new identifier.              |
+| 938-984      | 15. Git-like base plus append-only commits; computable stability                  | 025 registry-snapshot section; retained as analogy and motivation, not a snapshot-versioning contract.                                                                 |
+| 988-1025     | 16. Content-addressed Context Blocks; per-section hashes                          | 025 deterministic-serialization section; record block-hash sketch as serialization-work optimization; hashes are not cache keys and never substitute for policy.       |
+| 1029-1075    | 17. Multi-agent shared prefixes within identical scope                            | 025 epoch section; retained as future hypothesis; permissible only within identical provider, model, tokenizer, and consent scope; not a v0.1 goal.                    |
+| 1079-1120    | 18. Panel state outside the agent prefix; on-demand reads                         | 025 invariant 4 and provider qualifications; adopt separation; panel addressing creates no agent-side authority.                                                       |
+| 1124-1172    | 19. Provider Routing scope; key includes provider and model                       | 025 provider qualifications; adopt provider identity in key scope; cross-provider reuse rejected as correctness boundary.                                              |
+| 1176-1221    | 20. Sticky routing for self-hosted fleets only                                    | 025 invariant 8 and provider qualifications; qualified to self-hosted inference clusters; out of scope for v0.1, no client-visible contract.                           |
+| 1225-1289    | 21. Context Planner proposal; ordering, canonicalization, budget                  | 025 epoch section; record as beyond-v0.1 structural proposal; overlaps ContextBuilder direction and AIQ-10/AIQ-29, no new identifier.                                  |
+| 1293-1316    | 22. `/context` cache-friendliness observability                                   | 025 observability section; accept debugging direction with estimates labeled as estimates; interactive operations stay proposals under AIQ-04.                         |
+| 1320-1349    | 23. Eight design invariants; adopt/qualify/reject/open judgment                   | 025 invariants section; adopt append-only, stable-first, deterministic serialization, reference-over-embed, versioned change, structural compaction; qualify locality. |
+| 1353-1404    | Closing pipeline: size, stability, and hit rate as independent metrics            | 025 problem statement and privacy controls; shorter context is not faster when it rewrites early segments; cache never overrides budget, minimization, or consent.     |
+
+## Explicit exclusions: record 025
+
+- 025 provider-routing numbers, breakpoint syntax, minimum lengths, pricing
+  behavior, and upstream harness claims are illustrative, never adopted
+  defaults; provider and harness behavior cited by the source was not
+  independently verified.
+- 025 `ContextSerializer`, `Canonical Context Encoding`, `ContextEpoch`,
+  `ToolRegistrySnapshot`, `ContextBlock`, `ContextPlan`, and Context Planner
+  type names and schemas are unreviewed sketches, not adopted types,
+  contracts, or module paths.
+- 025 key-scope, breakpoint-placement, cache-retention, serializer-ownership,
+  epoch-boundary, planner-placement, snapshot-refresh, and compaction-undo
+  choices stay open (AIQ-03, AIQ-04, AIQ-06 with its AIQ-57 facet, AIQ-08,
+  AIQ-10, AIQ-12, AIQ-13, AIQ-29); this task closes none of them and changes
+  no normative contract.
+- This task does not close identity, workspace-overlay, CarryCtx backend,
+  agent-growth, dependency, protocol, registry, manifest, versioning, or
+  release-scope decisions.
 
 ## Source identity: records 039, 040, and 041 (partial)
 
