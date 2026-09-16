@@ -349,7 +349,7 @@ No native task, agent, workspace, context, or evidence service exists today;
 I/O, and the `ctxctl` measurements remain tool-level observations. Tracked as
 [OQ-067](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
-## Candidate runtime contracts
+## Candidate runtime contracts (candidate)
 
 Status: **candidate, non-normative, post-v1.0**. The following contracts
 organize possible future Agent Runtime work. They are design candidates, not
