@@ -189,7 +189,7 @@ neither file was renamed, edited, or staged by the distilling task: the
 | Source                   | Lines | Bytes   | SHA-256                                                            |
 | ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
 | `research/origin/039.md` | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
-| `research/origin/040.md` | 1,829 | 31,779  | `067e3c287b203ccd9a3217c1596d55cb7181b4746d07076e1023e1ddfc2cfe0e` |
+| `research/origin/040.md` | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
 
 Record 039 is five pasted rounds of one 15-section conversation: rounds 1-4
 (`039.md:46-1258`, `1259-2471`, `2472-3684`, `3685-4897`) are byte-identical
@@ -204,13 +204,15 @@ Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/039.md"` and
 `wc -l -c` on both paths. The record-040 fingerprinted head keeps verifying
 even after appends: `head -n 1829 "$BITTY_WORKSPACE/research/origin/040.md" |
 sha256sum` and `head -c 31779 "$BITTY_WORKSPACE/research/origin/040.md" |
-sha256sum` must both print the fingerprint above. Post-verification note: record 040 grew by a pure
-append after the distilling task verified it (first 1,829 lines and 31,779
-bytes still hash to the fingerprint above; appended tail around
-`040.md:1830` onward, roughly 386 lines of comparable-programs discussion,
-skimmed for exclusion accuracy only and not distilled). Every 040 range
-cited in this ledger still verifies against the fingerprinted head; the
-appended tail is explicitly uncovered and needs a follow-up task if wanted.
+sha256sum` must both print
+`067e3c287b203ccd9a3217c1596d55cb7181b4746d07076e1023e1ddfc2cfe0e`. Post-verification note: record 040 grew by a pure
+append after the distilling task verified its head (first 1,829 lines and 31,779
+bytes still hash to the head fingerprint above; appended tail
+`040.md:1830-2215`, 386 lines of comparable-programs discussion, distilled in
+the 040 addendum). Every 040 head range
+cited in this ledger still verifies against the head fingerprint; the
+whole-file fingerprint in the table above matches the current file, which has
+not grown since the append was recorded.
 
 ## Disposition: 039/040 partial distillations
 
@@ -269,7 +271,7 @@ marked as such.
 | 1131-1294     | Plugin tree, native-versus-extension axis, small base                                        | Read, not distilled; axis and base-minimality inform the layer split; tree mechanics are `bitty`-side.                          |
 | 1365-1505     | Non-AI native capabilities, browser analogy                                                  | Read, not distilled; runtime-selection criteria are `bitty`-side handoff input.                                                 |
 | 1698-1829     | Native ABI caution, four-level ladder                                                        | Read, not distilled; ABI caution is `bitty`-side engineering; ladder not accepted here.                                         |
-| 1830 onward   | Post-verification appended round (comparable programs)                                       | Skimmed for exclusion accuracy only; not distilled; uncovered; needs a follow-up task if wanted.                                |
+| 1830-2215     | Appended comparable-programs round (Emacs, VS Code, JupyterLab, Eclipse RCP, Neovim, Zed)    | 040 addendum; bitty-ai-relevant parts retained as candidate input, remainder excluded as `bitty`-side.                          |
 
 ## Explicit exclusions: records 039 and 040
 
