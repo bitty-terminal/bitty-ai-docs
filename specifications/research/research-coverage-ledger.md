@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, and 018
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, and partial 039/040
 category: specifications
 audience: mixed
 document_type: register
@@ -177,3 +177,123 @@ files, recorded with concrete source paths in the companion
 Aider's exact missing paths are recorded there. Neither clean source nor a
 license file proves runtime correctness, security completeness, dependency
 compatibility, or a production-ready Bitty feature.
+
+## Source identity: records 039 and 040 (partial)
+
+Paths are workspace-relative; these are content fingerprints, not Git commits
+or evidence that the records' factual claims are true. Both files are
+untracked in the research repository, so provenance is path plus SHA-256, and
+neither file was renamed, edited, or staged by the distilling task: the
+`bitty`-side pass still needs both.
+
+| Source                   | Lines | Bytes   | SHA-256                                                            |
+| ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
+| `research/origin/039.md` | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
+| `research/origin/040.md` | 1,829 | 31,779  | `067e3c287b203ccd9a3217c1596d55cb7181b4746d07076e1023e1ddfc2cfe0e` |
+
+Record 039 is five pasted rounds of one 15-section conversation: rounds 1-4
+(`039.md:46-1258`, `1259-2471`, `2472-3684`, `3685-4897`) are byte-identical
+(each round MD5 `1722f56ee75e9ac76eef1f90c187113b`); round 5
+(`039.md:4898-6079`) equals round 1 minus the trailing 31-line conclusion
+block. Round-1 ranges (`039.md:1-1258`) are canonical; later rounds were not
+re-extracted. Record 040 is a single pass with distinct sections; no
+duplication handling applies.
+
+Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/039.md"` and
+`sha256sum "$BITTY_WORKSPACE/research/origin/040.md"` plus
+`wc -l -c` on both paths. The record-040 fingerprinted head keeps verifying
+even after appends: `head -n 1829 "$BITTY_WORKSPACE/research/origin/040.md" |
+sha256sum` and `head -c 31779 "$BITTY_WORKSPACE/research/origin/040.md" |
+sha256sum` must both print the fingerprint above. Post-verification note: record 040 grew by a pure
+append after the distilling task verified it (first 1,829 lines and 31,779
+bytes still hash to the fingerprint above; appended tail around
+`040.md:1830` onward, roughly 386 lines of comparable-programs discussion,
+skimmed for exclusion accuracy only and not distilled). Every 040 range
+cited in this ledger still verifies against the fingerprinted head; the
+appended tail is explicitly uncovered and needs a follow-up task if wanted.
+
+## Disposition: 039/040 partial distillations
+
+The companion drafts are
+[Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md)
+and
+[Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md).
+Each carries its own provenance block, topic-traceability table, and explicit
+exclusions. Both are draft discussion syntheses: the layered models they
+record (Panel object model, two-level extension model, Host Plugin,
+two-layer `bitty-ai-runtime` split, three-layer model) are candidate inputs
+to the draft AI architecture and its related draft dispositions, not accepted
+contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
+Neither draft creates or closes an AIQ or OQ identifier, duplicates or
+modifies an existing canonical document, or describes implementation as
+shipped. Source repositories under `recording/references` remain untrusted
+read-only research material.
+
+## Topic-level traceability: record 039 (partial)
+
+Section names below refer to the companion 039 distillation unless a linked
+existing document is named. Round-1 ranges are canonical.
+
+| Source lines | Topic                                                                                        | Disposition / destination                                                                                                     |
+| ------------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 1-14         | Opening Panel question                                                                       | Boundary context in the 039 distillation; motivates the synthesis, not a distilled claim.                                     |
+| 15-45        | Head conclusion, AI Workspace in object model                                                | 039 AI Workspace section; retain hosting direction with the R1 projection-only rule; analogy is motivation, not architecture. |
+| 46-83        | Panel identity, lifecycle, `PanelContent` enum, `Panel != Pty`                               | 039 identity and lifecycle section; retain separation and host-owned lifecycle; vocabulary is discussion-only, not registry.  |
+| 84-145       | Modes, floating-mode AI, shared workspace operations                                         | 039 floating-mode section; retain mode-as-property and uniform operations; reject agent-driven windowing; defer key bindings. |
+| 407-489      | Rust `TextEditor` primitive, AI prompt editor as consumer, `Document != View != Panel`       | 039 TextEditor section; retain consumer-only direction with R2 gating on editing effects; defer API shape.                    |
+| 1067-1153    | IDE question, Agent Workspace composition (Agent, Terminal, Diff, Task Board, Logs, Browser) | 039 Agent Workspace section; retain composition as illustration with per-panel authorization; reject composition as plan.     |
+| 1154-1258    | Six-step sequencing, closing object model, Panel-as-host principle sentence                  | 039 sequencing section; sequencing retained as author opinion; principle sentence retained as candidate.                      |
+| 1259-6079    | Rounds 2-5 duplicates                                                                        | Not re-extracted; byte-identity recorded in the 039 provenance section.                                                       |
+
+## Topic-level traceability: record 040 (partial)
+
+Section names below refer to the companion 040 distillation unless a linked
+existing document is named. Boundary sections read but not distilled are
+marked as such.
+
+| Source lines  | Topic                                                                                        | Disposition / destination                                                                                                       |
+| ------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 138           | AI Activity among panel activities                                                           | 040 boundary context; AI as hosted content, consistent with R1 projection-only panels.                                          |
+| 229           | AI in development-environment composition                                                    | 040 boundary context; composition illustration, not a required panel set.                                                       |
+| 244-254       | AI workspace composition (Agent, Tasks, Terminal, Diff, Browser, Logs)                       | 040 boundary context.                                                                                                           |
+| 309, 324, 377 | Bitty AI as a grown application, first-class runtime peer                                    | 040 boundary context; application-not-Core positioning retained as objective.                                                   |
+| 402           | Motivating question on agent-plugin extension                                                | 040 two-level model section; retained question framing the model.                                                               |
+| 437           | Two-level extension model (primitives, AI runtime, AI extensions)                            | 040 two-level model section; retain mediation direction with R2 gating; defer topology.                                         |
+| 460-477       | Bitty AI as Host Plugin tree                                                                 | 040 Host Plugin section; retain dual role and flat runtime; example children are illustration only.                             |
+| 706-778       | Bitty AI as plugin-platform plugin (registries, Agent UI, extension catalog, slash commands) | 040 plugin-platform section; retain decomposition principle; registry and command names are proposals; transport stays with R2. |
+| 779-851       | Extension Points, `bitty-ai.*` declarations                                                  | 040 Extension Points section; retain typed attachment; point names are proposals needing capability review.                     |
+| 852-911       | Manifest relations and dependency resolution                                                 | 040 Manifest section; retain dependency honesty; sketches are illustration; declaration never grants permission.                |
+| 912-998       | Permission non-inheritance, Bitty AI emphasis                                                | 040 permissions section; retained as the load-bearing draft principle with default-deny for extensions behind R2.               |
+| 999-1062      | Service API versioning (`bitty-ai.tools`, `bitty-ai.context` style)                          | 040 versioning section; retain decoupling objective; version strings are illustration; defer policy.                            |
+| 1295-1364     | `bitty-ai-runtime` versus `bitty-ai` split, three-layer model                                | 040 layer-split section; retained as candidate input only; weakest structural claim; not a crate, package, or release decision. |
+| 1131-1294     | Plugin tree, native-versus-extension axis, small base                                        | Read, not distilled; axis and base-minimality inform the layer split; tree mechanics are `bitty`-side.                          |
+| 1365-1505     | Non-AI native capabilities, browser analogy                                                  | Read, not distilled; runtime-selection criteria are `bitty`-side handoff input.                                                 |
+| 1698-1829     | Native ABI caution, four-level ladder                                                        | Read, not distilled; ABI caution is `bitty`-side engineering; ladder not accepted here.                                         |
+| 1830 onward   | Post-verification appended round (comparable programs)                                       | Skimmed for exclusion accuracy only; not distilled; uncovered; needs a follow-up task if wanted.                                |
+
+## Explicit exclusions: records 039 and 040
+
+- 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
+  application-services, editor-application, and startup-performance sections
+  are `bitty`-side terminal or plugin-ecosystem design. Their AI-facing
+  consequences (host-owned lifecycle, consumer-only editing, composed
+  workspace with per-panel authorization) are retained in the 039
+  distillation; no renderer, widget, service, or editor implementation is
+  distilled into an AI requirement.
+- 039 repository and RFC citations carry no pinned revision in the source and
+  were not independently verified; they are discussion claims, not evidence,
+  and cannot ground scope.
+- 040 editor extension API, syntax highlighting, LSP layering, statusline,
+  Docker, media, search, browser, and developer-runtime sections are
+  `bitty`-side or plugin-ecosystem design. Their AI-facing consequences
+  (mediated extension, typed points, non-inheritance, versioned surfaces) are
+  retained in the 040 distillation; no editor, registry, or runtime
+  implementation is distilled into an AI requirement.
+- 040 registry names, extension-point names, manifest fields, version
+  strings, key bindings, and composition lists are unreviewed sketches, not
+  adopted interfaces, defaults, or plans. Performance and effortlessness
+  assertions in both records are unmeasured and no conclusion is drawn from
+  them here.
+- This task does not close identity, workspace-overlay, CarryCtx backend,
+  agent-growth, dependency, protocol, registry, manifest, versioning, or
+  release-scope decisions, and it changes no normative contract.
