@@ -44,7 +44,10 @@ Local `git log --oneline -1` in the `bitty` checkout reads `eef983e`
 (stale, behind `origin/main`); the six window commits above were verified
 read-only at the pinned `2cbb1fb` revision without fetch or checkout
 mutation. `origin/main` additionally resolves to `65aac5c` (#725), which is
-outside this inspection point and is not covered here.
+outside this inspection point and is not covered here. `2cbb1fb` stays the
+full-verification point of this note; the window addendum before the
+Conclusion appends read-only `2cbb1fb..db283e6` coverage without
+re-verifying earlier sections.
 
 Method per item was first-hand source read (`outline`, then targeted
 `symbol` or narrow `read`), integration and unit test enumeration, and a
@@ -433,6 +436,110 @@ framing, the [Tool transport R2](tool-transport-r2.md) open surface, and
 the [Task lifecycle R5](task-lifecycle-r5.md) lifecycle boundary are
 unchanged; this note is a versioned observation input, not a lifecycle
 transition in either repository.
+
+## Window addendum `2cbb1fb..db283e6` (read-only git inspection, no fetch or checkout mutation)
+
+Verified read-only at the local `bitty` checkout: `git rev-list --count
+2cbb1fb..db283e6` reads 41, and `git log --format='%h %s'
+2cbb1fb..db283e6` lists the wave in order: `65aac5c` bundled-manager
+removal (#725), `e890527` tool-test fixture allowlist (#727), `e29b3bb`
+publish-snapshot trailer hardening (#729), `9507ed4` compat-range re-check
+(#731), `3152c12` tmp quarantine GC (#732), `237ad83` not-yet-shipped
+markers (#733), `3375439` Cell zerowidth (#734), `b9ea7b6`
+`agent.context.terminal` migration (#736), `0b416f2` render batching
+(#737), `a266b2a` session save/restore (#738), `d89fa19` multi-click
+selection (#739), `9c63750` palette/OSC 4 (#740), `e154324` keyboard copy
+mode (#741), `8ea5f86` search overlay (#742), `96ba205` `damage_since`
+bound (#766), `1eb6aa8` V-C stub removal (#768), `1ccdb1b` Lua sandbox caps
+(#769), `db87412` package compat eval (#770), `018e205` bg cache identity
+(#771), `b76c4b1` fs predicates (#772), `3716ec4` devtools peer verify
+(#773), `cb0a5ae` config validation (#774), `be6e63c` forwarder-thread join
+(#775), `87c1766` channel/bridge robustness (#776), `ae8f4ba`
+erase/resize/reflow (#777), `0b40400` spawn timeout/waker (#778), `4cc6b2d`
+CLI layout fail-closed (#779), `997fc11` panic/log hygiene (#780),
+`ef9a88e` Esc scoping (#784), `a998456` fill-run merge (#785), `1d4cd18`
+platform gaps (#786), `51ae300` wire negotiation (#787), `d1faecd`
+startup/snapshots/zoom (#788), `5dec410` present-phase split (#782),
+`b52e918` VT parser hardening (#783), `443d4dd` modal capture (#789), `1e66caf`
+`present_golden` re-record (#795), `852847e` composer allowlist (#801),
+`37b7f87` `file:` hyperlink reject (#805), `0d71be8` ImageStore admission
+(#803), `db283e6` plugin spawn env deny (#806). Endpoints resolve to
+`2cbb1fbed82814c157359b71dd8efbb4be0c36e7` and
+`db283e6bba9aa6a468c96b6b71cf04a7161a689e`. The wave is defect and
+security hardening plus UI features; three movements below are
+AI-adjacent, and the rest touch no BII gap file.
+
+Three AI-adjacent movements, each re-verified with `git log` and
+`git show --stat` in this window:
+
+- `b9ea7b6` (#736, `crates/bitty-runtime/src/ai_panel.rs`, 449
+  insertions, 5 deletions): agent terminal-context reads migrate onto the
+  generic bounded snapshot read service. `agent.context.terminal` becomes
+  a `#[deprecated(since = "0.1.0")]` alias (removal at or after v0.2.0);
+  the canonical path is `AI_PANEL_TERMINAL_SNAPSHOT_METHOD`
+  (`terminal.snapshot`) with a ledgered `terminal.inspect` grant via
+  `AiPanelIntegration::resolve_terminal_context`, plus scope and consent
+  gate helpers, a deprecation-warning helper, and fail-closed denial
+  tests. `git log b9ea7b6..db283e6 -- crates/bitty-runtime/src/ai_panel.rs`
+  is empty, so the movement is unchanged at `db283e6`. This is
+  BII-08-adjacent demotion-in-progress, not executed demotion: the old
+  string still compiles and stored grants keep exact-match behavior
+  during the compat window, so the requested negative evidence (no core
+  AI-specific API beyond generic primitives on the reviewed path) is
+  still absent. The Panel section Gap claim below is unchanged.
+- `51ae300` (#787, `crates/bitty-ipc/src/wire.rs` plus
+  `crates/bitty-agent/src/message.rs`): `wire.rs` adds
+  `SUPPORTED_WIRE_VERSIONS` and `negotiate_wire_version` (highest mutual
+  version, fail-closed `VersionMismatch` on no overlap), and `message.rs`
+  adds the `ContentTrust` provenance label (`Untrusted` default,
+  host-asserted `Trusted` only through `AgentMessage::new_trusted`,
+  `Tool`-role messages can never be trusted, and
+  `is_untrusted_content` now reflects the label). `git log
+51ae300..db283e6 -- crates/bitty-ipc/src/wire.rs
+crates/bitty-agent/src/message.rs` is empty, so both landings are
+  unchanged at `db283e6`. BII-06 Delivered and Gap claims are unchanged:
+  negotiation is envelope plumbing with no version bump and no SDK
+  versioning or consumer substitution proof, and the trust label is an
+  agent-crate provenance marker with no gateway or consent change.
+- `87c1766` (#776, `crates/bitty-ipc/src/bridge.rs`,
+  `crates/bitty-ipc/src/channel.rs`, `crates/bitty-ipc/src/limits.rs`):
+  bridge and channel robustness (unknown-id answers buffer nothing under
+  flood, double delivery buffers nothing twice, queued-request timeout
+  reaping via `retain`). Generic transport hardening, not a BII transport
+  decision: no method, scope, consent, or provider change, so BII-01
+  through BII-07 Delivered and Gap claims are unchanged.
+
+Zero-touch confirmations in this window (`git log 2cbb1fb..db283e6 --
+<path>` per path, all read-only):
+
+| Path                                                                   | Window result                                                                                                                                                                                         |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `crates/bitty-ipc/src/host_bridge.rs`                                  | Empty: untouched.                                                                                                                                                                                     |
+| `crates/bitty-runtime/src/host_bridge.rs`                              | Empty: untouched.                                                                                                                                                                                     |
+| `crates/bitty-ipc/src/snapshot.rs`                                     | Empty: untouched.                                                                                                                                                                                     |
+| `crates/bitty-ipc/src/rich_fragment.rs`                                | Empty: untouched.                                                                                                                                                                                     |
+| `crates/bitty-ipc/src/mcp.rs`                                          | Empty: untouched.                                                                                                                                                                                     |
+| `crates/bitty-rich/src/projection.rs`                                  | Empty: untouched.                                                                                                                                                                                     |
+| `crates/bitty-agent/src/tool.rs`                                       | One commit only: `e890527` (#727), whose `tool.rs` hunk adds a test-module comment allowlisting synthetic scrubber fixtures (plus `.gitleaks.toml`); `git show --stat` confirms no production change. |
+| `crates/bitty-ipc/src/wire.rs` and `crates/bitty-agent/src/message.rs` | One commit only: `51ae300` (#787) as described above; unchanged since.                                                                                                                                |
+| `crates/bitty-runtime/src/ai_panel.rs`                                 | One commit only: `b9ea7b6` (#736) as described above; unchanged since.                                                                                                                                |
+
+(The `*host_bridge*` filename glob also matches
+`crates/bitty-lua/tests/host_bridge.rs`, touched once by `1ccdb1b` (#769)
+as a Lua sandbox regression probe; neither production host-bridge module
+is touched.)
+
+Conclusion restated unchanged: still missing for a live-host claim are
+production publish call-sites and live terminal and process or PTY wiring
+with transport, real capability backends beyond read-only inspect, unified
+gate order with generation, schema, policy, and budget accounting, live
+cancellation and acknowledgement-loss proofs, consumer substitution off
+the pinned revision, typed rich fragments with render wiring and a
+serving wire method, and executed Panel demotion with negative-evidence
+code proof. This addendum grants no acceptance, sets no `bitty`-side
+priority, closes no open question, and changes the status of no AIQ
+entry; `bitty`-side decisions stay with the `bitty` repository through
+its own review.
 
 ## Conclusion: what was delivered and what remains missing
 
