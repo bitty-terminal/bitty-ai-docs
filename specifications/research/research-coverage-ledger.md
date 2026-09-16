@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, and partial 039/040
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, and partial 039/040/041
 category: specifications
 audience: mixed
 document_type: register
@@ -178,18 +178,19 @@ Aider's exact missing paths are recorded there. Neither clean source nor a
 license file proves runtime correctness, security completeness, dependency
 compatibility, or a production-ready Bitty feature.
 
-## Source identity: records 039 and 040 (partial)
+## Source identity: records 039, 040, and 041 (partial)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. Both files are
+or evidence that the records' factual claims are true. All three files are
 untracked in the research repository, so provenance is path plus SHA-256, and
-neither file was renamed, edited, or staged by the distilling task: the
-`bitty`-side pass still needs both.
+none of the files was renamed, edited, or staged by the distilling task: the
+`bitty`-side pass still needs all three.
 
 | Source                   | Lines | Bytes   | SHA-256                                                            |
 | ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
 | `research/origin/039.md` | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
 | `research/origin/040.md` | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
+| `research/origin/041.md` | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
 
 Record 039 is five pasted rounds of one 15-section conversation: rounds 1-4
 (`039.md:46-1258`, `1259-2471`, `2472-3684`, `3685-4897`) are byte-identical
@@ -197,11 +198,14 @@ Record 039 is five pasted rounds of one 15-section conversation: rounds 1-4
 (`039.md:4898-6079`) equals round 1 minus the trailing 31-line conclusion
 block. Round-1 ranges (`039.md:1-1258`) are canonical; later rounds were not
 re-extracted. Record 040 is a single pass with distinct sections; no
-duplication handling applies.
+duplication handling applies. Record 041 is a single pass with twelve
+numbered sections plus a closing three-layer model; no duplication handling
+applies.
 
-Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/039.md"` and
-`sha256sum "$BITTY_WORKSPACE/research/origin/040.md"` plus
-`wc -l -c` on both paths. The record-040 fingerprinted head keeps verifying
+Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/039.md"`,
+`sha256sum "$BITTY_WORKSPACE/research/origin/040.md"`, and
+`sha256sum "$BITTY_WORKSPACE/research/origin/041.md"` plus
+`wc -l -c` on all three paths. The record-040 fingerprinted head keeps verifying
 even after appends: `head -n 1829 "$BITTY_WORKSPACE/research/origin/040.md" |
 sha256sum` and `head -c 31779 "$BITTY_WORKSPACE/research/origin/040.md" |
 sha256sum` must both print
@@ -214,19 +218,20 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040 partial distillations
+## Disposition: 039/040/041 partial distillations
 
 The companion drafts are
-[Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md)
+[Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
+[Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md),
 and
-[Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md).
+[IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. Both are draft discussion syntheses: the layered models they
+exclusions. All three are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
-two-layer `bitty-ai-runtime` split, three-layer model) are candidate inputs
+two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
-Neither draft creates or closes an AIQ or OQ identifier, duplicates or
+No draft creates or closes an AIQ or OQ identifier, duplicates or
 modifies an existing canonical document, or describes implementation as
 shipped. Source repositories under `recording/references` remain untrusted
 read-only research material.
@@ -273,7 +278,32 @@ marked as such.
 | 1698-1829     | Native ABI caution, four-level ladder                                                        | Read, not distilled; ABI caution is `bitty`-side engineering; ladder not accepted here.                                         |
 | 1830-2215     | Appended comparable-programs round (Emacs, VS Code, JupyterLab, Eclipse RCP, Neovim, Zed)    | 040 addendum; bitty-ai-relevant parts retained as candidate input, remainder excluded as `bitty`-side.                          |
 
-## Explicit exclusions: records 039 and 040
+## Topic-level traceability: record 041 (partial)
+
+Section names below refer to the companion 041 distillation unless a linked
+existing document is named. All `agent.*` and `panel.*` names are discussion
+inputs; the accepted Agent and IPC vocabulary stays with the IPC and Agent
+RFC, which the 041 draft references without restating.
+
+| Source lines | Topic                                                                                      | Disposition / destination                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| 1-2          | Opening IPC question                                                                       | 041 boundary context; motivates the synthesis, not a distilled claim.                                                         |
+| 3-78         | IPC as second extension boundary; plugin-kind table; out-of-process tree; language freedom | 041 boundary section; retain separation as candidate objective; platform reframing is motivation; defer capability split.     |
+| 79-151       | Heavyweight shape; `bitty-ai` daemon; Core provider ignorance; `agent.*` sketches          | 041 daemon section; retain daemon direction and provider ignorance; sketches are discussion inputs; defer to AI architecture. |
+| 152-223      | Panel as public abstraction; operation sketches; Agent panel entry                         | 041 panel section; retain abstraction direction; operations are proposals; Agent entry is positional context under R1.        |
+| 224-285      | Agent/Panel lifecycle separation; Agent A diagram; operation sketches                      | 041 lifecycle section; retain separation direction; lifecycle and operations are RFC-owned discussion inputs only.            |
+| 286-370      | IPC bus; plugin-to-plugin flow; `agent.*` event examples; shared Lua/IPC semantics         | 041 bus section; retain bus direction; all event names are discussion inputs; delivery and auth entirely open.                |
+| 371-449      | Capability API unity; triple-frontend example; capability sketches                         | 041 capability section; retain unity objective as candidate; names are vocabulary; defer owner, versioning, enforcement.      |
+| 450-510      | Manifest sketch; capability token; per-capability checks; permission display               | 041 permissions section; retain boundary-enforcement placement; align with R2 backend and 040 non-inheritance.                |
+| 511-558      | Crash isolation (section 8)                                                                | Read, not distilled; process supervision is `bitty`-side; consequence covered by the daemon direction.                        |
+| 560-609      | Debugging and DevTools sketches (section 9)                                                | Excluded (`bitty`-side tooling design); no `bitty-ai` contract follows.                                                       |
+| 611-658      | Controlling a running Bitty; `agent ask` sketch (section 10)                               | Excluded (`bitty`-side control design); `agent ask` proposes no accepted CLI surface.                                         |
+| 660-697      | Multi-instance sockets and addressing (section 11)                                         | Read, not distilled; addressing is `bitty`-side and partly RFC-owned; no `bitty-ai` contract follows.                         |
+| 699-735      | Lua-plugin fit and rationale (section 12, first half)                                      | Read, not distilled; latency and UI-coupling rationale is `bitty`-side engineering.                                           |
+| 736-761      | IPC-plugin fit list and characteristics (section 12, second half)                          | 041 split section; retain as AI placement rule and heuristic needing per-case review.                                         |
+| 765-821      | Closing three-layer model; Capability Layer; capability list; downstream motivation        | 041 layer section; candidate input only; weakest structural claim; do not merge silently with the 040 layering.               |
+
+## Explicit exclusions: records 039, 040, and 041
 
 - 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
   application-services, editor-application, and startup-performance sections
@@ -294,8 +324,19 @@ marked as such.
 - 040 registry names, extension-point names, manifest fields, version
   strings, key bindings, and composition lists are unreviewed sketches, not
   adopted interfaces, defaults, or plans. Performance and effortlessness
-  assertions in both records are unmeasured and no conclusion is drawn from
+  assertions in these records are unmeasured and no conclusion is drawn from
   them here.
+- 041 crash isolation, debugging and DevTools, running-instance control, and
+  multi-instance addressing sections are `bitty`-side terminal or
+  plugin-ecosystem design. Their AI-facing consequences (out-of-process
+  daemon placement, protocol-operated panels) are retained in the 041
+  distillation; no supervision, tooling, control-surface, or addressing
+  implementation is distilled into an AI requirement.
+- 041 `agent.*` and `panel.*` method names, event names, manifest fields,
+  capability-list entries, and the `agent ask` sketch are unreviewed
+  discussion inputs, not adopted wire, event, CLI, or permission interfaces.
+  Agent lifecycle, events, and semantics stay with the accepted IPC and
+  Agent RFC, which the 041 draft references without restating.
 - This task does not close identity, workspace-overlay, CarryCtx backend,
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions, and it changes no normative contract.
