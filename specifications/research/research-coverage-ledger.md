@@ -204,7 +204,7 @@ the pre-rename `recording/research/025.md` copy (1,404 lines, same SHA-256);
 that staging path no longer exists at the workspace root, so verify against
 the current `research/origin/025.md.completed` path.
 
-## Disposition: 025 partial distillation (Captured, Vulnerable)
+## Disposition: 025 partial distillation (Captured)
 
 The companion draft is
 [Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md)
@@ -236,10 +236,9 @@ AI-0082 (`fdb37c5`, tests `crates/bitty-ai-runtime/tests/cache_key.rs`)
 with a provider-scoped `(provider_id, model_id, scope,
 stable_prefix_hash, prefix_len)` key and FNV-1a-64 digest over the stable
 prefix. The marker-collision fix (AI-0084, length-aware stable-prefix
-boundary, no naive marker scan) is still an unmerged branch
-(`origin/ctx-AI-0084/test-marker-collision` at `944efdf`, no PR number
-resolves; open PR list is empty) at the time of writing: **record 025 is
-Captured (Vulnerable) — the open collision stands until AI-0084 merges.**
+boundary, no naive marker scan) merged in `bitty-ai` `2b984c4` (AI-0084) at
+the time of writing: **record 025 is Captured — the AI-0084 merge resolves
+the open collision cited at CTX-0053.**
 
 ## Topic-level traceability: record 025 (partial)
 
