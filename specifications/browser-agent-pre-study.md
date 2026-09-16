@@ -170,7 +170,7 @@ a requirement between owners and does not create a bypass.
 
 ### Browser and WebView embedding via Panel Runtime (candidate research)
 
-Status: **candidate** — builds on accepted `View` `Browser` type (`browser.embed`)
+Status: **candidate, non-normative** — builds on accepted `View` `Browser` type (`browser.embed`)
 and the draft Panel Runtime host placement `Instance -> Window -> Workspace -> LayoutTree -> View` with `ViewContent::Browser(BrowserSurfaceId)` or
 `ViewContent::Panel(PanelId)` containing a Browser surface.
 
