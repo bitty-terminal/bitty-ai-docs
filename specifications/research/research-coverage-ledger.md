@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/048/049/050/051
 category: specifications
 audience: mixed
 document_type: register
@@ -14,7 +14,7 @@ sidebar_order: 21
 This ledger maps specific source topics to the
 [distillation](research-distillation-013-017-018.md), to the
 [prefix-cache context design](../prefix-cache-context-design.md) for record
-025, and to the 039/040/041/044/045 companion distillations, rather than claiming
+025, and to the 039/040/041/044/045/048/049/050/051 companion distillations, rather than claiming
 that an entire recording or specification is covered. Line ranges are
 inclusive, verified against the local recordings identified below. Repeated
 examples are condensed, not adopted as API definitions.
@@ -296,13 +296,13 @@ are excluded from every range).
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions.
 
-## Source identity: records 039, 040, 041, 044, and 045 (partial)
+## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, and 051 (partial)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. All five files are
+or evidence that the records' factual claims are true. All nine files are
 untracked in the research repository, so provenance is path plus SHA-256, and
 none of the files was renamed, edited, or staged by the distilling task: the
-`bitty`-side pass still needs all five.
+`bitty`-side pass still needs all nine.
 
 | Source                   | Lines | Bytes   | SHA-256                                                            |
 | ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
@@ -311,6 +311,44 @@ none of the files was renamed, edited, or staged by the distilling task: the
 | `research/origin/041.md` | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
 | `research/origin/044.md` | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
 | `research/origin/045.md` | 914   | 14,827  | `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0` |
+| `research/origin/048.md` | 2,351 | 57,159  | `ddfd88b2eaa66e983d1bd9dc659c03ee7615db546d3eb92510c8e4d4444d0455` |
+| `research/origin/049.md` | 2,135 | 32,648  | `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa` |
+| `research/origin/050.md` | 940   | 13,978  | `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59` |
+| `research/origin/051.md` | 1,308 | 17,307  | `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88` |
+
+Record 048 is a single pass: an owner question block, a conclusion block, a
+quality-formula section, eleven numbered quality sections, a prioritized
+optimization order, a Harness-philosophy section, a Wheel-goal restatement,
+seventeen Wheel design sections, a closing architecture, and a top
+principle; no duplication handling applies. The fingerprint above was
+verified at task start and re-verified at task end with no change, so the
+CTX-0045 growth pattern did not trigger: the 048-049 body distills the whole
+verified files (`048.md:1-2351`, `049.md:1-2135`), and any later append is
+uncovered.
+
+Record 049 is a single pass: a framing answer plus thirty numbered Context
+Compiler sections with a closing five-subsystem split and reference list; no
+duplication handling applies. The fingerprint above was verified at task
+start and re-verified at task end with no change, so the CTX-0045 growth
+pattern did not trigger: the 048-049 body distills the whole verified file
+(`049.md:1-2135`), and any later append is uncovered.
+
+Record 050 is a single pass: an opening rename-and-split statement, a
+portable-capabilities section, a How-versus-What section with the entry
+contract, eight function-class sections, a core-prompt section, a
+no-runtime-state section, a Lua-trust section, a sandbox section, and a
+closing layout with the boundary sentence; no duplication handling applies.
+The fingerprint above was verified at task start and re-verified at task end
+with no change, so the CTX-0045 growth pattern did not trigger: the 050-051
+body distills the whole verified file (`050.md:1-940`), and any later append
+is uncovered.
+
+Record 051 is a single pass: a framing paragraph plus twenty-four numbered
+sections and a closing philosophy; no duplication handling applies. The
+fingerprint above was verified at task start and re-verified at task end
+with no change, so the CTX-0045 growth pattern did not trigger: the 050-051
+body distills the whole verified file (`051.md:1-1308`), and any later
+append is uncovered.
 
 Record 045 is a single pass with one framing diagram, one core principle,
 twelve numbered sections plus a closing strengths section; no duplication
@@ -353,21 +391,28 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040/041/044/045 partial distillations
+## Disposition: 039/040/041/044/045/048/049/050/051 partial distillations
 
 The companion drafts are
 [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
 [Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md),
 [IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md),
 [Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md),
+[Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md),
+[Quality-formula and Context-Compiler research distillation for bitty-ai (048-049)](research-distillation-048-049-bitty-ai.md),
 and
-[Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md).
+[Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All five are draft discussion syntheses: the layered models they
+exclusions. All seven are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
 two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
 Execution Supervisor with the mechanism-versus-semantics split, four-layer
-safety boundary with the intersection-only authority rule) are candidate inputs
+safety boundary with the intersection-only authority rule, multiplicative
+quality formula with the Context Compiler and Verification Runtime, Cold,
+Warm, and Hot stratification with stability zones and the pass pipeline,
+`.wheel` configuration classes with the portable-capability split,
+Git-inspired content-addressed context DAG with checkpoint, branch, merge,
+and GC discipline) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
@@ -526,7 +571,139 @@ split applies.
 | 791-850      | Controlled-request Lua API; raw-escape-hatch note; error names  | 045 API section; retain request direction; sandbox restriction needs its own task.                 |
 | 854-914      | Primitives list; official harness; unbreakable boundaries       | 045 API section; retain placement; behavior-versus-boundary principle kept.                        |
 
-## Explicit exclusions: records 039, 040, 041, 044, and 045
+## Topic-level traceability: records 048 and 049 (partial)
+
+Section names below refer to the companion 048-049 distillation unless a
+linked existing document is named. All formula symbols, struct and enum
+names, tool names, hook names, metric names, and CLI spellings are
+discussion inputs; the accepted Agent and IPC vocabulary stays with the IPC
+and Agent RFC, which the 048-049 draft references without restating. The
+whole verified files (`048.md:1-2351`, `049.md:1-2135`) were distilled; no
+head-versus-tail split applies.
+
+| Source lines  | Topic                                                                    | Disposition / destination                                                                                       |
+| ------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 048:1-30      | Owner questions; Codex behavior; skill-minimal habit                     | 048-049 boundary context; motivates the synthesis; directory habit is compatible context for the 050-051 split. |
+| 048:31-77     | Multiplicative quality formula; factor table; verification primacy       | 048-049 formula section; retain framing and bottleneck argument; formula is a device, not a model.              |
+| 048:78-145    | Window versus attention; efficiency ratio; cited studies                 | 048-049 pollution section; retain efficiency objective; citations unverified; no threshold adopted.             |
+| 048:146-207   | Pollution catalog; clearing direction; cargo reduction                   | 048-049 pollution section; retain lifecycle sentence and reduction pattern; counts are illustration.            |
+| 048:208-271   | Layered code reading; viewer and map citations; level sketch             | 048-049 code-reading section; retain topology-first order; sizes are anecdote; levels are vocabulary.           |
+| 048:272-361   | Tool-parameter failures; intent-hiding rule                              | 048-049 ergonomics section; retain expose-intent rule; sketches are illustration; transport stays with R2.      |
+| 048:362-426   | MCP counts; selection degradation; Tool Search direction                 | 048-049 ergonomics section; retain activation shape; counts are unverified figures.                             |
+| 048:427-581   | Progressive disclosure limits; four collisions; Skill Hell sum; Resolver | 048-049 capability section; retain Hell decomposition and resolver placement; scores are illustration.          |
+| 048:582-622   | Supply-chain figures; poisoning reports; metadata and tiers              | 048-049 capability section; retain no-implicit-trust rule; figures describe one corpus only.                    |
+| 048:623-779   | Prompt over-specification; map-not-manual; need-driven discovery         | 048-049 prompt section; retain middle-height and need-driven rules; no prompt text adopted.                     |
+| 048:780-866   | Threshold-summarize critique; lifecycle classes; hygiene                 | 048-049 state section; retain hygiene cadence; classes are vocabulary.                                          |
+| 048:867-924   | Subagent costs; parallel-gain inequality                                 | 048-049 scheduling paragraph; retain cost inequality; numbers are illustration.                                 |
+| 048:925-963   | Ten-item order; Harness slogan and diagram                               | 048-049 order section; retain resourcing opinion and slogan; order shifts by task.                              |
+| 048:1035-1051 | Reference list [1]-[16]                                                  | Provenance only; no cited claim reproduced as a finding.                                                        |
+| 048:1054-1078 | Wheel goal; seven-module sketch; compiler-plus-verification priority     | 048-049 decomposition section; retain goal and investment order; candidate topology.                            |
+| 048:1079-1124 | Core-versus-Wheel boundary diagram                                       | 048-049 decomposition section; retain ignorance rule; no crate or team split implied.                           |
+| 048:1125-1226 | Compiler-as-view; append anti-pattern; knowledge superset                | 048-049 decomposition section; retain per-turn-view metaphor and superset inequality.                           |
+| 048:1227-1296 | Lifecycle state model; cargo-state example                               | 048-049 state section; retain separation and hygiene direction; fields are vocabulary.                          |
+| 048:1297-1384 | Terminal-substrate advantage; structured reads                           | 048-049 substrate paragraph; retain association reads; mechanisms stay `bitty`-side.                            |
+| 048:1385-1474 | Code Intelligence Layer proposal                                         | 048-049 code-reading section; retain staged-cognition direction; API shape open.                                |
+| 048:1475-1559 | Tools versus APIs; narrow surfaces                                       | 048-049 ergonomics section; retain intent-hiding rule; operation lists are illustration.                        |
+| 048:1560-1638 | Capability Registry versus Active Set                                    | 048-049 capability section; retain small-active-set shape; counts are illustration.                             |
+| 048:1639-1703 | Skill Resolver with overlap and ranking                                  | 048-049 capability section; retain resolver as candidate subsystem; algorithm open.                             |
+| 048:1704-1776 | Trust metadata and tiers                                                 | 048-049 capability section; retain tiered no-implicit-trust direction; needs security review.                   |
+| 048:1777-1816 | Tiny core prompt sketch                                                  | 048-049 prompt section; retain shrink-with-strength posture; sketch lines are illustration.                     |
+| 048:1817-1903 | Verification Runtime chains; adapter inference                           | 048-049 verification section; retain evidence-gating shape; chains and rules open.                              |
+| 048:1904-1959 | Thought-state split; state sketch                                        | 048-049 state section; retain discardable-transcript rule; fields are vocabulary.                               |
+| 048:1960-2007 | Advanced compaction over threshold summarize                             | 048-049 state section; retain promotion-to-state direction; triggers open.                                      |
+| 048:2008-2062 | Panel and Agent lifecycle split; headless panels                         | 048-049 modes paragraph; retain independence direction; lifecycle machine is RFC-owned input.                   |
+| 048:2063-2121 | Subagent scheduler; structured returns                                   | 048-049 scheduling paragraph; retain budgeted-scheduling direction; policies open.                              |
+| 048:2122-2167 | Provider abstraction; capability profile                                 | 048-049 provider paragraph; retain brand-indifference rule; profile fields are vocabulary.                      |
+| 048:2168-2222 | Eval metrics; version comparison                                         | 048-049 scheduling paragraph; retain meter-not-impression rule; metrics are vocabulary.                         |
+| 048:2223-2351 | Closing architecture; Core substrate; top principle; refs                | 048-049 decomposition section; retain candidate claims; topology not packaging.                                 |
+| 049:1-47      | Compiler framing; Storage versus Active versus Cache                     | 048-049 compiler framing; retain three-way split as the design basis.                                           |
+| 049:48-127    | Cold, Warm, Hot worlds; subset relation                                  | 048-049 stratification section; retain Hot-selects-from-Universe framing.                                       |
+| 049:128-196   | Context IR struct; worked unit examples                                  | 048-049 IR section; retain IR-first direction; struct and values are sketches.                                  |
+| 049:197-256   | Content-layout split; per-vendor backends                                | 048-049 IR section; retain backend seam; backend names are vocabulary.                                          |
+| 049:257-373   | Six stability zones with examples and lifetimes                          | 048-049 zones section; retain volatility ordering; zone cuts are candidate.                                     |
+| 049:374-450   | Cache tree; chained-hash sketch                                          | 048-049 zones section; retain layered-invalidation direction; hash mechanics open.                              |
+| 049:451-525   | Canonical serializer; ordering hazards                                   | 048-049 serialization section; retain single-serializer ownership.                                              |
+| 049:526-604   | Dynamic-out-of-prefix; position rule                                     | 048-049 serialization section; retain inverse-volatility placement.                                             |
+| 049:605-661   | Utility formula; correctness-first ordering                              | 048-049 priority guardrail; retain correctness-first order; formula is a device.                                |
+| 049:662-715   | Admission score; small cache tiebreak                                    | 048-049 admission section; retain tiebreak ceiling; formula is a thinking tool.                                 |
+| 049:716-772   | Authority ladder; conflict eviction                                      | 048-049 authority section; retain pre-resolution rule; ladder order is candidate.                               |
+| 049:773-839   | Content-addressed code; STALE bar                                        | 048-049 code section; retain hash-mismatch exclusion; artifact shape open.                                      |
+| 049:840-892   | Dedup merge with provenance                                              | 048-049 code section; retain value-plus-sources shape; merge behavior is candidate.                             |
+| 049:893-991   | Three-level tool-result reduction                                        | 048-049 reduction section; retain model-last level order; parsers are illustration.                             |
+| 049:992-1071  | Four compaction modes                                                    | 048-049 compaction section; retain mode split with emergency-last; triggers open.                               |
+| 049:1072-1123 | Traceable compaction; rehydration                                        | 048-049 compaction section; retain view-plus-pointers rule; syntax is illustration.                             |
+| 049:1124-1165 | Context Pointer addressability                                           | 048-049 pointer paragraph; retain on-demand inspection direction; call shapes open.                             |
+| 049:1166-1242 | Twelve-pass pipeline; telemetry feedback                                 | 048-049 pipeline section; retain feedback closure; pass list is candidate flow.                                 |
+| 049:1243-1294 | Budgets decoupled from window; small-start                               | 048-049 budget section; retain decoupling; bands are illustration needing eval.                                 |
+| 049:1295-1349 | Pinned, Flexible, Reserve quotas                                         | 048-049 budget section; retain reserve invariant; quota contents are illustration.                              |
+| 049:1350-1461 | Four cache kinds with keys                                               | 048-049 cache section; retain four-way split; key shapes are illustration.                                      |
+| 049:1462-1505 | Stable-prefix illustration; 80-percent hope                              | 048-049 cache section; retain stable-first discipline; ratio is narrative.                                      |
+| 049:1506-1574 | Tool activation; deferred strategies                                     | 048-049 ergonomics section; retain deferred-loading direction; names are vocabulary.                            |
+| 049:1575-1639 | No universal dispatcher; static core plus deferred                       | 048-049 ergonomics section; retain correctness-over-cache rule; tool lists open.                                |
+| 049:1640-1694 | Provider cache capability record                                         | 048-049 cache section; retain capability seam; fields are vocabulary.                                           |
+| 049:1695-1748 | Reasoning and tool-choice namespace                                      | 048-049 cache section; retain namespace inclusion; field list is illustration.                                  |
+| 049:1749-1777 | Compiler versioning                                                      | 048-049 cache section; retain self-explaining-invalidation direction.                                           |
+| 049:1778-1856 | Observability displays; statusline and views                             | 048-049 observability section; retain debuggability bar; provider pointer is owner direction.                   |
+| 049:1858-1898 | Context Trace syntax                                                     | 048-049 observability section; retain attribution direction; syntax is illustration.                            |
+| 049:1899-2032 | Worked leak-task walkthrough                                             | 048-049 example section; retain steady-state inequality; numbers are narrative.                                 |
+| 049:2034-2135 | Five-subsystem split; dataflow; refs                                     | 048-049 subsystem section; retain never-direct dataflow; paths are candidate layout.                            |
+
+## Topic-level traceability: records 050 and 051 (partial)
+
+Section names below refer to the companion 050-051 distillation unless a
+linked existing document is named. All Lua spellings, hook names, command
+names, profile fields, permission names, ref spellings, and CLI spellings
+are discussion inputs; the accepted Agent and IPC vocabulary stays with the
+IPC and Agent RFC, which the 050-051 draft references without restating. The
+whole verified files (`050.md:1-940`, `051.md:1-1308`) were distilled; no
+head-versus-tail split applies.
+
+| Source lines  | Topic                                                               | Disposition / destination                                                                      |
+| ------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 050:1-17      | Rename `.bitty` to `.wheel`; two scopes; coexistence                | 050-051 rename section; record owner decision verbatim; naming and scope only.                 |
+| 050:19-73     | `.agents` as portable capabilities; skills and MCP; migration value | 050-051 capabilities section; retain coexistence and non-pollution; sketches are illustration. |
+| 050:77-140    | How-versus-What; single entry; Neovim-style organization            | 050-051 entry section; retain one-entry contract as candidate; survey item owns constraints.   |
+| 050:142-220   | Capability filtering; registry to resolved set                      | 050-051 classes section; retain class as candidate; spellings are vocabulary.                  |
+| 050:222-282   | Context policy declarations; policy-over-code rule                  | 050-051 classes section; retain declarative direction; budget sketches are illustration.       |
+| 050:284-353   | Structured rules; deterministic enforcement                         | 050-051 classes section; retain engine-over-reminder direction; rule shapes open.              |
+| 050:355-399   | Core-prompt shortening through runtimes                             | 050-051 classes rationale; retain rationale; prompt lines are illustration.                    |
+| 050:401-435   | Custom commands in Lua                                              | 050-051 classes section; retain class as candidate; command shapes open.                       |
+| 050:437-486   | Custom tools with provenance separation                             | 050-051 classes section; retain provenance rule; URIs and fields are illustration.             |
+| 050:488-548   | Agent definitions with per-profile trimming                         | 050-051 classes section; retain structured-profile direction; fields are vocabulary.           |
+| 050:550-600   | Verification declarations; completion gates                         | 050-051 classes section; retain evidence-gating direction; check lists open.                   |
+| 050:602-644   | Hooks with safe, advanced, unsafe grading                           | 050-051 classes section; retain grading requirement; hook names are vocabulary.                |
+| 050:646-709   | No runtime state; XDG and git-ignored placement                     | 050-051 state section; retain separation rule; directory names are illustration.               |
+| 050:711-803   | Lua trust; no silent execution; direnv-like flow                    | 050-051 trust section; retain no-silent-execution and re-review rules; flow is candidate.      |
+| 050:805-843   | Capability sandbox; mediated access; permission sketch              | 050-051 sandbox section; retain mediated-access posture; permission fields open.               |
+| 050:845-940   | Final layout; discovery-to-runtime pipeline; boundary slogan        | 050-051 layout section; retain reference-not-copy rule; layout is candidate topology.          |
+| 051:1-8       | Git borrowing thesis and principle list                             | 050-051 model framing; retain as author motivation; principles are design inputs.              |
+| 051:9-60      | Context DAG over message list                                       | 050-051 DAG section; retain graph topology as candidate; node list open.                       |
+| 051:62-121    | Object sketch; hashing; sharded storage                             | 050-051 DAG section; retain immutability and addressing; enum, hash, paths open.               |
+| 051:123-168   | Deduplication by hash; ref sharing                                  | 050-051 dedup paragraph; retain ref-sharing rule; hash choice open.                            |
+| 051:170-231   | Checkpoint as commit with parents and evidence                      | 050-051 checkpoint paragraph; retain chain topology; fields are vocabulary.                    |
+| 051:233-301   | Compaction as snapshot without deletion                             | 050-051 compaction paragraph; retain view-change rule; schema open.                            |
+| 051:303-351   | HEAD pointer; per-phase advance; log sketch                         | 050-051 checkpoint paragraph; retain single-pointer rule; lifecycle RFC-owned.                 |
+| 051:352-403   | Hypothesis branches with shared parents                             | 050-051 branches paragraph; retain delta-only branching; mechanics open.                       |
+| 051:405-482   | Multi-agent merge with explicit conflicts                           | 050-051 merge paragraph; retain explicit-merge rule; conflict schema open.                     |
+| 051:484-520   | Cherry-picking findings with evidence                               | 050-051 merge paragraph; retain finding-level rule; procedure open.                            |
+| 051:522-557   | Ref sharing between agents                                          | 050-051 sharing paragraph; retain ref-cost rule; protocol open.                                |
+| 051:559-611   | Semantic rebase with staleness checks                               | 050-051 sharing paragraph; retain validate-before-replay; procedure open.                      |
+| 051:613-655   | Worktree binding per agent                                          | 050-051 worktree paragraph; retain isolation direction; binding shape open.                    |
+| 051:657-695   | Ref namespace for task and agent state                              | 050-051 refs paragraph; retain namespace direction; spellings open.                            |
+| 051:697-734   | Reflog recovery and restore                                         | 050-051 recovery paragraph; retain recoverability rule; syntax open.                           |
+| 051:736-788   | GC from live roots with grace period                                | 050-051 GC paragraph; retain rooted-collection rule; policy open.                              |
+| 051:790-842   | Packfile packing with delta compression                             | 050-051 packfile paragraph; retain pack discipline; format open.                               |
+| 051:844-894   | Hash-keyed compiler caches                                          | 050-051 cache paragraph; retain hash-exact identity; key shapes open.                          |
+| 051:896-942   | Store-cache separation chain                                        | 050-051 separation paragraph; retain two-layer split; no store schema adopted.                 |
+| 051:944-1012  | Checkout-like compiler to Active View                               | 050-051 compiler paragraph; retain checkout metaphor; passes defer to companion.               |
+| 051:1014-1074 | Multi-agent DAG with parent lists                                   | 050-051 multi-agent paragraph; retain DAG topology as candidate; procedures open.              |
+| 051:1076-1125 | Vocabulary decision; CLI sketch                                     | 050-051 vocabulary paragraph; retain two-level naming; spellings propose no surface.           |
+| 051:1127-1165 | Context diff across checkpoints                                     | 050-051 diff paragraph; retain inspectability rule; diff format open.                          |
+| 051:1167-1203 | Typed merge with per-type rules                                     | 050-051 merge paragraph; retain never-concatenate rule; merge rules open.                      |
+| 051:1205-1262 | Storage diagram; refs over DAG over objects                         | 050-051 storage paragraph; retain as candidate architecture; boxes are not packaging.          |
+| 051:1264-1308 | Closing philosophy; history versus active view                      | 050-051 philosophy paragraph; retain slogan as author opinion; inequality is load-bearing.     |
+
+## Explicit exclusions: records 039, 040, 041, 044, 045, 048, 049, 050, and 051
 
 - 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
   application-services, editor-application, and startup-performance sections
@@ -591,6 +768,44 @@ split applies.
   interfaces, defaults, or plans. Agent lifecycle, events, and semantics
   stay with the accepted IPC and Agent RFC, which the 045 draft references
   without restating.
+- 048 quality-formula symbols, window-versus-attention figures, viewer and
+  repo-map size anecdotes, tool and MCP count and threshold figures, Skill
+  Hell overlap scores, supply-chain scan figures, prompt sketch lines,
+  `ContextUnit` and `CapabilityMeta` struct sketches, admission-score
+  formula, authority-ladder order, budget bands, cache-namespace fields,
+  Eval metric names, and the seven-module Wheel diagram are unreviewed
+  discussion inputs, not adopted formulas, thresholds, schemas, metrics,
+  commands, or packaging. Terminal-substrate mechanisms stay `bitty`-side.
+- 049 Context IR fields and unit values, zone cuts and lifetimes, chained-hash
+  mechanics, serializer and section lists, utility and admission formulas,
+  artifact shapes and hash choices, dedup merge behavior, tool-result parser
+  schemas and token counts, compaction triggers, pointer call shapes, pass
+  list, budget bands, quota contents, cache key shapes and hit-rate figures,
+  deferred-loading strategy names, provider cache capability fields,
+  namespace fields, version strings, observability display contents, trace
+  syntax, walkthrough numbers, module paths, and the five-subsystem layout
+  are unreviewed discussion inputs, not adopted types, contracts, keys,
+  views, commands, or packaging. Per-vendor cache behavior notes are
+  reported vendor semantics the task did not verify; only the capability
+  seam is distilled. Provider cost, cache-hit, input, context, and timing
+  exposure stays a design pointer for a future adapter task with no
+  `bitty-ai` code change here.
+- 050 `.wheel` Lua API spellings, field and entry names, directory layouts,
+  command and tool shapes, tool URI forms, agent-profile fields, hook names
+  and tiers, trust-flow wording, permission fields, pipeline boxes, and the
+  boundary slogan are unreviewed discussion inputs, not adopted schemas,
+  APIs, commands, tools, permissions, or packaging. The `.agents`
+  project-level survey stays open with the owning task; no schema on either
+  side is decided here. The `.bitty` to `.wheel` rename is a recorded owner
+  naming decision with no implementation claim.
+- 051 `ContextObject` enum sketch, checkpoint fields, ref spellings, log and
+  diff formats, merge rules, storage paths, pack filenames, hash algorithm
+  names, CLI spellings, diagram boxes, and the closing slogan are unreviewed
+  discussion inputs, not adopted schemas, paths, formats, commands, or
+  packaging. Lifecycle authority stays with the accepted IPC and Agent RFC
+  and the R1/R5 dispositions. Wheel modes (headless, Panel and Agent split,
+  one-shot single-question non-Agent chat) are design-only with no
+  implementation claim.
 - This task does not close identity, workspace-overlay, CarryCtx backend,
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions, and it changes no normative contract.
