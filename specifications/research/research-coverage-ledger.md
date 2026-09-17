@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/048/049/050/051
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/048/049/050/051/052
 category: specifications
 audience: mixed
 document_type: register
@@ -14,7 +14,7 @@ sidebar_order: 21
 This ledger maps specific source topics to the
 [distillation](research-distillation-013-017-018.md), to the
 [prefix-cache context design](../prefix-cache-context-design.md) for record
-025, and to the 039/040/041/044/045/048/049/050/051 companion distillations, rather than claiming
+025, and to the 039/040/041/044/045/048/049/050/051/052 companion distillations, rather than claiming
 that an entire recording or specification is covered. Line ranges are
 inclusive, verified against the local recordings identified below. Repeated
 examples are condensed, not adopted as API definitions.
@@ -296,13 +296,13 @@ are excluded from every range).
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions.
 
-## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, and 051 (partial)
+## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052 (partial)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. All nine files are
+or evidence that the records' factual claims are true. All ten files are
 untracked in the research repository, so provenance is path plus SHA-256, and
 none of the files was renamed, edited, or staged by the distilling task: the
-`bitty`-side pass still needs all nine.
+`bitty`-side pass still needs all ten.
 
 | Source                   | Lines | Bytes   | SHA-256                                                            |
 | ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
@@ -315,6 +315,18 @@ none of the files was renamed, edited, or staged by the distilling task: the
 | `research/origin/049.md` | 2,135 | 32,648  | `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa` |
 | `research/origin/050.md` | 940   | 13,978  | `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59` |
 | `research/origin/051.md` | 1,308 | 17,307  | `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88` |
+| `research/origin/052.md` | 561   | 12,836  | `999b04e9a12f30ce68102999c027727fb2a144fa96c443e8363e87276d9d72bd` |
+
+Record 052 is a single pass: an opening plugin-between-plugins question, a
+distribution-framing paragraph, a recommended-boundary table with the
+mechanism rule, a UI-separation section, a model-management section, a tool
+pluginization section, a Lua-to-Lua layering section, a dependency-graph
+section, a `.wheel/` composition section, a meta-package section, and a
+closing thesis with a summary formula; no duplication handling applies. The
+fingerprint above was verified at task start and re-verified at task end
+with no change, so the CTX-0045 growth pattern did not trigger: the 052
+body distills the whole verified file (`052.md:1-561`), and any later append
+is uncovered.
 
 Record 048 is a single pass: an owner question block, a conclusion block, a
 quality-formula section, eleven numbered quality sections, a prioritized
@@ -391,7 +403,7 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040/041/044/045/048/049/050/051 partial distillations
+## Disposition: 039/040/041/044/045/048/049/050/051/052 partial distillations
 
 The companion drafts are
 [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
@@ -401,9 +413,11 @@ The companion drafts are
 [Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md),
 [Quality-formula and Context-Compiler research distillation for bitty-ai (048-049)](research-distillation-048-049-bitty-ai.md),
 and
-[Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md).
+[Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md),
+and
+[Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](research-distillation-052-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All seven are draft discussion syntheses: the layered models they
+exclusions. All eight are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
 two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
 Execution Supervisor with the mechanism-versus-semantics split, four-layer
@@ -412,7 +426,8 @@ quality formula with the Context Compiler and Verification Runtime, Cold,
 Warm, and Hot stratification with stability zones and the pass pipeline,
 `.wheel` configuration classes with the portable-capability split,
 Git-inspired content-addressed context DAG with checkpoint, branch, merge,
-and GC discipline) are candidate inputs
+and GC discipline, Wheel decoupling with the mechanism-versus-policy rule,
+two-layer Lua composition, and distribution-as-composition) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
@@ -703,7 +718,40 @@ head-versus-tail split applies.
 | 051:1205-1262 | Storage diagram; refs over DAG over objects                         | 050-051 storage paragraph; retain as candidate architecture; boxes are not packaging.          |
 | 051:1264-1308 | Closing philosophy; history versus active view                      | 050-051 philosophy paragraph; retain slogan as author opinion; inequality is load-bearing.     |
 
-## Explicit exclusions: records 039, 040, 041, 044, 045, 048, 049, 050, and 051
+Section names below refer to the companion 052 distillation unless a linked
+existing document is named. All Lua spellings, service names, plugin names,
+file names, field names, command spellings, and flavor names are discussion
+inputs; the accepted Agent and IPC vocabulary stays with the IPC and Agent
+RFC, which the 052 draft references without restating. The whole verified
+file (`052.md:1-561`) was distilled; no head-versus-tail split applies.
+
+| Source lines | Topic                                                                     | Disposition / destination                                                                |
+| ------------ | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 052:1-12     | Plugin-between-plugins question; installable UI, models, dashboard, tools | 052 installable-plugin direction; retain direction; headless note is compatible context. |
+| 052:13-16    | `bitty-ai` as distribution; Wheel as Harness kernel; minimal mechanism    | 052 framing section; retain framing as candidate; implies no crate or package split.     |
+| 052:17-43    | Core-versus-Plugin boundary table                                         | 052 boundary section; retain placement as candidate; cell contents are vocabulary.       |
+| 052:45-51    | Mechanism-versus-policy rule with three examples                          | 052 boundary section; retain rule as load-bearing; examples are canonical illustrations. |
+| 052:55-71    | UI separation; bus operation sketch                                       | 052 UI section; retain independence direction; operation spellings are vocabulary.       |
+| 052:73-84    | UI variant list                                                           | 052 UI section; retain variety objective; variant names are illustration.                |
+| 052:86-117   | Headless and multi-panel UI layouts                                       | 052 UI section; retain placement independence; diagrams are illustration.                |
+| 052:120-149  | Model gateway reframing; provider and subscription list                   | 052 model section; retain gateway direction; names are unverified illustration.          |
+| 052:150-160  | Unified generation-interface sketch                                       | 052 model section; retain ignorance rule; call shape is vocabulary.                      |
+| 052:162-177  | Auth ignorance; ecosystem-churn rationale                                 | 052 model section; retain churn-containment direction; credentials stay provider-side.   |
+| 052:180-201  | Tool Provider contribution pattern                                        | 052 tools section; retain provider shape as candidate; contribution fields open.         |
+| 052:203-229  | Tool-pack family sketches                                                 | 052 tools section; retain per-domain direction; family names are illustration.           |
+| 052:231-244  | Minimal Core capabilities; Unix analogy                                   | 052 tools section; retain minimal-default posture; capability labels are vocabulary.     |
+| 052:248-296  | Same-process service composition correction                               | 052 composition section; retain two-layer split; registry and bus names are vocabulary.  |
+| 052:298-341  | Cross-process IPC layer; unified-call sketch and diagram                  | 052 composition section; retain transparency objective; routing mechanics open.          |
+| 052:345-380  | Dependency declaration sketches                                           | 052 dependency section; retain dependency honesty; spellings propose no resolver.        |
+| 052:382-403  | Provider and tool trees; package-graph analogy                            | 052 dependency section; retain graph direction; trees are illustration.                  |
+| 052:407-438  | `.wheel/` composition claim; file sketch; selection sketch                | 052 composition-layer section; retain role; file and field sketches are illustration.    |
+| 052:440-455  | Global defaults overridden by project composition                         | 052 layering section; retain precedence sentence; extended layout is owner direction.    |
+| 052:457-471  | `.agents/` portable interop duties; non-confusion rule                    | 052 layering section; retain non-confusion rule; defers to the 050-051 direction.        |
+| 052:475-512  | Distribution tree; official-composition reframing                         | 052 meta-package section; retain distribution direction; tree is candidate topology.     |
+| 052:514-540  | Minimal versus recommended installs; flavor list                          | 052 meta-package section; retain composition direction; spellings propose no surface.    |
+| 052:544-560  | Closing thesis; Runtime-Kernel-Distribution formula                       | 052 meta-package section; retain thesis as author opinion; formula is a slogan.          |
+
+## Explicit exclusions: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052
 
 - 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
   application-services, editor-application, and startup-performance sections
@@ -806,6 +854,22 @@ head-versus-tail split applies.
   and the R1/R5 dispositions. Wheel modes (headless, Panel and Agent split,
   one-shot single-question non-Agent chat) are design-only with no
   implementation claim.
+- 052 boundary-table cell contents, Lua operation and call spellings, service
+  names, plugin, variant, family, and capability labels, `.wheel/` file and
+  field sketches, selection and disable sketches, dependency-declaration
+  sketches, install and scaffolding spellings (`wheel init`, `/init`),
+  `.wheel/` constraint-surface fields and flags, per-prompt versus
+  unattended (yolo) permission-mode vocabulary, global and runtime path
+  illustrations, flavor names, the distribution tree, provider and product
+  names, the third-party harness comparison, and the closing formula are
+  unreviewed discussion inputs (with the constraint surface, scaffolding,
+  layout extension, permission modes, and provider observability recorded as
+  owner direction), not adopted schemas, APIs, commands, tools, permissions,
+  packages, paths, or releases. The `.agents` project-level survey stays
+  open with the owning task; no schema on either side is decided here.
+  Lifecycle authority stays with the accepted IPC and Agent RFC and the
+  R1/R5 dispositions. Decoupling modes (headless operation) are design-only
+  with no implementation claim.
 - This task does not close identity, workspace-overlay, CarryCtx backend,
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions, and it changes no normative contract.
