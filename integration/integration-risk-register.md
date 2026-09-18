@@ -21,12 +21,21 @@ sidebar_order: 49
 > [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and the governance corpus override any
 > suggestion here.
 
-## Scope and sources
+## Purpose
 
 The risks were assembled from a read-only review of the integration surfaces
 between `bitty-ai` and the bitty main repository (eight integration risks, with
 test gaps used as context). Code cited below was inspected as evidence only and
 never executed.
+
+The [Bitty-Side Integration Input](bitty-side-integration-input.md) remains the
+authoritative handoff of `bitty`-side capability requirements (BII-01 through
+BII-10); the [Bitty-Side Delivery Verification](bitty-side-delivery-verification.md)
+remains the authoritative read-only verification of delivered `bitty` items.
+This register adds only the cross-repository integration-risk view and does not
+repeat or amend their normative wording.
+
+## Source identity
 
 Evidence anchors name a revision and a file line at that revision. Two source
 revisions are used:
@@ -37,12 +46,40 @@ revisions are used:
   repository.
 - `bitty@main@06bc1f4` - local `bitty` `main` head inspected for this register.
 
-The [Bitty-Side Integration Input](bitty-side-integration-input.md) remains the
-authoritative handoff of `bitty`-side capability requirements (BII-01 through
-BII-10); the [Bitty-Side Delivery Verification](bitty-side-delivery-verification.md)
-remains the authoritative read-only verification of delivered `bitty` items.
-This register adds only the cross-repository integration-risk view and does not
-repeat or amend their normative wording.
+## Disposition
+
+This register changes the status of no register entry. AIQ-33, AIQ-36, AIQ-37,
+AIQ-38, AIQ-08, and AIQ-29 stay open under the canonical admission rule cited by
+[AI Unresolved Questions](../product/ai-unresolved-questions.md); this register references
+them and creates none.
+
+This register explicitly does not:
+
+- record, imply, or request a `bitty`-side acceptance, priority, sequencing, or
+  mechanism decision;
+- restate the normative IPC, consent, transport, or lifecycle text; those stay
+  in [IPC and Agent RFC](../specifications/ipc-agent-rfc.md), [Tool transport R2](../architecture/tool-transport-r2.md),
+  and the linked handoff documents;
+- close, reopen, or create any AIQ or OQ identifier;
+- change any product code or modify any file in the `bitty` or `bitty-ai`
+  repositories.
+
+## Verification backlog
+
+These are bitty-ai-side `CarryCtx` tasks already scheduled against the same
+review campaign. Each was observed at status `ready` (not started) at
+inspection; none is claimed done, and none substitutes for the cross-repo
+contracts below.
+
+- AI-0065 - define the `ProtocolAgentId` to `client_id` binding rule: covers the
+  identity half of risks 4 and 2.
+- AI-0066 - pre-split streamed fragments for the 16 KiB transport ceiling:
+  covers risk 3.
+- AI-0067 - detect `bitty-ipc` pin drift against the mirrored `FakeHost`:
+  covers risk 1.
+- AI-0068 - triage the gitleaks false positive and add a reproducible
+  secret-scan gate: a bitty-ai-side hygiene follow-up from the same campaign,
+  not a cross-repo contract item.
 
 ## Reading this register
 
@@ -285,41 +322,6 @@ questions: AIQ-28, AIQ-37.
 not rejected as expired while the runtime reports `Pending`, plus a documented
 clock-advance formula. Related `bitty-ai` work: AI-0063 documents the runtime
 side of the schedule but not the cross-repo agreement.
-
-## Related scheduled bitty-ai mitigations
-
-These are bitty-ai-side `CarryCtx` tasks already scheduled against the same
-review campaign. Each was observed at status `ready` (not started) at
-inspection; none is claimed done, and none substitutes for the cross-repo
-contracts above.
-
-- AI-0065 - define the `ProtocolAgentId` to `client_id` binding rule: covers the
-  identity half of risks 4 and 2.
-- AI-0066 - pre-split streamed fragments for the 16 KiB transport ceiling:
-  covers risk 3.
-- AI-0067 - detect `bitty-ipc` pin drift against the mirrored `FakeHost`:
-  covers risk 1.
-- AI-0068 - triage the gitleaks false positive and add a reproducible
-  secret-scan gate: a bitty-ai-side hygiene follow-up from the same campaign,
-  not a cross-repo contract item.
-
-## Open-question disposition and non-requests
-
-This register changes the status of no register entry. AIQ-33, AIQ-36, AIQ-37,
-AIQ-38, AIQ-08, and AIQ-29 stay open under the canonical admission rule cited by
-[AI Unresolved Questions](../product/ai-unresolved-questions.md); this register references
-them and creates none.
-
-This register explicitly does not:
-
-- record, imply, or request a `bitty`-side acceptance, priority, sequencing, or
-  mechanism decision;
-- restate the normative IPC, consent, transport, or lifecycle text; those stay
-  in [IPC and Agent RFC](../specifications/ipc-agent-rfc.md), [Tool transport R2](../architecture/tool-transport-r2.md),
-  and the linked handoff documents;
-- close, reopen, or create any AIQ or OQ identifier;
-- change any product code or modify any file in the `bitty` or `bitty-ai`
-  repositories.
 
 ## References
 

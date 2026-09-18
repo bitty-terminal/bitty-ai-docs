@@ -22,7 +22,7 @@ sidebar_order: 50
 > obligations in the accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and the
 > governance corpus override any statement here.
 
-## Scope and sources
+## Purpose and scope
 
 Three accepted ceilings disagree across the runtime/transport boundary:
 
@@ -235,7 +235,7 @@ consistent set is accepted by `reassemble` and rejected by
 (`reassemble_expected_rejects_a_foreign_but_consistent_part_set`,
 `fragment_mapping.rs:757-793`).
 
-## Evidence anchors
+## Verification plan
 
 Implementation and tests at `bitty-ai@3242a5d`; transport constants at the
 pinned `bitty-ipc@be6e63c` revision.
@@ -278,7 +278,7 @@ pinned `bitty-ipc@be6e63c` revision.
 | `no_rich_wire_method_is_registered` `:455`                             | candidate `rich.*` method names stay unregistered                                        |
 | `ingest_takes_no_consent_or_scope_proof_by_construction` `:475`        | ingest takes only `FragmentData`; no consent object in scope                             |
 
-## Non-claims
+## Acceptance criteria
 
 - This is not a shipped transport. `FragmentIngestService::ingest` is a local
   service call; no `rich.*` wire method is registered

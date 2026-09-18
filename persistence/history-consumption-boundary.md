@@ -24,7 +24,7 @@ sidebar_order: 48
 > input, not a decision: the `bitty` terminal repository decides acceptance,
 > sequencing, and mechanism through its own review.
 
-## Scope and inputs
+## Purpose and scope
 
 This boundary covers only what `bitty-ai` may assume and request about
 history, even before any `bitty`-side mechanism lands:
@@ -334,24 +334,6 @@ specifies it.
   observation data under the repository security baseline, never as
   instructions and never as capability grants.
 
-## Duplicate-check against AI Unresolved Questions
-
-No Artificial Intelligence Question entry is closed and no new identifier is
-proposed. The facets below restate existing register scope for this boundary;
-exact baseline titles are used.
-
-| Facet in this document                                | Existing identifier (exact baseline title)                     | Relation                                                   |
-| ----------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- |
-| History reads gated like tool calls                   | AIQ-33 — Unified authorization/isolation backend               | Facet: history tools as effects under the unified backend  |
-| Per-reader redaction and no cross-scope leakage       | AIQ-58 — Per-reader evidence sharing enforcement               | Facet: scoped reads with per-reader enforcement            |
-| History tool placement (native versus MCP path)       | AIQ-36 — Native versus MCP tool transport and bridge placement | Facet: provider and MCP shape as placement, never bypass   |
-| Session holds history references, lifecycle authority | AIQ-10 — Task lifecycle authority and CarryCtx backend/handoff | Facet: reference-not-copy under single lifecycle authority |
-
-Ownership routing, milestone assignment, and global open-question status stay
-with the canonical register in
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared governance
-in `bitty-docs`; this table is local draft analysis only.
-
 ## Residual risks
 
 - The History API surface is still a source-record sketch: provider
@@ -368,3 +350,21 @@ in `bitty-docs`; this table is local draft analysis only.
 - Federated search ranking, merging, and attribution across providers are
   host behaviors with evaluation risk; silent cross-provider fallback would
   violate the per-reader enforcement facet.
+
+## Open points
+
+No Artificial Intelligence Question entry is closed and no new identifier is
+proposed. The facets below restate existing register scope for this boundary;
+exact baseline titles are used.
+
+| Facet in this document                                | Existing identifier (exact baseline title)                     | Relation                                                   |
+| ----------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- |
+| History reads gated like tool calls                   | AIQ-33 — Unified authorization/isolation backend               | Facet: history tools as effects under the unified backend  |
+| Per-reader redaction and no cross-scope leakage       | AIQ-58 — Per-reader evidence sharing enforcement               | Facet: scoped reads with per-reader enforcement            |
+| History tool placement (native versus MCP path)       | AIQ-36 — Native versus MCP tool transport and bridge placement | Facet: provider and MCP shape as placement, never bypass   |
+| Session holds history references, lifecycle authority | AIQ-10 — Task lifecycle authority and CarryCtx backend/handoff | Facet: reference-not-copy under single lifecycle authority |
+
+Ownership routing, milestone assignment, and global open-question status stay
+with the canonical register in
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared governance
+in `bitty-docs`; this table is local draft analysis only.

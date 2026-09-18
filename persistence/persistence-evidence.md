@@ -11,6 +11,8 @@ sidebar_order: 34
 
 # Persistence and evidence architecture
 
+## Purpose and scope
+
 This draft compares session journals, execution evidence and event-oriented
 storage. These are overlapping design dimensions, not mutually exclusive
 backends. No schema, backend, release milestone or persistence requirement is
@@ -97,7 +99,19 @@ direction before retry. Cancellation before dispatch prevents effects from
 starting; cancellation after dispatch cannot promise reversal. State replay and
 effect re-execution are separate operations, and effects require current grants.
 
-## Unresolved design choices
+## Verification plan
+
+The inspected `bitty-ai` revision
+`3623c6b3ce33e97c1c493109ec6356219d0c9722` has a real experimental slice
+(`crates/bitty-ai-slice/src/session.rs:68-136`), not evidence of this proposed
+store/replay runtime. Before enabling persistence/reuse/recovery, obtain an
+explicit scoped design and independent security review, then evidence for
+consent/redaction, deletion propagation, authorization, bounded storage, crash
+reconciliation and replay semantics. Measure storage overhead, query latency and
+GC behavior for the selected workload. This document authorizes no prototype or
+product implementation and makes no release commitment.
+
+## Open points
 
 Stable identifiers live in the [local AI unresolved-questions register](../product/ai-unresolved-questions.md),
 not the accepted global OQ register:
@@ -114,15 +128,3 @@ not the accepted global OQ register:
 10. **AIQ-5A Redaction representation:** What typed markers and invalidation protocol implement mandatory pre-queue/pre-write redaction? The timing requirement is already fixed.
 11. **AIQ-5B Observability:** Which bounded authorized queries are required, including explicit truncation and absent evidence?
 12. **AIQ-5C Release scope:** Which standalone AI profile needs durable state and when? Neither ephemeral v0.1 nor post-1.0 persistence is selected here.
-
-## Evidence and verification boundary
-
-The inspected `bitty-ai` revision
-`3623c6b3ce33e97c1c493109ec6356219d0c9722` has a real experimental slice
-(`crates/bitty-ai-slice/src/session.rs:68-136`), not evidence of this proposed
-store/replay runtime. Before enabling persistence/reuse/recovery, obtain an
-explicit scoped design and independent security review, then evidence for
-consent/redaction, deletion propagation, authorization, bounded storage, crash
-reconciliation and replay semantics. Measure storage overhead, query latency and
-GC behavior for the selected workload. This document authorizes no prototype or
-product implementation and makes no release commitment.

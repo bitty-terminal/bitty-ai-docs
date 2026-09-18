@@ -21,7 +21,7 @@ sidebar_order: 42
 > repository was read for writing or modified for this note; no file in the
 > `bitty-ai` implementation repository was modified either.
 
-## Scope and method
+## Purpose and scope
 
 Inspection point is `bitty` `main` at `2cbb1fb` (read-only), covering twelve
 landed pull requests in merge order: the six items verified at `eef983e`

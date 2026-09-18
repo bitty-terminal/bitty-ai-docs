@@ -11,6 +11,8 @@ sidebar_order: 33
 
 # Code intelligence architecture
 
+## Purpose and scope
+
 This specification defines shared code intelligence services for `bitty-ai`: language server protocol (LSP) sharing with stateful mediation, lint/build/test result reuse with verification fingerprinting, and bounded scheduling with authorization checks. The design separates tool service lifecycle from agent lifecycle while preserving per-agent authorization and attribution.
 
 **Draft relationship**: [Agent Coordination Architecture](agent-coordination.md) service supervision model. Neither draft accepts these mechanisms.
@@ -132,7 +134,24 @@ LSP services follow the supervision model from [Agent Coordination Architecture]
 - Track launch identity and descendants; never adopt arbitrary survivors
 - Under pressure: stop admitting optional work, evict idle instances, bound restarts with backoff
 
-## Unresolved questions
+## Design rationale summary
+
+Code intelligence sharing reduces duplicate language server instances and redundant builds while preserving per-agent authorization and attribution. Stateful LSP mediation prevents conflicting document state and orders lifecycle operations correctly. Verification fingerprinting enables safe result reuse by capturing complete input identity rather than only Git HEAD. Semantic tool surfaces prevent arbitrary LSP command generation while providing progressive disclosure and clear confidence/freshness metadata.
+
+## Verification plan
+
+This specification records the candidate direction through its critical synthesis; comparative source observations retain their separately pinned provenance. It does **not** establish implementation of these code-intelligence proposals. Verification requires:
+
+- Accepted architectural decision records in `bitty-docs` for LSP sharing and result reuse
+- `bitty-ai-core` Rust implementation of LSP broker, verification fingerprinting, result cache
+- LSP broker with document lifecycle, request correlation, notification bounds
+- Verification fingerprint schema and manifest builder
+- Result cache with authorization checks and freshness metadata
+- Semantic tool API with confidence and truncation indicators
+- Performance evidence showing shared LSP reduces duplicate work
+- Security evidence showing result filtering prevents cross-scope leakage
+
+## Open points
 
 1. **Document overlay coordination**: When multiple agents edit the same URI in separate overlays, how are conflicts detected and resolved? Does each agent need a separate LSP server instance, or can the broker maintain multiple versioned overlays?
 
@@ -150,11 +169,7 @@ LSP services follow the supervision model from [Agent Coordination Architecture]
 
 8. **Server restart policy**: When should an LSP server be restarted rather than kept warm? After N failures, after idle timeout, on workspace configuration change, or user request?
 
-## Design rationale summary
-
-Code intelligence sharing reduces duplicate language server instances and redundant builds while preserving per-agent authorization and attribution. Stateful LSP mediation prevents conflicting document state and orders lifecycle operations correctly. Verification fingerprinting enables safe result reuse by capturing complete input identity rather than only Git HEAD. Semantic tool surfaces prevent arbitrary LSP command generation while providing progressive disclosure and clear confidence/freshness metadata.
-
-## Next steps
+### Follow-up work
 
 1. Independent review of this specification against agent coordination architecture.
 2. Resolve unresolved questions through targeted RFCs or open-question register entries.
@@ -164,21 +179,8 @@ Code intelligence sharing reduces duplicate language server instances and redund
 6. Implement result filtering mechanism for privileged servers.
 7. Update `docs/README.md` navigation if this specification is accepted.
 
-## Related specifications
+## References
 
 - [Agent Coordination Architecture](agent-coordination.md) (Draft): service supervision model
 - [AI Architecture](../architecture/ai-architecture.md) (Draft): tool bus and execution profiles
 - [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): permission model for effectful proposals
-
-## Evidence and verification boundary
-
-This specification records the candidate direction through its critical synthesis; comparative source observations retain their separately pinned provenance. It does **not** establish implementation of these code-intelligence proposals. Verification requires:
-
-- Accepted architectural decision records in `bitty-docs` for LSP sharing and result reuse
-- `bitty-ai-core` Rust implementation of LSP broker, verification fingerprinting, result cache
-- LSP broker with document lifecycle, request correlation, notification bounds
-- Verification fingerprint schema and manifest builder
-- Result cache with authorization checks and freshness metadata
-- Semantic tool API with confidence and truncation indicators
-- Performance evidence showing shared LSP reduces duplicate work
-- Security evidence showing result filtering prevents cross-scope leakage

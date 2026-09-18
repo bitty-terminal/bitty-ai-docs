@@ -11,6 +11,8 @@ sidebar_order: 32
 
 # Agent coordination architecture
 
+## Purpose and scope
+
 This specification defines agent coordination, workspace service supervision, multi-agent teams, delegation patterns, and panel lifecycle management for `bitty-ai`. The design separates agent identity from OS processes and model conversations, establishes service sharing with authorization boundaries, and defines team organization with explicit budgets and independent review.
 
 **Draft relationship**: [AI Architecture](../architecture/ai-architecture.md) AG-4 (Least privilege at dispatch) constrains these coordination proposals; AG-5 distinguishes orchestration from execution. This document accepts no new mechanism.
@@ -160,7 +162,24 @@ Logical attachment, visible presence, presentation, and focus are distinct. Back
 
 Retain the proposed console's organization/task/agent/panel/resource views, bidirectional attachment indexes, purpose labels, and correlated timelines (lines 3059-3377). Derive them from authoritative event/state records, not two independently writable indexes. Show target, assignment generation, actual execution state, reused versus fresh evidence, queue/dropped-event counts, CPU/memory attribution, estimated/billed tokens, blockers, and consent requests. Progress percentages need a defined denominator; unknown progress is preferable to fabricated precision. Kill/reassign/archive/message/focus UI actions pass the same authorization and generation checks as any other client.
 
-## Unresolved questions
+## Design rationale summary
+
+Agent coordination separates logical agent identity from OS processes and model conversations, enabling async state machines while preserving fault isolation through explicit boundaries. Shared workspace services reduce duplicate work through authorization-checked leases rather than ambient access. Multi-agent teams use explicit delegation budgets, independent review, and bounded hierarchies to avoid uncontrolled recursion and cost escalation. Panel-execution separation preserves many-to-many observation without conflating presentation with ownership or authority.
+
+## Verification plan
+
+This specification records the candidate direction through its critical synthesis and separately attributed comparative observations. It does **not** establish implementation of these coordination proposals. Verification requires:
+
+- Accepted architectural decision records in `bitty-docs` for agent/process separation and service supervision
+- `bitty-ai-core` Rust implementation of service supervisor, lease manager, team coordinator
+- Service compatibility key schema and validation implementation
+- Lease heartbeat, fencing, and recovery implementation
+- Team budget reservation and reconciliation implementation
+- Panel-execution projection implementation
+- Control console UI implementation
+- Performance evidence showing shared services reduce duplicate work without cross-scope leakage
+
+## Open points
 
 1. **Service compatibility key validation**: How is the compatibility key validated at runtime? What happens when components (toolchain, config, overlays) change after a service is started but before all waiters are satisfied?
 
@@ -186,11 +205,7 @@ Retain the proposed console's organization/task/agent/panel/resource views, bidi
 
 12. **Lease writer fencing**: How is the "one fenced writer" for interactive input enforced across runtime restarts and concurrent takeover attempts? What prevents race conditions during writer transfer?
 
-## Design rationale summary
-
-Agent coordination separates logical agent identity from OS processes and model conversations, enabling async state machines while preserving fault isolation through explicit boundaries. Shared workspace services reduce duplicate work through authorization-checked leases rather than ambient access. Multi-agent teams use explicit delegation budgets, independent review, and bounded hierarchies to avoid uncontrolled recursion and cost escalation. Panel-execution separation preserves many-to-many observation without conflating presentation with ownership or authority.
-
-## Next steps
+### Follow-up work
 
 1. Independent review of this specification against existing AI architecture.
 2. Resolve unresolved questions through targeted RFCs or open-question register entries.
@@ -200,21 +215,8 @@ Agent coordination separates logical agent identity from OS processes and model 
 6. Update `docs/README.md` navigation if this specification is accepted.
 7. Cross-reference with IPC and Agent RFC for panel lifecycle contracts.
 
-## Related specifications
+## References
 
 - [AI Architecture](../architecture/ai-architecture.md) (Draft): overlapping scope; reconciliation required
 - [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): Panel lifecycle and IPC contracts
 - [Code Intelligence Architecture](code-intelligence.md) (Draft): companion specification for LSP sharing
-
-## Evidence and verification boundary
-
-This specification records the candidate direction through its critical synthesis and separately attributed comparative observations. It does **not** establish implementation of these coordination proposals. Verification requires:
-
-- Accepted architectural decision records in `bitty-docs` for agent/process separation and service supervision
-- `bitty-ai-core` Rust implementation of service supervisor, lease manager, team coordinator
-- Service compatibility key schema and validation implementation
-- Lease heartbeat, fencing, and recovery implementation
-- Team budget reservation and reconciliation implementation
-- Panel-execution projection implementation
-- Control console UI implementation
-- Performance evidence showing shared services reduce duplicate work without cross-scope leakage
