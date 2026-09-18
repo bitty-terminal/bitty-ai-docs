@@ -1,27 +1,26 @@
 ---
-title: Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)
-description: Draft bitty-ai distillation of research 052 Wheel Core versus Plugin boundary Lua-to-Lua composition and wheel composition layering
+title: Wheel core and plugin boundary (candidate)
+description: Candidate Wheel core versus plugin boundary, Lua-to-Lua composition, and composition layering
 category: specifications
 audience: mixed
-document_type: research
+document_type: specification
 status: draft
 website_publish: false
 sidebar_order: 63
 ---
 
-# Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)
+# Wheel core and plugin boundary (candidate)
 
 ## Status and recommendation
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
-It distills only the `bitty-ai`-relevant parts of one workspace research
-record: `052.md` (a Wheel decoupling discussion: the Core-versus-Plugin
-boundary table with the mechanism-versus-policy rule, model management, UI,
-dashboard, tool packs, and memory as installable plugins, Lua-to-Lua
-composition across a service bus and Bitty IPC with a dependency graph, the
-`.wheel/` composition layer with global, project, and portable layering, and
-`bitty-ai` as a possible meta package).
+It records the candidate direction for the Wheel core and plugin boundary: the
+Core-versus-Plugin boundary table with the mechanism-versus-policy rule, model
+management, UI, dashboard, tool packs, and memory as installable plugins,
+Lua-to-Lua composition across a service bus and Bitty IPC with a dependency
+graph, the `.wheel/` composition layer with global, project, and portable
+layering, and `bitty-ai` as a possible meta package.
 
 The recommendation is to treat every model below as a candidate input to the
 draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
@@ -30,13 +29,13 @@ dispositions, never as an override of the accepted
 In particular, the boundary-table cell contents, the Lua API sketches, the
 plugin names, the `.wheel/` file sketch, the dependency-declaration sketches,
 the install command spellings, and the distribution-flavor names are **not**
-accepted by this distillation. Agent lifecycle, Agent events, and Agent
-semantics in the source are **discussion inputs only**: the accepted Agent
+accepted by this candidate design. Agent lifecycle, Agent events, and Agent
+semantics in the direction are **discussion inputs only**: the accepted Agent
 contract stays entirely with the RFC, which this draft references without
 restating normatively. Nothing here is promoted to accepted status, and no
 implementation is described as shipped.
 
-The source's strongest ideas are the mechanism-versus-policy rule (Core owns
+The direction's strongest ideas are the mechanism-versus-policy rule (Core owns
 mechanism, Plugins own policy, with compact timing, subagent fan-out, and UI
 shape as the three canonical policy examples), the two-layer Lua-to-Lua
 composition model (same-process service calls versus cross-process IPC behind
@@ -67,46 +66,21 @@ This synthesis references, without duplicating or modifying, the draft
 [Panel environment awareness](../interfaces/panel-environment-awareness.md). The
 accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
-[Quality-formula and Context-Compiler distillation (048-049)](research-distillation-048-049-bitty-ai.md)
+[Quality-formula and Context-Compiler candidate design](quality-and-context-compiler-candidate.md)
 carries the quality framing and the compiler design, and the companion
-[Wheel-config and Git-model distillation (050-051)](research-distillation-050-051-bitty-ai.md)
+[Wheel-config and Git-model candidate design](wheel-config-and-context-git-model-candidate.md)
 carries the `.wheel` configuration classes and the portable-capability split;
 this draft links to both wherever decoupling touches configuration,
 compilation, or storage, as design input rather than implementation. This
 document creates no AIQ or OQ identifier and closes none.
-
-## Provenance and evidence boundary
-
-The source is research note `052` (origin), read on 2026-09-18: **561
-lines**, **12,836 bytes**, SHA-256
-`999b04e9a12f30ce68102999c027727fb2a144fa96c443e8363e87276d9d72bd`.
-The record is untracked in the research repository, so provenance is by record
-number plus fingerprint, not by commit. It was not renamed, edited, or staged by
-this task; the `bitty`-side pass still needs it. The body of this document
-distills the whole verified file (`052.md:1-561`); no post-task append existed
-at verification time, so no head-versus-tail split applies. Any later append is
-uncovered and follows the CTX-0045 pattern (distill the verified head, record
-the remainder as uncovered). The hash was verified at task start and re-verified
-at task end with no change, so the CTX-0045 growth pattern did not trigger.
-
-Record 052 is a single pass: an opening plugin-between-plugins question, a
-distribution-framing paragraph, a recommended-boundary table with the
-mechanism rule, a UI-separation section, a model-management section, a tool
-pluginization section, a Lua-to-Lua layering section, a dependency-graph
-section, a `.wheel/` composition section, a meta-package section, and a
-closing thesis with a summary formula; no duplication handling applies. The
-source is a single-author Chinese-language discussion with English code and
-schema sketches; this document is the English-language draft synthesis, not
-a translation. The fingerprint identifies the discussion, not the truth of
-its claims.
 
 ## Authority and reconciliation
 
 The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the boundary-table placement, the Lua call shapes,
 the plugin names, the `.wheel/` file sketch, the dependency declarations,
-the install spellings, and the distribution tree proposed in the source are
-**not** accepted by this distillation and must not be read as crate,
+the install spellings, and the distribution tree proposed in the direction are
+**not** accepted by this candidate design and must not be read as crate,
 package, protocol, file-schema, or release decisions. Context assembly,
 budget, and retention questions stay with
 [Context Management Architecture](../context/context-management.md) and
@@ -121,15 +95,15 @@ coordination and persistence questions stay with
 [Agent Coordination Architecture](../agent/agent-coordination.md) and
 [Task lifecycle R5](../architecture/task-lifecycle-r5.md). Configuration-class, trust,
 and storage questions stay with the companion
-[Wheel-config and Git-model distillation](research-distillation-050-051-bitty-ai.md);
+[Wheel-config and Git-model candidate design](wheel-config-and-context-git-model-candidate.md);
 each is referenced, never duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
-source (Lua function spellings, service names, plugin names, file names,
+candidate direction (Lua function spellings, service names, plugin names, file names,
 field names, command spellings, flavor names) is a discussion sketch: this
 draft records it as input and proposes no file schema, API, command, tool,
-event, or wire format. Where the source's sketches overlap RFC-owned ground
+event, or wire format. Where the direction's sketches overlap RFC-owned ground
 (Agent lifecycle, Agent events, Agent semantics, scopes), the RFC wins
 without further argument.
 
@@ -143,10 +117,6 @@ no AIQ or OQ identifier; open questions stay with
 governance.
 
 ## Core-Plugin boundary and the mechanism rule
-
-Source: `052.md:13-51` (the distribution-framing paragraph, the
-recommended-boundary table, and the mechanism-versus-policy rule with its
-three examples).
 
 The retained framing treats `bitty-ai` as a distribution and assembly layer
 with Wheel as its Harness kernel: Wheel owns only the minimum mechanism an
@@ -185,16 +155,13 @@ Core change.
 adopted crate, package, or team split; several rows overlap dispositions
 owned elsewhere (context strategy with the compiler work, multi-agent
 strategy with coordination, persistence with the R-dispositions, policy with
-the 050-051 classes). The stable claim is the mechanism-versus-policy rule
-itself, which is the decoupling analogue of the 050-051 reference-not-copy
+the wheel-config-and-context-git-model classes). The stable claim is the mechanism-versus-policy rule
+itself, which is the decoupling analogue of the wheel-config-and-context-git-model reference-not-copy
 rule. Every row label is vocabulary proposing no interface.
 
 ## Lua-to-Lua composition in two layers
 
-Source: `052.md:248-341` (the same-process versus cross-process correction,
-the service-bus and IPC diagram, and the unified-call sketch).
-
-The retained correction narrows the source's own earlier vocabulary: not all
+The retained correction narrows the direction's own earlier vocabulary: not all
 Lua-plugin-to-Lua-plugin communication should be called IPC. Two plugins in
 the same process and Lua VM should compose through a Service Registry, an
 Event Bus, and a Capability API with direct calls and no serialization
@@ -213,10 +180,6 @@ plugin logic placement-independent.
 
 ## Dependency graph as a package graph
 
-Source: `052.md:345-403` (the UI requirement sketch, the dashboard
-requirement sketch, the model-provider tree, the tool-pack tree, and the
-package-manager analogy).
-
 The retained direction lets installed plugins declare what they need: a UI
 plugin requires the Wheel kernel with optional model and dashboard services,
 a dashboard plugin requires Wheel with panel and event services, a model
@@ -232,10 +195,6 @@ dependency honesty (plugins declare needs; the composition layer resolves
 them), not any particular graph mechanics.
 
 ## Model management as an independent plugin
-
-Source: `052.md:120-177` (the gateway reframing, the provider and
-subscription list, the unified-interface sketch, the auth-ignorance argument,
-and the ecosystem-churn rationale).
 
 The retained direction promotes provider coverage from a field list to a
 model gateway: one plugin family fronts commercial APIs, cloud model
@@ -256,12 +215,6 @@ claims are the single-interface ignorance rule and the churn-containment
 direction.
 
 ## UI, dashboard, tools, and memory as installable plugins
-
-Source: `052.md:55-117` (the UI-separation argument with the event and agent
-sketch, the UI-variant list, and the headless layouts), `052.md:180-244`
-(the Tool Provider pattern with the provider sketches, the minimal Core
-capability list, and the Unix analogy), and `052.md:31-35` (the Dashboard
-and Memory table rows).
 
 The retained UI direction separates the highest-churn, most personal layer
 from the kernel: Wheel exposes agent, session, context, tool, and panel
@@ -288,10 +241,6 @@ posture.
 
 ## `.wheel/` as the composition layer
 
-Source: `052.md:407-471` (the composition-layer claim, the file sketch, the
-plugins-plus-disable sketch, and the global, project, and portable
-placements).
-
 The retained claim gives the project-level `.wheel/` directory a sharper job
 than configuration alone: it is the composition that resolves an
 installation into runtime behavior, with a single entry file plus
@@ -307,42 +256,34 @@ never confuse composition with ecosystem interop.
 schema**: no filename, module split, field name, or disable semantic is
 decided here. The single-entry contract and the reference-not-copy rule
 already live as candidate directions in the companion
-[Wheel-config and Git-model distillation](research-distillation-050-051-bitty-ai.md),
+[Wheel-config and Git-model candidate design](wheel-config-and-context-git-model-candidate.md),
 which this draft references instead of restating. The stable claims are the
 composition role itself and the non-confusion rule between `.wheel/` and
 `.agents/`.
 
 ## Global, project, and portable layering
 
-Source: `052.md:440-455` for the in-source layering (global personal
-defaults overridden by project composition); the XDG and runtime-path detail
-below is owner direction recorded as such.
-
-The in-source layering keeps three scopes distinct: a global Wheel home
-(`~/.config/wheel` at `052.md:440-445`) carries personal defaults, the
+The candidate layering keeps three scopes distinct: a global Wheel home
+(`~/.config/wheel` at ) carries personal defaults, the
 project `.wheel/` overrides them per repository, and `.agents/` stays
 portable across harness implementations.
-Owner direction (design-only, outside the 052 source except for the global
+Owner direction (design-only, outside the Wheel decoupling direction except for the global
 home itself) extends this into an explicit filesystem layout: global
 configuration under the Wheel config home, mutable global material under the
 platform data, state, and cache homes, and project-local runtime material
 under a version-control-internal path that never enters the repository. That
-extension is consistent with, and defers to, the 050-051 no-runtime-state
+extension is consistent with, and defers to, the wheel-config-and-context-git-model no-runtime-state
 candidate rule that `.wheel/` itself stays commit-worthy: configuration is
 reviewable, runtime data is not. The tildes and variable names are portable
 placeholders, not adopted paths.
 
 **Critical judgment:** no directory name, environment variable, or precedence
-edge beyond the source's global-overridden-by-project sentence is adopted;
+edge beyond the direction's global-overridden-by-project sentence is adopted;
 the extended layout is a design input awaiting its owning task. The stable
 claim is scope separation (personal versus project versus portable versus
 runtime), not any path.
 
 ## `bitty-ai` as a meta package
-
-Source: `052.md:475-540` (the Bitty and Wheel tree, the official-distribution
-reframing, the minimal-versus-recommended install spellings, and the flavor
-list).
 
 The retained reframing demotes `bitty-ai` from a large plugin to an official
 plugin distribution: a curated composition over the Wheel kernel plus model,
@@ -352,7 +293,7 @@ yields the curated set; later flavors (minimal, coding, research, full as
 illustrative names) would differ only in composition, never in kernel code.
 The closing thesis is kept as author opinion: the differentiator is not an
 agent harness with plugin support but an agent harness composed of plugins,
-summarized by the source's formula of Runtime, Agent Kernel, Distribution,
+summarized by the direction's formula of Runtime, Agent Kernel, Distribution,
 Capability, Composition, Ecosystem Interop, and Glue.
 
 **Critical judgment:** the tree, the install spellings, and the flavor names
@@ -361,10 +302,11 @@ release vehicle, or team boundary. The stable claim is the
 distribution-over-monolith direction, which keeps every future capability
 (plugin-shaped by default) from re-inflating the kernel.
 
-## Owner addenda (design-only, outside the 052 source)
+## Owner addenda (design-only, outside the Wheel decoupling direction)
 
 The three directions below come from the owning task description, not from
-`052.md`. Each is recorded here as owner direction for a future scoped task:
+the candidate direction. Each is recorded here as owner direction for a future
+scoped task:
 design input only, proposing no schema, command, permission model, or
 shipped behavior.
 
@@ -374,10 +316,10 @@ Owner direction: the Wheel plugin ecosystem should converge on standard call
 interfaces so independently authored plugins compose without pairwise
 adaptation, and project scaffolding (`wheel init` with an in-harness `/init`
 equivalent) should generate `.wheel/` starter templates shaped as plain
-data-style tables that need no prior Lua knowledge. The in-source material
+data-style tables that need no prior Lua knowledge. The candidate material
 this builds on is limited to the Tool Provider contribution pattern and the
 unified service-call objective above; the interface standard and the
-scaffolding itself appear nowhere in the source.
+scaffolding itself appear nowhere in the direction.
 
 ### `.wheel/` constraint surface
 
@@ -385,7 +327,7 @@ Owner direction: `.wheel/` should expose an explicit constraint surface for
 projects, covering workspace-external access flags, tool, MCP, and skill
 allowlists, compression and model configuration, tool and command denylists,
 paths hidden from the agent, per-edit allow and deny rules, and per-prompt
-versus unattended permission modes. This extends the 050-051 configuration
+versus unattended permission modes. This extends the wheel-config-and-context-git-model configuration
 classes (filtering, policy, rules, verification, hooks) into an enumerated
 surface; the enumeration itself is owner direction, and no field, flag, or
 mode is adopted here. The per-prompt versus yolo (unattended) permission
@@ -397,11 +339,11 @@ with the security corpus and the R1 and R2 dispositions.
 
 Owner direction: the global and project-local filesystem split should be
 made explicit as configuration under the Wheel config home
-(`~/.config/wheel`, the in-source global home at `052.md:440-445`),
+(`~/.config/wheel`, the candidate global home at ),
 mutable material under the platform data, state, and cache homes
 (`XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), and project-local
 runtime under a version-control-internal path (`.git/wheel`). Only the
-global-home-versus-project precedence sentence is in-source (see the
+global-home-versus-project precedence sentence is candidate direction (see the
 layering section above); the data, state, cache, and runtime placements and
 every precedence edge between them are design input for the owning task,
 consistent with the commit-worthy-configuration direction. The tildes and
@@ -415,66 +357,11 @@ input, context, and timing signals for future plugins, with the
 Observability-plugin half of the boundary table above as the owning
 destination. A future `AI-XXXX` task implements this against a real HTTP or
 Router adapter; that task owns the endpoint, field, metric, and view
-contract. No name or format sketched anywhere in the source is adopted here.
+contract. No name or format sketched anywhere in the direction is adopted here.
 This pointer complements, and does not duplicate, the compiler-side
 observability direction (statusline, context, cache, why, and trace views)
 carried in the companion
-[Quality-formula and Context-Compiler distillation](research-distillation-048-049-bitty-ai.md#provider-observability-as-a-design-pointer).
-
-## Sections read for boundary accuracy
-
-The whole verified file was distilled; the ranges below were read so that
-non-`bitty-ai` content is not silently absorbed.
-
-- `052.md:1-12` opening question block (plugin-between-plugins framing, the
-  model-management question, the tool-plugin analogy, headless operation):
-  boundary context; motivates the synthesis, and its installable-plugin
-  direction is compatible with, but not normative for, the 040 two-level
-  model.
-- `052.md` provider and product names (commercial APIs, cloud platforms,
-  aggregators, subscription harnesses, local models): read as ecosystem
-  illustration the task did not verify; no integration, pricing, or
-  capability claim follows.
-- `052.md` third-party harness comparison (a plugin-extended agent
-  reference): read as a passing comparison only; no cited behavior is
-  reproduced as a finding.
-- `052.md` Bitty-platform passages (Lua runtime, plugin system, IPC, panel,
-  rendering primitives, PTY): the compositional advantage is distilled
-  above; every terminal-side mechanism stays `bitty`-side and proposes no
-  Core API here.
-
-## Source coverage and critical disposition
-
-Retain means retain as a **proposal**, not accept as normative. Improve means
-retain the objective with the correction above. Reject means reject that
-mechanism or absolute claim; defer means no commitment pending named
-evidence.
-
-| Source lines | Topic                                                                     | Disposition, rationale, and alternative                                                                   |
-| ------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 052:1-12     | Plugin-between-plugins question; installable UI, models, dashboard, tools | Boundary context; retain installable-plugin direction; headless note is compatible context for 048 modes. |
-| 052:13-16    | `bitty-ai` as distribution; Wheel as Harness kernel; minimal mechanism    | Retain framing as candidate; implies no crate, package, or team split.                                    |
-| 052:17-43    | Core-versus-Plugin boundary table                                         | Retain placement as candidate; cell contents are vocabulary; overlaps stay with owning dispositions.      |
-| 052:45-51    | Mechanism-versus-policy rule with three examples                          | Retain rule as load-bearing; examples are the canonical policy illustrations.                             |
-| 052:55-71    | UI separation; bus operation sketch                                       | Retain independence direction; operation spellings are vocabulary, not API.                               |
-| 052:73-84    | UI variant list                                                           | Retain variety objective; variant names are illustration, not packages.                                   |
-| 052:86-117   | Headless and multi-panel UI layouts                                       | Retain placement independence; diagrams are illustration; lifecycle stays RFC-owned.                      |
-| 052:120-149  | Model gateway reframing; provider and subscription list                   | Retain gateway direction; names are unverified ecosystem illustration.                                    |
-| 052:150-160  | Unified generation-interface sketch                                       | Retain ignorance rule; call shape is vocabulary, not API.                                                 |
-| 052:162-177  | Auth ignorance; ecosystem-churn rationale                                 | Retain churn-containment direction; credential mechanics stay with provider boundary work.                |
-| 052:180-201  | Tool Provider contribution pattern                                        | Retain provider shape as candidate; contribution fields are illustration.                                 |
-| 052:203-229  | Tool-pack family sketches                                                 | Retain per-domain direction; family names are illustration, not packages.                                 |
-| 052:231-244  | Minimal Core capabilities; Unix analogy                                   | Retain minimal-default posture; capability labels are vocabulary; analogy is motivation.                  |
-| 052:248-296  | Same-process service composition correction                               | Retain two-layer split; registry, bus, and capability names are vocabulary.                               |
-| 052:298-341  | Cross-process IPC layer; unified-call sketch and diagram                  | Retain transparency objective; routing mechanics need failure and auth design.                            |
-| 052:345-380  | Dependency declaration sketches                                           | Retain dependency honesty; requirement spellings propose no resolver semantics.                           |
-| 052:382-403  | Provider and tool trees; package-graph analogy                            | Retain graph direction; trees are illustration; analogy is motivation, not versioning.                    |
-| 052:407-438  | `.wheel/` composition claim; file sketch; selection sketch                | Retain composition role; file and field sketches are illustration, not schema.                            |
-| 052:440-455  | Global defaults overridden by project composition                         | Retain precedence sentence; extended layout is owner direction, not source.                               |
-| 052:457-471  | `.agents/` portable interop duties; non-confusion rule                    | Retain non-confusion rule; defers to the 050-051 coexistence direction.                                   |
-| 052:475-512  | Distribution tree; official-composition reframing                         | Retain distribution direction; tree is candidate topology, not packaging.                                 |
-| 052:514-540  | Minimal versus recommended installs; flavor list                          | Retain composition-over-monolith direction; spellings and flavors propose no surface.                     |
-| 052:544-560  | Closing thesis; Runtime-Kernel-Distribution formula                       | Retain thesis as author opinion; formula is a slogan, not architecture.                                   |
+[Quality-formula and Context-Compiler candidate design](quality-and-context-compiler-candidate.md#provider-observability-as-a-design-pointer).
 
 ## Proposed validation and promotion path
 

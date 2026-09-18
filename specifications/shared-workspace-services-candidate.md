@@ -1,15 +1,15 @@
 ---
-title: Shared workspace services and agent coordination research
-description: Critical synthesis of research 021 on tooling reuse teams context messaging and panel lifecycles
+title: Shared workspace services and agent coordination (candidate)
+description: Candidate shared workspace services, tooling reuse, teams, context messaging, and panel lifecycle
 category: specifications
 audience: mixed
-document_type: research
+document_type: specification
 status: draft
 website_publish: false
 sidebar_order: 21
 ---
 
-# Shared workspace services and agent coordination research
+# Shared workspace services and agent coordination (candidate)
 
 ## Status and recommendation
 
@@ -21,7 +21,7 @@ expensive work only when its inputs, trust domain, and lifecycle are compatible.
 Start with a small coordination model; add organization structure only when
 measured coordination costs justify it.
 
-The source's strongest ideas are consumer-independent tooling lifetimes,
+The direction's strongest ideas are consumer-independent tooling lifetimes,
 reference-first context, bounded structured communication, and independent
 agent/panel lifecycles. Its weakest claims are unconditional deduplication,
 automatic control of headless panels, globally shared authority, and persistence
@@ -33,71 +33,6 @@ workstations. The [IPC and Agent RFC](ipc-agent-rfc.md) remains the accepted
 transport and consent contract. The
 [pressure test](../product/ai-vertical-slice-pressure-test.md) is experimental evidence, and
 the [browser/agent pre-study](../interfaces/browser-agent-pre-study.md) remains a draft.
-
-## Provenance and evidence boundary
-
-The entire research note `021` was read on 2026-09-14: **3,378 lines**,
-including the final blank line. Its SHA-256 is
-`b6607d330887f42133e989be70dd4791aaac0ec1723441d01461fb9631403da9`.
-All source ranges below are inclusive and refer to that record. The fingerprint
-identifies the discussion, not the truth of its claims.
-
-Prior discussion inputs were read in the uncommitted CTX-0003 worktree:
-[research distillation 013/017/018](research-distillation-013-017-018.md) and
-the [coverage ledger](../docs/sources/research-coverage-ledger.md). They remain
-separate drafts and
-are not copied into this task or promoted to accepted authority. They already
-cover sans-I/O runtime direction, code-intelligence adapters, evidence,
-transactional edits, optional CarryCtx integration, and deferred multi-agent
-work. This synthesis adds lifecycle, sharing, and coordination detail rather
-than replacing that foundation.
-
-### Inspected implementation and upstream sources
-
-Read-only Git inspection found clean working trees for both sources below.
-No upstream scripts, tests, binaries, or installers were executed. Paths in this
-table are relative to the named repository; revision plus path identifies the
-source independently of machine layout.
-
-| Source and revision                                                           | Inspected range                                            | Observation and limit                                                                                                                                                                                                                                                |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sibling `bitty-ai`, `3623c6b3ce33e97c1c493109ec6356219d0c9722`                | `crates/bitty-ai-slice/src/session.rs:68–136`              | `run_turn` calls a provider, conditionally collects bounded context, dispatches an optional tool, and emits fragments. This is real experimental code. It does not implement this proposed service supervisor, organization graph, context compiler, or lease model. |
-| Same sibling                                                                  | Tracked `crates/` inventory and `docs` gitlink             | Core and experimental slice sources exist; the initialized docs gitlink is `39b4c7568a8807e0940bd298660c972db0cfa92a`. Repository-existence denials in older guides are stale. Inventory is not a full behavior audit.                                               |
-| Read-only OpenCode reference clone `95daf90670b7c039c436c85537da5fbfe2205b41` | `packages/opencode/src/lsp/lsp.ts:112–117,145–206,208–297` | State has clients and an in-flight spawn map. Initialization registers a shutdown finalizer. Lookup reuses root/server-ID clients and in-flight spawns; failed initialization and duplicate creation stop the newly created process.                                 |
-| Same upstream                                                                 | `LICENSE:1–21`                                             | MIT, copyright 2025 opencode. This license observation is for the inspected snapshot, not a dependency or bundled-asset audit.                                                                                                                                       |
-
-**Disagreement with 021:115–155:** the user's report of memory growth and
-surviving language-server processes is valid incident input, but the inspected
-OpenCode source does not support the blanket explanation that every subagent
-necessarily owns an independent server. Instance-scoped reuse and cleanup paths
-exist. This inspection does not prove cleanup on every crash, determine which
-version the user ran, or reproduce the incident. A future diagnosis needs
-version, instance/worktree identities, spawn ancestry, shutdown events, and
-memory measurements; this task does not touch the user's running processes.
-The source's per-server memory estimates and aggregate savings are hypothetical,
-not benchmarks.
-
-### Evidence status distinction
-
-This synthesis distinguishes three categories of material:
-
-1. **Verified implementation behavior:** observations from inspected source code
-   at named revisions (sibling `bitty-ai` experimental slice, upstream OpenCode
-   LSP manager). These describe what exists, not what should exist.
-2. **Accepted/normative documentation:** the accepted IPC/Agent RFC and the
-   normative security corpus/P0 acceptance criteria override discussion suggestions.
-   The AI architecture is a separate **draft**, not an accepted contract; its
-   proposed mechanisms and this synthesis require acceptance. Its links to
-   normative requirements do not elevate the whole document's status.
-3. **Proposed controls requiring future implementation evidence:** design
-   recommendations in this draft for service sharing, lease models, context
-   compilation, bounded delegation, and panel lifecycle separation. These need
-   review, prototyping, security testing, and acceptance before becoming
-   contracts. None closes existing open risks R-011 through R-014.
-
-The dispositions (retain/improve/reject/defer) apply to the research source's
-proposals and distinguish strong ideas worth advancing from weak claims needing
-correction.
 
 ## Authority and reconciliation
 
@@ -119,10 +54,10 @@ P0 acceptance criteria. Their requirements override every discussion example:
 These are existing obligations. The additional mechanisms proposed below need
 review; none closes R-011 through R-014 or supplies security test evidence.
 
-The source's `agent.spawn`, `team.create`, `code.rename`, and `panel.*` names
+The direction's `agent.spawn`, `team.create`, `code.rename`, and `panel.*` names
 are conceptual vocabulary, not additions to the accepted method registry.
 Adapters must map operations to reviewed scopes; unsupported operations fail
-closed. Do not replace the accepted `AgentMessage` union with the source's
+closed. Do not replace the accepted `AgentMessage` union with the direction's
 organization-message enumeration merely because both use the same name.
 
 The earlier claim that the shared register stopped at OQ-032 is stale.
@@ -135,7 +70,7 @@ AIQ identifiers need admission and owner routing before promotion to global OQs.
 
 ### Identity and ownership
 
-Retain `Agent != OS process != model conversation` (021:41–112). A logical
+Retain `Agent != OS process != model conversation`. A logical
 agent can be driven by an async state machine, consistent with earlier
 sans-I/O proposals. The executor choice does not itself isolate faults or
 memory: blocking analysis needs bounded workers, and untrusted tools require
@@ -162,8 +97,8 @@ never derive execution cwd from the currently focused panel.
 
 ### Sharing key and authorization
 
-Improve the source's `(workspace, language, config_hash)` key and its later
-worktree correction (021:156–205,641–700). A candidate compatibility key includes:
+Improve the direction's `(workspace, language, config_hash)` key and its later
+worktree correction (641–700). A candidate compatibility key includes:
 
 - execution-target identity and generation;
 - repository/worktree or overlay identity and canonical root identity;
@@ -188,8 +123,7 @@ references a service; it is not a transferable permission token.
 
 ### Stateful language-service mediation
 
-Retain a semantic tool surface rather than arbitrary model-generated LSP calls
-(021:206–261). Return source identity, snapshot/document version, method,
+Retain a semantic tool surface rather than arbitrary model-generated LSP calls. Return source identity, snapshot/document version, method,
 provider, freshness, confidence, and truncation. Syntax search is a useful
 fallback but cannot silently claim semantic equivalence to language-service
 references or rename.
@@ -213,7 +147,7 @@ network access.
 ### Supervision, pressure, and cancellation
 
 Retain consumer-independent lifetime, but reject “shared and persistent” as an
-unbounded invariant (021:457–640,742–756). Proposed states are Starting,
+unbounded invariant (742–756). Proposed states are Starting,
 Ready, Idle, Draining, Stopped, and Failed, with a fresh generation on restart.
 Admission counts starting instances so concurrent requests cannot exceed the
 process budget before initialization completes. Reuse a single in-flight start
@@ -239,17 +173,17 @@ PID alone. Never kill an editor's language server merely because its executable
 matches. Supervisor crash and host shutdown need an owned-process recovery plan;
 durable handles are not sufficient to safely adopt an arbitrary survivor.
 
-Linux cgroup resource accounting is a deferred backend candidate (021:552–584),
+Linux cgroup resource accounting is a deferred backend candidate,
 not a cross-platform guarantee or authorization mechanism. Controller availability,
 delegation, child escape, OOM attribution, and platform-specific containment need
 separate evidence. If a required isolation limit cannot be enforced, refuse that
-execution profile rather than silently running it unrestricted. The source's
+execution profile rather than silently running it unrestricted. The direction's
 idle duration, memory budget, idle-server count, and process-tree names are
 illustrations, not adopted configuration defaults.
 
 ## Lint, build, test, and evidence reuse
 
-Retain bounded scheduling and request coalescing (021:262–456), but distinguish
+Retain bounded scheduling and request coalescing, but distinguish
 four operations: sharing a language server, joining an in-flight check, reading
 an existing result, and skipping a new execution because a cache is eligible.
 They need different correctness and consent rules.
@@ -291,7 +225,7 @@ never supplies independent approval.
 
 Use per-target queues with fairness, explicit priority aging, bounded admission,
 and tool-aware exclusive resources. Deduplication is an optimization subordinate
-to correctness, not the source's unconditional MUST. If equivalence cannot be
+to correctness, not the direction's unconditional MUST. If equivalence cannot be
 proved, queue a separate authorized execution or return unsupported.
 
 For a manifest scanning B input bytes, full fingerprint construction is O(B)
@@ -303,7 +237,7 @@ eligible requests; no numerical savings are claimed.
 ## Teams, delegation, and organization graphs
 
 Retain explicit task ownership, independent review, scoped delegation, budgets,
-and compact reporting (021:773–1434). Improve the company analogy into typed
+and compact reporting. Improve the company analogy into typed
 relations rather than a mandatory hierarchy of departments.
 
 - A task has one accountable owner at a time, a versioned assignment, scoped
@@ -321,7 +255,7 @@ relations rather than a mandatory hierarchy of departments.
   deadline budgets atomically before admitting children. Reconcile unused
   reservations on exit. A parent handing a budget to a child cannot spend it
   again. A bounded depth and direct-report limit need measurements, not the
-  source's arbitrary default of five.
+  candidate direction's arbitrary default of five.
 - On leader failure, fence the old assignment generation, reconcile outstanding
   work and uncertain effects, and hand off accountable ownership explicitly.
   A replacement leader must not duplicate every child or retry unknown effects.
@@ -346,7 +280,7 @@ not be separate runtime services merely to reproduce a company chart.
 ## Context compilation and progressive disclosure
 
 Retain context as a selected working set plus references, state, memory, and
-artifacts, distinct from the complete transcript (021:1436–1805,2155–2400).
+artifacts, distinct from the complete transcript (2155–2400).
 The proposed six layers are selection categories, not six competing stores:
 
 | Source layer    | Reconciliation with existing context design                                                  |
@@ -414,7 +348,7 @@ E, fetched bytes, and elapsed work before allocation.
 ## Messages, IPC, and recovery
 
 Retain typed request/result/finding/review/blocker/notification messages and
-reference payloads (021:1806–1937,2257–2400). Reuse the accepted local transport
+reference payloads (2257–2400). Reuse the accepted local transport
 and bounds; an in-process channel does not remove caller checks. Workspace and
 global routing are logical scopes, not a new globally privileged socket,
 registry, or default TCP service.
@@ -449,10 +383,10 @@ movement of a UI surface neither moves executions nor broadens context access.
 
 ## Panels, executions, leases, and human control
 
-### Reconcile the source's two panel models
+### Reconcile the direction's two panel models
 
-The source first calls a Panel a projection (021:1938–2154) and later calls it
-an owner of cwd, environment, I/O, and history (021:2402–2490). Prefer the
+The direction first calls a Panel a projection and later calls it
+an owner of cwd, environment, I/O, and history. Prefer the
 existing architecture's **Agent -> ExecutionContext <- Panel** model. A panel
 can project an execution's state/history but does not own PTY descriptors or
 become an execution merely because it has no visible UI.
@@ -461,7 +395,7 @@ Retain many-to-many observation and independent lifetimes; reject mandatory
 one-headless-panel-per-agent. A structured build tool or manager may need no
 panel and no shell. A background execution may be shown later without being
 recreated. Headed/headless describes presentation, not authority or persistence.
-The host's accepted lifecycle vocabulary remains unchanged by this research;
+The host's accepted lifecycle vocabulary remains unchanged by this candidate design;
 Created/Active/Idle/Archived/Destroyed is a proposed execution/history policy,
 not a replacement Panel Runtime state machine.
 
@@ -472,13 +406,13 @@ subject to the accepted ADR 0008 deferral and trust-boundary gate linked by the
 
 ### Leases and access modes
 
-Improve the source's observe/assist/control ladder (021:2705–2835). These can be
+Improve the direction's observe/assist/control ladder. These can be
 UX profiles over capabilities, but `control` cannot bundle input, spawning,
 interruption, cwd/environment modification, closure, and filesystem writes.
 Each effect needs its actual scope and consent. Observation itself is bounded:
 it does not grant raw environment, all history, input capture, or sibling logs.
 
-Reject automatic headless control (021:2773–2804). A fresh agent remains
+Reject automatic headless control. A fresh agent remains
 read-only. A separately approved task profile may permit particular actions in
 its execution target, whether or not it has a visible panel. Hiding a panel
 cannot manufacture consent or lock the human out of oversight.
@@ -508,8 +442,7 @@ claim that secret-input automation is already safe.
 | Archive requested                | Quiesce or explicitly stop owned execution, record outcome, then retain policy-approved evidence; archive is not a live shell snapshot |
 | Runtime restarts                 | Recover authorized metadata and reconcile uncertain executions; stale handles/grants do not resurrect processes or effects             |
 
-Reject the source's absolute “any node exits without affecting another”
-(021:3312–3359). Identity lifetimes are independent, but cancellation,
+Reject the direction's absolute “any node exits without affecting another”. Identity lifetimes are independent, but cancellation,
 revocation, process failure, and resource disposal necessarily propagate bounded
 effects. An agent may survive panel closure while losing a tool stream or
 waiting for a replacement target. State that transition explicitly.
@@ -531,8 +464,7 @@ inspect or stop agent work through their authorized control surface even when
 execution is headless; automation resumes only through an explicit handback.
 
 Retain the proposed console's organization/task/agent/panel/resource views,
-bidirectional attachment indexes, purpose labels, and correlated timelines
-(021:3059–3377). Derive them from authoritative event/state records, not two
+bidirectional attachment indexes, purpose labels, and correlated timelines. Derive them from authoritative event/state records, not two
 independently writable indexes. Show target, assignment generation, actual
 execution state, reused versus fresh evidence, queue/dropped-event counts,
 CPU/memory attribution, estimated/billed tokens, blockers, and consent requests.
@@ -540,52 +472,6 @@ Progress percentages need a defined denominator; unknown progress is preferable
 to fabricated precision. Kill/reassign/archive/message/focus UI actions pass
 the same authorization and generation checks as any other client. Keyboard
 bindings, official-plugin packaging, and distribution status are deferred.
-
-## Source coverage and critical disposition
-
-Retain means retain as a **proposal**, not accept as normative. Improve means
-retain the objective with the correction above. Reject means reject that
-mechanism or absolute claim; defer means no commitment pending named evidence.
-Repeated diagrams and illustrative numbers are condensed into these topics.
-
-| Source lines | Topic                                         | Disposition, rationale, and alternative                                                                     |
-| ------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| 1–40         | Incident and shared infrastructure            | Retain motivation; improve attribution using source inspection rather than inferring per-subagent ownership |
-| 41–112       | Agent/process/model distinction               | Retain logical identity; improve async proposal with bounded workers and isolation boundaries               |
-| 113–205      | LSP ownership, memory, broker key             | Improve workspace-scoped pooling; reject unverified universal OpenCode diagnosis and memory savings         |
-| 206–261      | Semantic code tools and fallback engines      | Retain; improve provenance and effects separation rather than raw protocol access                           |
-| 262–320      | Lint fan-out                                  | Improve with compatible in-flight execution and independent authorization/cancellation                      |
-| 321–407      | Revision cache and reviewer test reuse        | Improve with complete input manifests, snapshot semantics, nondeterminism policy, and visible reuse         |
-| 408–456      | Build broker                                  | Retain bounded scheduling; improve resource locking and effect-aware command distinction                    |
-| 457–516      | Refcount and idle shutdown                    | Improve with supervised leases, crash reconciliation, bounded stop/reap, and generation fencing             |
-| 517–584      | Memory pressure and Linux cgroups             | Retain pressure objective; defer backend/defaults pending enforcement and portability evidence              |
-| 585–640      | Process diagram                               | Improve logical/physical separation; reject implication that an actor is an OS sandbox                      |
-| 641–700      | Worktree-aware WorkspaceView                  | Retain; improve target, overlay, environment and access-domain identity                                     |
-| 701–772      | Shared services and MUST deduplicate          | Improve conditional sharing; reject universal persistence/dedup requirement                                 |
-| 773–874      | Multi-leader organization graph               | Retain typed relations; defer mandatory multi-tier organization                                             |
-| 875–966      | Span of control and recursive spawn           | Improve bounded admission and attenuated grants; defer example defaults                                     |
-| 967–1059     | Manager/worker roles and summaries            | Retain role-aware summaries; reject denying managers evidence drill-down                                    |
-| 1060–1143    | Structured meetings and departments           | Retain bounded review artifacts; defer automatic organizational escalation                                  |
-| 1144–1213    | Shared infrastructure and team budgets        | Improve trust-scoped reuse and atomic ancestor/global budget reservations                                   |
-| 1214–1293    | RACI and independent review                   | Retain ownership/accountability separation; verdict is evidence, not self-acceptance                        |
-| 1294–1434    | Temporary teams and organization runtime      | Retain resource release; defer extra runtime layers and permanent memory assumptions                        |
-| 1436–1667    | Context versus history and six layers         | Retain working-set model; improve mapping to existing planes/epochs                                         |
-| 1668–1724    | ContextRef and reference messages             | Improve immutable identity, authorization, freshness, and missing-reference handling                        |
-| 1725–1805    | Command/file progressive disclosure           | Retain; improve warning preservation and bounded original-source fallback                                   |
-| 1806–1937    | Message kinds and three IPC layers            | Retain logical routing; reject new ambient global bus or implied daemon                                     |
-| 1938–2039    | Many-to-many panel projections                | Retain; defer floating-panel UX and keep focus host-controlled                                              |
-| 2040–2154    | Execution home, attachments, context lifetime | Improve captured per-execution target; context retention is independent but bounded                         |
-| 2155–2256    | Graph and role-aware compiler                 | Retain selection; improve bounded traversal, mandatory filtering, and simple-store alternative              |
-| 2257–2400    | Message enrichment and invariants             | Improve delivery/ack semantics; reject token-savings certainty and absolute raw-output ban                  |
-| 2402–2490    | Panel as environment versus projection        | Reject environment ownership in Panel; use existing ExecutionContext and terminal owners                    |
-| 2491–2659    | Default lease and portable context            | Improve optional leases and retained evidence; no mandatory shell or eternal context                        |
-| 2660–2772    | User-panel error investigation and modes      | Retain explicit observation; improve granular scope mapping and no automatic rerun                          |
-| 2773–2835    | Headless control and shared leases            | Reject default control; improve fenced writer and separately consented effects                              |
-| 2836–2955    | Archive and Panel/PTY separation              | Retain separation; improve quiescence, bounded retention, and no live-process resurrection                  |
-| 2956–3058    | Agent panel management and multiple surfaces  | Improve target-scoped lifecycle grants; a lease does not authorize closing others' work                     |
-| 3059–3216    | Purpose, console, timelines and indexes       | Retain observable projections; defer UI bindings/packaging and require authoritative state                  |
-| 3217–3311    | Human actor, attachment versus focus          | Retain shared protocol concept; improve human takeover and per-principal authority                          |
-| 3312–3378    | Lifecycle invariants and console conclusion   | Improve independent identities with explicit failure propagation; defer official-plugin designation         |
 
 ## Proposed validation and promotion path
 
