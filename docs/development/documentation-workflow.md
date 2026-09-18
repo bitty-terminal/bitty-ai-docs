@@ -98,7 +98,8 @@ sections go; they are placeholders, not literal headings. `contract` shares the
 `policy` spine because the document-type table above defines the two together.
 
 This section is a form rule only. It does not change the frontmatter schema,
-status meanings, or review ownership above. The spine is shared verbatim with
+status meanings, or review ownership defined elsewhere in this policy. The
+spine is shared verbatim with
 [bitty-plugins-docs](https://github.com/bitty-terminal/bitty-plugins-docs), and
 the two repositories must not diverge.
 
