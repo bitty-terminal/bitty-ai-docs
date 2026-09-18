@@ -20,7 +20,7 @@ sidebar_order: 39
 > multi-agent organization scope is frozen and deferred; see
 > [Frozen and deferred scope](#frozen-and-deferred-scope).
 
-## Scope and inputs
+## Purpose and scope
 
 This decision covers code-intelligence sharing only:
 
@@ -346,47 +346,7 @@ Pointers:
 - Release-scope sequencing stays in
   [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 
-## Open-question disposition
-
-This document changes the status of no register entry:
-
-- AIQ-21 (service compatibility-key validation and invalidation) stays a
-  prerequisite. The domain-key contract above is draft disposition; the
-  runtime validation and invalidation mechanism remains open.
-- AIQ-22 (cross-scope service non-disclosure mechanism) stays a
-  prerequisite, with AIQ-42 as its stable alias. Filtering alone is not
-  proof; isolation must be proven or sharing is excluded.
-- AIQ-41 (document overlay coordination) stays a prerequisite.
-  Conflicting buffers cannot silently share semantic state; the single
-  authoritative overlay or separate-state rule is draft disposition, and
-  the coordination mechanism remains open.
-- AIQ-43 (incomplete fingerprint handling) stays a prerequisite. Unknown
-  inputs disable generic reuse and coalescing of effectful work; whether
-  a partial-fingerprint execution may proceed marked or must refuse stays
-  open.
-- AIQ-44 (cache invalidation granularity) stays a prerequisite. Stale
-  inputs cannot produce a falsely current PASS; the granularity mechanism
-  remains open.
-- AIQ-45 (effectful coalescing equivalence and isolation mechanism) stays
-  a prerequisite. Every waiter needs its own grant; coalescing stays
-  disabled until equivalence plus isolation is proven.
-- AIQ-46 (syntax fallback disclosure format) stays a prerequisite.
-  Fallback must stay distinguishable from semantic evidence; the exact
-  disclosure format remains open.
-- AIQ-47 (diagnostic rate limits and prioritization) stays a prerequisite.
-  Subscriptions must be bounded and attributed; the rate values and
-  priority order remain open.
-- AIQ-48 (warm-service and restart policy) stays a design choice. Bounded
-  supervisor policy applies within the isolation limits above.
-
-Adjacent identifiers are unchanged: AIQ-23, AIQ-2B, and AIQ-2C keep lease,
-supervision, and writer-fencing mechanics open; AIQ-58 keeps the
-per-reader evidence-sharing enforcement mechanism open; AIQ-59 keeps
-unknown-effect reconciliation open. Promotion of any identifier requires
-the canonical admission rule cited by
-[AI Unresolved Questions](../product/ai-unresolved-questions.md).
-
-## Evidence bar
+## Verification plan
 
 A future implementation claiming this disposition must show, at minimum:
 
@@ -426,7 +386,47 @@ A future implementation claiming this disposition must show, at minimum:
   plus fail-closed behavior when authorization, redaction, budget, or
   isolation machinery is unavailable.
 
-## Ownership and next steps
+## Open points
+
+This document changes the status of no register entry:
+
+- AIQ-21 (service compatibility-key validation and invalidation) stays a
+  prerequisite. The domain-key contract above is draft disposition; the
+  runtime validation and invalidation mechanism remains open.
+- AIQ-22 (cross-scope service non-disclosure mechanism) stays a
+  prerequisite, with AIQ-42 as its stable alias. Filtering alone is not
+  proof; isolation must be proven or sharing is excluded.
+- AIQ-41 (document overlay coordination) stays a prerequisite.
+  Conflicting buffers cannot silently share semantic state; the single
+  authoritative overlay or separate-state rule is draft disposition, and
+  the coordination mechanism remains open.
+- AIQ-43 (incomplete fingerprint handling) stays a prerequisite. Unknown
+  inputs disable generic reuse and coalescing of effectful work; whether
+  a partial-fingerprint execution may proceed marked or must refuse stays
+  open.
+- AIQ-44 (cache invalidation granularity) stays a prerequisite. Stale
+  inputs cannot produce a falsely current PASS; the granularity mechanism
+  remains open.
+- AIQ-45 (effectful coalescing equivalence and isolation mechanism) stays
+  a prerequisite. Every waiter needs its own grant; coalescing stays
+  disabled until equivalence plus isolation is proven.
+- AIQ-46 (syntax fallback disclosure format) stays a prerequisite.
+  Fallback must stay distinguishable from semantic evidence; the exact
+  disclosure format remains open.
+- AIQ-47 (diagnostic rate limits and prioritization) stays a prerequisite.
+  Subscriptions must be bounded and attributed; the rate values and
+  priority order remain open.
+- AIQ-48 (warm-service and restart policy) stays a design choice. Bounded
+  supervisor policy applies within the isolation limits above.
+
+Adjacent identifiers are unchanged: AIQ-23, AIQ-2B, and AIQ-2C keep lease,
+supervision, and writer-fencing mechanics open; AIQ-58 keeps the
+per-reader evidence-sharing enforcement mechanism open; AIQ-59 keeps
+unknown-effect reconciliation open. Promotion of any identifier requires
+the canonical admission rule cited by
+[AI Unresolved Questions](../product/ai-unresolved-questions.md).
+
+## Acceptance criteria
 
 - Draft owner: CTX-0012 implementer (`ai-docs-ctx0012-impl`).
 - Acceptance requires independent review by the architecture category

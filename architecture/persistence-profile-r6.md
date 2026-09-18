@@ -19,9 +19,9 @@ sidebar_order: 40
 > semantics stay with R3, lifecycle authority stays with R5, and every
 > register entry below stays open; see
 > [Frozen and deferred scope](#frozen-and-deferred-scope) and
-> [Open-question disposition](#open-question-disposition).
+> [Open points](#open-points).
 
-## Scope and inputs
+## Purpose and scope
 
 This decision covers persistence profile only:
 
@@ -319,7 +319,45 @@ Pointers:
   [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md),
   whose non-goals are confirmed, not altered, by this decision.
 
-## Open-question disposition
+## Verification plan
+
+A future implementation claiming this disposition must show, at
+minimum:
+
+- Journal evidence that durable writes occur only under explicit
+  applicable consent after pre-queue and pre-write typed redaction,
+  minimized, user-only (`0600`), with exact export preview, and
+  that unconsented disk recording is absent.
+- Deletion propagation evidence across journal payloads, artifact
+  bytes, projections, indexes, caches, and exports, with tombstones
+  holding only permitted absence metadata and no backup or replay
+  path resurrecting deleted, expired, or never-recorded content.
+- Dimension-separation evidence that projection, index, and replay
+  each revalidate against surviving records: an index miss after
+  deletion, a projection that cannot widen read authority, and a
+  replay that performs no tool dispatch.
+- Replay evidence that reconstructed state is marked as replayed,
+  that missing records surface as typed unavailable with reasons,
+  that replayed effects yield recorded outcomes rather than fresh
+  executions, and that resumed work re-passes the full
+  authorization gate order.
+- Unknown-reconciliation evidence with seeded crash fixtures
+  between effect and acknowledgement: `Unknown` preserved through
+  replay, reconciled by inspection or user direction, retried only
+  when eligible, with no exactly-once claim.
+- Negative scheduling evidence: no background maintenance worker
+  runs without an explicit bounded admission; probing for timer or
+  sweep behavior yields nothing outside admitted operations.
+- Release-gate evidence that the v0.1 tree contains no durable
+  store path, and that durability work starts only after the
+  AIQ-33, AIQ-11, and AIQ-37 gates plus the R3 propagation bar
+  are evidenced.
+- Deterministic coverage with seeded consent, redaction, deletion,
+  expiry, crash, and budget fixtures, plus fail-closed behavior
+  when consent, redaction, authorization, or budget machinery is
+  unavailable.
+
+## Open points
 
 This document changes the status of no register entry. Promotion of
 any identifier requires the canonical admission rule cited by
@@ -362,45 +400,7 @@ any identifier requires the canonical admission rule cited by
 
 AIQ-10/56 and AIQ-22/42 alias mappings are retained unchanged.
 
-## Evidence bar
-
-A future implementation claiming this disposition must show, at
-minimum:
-
-- Journal evidence that durable writes occur only under explicit
-  applicable consent after pre-queue and pre-write typed redaction,
-  minimized, user-only (`0600`), with exact export preview, and
-  that unconsented disk recording is absent.
-- Deletion propagation evidence across journal payloads, artifact
-  bytes, projections, indexes, caches, and exports, with tombstones
-  holding only permitted absence metadata and no backup or replay
-  path resurrecting deleted, expired, or never-recorded content.
-- Dimension-separation evidence that projection, index, and replay
-  each revalidate against surviving records: an index miss after
-  deletion, a projection that cannot widen read authority, and a
-  replay that performs no tool dispatch.
-- Replay evidence that reconstructed state is marked as replayed,
-  that missing records surface as typed unavailable with reasons,
-  that replayed effects yield recorded outcomes rather than fresh
-  executions, and that resumed work re-passes the full
-  authorization gate order.
-- Unknown-reconciliation evidence with seeded crash fixtures
-  between effect and acknowledgement: `Unknown` preserved through
-  replay, reconciled by inspection or user direction, retried only
-  when eligible, with no exactly-once claim.
-- Negative scheduling evidence: no background maintenance worker
-  runs without an explicit bounded admission; probing for timer or
-  sweep behavior yields nothing outside admitted operations.
-- Release-gate evidence that the v0.1 tree contains no durable
-  store path, and that durability work starts only after the
-  AIQ-33, AIQ-11, and AIQ-37 gates plus the R3 propagation bar
-  are evidenced.
-- Deterministic coverage with seeded consent, redaction, deletion,
-  expiry, crash, and budget fixtures, plus fail-closed behavior
-  when consent, redaction, authorization, or budget machinery is
-  unavailable.
-
-## Ownership and next steps
+## Acceptance criteria
 
 - Draft owner: CTX-0014 implementer (`ai-docs-ctx0014-impl`).
 - Acceptance requires independent review by the architecture

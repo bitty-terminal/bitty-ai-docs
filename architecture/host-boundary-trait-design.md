@@ -22,7 +22,7 @@ sidebar_order: 57
 > survey evidence at `bitty-ai` `main` `97d3125`; no file in the `bitty-ai`
 > repository was modified.
 
-## Scope and inputs
+## Purpose and scope
 
 This design answers two of the AIQ-31 facets recorded in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md): (a) a
@@ -274,7 +274,7 @@ which stays with review and the trait bound.
    human review policy for promotions and new seams stays with AIQ-32 and
    AIQ-34 and is not claimed here.
 
-## Explicit non-acceptance
+## Acceptance criteria
 
 This document is a draft candidate design. It is unaccepted, it closes no
 AIQ or OQ entry (AIQ-31 stays open, as do AIQ-32 through AIQ-38 where

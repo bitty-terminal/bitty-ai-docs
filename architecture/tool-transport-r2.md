@@ -19,7 +19,7 @@ sidebar_order: 38
 > semantics stay with R3, and multi-agent scope is frozen and deferred; see
 > [Frozen and deferred scope](#frozen-and-deferred-scope).
 
-## Scope and inputs
+## Purpose and scope
 
 This decision covers transport path selection only:
 
@@ -245,30 +245,7 @@ Pointers:
 - Release-scope sequencing stays in
   [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 
-## Open-question disposition
-
-This document changes the status of no register entry:
-
-- AIQ-33 (unified authorization and isolation backend) stays a
-  prerequisite. The required-control surface above is frozen as draft
-  disposition; the backend mechanism itself remains an open selection.
-- AIQ-36 (native versus MCP tool transport and bridge placement) stays a
-  prerequisite. The declared-placement disposition selects a draft
-  direction without closing the transport or bridge question.
-- AIQ-37 (structured exec result schema) stays a prerequisite. Only the
-  disclosure classes (`Succeeded`, `Failed`, `Cancelled`, `Unknown`) and
-  the reconcile-before-retry rule are inherited; representation is open.
-- AIQ-38 (generic execution and registry ownership across repositories)
-  stays a prerequisite. BA-2 and BA-3 are preserved; the exact split
-  needs review.
-- AIQ-08 (MCP schema cache invalidation) stays a prerequisite, cited for
-  the stale-schema denial rule. Stale schemas cannot authorize changed
-  effects under either path.
-
-Promotion of any of these identifiers requires the canonical admission
-rule cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
-
-## Evidence bar
+## Verification plan
 
 A future implementation claiming this disposition must show, at minimum:
 
@@ -300,7 +277,30 @@ A future implementation claiming this disposition must show, at minimum:
 - Deterministic coverage with seeded registry, consent, schema-change,
   budget, and backend-absence fixtures.
 
-## Ownership and next steps
+## Open points
+
+This document changes the status of no register entry:
+
+- AIQ-33 (unified authorization and isolation backend) stays a
+  prerequisite. The required-control surface above is frozen as draft
+  disposition; the backend mechanism itself remains an open selection.
+- AIQ-36 (native versus MCP tool transport and bridge placement) stays a
+  prerequisite. The declared-placement disposition selects a draft
+  direction without closing the transport or bridge question.
+- AIQ-37 (structured exec result schema) stays a prerequisite. Only the
+  disclosure classes (`Succeeded`, `Failed`, `Cancelled`, `Unknown`) and
+  the reconcile-before-retry rule are inherited; representation is open.
+- AIQ-38 (generic execution and registry ownership across repositories)
+  stays a prerequisite. BA-2 and BA-3 are preserved; the exact split
+  needs review.
+- AIQ-08 (MCP schema cache invalidation) stays a prerequisite, cited for
+  the stale-schema denial rule. Stale schemas cannot authorize changed
+  effects under either path.
+
+Promotion of any of these identifiers requires the canonical admission
+rule cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+
+## Acceptance criteria
 
 - Draft owner: CTX-0011 implementer (`ai-docs-ctx0011-impl`).
 - Acceptance requires independent review by the architecture category

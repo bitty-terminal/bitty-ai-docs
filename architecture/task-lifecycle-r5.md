@@ -19,7 +19,7 @@ sidebar_order: 37
 > release-scope choices are frozen and deferred; see
 > [Frozen and deferred scope](#frozen-and-deferred-scope).
 
-## Scope and inputs
+## Purpose and scope
 
 This decision covers lifecycle authority only:
 
@@ -245,28 +245,7 @@ Pointers:
 - Persistence-scope follow-up returns as CTX-0014 (R6), which depends on R3
   and this R5 disposition and is not decided here.
 
-## Open-question disposition
-
-This document changes the status of no register entry:
-
-- AIQ-10 (task lifecycle authority and CarryCtx backend or handoff) stays a
-  design choice, with AIQ-56 as its persistence alias covering the
-  backend-or-handoff facet. The alias is not a separate lifecycle owner.
-- AIQ-26 (independent review evidence criteria) stays a prerequisite.
-  Acceptance cannot derive from self-review or shared PASS under the criteria
-  above.
-- AIQ-28 (critical-message acknowledgement and recovery) stays a
-  prerequisite. Assignment, approval, cancellation, and result
-  acknowledgement cannot silently drop or imply effect success under the
-  rules above.
-
-Promotion of any of these identifiers requires the canonical admission rule
-cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md). The
-CarryCtx durable-task integration boundary is additionally tracked as a
-cross-repository question in the shared governance corpus; this repository
-links that register instead of copying it.
-
-## Evidence bar
+## Verification plan
 
 A future implementation claiming this disposition must show, at minimum:
 
@@ -297,7 +276,28 @@ A future implementation claiming this disposition must show, at minimum:
   capacity refusal) and fail-closed behavior when authorization, redaction,
   budget, or routing machinery is unavailable.
 
-## Ownership and next steps
+## Open points
+
+This document changes the status of no register entry:
+
+- AIQ-10 (task lifecycle authority and CarryCtx backend or handoff) stays a
+  design choice, with AIQ-56 as its persistence alias covering the
+  backend-or-handoff facet. The alias is not a separate lifecycle owner.
+- AIQ-26 (independent review evidence criteria) stays a prerequisite.
+  Acceptance cannot derive from self-review or shared PASS under the
+  [Independent-review evidence criteria](#independent-review-evidence-criteria).
+- AIQ-28 (critical-message acknowledgement and recovery) stays a
+  prerequisite. Assignment, approval, cancellation, and result
+  acknowledgement cannot silently drop or imply effect success under the
+  rules above.
+
+Promotion of any of these identifiers requires the canonical admission rule
+cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md). The
+CarryCtx durable-task integration boundary is additionally tracked as a
+cross-repository question in the shared governance corpus; this repository
+links that register instead of copying it.
+
+## Acceptance criteria
 
 - Draft owner: CTX-0013 implementer (`ai-docs-ctx0013-impl`).
 - Acceptance requires independent review by the architecture category owner,

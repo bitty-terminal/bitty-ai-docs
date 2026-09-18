@@ -16,6 +16,8 @@ sidebar_order: 26
 > behavior, and authorizes no compatibility promise. Mechanisms marked
 > beyond-v0.1 are proposals for later increments, not commitments.
 
+## Purpose and scope
+
 **Draft relationship**: Extends [Context Management Architecture](context-management.md),
 which elaborates [AI Architecture](../architecture/ai-architecture.md) CP-5 (Budget), CP-6 (Artifacts),
 CP-7 (Determinism and testability). See also AG-4 (Least privilege at dispatch)
@@ -287,30 +289,6 @@ configuration, prefix)`. Model routing that switches providers or models
    server-side under existing consent and budget rules. The context layer
    does not invent its own panel-addressing authority.
 
-## Privacy and normative controls
-
-This proposal must not contradict P0-AC-026, PP-2, or PP-4:
-
-- [AI Architecture](../architecture/ai-architecture.md#privacy-first) PP-2 (Typed redaction)
-  requires redaction before queuing. Stable prefixes do not change this:
-  redaction applies before any byte enters the prefix, and negative tests
-  must still show seeded secrets absent from default outputs.
-- PP-4 (No on-disk persistence without consent) governs all snapshots,
-  registries, epochs, digests, and planner state that would persist agent
-  turns, tool results, or context snapshots to disk. An in-memory stable
-  prefix does not authorize durable recording. Consent authorizes recording
-  only with mandatory typed redaction, user-only storage, and export preview.
-- Minimization (PP-1) still prefers the smallest budget-bound set. Cache
-  friendliness never justifies sending more context than the task needs.
-
-Provider-side cache retention is a privacy consideration recorded here as an
-open question, not a bypass: when a provider retains prompt prefixes to serve
-its cache, redacted-before-send remains the client control, and retention
-behavior of third-party caches is outside this repository's authority.
-Whether cache-retention windows affect provider selection or disclosure is
-tracked as part of AIQ-13. No clause in this document weakens the normative
-security corpus linked from [AI Architecture](../architecture/ai-architecture.md).
-
 ## v0.1 scope boundary
 
 Consistent with [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
@@ -349,7 +327,49 @@ evidence for the proposal. This repository was not modified as part of that
 inspection, and no claim here describes sibling behavior beyond what was
 read.
 
-## Open questions and risks
+## Security review
+
+This proposal must not contradict P0-AC-026, PP-2, or PP-4:
+
+- [AI Architecture](../architecture/ai-architecture.md#privacy-first) PP-2 (Typed redaction)
+  requires redaction before queuing. Stable prefixes do not change this:
+  redaction applies before any byte enters the prefix, and negative tests
+  must still show seeded secrets absent from default outputs.
+- PP-4 (No on-disk persistence without consent) governs all snapshots,
+  registries, epochs, digests, and planner state that would persist agent
+  turns, tool results, or context snapshots to disk. An in-memory stable
+  prefix does not authorize durable recording. Consent authorizes recording
+  only with mandatory typed redaction, user-only storage, and export preview.
+- Minimization (PP-1) still prefers the smallest budget-bound set. Cache
+  friendliness never justifies sending more context than the task needs.
+
+Provider-side cache retention is a privacy consideration recorded here as an
+open question, not a bypass: when a provider retains prompt prefixes to serve
+its cache, redacted-before-send remains the client control, and retention
+behavior of third-party caches is outside this repository's authority.
+Whether cache-retention windows affect provider selection or disclosure is
+tracked as part of AIQ-13. No clause in this document weakens the normative
+security corpus linked from [AI Architecture](../architecture/ai-architecture.md).
+
+## Verification plan
+
+This specification records the candidate direction plus critical
+judgment. It is not implementation evidence. Acceptance requires independent
+review, and any future implementation requires:
+
+- A byte-level canonical serialization contract with conformance tests
+  (ordering, key order, whitespace, section order, path normalization).
+- Prefix-stability measurement on replayed agent-loop traces showing that
+  consecutive requests share the claimed prefix under the stated layering.
+- Provider-scoped cache-key documentation with the implicit-versus-explicit
+  behavior of each supported provider stated as verified or unknown.
+- Privacy evidence that redaction-before-queue, minimization, and
+  consent-gated recording hold under the stable-prefix and snapshot
+  discipline.
+- Runtime code and tests in the owning implementation repository; no promise
+  here implies that code exists.
+
+## Open points
 
 1. Who owns canonical serialization, and what is its byte-level contract?
    (Proposed AIQ-12.)
@@ -372,7 +392,7 @@ read.
 8. Risk: local stability estimates may be mistaken for provider cache truth.
    Observability output must label estimates as estimates.
 
-## Related specifications
+## References
 
 - [AI Architecture](../architecture/ai-architecture.md) (Draft): CP-5 (Budget), CP-6 (Artifacts),
   CP-7 (Determinism and testability), AG-4 (Least privilege at dispatch).
@@ -385,23 +405,5 @@ read.
   L0+L1 scope gate marking Planner, epoch, and L2+ material as later
   proposals.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): AIQ-12 and
-  AIQ-13 proposed below; all other overlapping choices reuse existing
-  identifiers.
-
-## Evidence and verification boundary
-
-This specification records the candidate direction plus critical
-judgment. It is not implementation evidence. Acceptance requires independent
-review, and any future implementation requires:
-
-- A byte-level canonical serialization contract with conformance tests
-  (ordering, key order, whitespace, section order, path normalization).
-- Prefix-stability measurement on replayed agent-loop traces showing that
-  consecutive requests share the claimed prefix under the stated layering.
-- Provider-scoped cache-key documentation with the implicit-versus-explicit
-  behavior of each supported provider stated as verified or unknown.
-- Privacy evidence that redaction-before-queue, minimization, and
-  consent-gated recording hold under the stable-prefix and snapshot
-  discipline.
-- Runtime code and tests in the owning implementation repository; no promise
-  here implies that code exists.
+  AIQ-13 proposed in [Open points](#open-points); all other overlapping choices
+  reuse existing identifiers.

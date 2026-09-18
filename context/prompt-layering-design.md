@@ -16,6 +16,8 @@ sidebar_order: 27
 > behavior, and authorizes no compatibility promise. Mechanisms marked
 > beyond-v0.1 are proposals for later increments, not commitments.
 
+## Purpose and scope
+
 **Draft relationship**: Refines [Context Management Architecture](context-management.md)
 and aligns assembly order with [Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
 which elaborate [AI Architecture](../architecture/ai-architecture.md) CP-5 (Budget), CP-6 (Artifacts),
@@ -133,7 +135,8 @@ graphs) are beyond-v0.1 proposals, not commitments; they compose with
 [Agent Coordination Architecture](../agent/agent-coordination.md) only after the v0.1
 scope decision. Skill loading declarations grant no execution authority
 (AIQ-09). A narrowed tool list in a profile is a request the dispatcher may
-deny further, never a grant the dispatcher must honor (see next section).
+deny further, never a grant the dispatcher must honor (see
+[Contract is not Configuration is not Capability](#contract-is-not-configuration-is-not-capability)).
 
 ### Layer 5: Runtime and Current Turn
 
@@ -356,27 +359,6 @@ Adapted from the source table (lines 638-654) with scope qualifications:
 | Tool permissions       | Yes, narrowed only     | Subject to policy; prompt cannot widen (see above)    |
 | Runtime facts          | No                     | Supplied by the runtime per turn                      |
 
-## Privacy and normative controls
-
-This proposal must not contradict P0-AC-026 ([P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)),
-PP-2 (Typed redaction), or PP-4 (No on-disk persistence without consent):
-
-- PP-2 (Typed redaction) requires redaction before queuing. Layer assembly
-  changes nothing: redaction applies before any byte enters any layer, and no
-  layer (user, project, skill, or profile) may carry secret material such as
-  credential values. Configuration declares references, never inline secrets.
-- PP-4 (No on-disk persistence without consent) governs every snapshot the
-  layering implies: pinned core versions, instruction snapshots, assembled
-  prefixes, and introspection caches. A stable in-memory prefix does not
-  authorize durable recording. Consent authorizes recording only with
-  mandatory typed redaction, user-only storage, and export preview.
-- Minimization still prefers the smallest budget-bound set. Layer completeness
-  never justifies sending more context than the task needs, and cache
-  friendliness never overrides consent scopes.
-
-No clause here weakens the normative security corpus linked from
-[AI Architecture](../architecture/ai-architecture.md).
-
 ## v0.1 scope boundary
 
 Consistent with [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
@@ -401,7 +383,44 @@ Any future implementation requires the v0.1 authorization backend (AIQ-33),
 redaction evidence under P0-AC-026, and code with tests in the owning
 implementation repository; no sentence here implies that code exists.
 
-## Open questions and risks
+## Security review
+
+This proposal must not contradict P0-AC-026 ([P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)),
+PP-2 (Typed redaction), or PP-4 (No on-disk persistence without consent):
+
+- PP-2 (Typed redaction) requires redaction before queuing. Layer assembly
+  changes nothing: redaction applies before any byte enters any layer, and no
+  layer (user, project, skill, or profile) may carry secret material such as
+  credential values. Configuration declares references, never inline secrets.
+- PP-4 (No on-disk persistence without consent) governs every snapshot the
+  layering implies: pinned core versions, instruction snapshots, assembled
+  prefixes, and introspection caches. A stable in-memory prefix does not
+  authorize durable recording. Consent authorizes recording only with
+  mandatory typed redaction, user-only storage, and export preview.
+- Minimization still prefers the smallest budget-bound set. Layer completeness
+  never justifies sending more context than the task needs, and cache
+  friendliness never overrides consent scopes.
+
+No clause here weakens the normative security corpus linked from
+[AI Architecture](../architecture/ai-architecture.md).
+
+## Verification plan
+
+This specification records the candidate direction plus critical
+judgment. It is not implementation evidence. Acceptance requires independent
+review, and any future implementation requires:
+
+- A reviewed enforcement mechanism showing prompt text cannot widen authority,
+  with fail-closed tests for prompt-claimed capabilities.
+- A byte-level assembly contract (layer order, conflict precedence, version
+  pins) with conformance tests, reusing the canonical serializer once AIQ-12
+  is decided.
+- Privacy evidence that redaction-before-queue, minimization, and
+  consent-gated recording hold under layering, pinning, and introspection.
+- Runtime code and tests in the owning implementation repository; no promise
+  here implies that code exists.
+
+## Open points
 
 All choices below reuse existing identifiers; no new identifier is proposed.
 Duplicate-check outcome: prompt-text merge semantics are a facet of AIQ-31
@@ -434,7 +453,7 @@ questions stay with AIQ-29.
    Additions to Layer 1 need the same review bar as any contract change, with
    minimization as the binding constraint.
 
-## Related specifications
+## References
 
 - [AI Architecture](../architecture/ai-architecture.md) (Draft): CP-5 (Budget), CP-6 (Artifacts),
   CP-7 (Determinism and testability), AG-4 (Least privilege at dispatch),
@@ -456,19 +475,3 @@ questions stay with AIQ-29.
   AIQ-12, AIQ-13, AIQ-29, AIQ-31, AIQ-33, AIQ-34 reused; no new identifier proposed.
 - [AI runtime boundaries (candidate)](../specifications/ai-runtime-boundaries-candidate.md)
   (Draft): canonical `.wheel` and precedence coverage consumed here.
-
-## Evidence and verification boundary
-
-This specification records the candidate direction plus critical
-judgment. It is not implementation evidence. Acceptance requires independent
-review, and any future implementation requires:
-
-- A reviewed enforcement mechanism showing prompt text cannot widen authority,
-  with fail-closed tests for prompt-claimed capabilities.
-- A byte-level assembly contract (layer order, conflict precedence, version
-  pins) with conformance tests, reusing the canonical serializer once AIQ-12
-  is decided.
-- Privacy evidence that redaction-before-queue, minimization, and
-  consent-gated recording hold under layering, pinning, and introspection.
-- Runtime code and tests in the owning implementation repository; no promise
-  here implies that code exists.

@@ -22,7 +22,7 @@ sidebar_order: 58
 > evidence at `bitty-ai` `main`; no file in the `bitty-ai` repository was
 > modified.
 
-## Scope and inputs
+## Purpose and scope
 
 This checklist answers the AIQ-32 facet recorded in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md): what
@@ -44,8 +44,8 @@ AI-0097. Each gate names the precedent merges that prove it is passable, with
 
 A promotion lands only when every gate below holds with cited evidence. A
 single failing gate stops the promotion; the owner may still refuse a
-promotion that passes all gates (see [Explicit
-non-acceptance](#explicit-non-acceptance)).
+promotion that passes all gates (see
+[Acceptance criteria](#acceptance-criteria)).
 
 ### 1. TDD red/green evidence
 
@@ -201,7 +201,7 @@ full gates passed (gate 7); Issue and PR hygiene held with `Closes` (gate
 cited as evidence only (gate 10). A future promotion review can walk this
 paragraph link by link and demand the same shape.
 
-## Explicit non-acceptance
+## Acceptance criteria
 
 This document is a draft candidate checklist. It gates process, never
 auto-accepts semantics: passing every gate is necessary but not sufficient,
