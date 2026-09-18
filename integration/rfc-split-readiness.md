@@ -22,7 +22,7 @@ sidebar_order: 43
 > Normative security and IPC obligations override any experimental adoption
 > stated here.
 
-## Scope and inputs
+## Purpose and scope
 
 This evaluation covers only the five CTX-0023 candidate splits:
 
@@ -509,7 +509,7 @@ blocking questions open. Provider Contract version 1 and Prompt Assembly
 version 1 trail because selection plus credentials and serialization plus
 measurement respectively have no runtime proof at all.
 
-## Explicit non-acceptance and open-question disposition
+## Open points
 
 This evaluation changes the status of no register entry. The following stay
 open under the canonical admission rule cited by
@@ -547,7 +547,7 @@ The R1 through R6 draft dispositions are referenced as boundaries only and
 are not revised by this document. The CTX-0023 split list is referenced as
 proposal boundary only and is not promoted by this document.
 
-## Ownership and next steps
+## Acceptance criteria
 
 - Draft owner: CTX-0025 implementer (`ai-docs-ctx0025-impl`).
 - Acceptance of any future split Request For Comments requires its own scoped

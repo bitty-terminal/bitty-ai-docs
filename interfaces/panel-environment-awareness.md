@@ -22,7 +22,7 @@ sidebar_order: 46
 > `bitty` terminal repository decides acceptance, sequencing, and mechanism
 > through its own review.
 
-## Scope and inputs
+## Purpose and scope
 
 This awareness note covers only what `bitty-ai` must assume about panel
 environment, even before any `bitty`-side mechanism lands:
@@ -179,39 +179,6 @@ never moves execution targets or widens authority).
   [AI Architecture](../architecture/ai-architecture.md); environment-derived secrets inherit
   the same opaque-handle rule as provider credentials.
 
-## Open choices and identifier check
-
-Duplicate-check against
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every awareness
-question already tracked, so this document proposes no new AIQ identifier and
-no new global open-question identifier:
-
-- AIQ-5A (Typed redaction markers and invalidation mechanism) covers the
-  redaction machinery the sanitized view depends on.
-- AIQ-33 (Unified authorization/isolation backend) covers the gate model
-  environment use and handle dereference sit behind.
-- AIQ-38 (Generic execution and registry ownership across repositories)
-  covers the cross-repository handle and execution split, including the
-  no-model-I/O rule.
-- AIQ-36 (Native versus MCP tool transport and bridge placement) covers
-  transport-path placement for environment-mediated effects.
-- AIQ-10 (Task lifecycle authority and CarryCtx backend/handoff, with the
-  AIQ-56 alias) covers spawn and clone lifecycle authority for handle-based
-  panel creation.
-- AIQ-29 (Optional Panel/execution projection bindings) covers projection of
-  environment-backed execution without moving targets or manufacturing
-  consent.
-- AIQ-54 (Cross-store retention policy authority) covers who constrains any
-  future allowlist persistence.
-- AIQ-55 (Deletion/expiry and derived-record invalidation) covers consistent
-  removal of persisted environment payloads and derived records.
-- AIQ-57 (Reconstruction after deletion, expiry or destructive journal
-  reduction) covers disclosure of missing environment evidence after expiry.
-
-Credential-storage tiers, panel presentation, per-shell collector scripts,
-and plugin-registry mechanics belong to the owning repositories or future
-scoped tasks and are not AIQ entries.
-
 ## Bitty-side handoff, not a decision
 
 The following items from the candidate direction need owning-repository review
@@ -255,3 +222,36 @@ awareness contracts regardless of handoff timing.
 - Agents that assume shell-local state will break silently on clean or
   foreign-shell panels; documentation and errors must keep the
   exported-only boundary explicit.
+
+## Open points
+
+Duplicate-check against
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every awareness
+question already tracked, so this document proposes no new AIQ identifier and
+no new global open-question identifier:
+
+- AIQ-5A (Typed redaction markers and invalidation mechanism) covers the
+  redaction machinery the sanitized view depends on.
+- AIQ-33 (Unified authorization/isolation backend) covers the gate model
+  environment use and handle dereference sit behind.
+- AIQ-38 (Generic execution and registry ownership across repositories)
+  covers the cross-repository handle and execution split, including the
+  no-model-I/O rule.
+- AIQ-36 (Native versus MCP tool transport and bridge placement) covers
+  transport-path placement for environment-mediated effects.
+- AIQ-10 (Task lifecycle authority and CarryCtx backend/handoff, with the
+  AIQ-56 alias) covers spawn and clone lifecycle authority for handle-based
+  panel creation.
+- AIQ-29 (Optional Panel/execution projection bindings) covers projection of
+  environment-backed execution without moving targets or manufacturing
+  consent.
+- AIQ-54 (Cross-store retention policy authority) covers who constrains any
+  future allowlist persistence.
+- AIQ-55 (Deletion/expiry and derived-record invalidation) covers consistent
+  removal of persisted environment payloads and derived records.
+- AIQ-57 (Reconstruction after deletion, expiry or destructive journal
+  reduction) covers disclosure of missing environment evidence after expiry.
+
+Credential-storage tiers, panel presentation, per-shell collector scripts,
+and plugin-registry mechanics belong to the owning repositories or future
+scoped tasks and are not AIQ entries.

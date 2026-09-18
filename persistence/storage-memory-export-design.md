@@ -25,7 +25,7 @@ sidebar_order: 47
 > input, not a decision: the `bitty` terminal repository decides acceptance,
 > sequencing, and mechanism through its own review.
 
-## Scope and inputs
+## Purpose and scope
 
 This design covers only what `bitty-ai` Core owns as storage direction:
 
@@ -137,7 +137,7 @@ answerable from retained references.
 recipe that references deleted, expired, or never-recorded bytes resolves to
 typed unavailable markers under the R3 floor; a summary cannot recreate
 omitted bytes or certify original tool outcomes (AIQ-57 facet, see
-[Open choices](#open-choices-and-identifier-check)). Recipe materialization is
+[Open points](#open-points)). Recipe materialization is
 a read path over surviving authorized records, consistent with the R6 replay
 contract, and never a permission to rerun tools.
 
@@ -337,38 +337,6 @@ binds to, but lifecycle authority itself stays open and undecided here.
   replay evidence, and deterministic fixtures) applies unchanged to any future
   implementation of this design.
 
-## Open choices and identifier check
-
-Duplicate-check against
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every storage
-question already tracked, so this document proposes no new AIQ identifier and
-no new global open-question identifier. Each item below is a facet of an open
-entry, not a closure:
-
-- AIQ-51 (Schema and transaction boundaries) covers catalog fields,
-  per-session tables, event shape, and recipe slots; representation is bounded
-  above while exact schema and transaction boundaries stay open.
-- AIQ-53 (Backend and optional search index) covers the SQLite-candidate-only
-  posture, the object-store backend shape, and the embeddings-as-derived-cache
-  rule; FTS5 stays optional and off by default.
-- AIQ-55 (Deletion/expiry and derived-record invalidation) covers deletion
-  propagation across catalog rows, session records, objects, recipes,
-  memories, indexes, caches, exports, and archives, including the
-  mark-and-sweep direction.
-- AIQ-57 (Reconstruction after deletion, expiry or destructive journal
-  reduction) covers recipe materialization, export contents, interchange
-  restore, and archive reopening bounded by surviving records with typed
-  unavailable disclosure.
-- AIQ-5B (Bounded authorized observability queries) covers the catalog as a
-  query surface, the per-category usage-report direction, and explicit
-  truncation and absence disclosure.
-- AIQ-10 (Task lifecycle authority and CarryCtx backend/handoff, with the
-  AIQ-56 alias) covers session, agent, and panel lifetime decoupling and the
-  project-identity scoping facet; authority itself stays open.
-
-AIQ-51 through AIQ-5C otherwise stay open exactly as the R6 disposition
-records them; this document reopens none of them.
-
 ## Bitty-side handoff, not a decision
 
 The following items from the candidate direction need owning-repository review
@@ -423,3 +391,35 @@ sections above regardless of handoff timing.
 - Lifecycle transitions hide schedulers: close and archive sweeps that run on
   timers reintroduce the background maintenance R6 removed, so transitions
   must stay explicit and bounded.
+
+## Open points
+
+Duplicate-check against
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every storage
+question already tracked, so this document proposes no new AIQ identifier and
+no new global open-question identifier. Each item below is a facet of an open
+entry, not a closure:
+
+- AIQ-51 (Schema and transaction boundaries) covers catalog fields,
+  per-session tables, event shape, and recipe slots; representation is bounded
+  above while exact schema and transaction boundaries stay open.
+- AIQ-53 (Backend and optional search index) covers the SQLite-candidate-only
+  posture, the object-store backend shape, and the embeddings-as-derived-cache
+  rule; FTS5 stays optional and off by default.
+- AIQ-55 (Deletion/expiry and derived-record invalidation) covers deletion
+  propagation across catalog rows, session records, objects, recipes,
+  memories, indexes, caches, exports, and archives, including the
+  mark-and-sweep direction.
+- AIQ-57 (Reconstruction after deletion, expiry or destructive journal
+  reduction) covers recipe materialization, export contents, interchange
+  restore, and archive reopening bounded by surviving records with typed
+  unavailable disclosure.
+- AIQ-5B (Bounded authorized observability queries) covers the catalog as a
+  query surface, the per-category usage-report direction, and explicit
+  truncation and absence disclosure.
+- AIQ-10 (Task lifecycle authority and CarryCtx backend/handoff, with the
+  AIQ-56 alias) covers session, agent, and panel lifetime decoupling and the
+  project-identity scoping facet; authority itself stays open.
+
+AIQ-51 through AIQ-5C otherwise stay open exactly as the R6 disposition
+records them; this document reopens none of them.

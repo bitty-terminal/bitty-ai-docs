@@ -22,7 +22,7 @@ sidebar_order: 59
 > evidence at `bitty-ai` `main` `97d3125`; no file in the `bitty-ai`
 > repository was modified.
 
-## Scope and inputs
+## Purpose and scope
 
 This design answers the AIQ-35 row recorded in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md): whether
@@ -141,41 +141,6 @@ transport format in `stream.rs:38`. There is no trait, struct, module, or
 test double for version control anywhere in either crate. The wrapper
 proposed below is greenfield: it migrates nothing and deprecates nothing.
 
-## Why direct primitive invocation is rejected
-
-Direct invocation means handing the agent an authorized `git` executable
-plus free-form argv through the generic `process.spawn` path. Four
-constraints reject it:
-
-1. No-process-spawn Core. The runtime is std-only and sans-I/O by house
-   rule (see gate 5 of the [promotion
-   checklist](../architecture/prototype-promotion-checklist.md): `#![deny(unsafe_code)]`,
-   std-only dependencies, fail-closed typed errors). Raw argv passthrough
-   cedes argument parsing, flag semantics, and output bounding to whatever
-   `git` binary the host happens to provide — ambient authority by
-   executable name, with flag semantics unchecked.
-2. Auditability. The `ToolExecutor` precedent records every call:
-   `FakeToolExecutor::calls` (`tool.rs:551`) replays invocations as
-   `(tool, arguments)` pairs, and `ToolExecution` (`tool.rs:444`) stores
-   `execution_id`, `tool`, structured `status`, bounded `summary` and
-   `data`, and the `is_untrusted_surface` label. Opaque argv strings break
-   this discipline: an auditor cannot tell `git diff` from `git push
---force` without re-parsing argv. Enumerable wrapper operations
-   (`blame`, `log`, `diff`) are auditable by construction.
-3. Mockability. The AI-0076 through AI-0097 precedent proves mechanism with
-   deterministic doubles: `FakeProvider` and `FakeToolExecutor` replay
-   scripted FIFO outcomes against caller-supplied time, with no wall
-   clock, threads, network, filesystem, or randomness. A wrapper trait with
-   a scripted double gives red/green TDD for version-control reads without
-   a `git` binary on the test machine. Shelling out to real `git` in tests
-   would fail that gate on its face.
-4. Permission scoping. `Scope::ProcessSpawn` is one coarse gate covering
-   every executable. Wrapper operations map to narrow, reviewable scopes:
-   the read-only blame/log/diff surface proposed here needs at most an
-   inspect-shaped grant, while any future effectful operation (commit,
-   push, fetch) would demand its own scope and consent story rather than
-   inheriting spawn permission silently.
-
 ## Proposed wrapper API shape (illustrative sketch)
 
 The block below is an illustrative design sketch, not product code. It must
@@ -277,7 +242,42 @@ anything.
   behind the trait; this design constrains what the agent may request, not
   how the host fulfills it.
 
-## Explicit non-acceptance
+## Alternatives considered
+
+Direct invocation means handing the agent an authorized `git` executable
+plus free-form argv through the generic `process.spawn` path. Four
+constraints reject it:
+
+1. No-process-spawn Core. The runtime is std-only and sans-I/O by house
+   rule (see gate 5 of the [promotion
+   checklist](../architecture/prototype-promotion-checklist.md): `#![deny(unsafe_code)]`,
+   std-only dependencies, fail-closed typed errors). Raw argv passthrough
+   cedes argument parsing, flag semantics, and output bounding to whatever
+   `git` binary the host happens to provide — ambient authority by
+   executable name, with flag semantics unchecked.
+2. Auditability. The `ToolExecutor` precedent records every call:
+   `FakeToolExecutor::calls` (`tool.rs:551`) replays invocations as
+   `(tool, arguments)` pairs, and `ToolExecution` (`tool.rs:444`) stores
+   `execution_id`, `tool`, structured `status`, bounded `summary` and
+   `data`, and the `is_untrusted_surface` label. Opaque argv strings break
+   this discipline: an auditor cannot tell `git diff` from `git push
+--force` without re-parsing argv. Enumerable wrapper operations
+   (`blame`, `log`, `diff`) are auditable by construction.
+3. Mockability. The AI-0076 through AI-0097 precedent proves mechanism with
+   deterministic doubles: `FakeProvider` and `FakeToolExecutor` replay
+   scripted FIFO outcomes against caller-supplied time, with no wall
+   clock, threads, network, filesystem, or randomness. A wrapper trait with
+   a scripted double gives red/green TDD for version-control reads without
+   a `git` binary on the test machine. Shelling out to real `git` in tests
+   would fail that gate on its face.
+4. Permission scoping. `Scope::ProcessSpawn` is one coarse gate covering
+   every executable. Wrapper operations map to narrow, reviewable scopes:
+   the read-only blame/log/diff surface proposed here needs at most an
+   inspect-shaped grant, while any future effectful operation (commit,
+   push, fetch) would demand its own scope and consent story rather than
+   inheriting spawn permission silently.
+
+## Acceptance criteria
 
 This document is a draft candidate design. It is unaccepted, it closes no
 AIQ or OQ entry (AIQ-35 stays open, as do AIQ-31 through AIQ-34 and AIQ-36

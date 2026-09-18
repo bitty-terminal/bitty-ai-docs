@@ -20,7 +20,7 @@ sidebar_order: 41
 > review. Normative security and IPC obligations override any experimental
 > adoption stated here.
 
-## Scope and inputs
+## Purpose and scope
 
 This input assembles three source groups:
 
@@ -293,7 +293,7 @@ To prevent scope drift, this input explicitly does not request:
   inside the `bitty` repository. That mapping stays a `bitty-ai-docs` plus
   governance matter.
 
-## Suggested evidence bar
+## Verification plan
 
 Each `bitty`-side item above names its own suggested evidence. In aggregate, a
 future claim that this input is satisfied should additionally show
@@ -304,7 +304,7 @@ process; and retention inheritance (consented recording, pre-queue and
 pre-write redaction, user-only storage, deletion propagation, typed
 unavailable disclosure) for every persisted tool or execution record.
 
-## Open-question disposition
+## Open points
 
 This document changes the status of no register entry. AIQ-33, AIQ-36, AIQ-37,
 AIQ-38, AIQ-08, AIQ-29, AIQ-2A, AIQ-10 with the AIQ-56 alias, AIQ-26, and
@@ -312,7 +312,7 @@ AIQ-28 stay open under the canonical admission rule cited by
 [AI Unresolved Questions](../product/ai-unresolved-questions.md). Promotion of any
 identifier requires that rule.
 
-## Ownership and next steps
+## Acceptance criteria
 
 - Draft owner: CTX-0022 implementer (`ai-docs-ctx0022-impl`).
 - Acceptance of this input document requires independent review by the

@@ -20,7 +20,7 @@ sidebar_order: 60
 > survey evidence at `bitty-ai` `main` `97d3125`; no file in the `bitty-ai`
 > repository was modified.
 
-## Scope and inputs
+## Purpose and scope
 
 This design captures two halves of the candidate direction as one draft:
 
@@ -266,7 +266,7 @@ wheel-scope-and-framework candidate direction: no universal agent API for imagin
 for imagined gateways. The record's rule is to generalize from two real
 implementations.
 
-## Explicit non-acceptance
+## Acceptance criteria
 
 This document is a draft candidate design. It is unaccepted, it closes no
 AIQ or OQ entry, and it mints no new identifier: no AIQ entry, no OQ entry,
