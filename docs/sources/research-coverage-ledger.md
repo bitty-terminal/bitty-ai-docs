@@ -323,7 +323,7 @@ packaging-side, and storage-side passes still need their halves.
 | `046` (summary) | 16    | 4,694   | `381397ac14fdba77cd030436c7202f192430a7678eacfe6666f404d0c28f8954` |
 | `053` (summary) | 24    | 6,796   | `82dfe75628d7c960bfad7d94ad07c8fdcceb06970049c9f8b1fc5ceb42dfece5` |
 | `054` (summary) | 23    | 4,191   | `8b5d8b218e5bb3f8b4f32048e5bca99fcd96262a276a5ad4e189b58b2584088d` |
-| `055` (summary) | 28    | 7,251   | `a23dfd8fa93adbb530a4cf4ba881eaa0f9135eb5d00143254d84e6cdd81a09f8` |
+| `055` (summary) | 28    | 7,314   | `dc41c9819645d872d322a3f9332e0350ffa92d3cd15470e0b03458640457b8d8` |
 | `056` (summary) | 36    | 9,011   | `6dfee78bd7989c5c53312bee7a2159e32c7d91605fcc0ed413c11ab1821bb893` |
 
 Record 055 scope note: the fingerprint above covers the summary distilled by
@@ -338,7 +338,7 @@ instead.
 
 Record 056 scope note: the fingerprint above covers the summary distilled by
 CTX-0079 (AI slice only; terminal-side surfaces, the naming decision, the
-Tool API shape, and the Context Index/Compiler interaction with the accepted
+Tool API shape, and the Context Index/Compiler interaction with the draft
 prefix-cache design and the R2/R3/R6 dispositions as owner-pending pointers
 in the companion). The origin `056.md` was unread and untouched by this task;
 it stays unrenamed by this task, and split-owner capture stays Partial until
@@ -454,7 +454,7 @@ and
 and
 [Wheel Context Storage and Reasoning Management research distillation for bitty-ai (056)](../../specifications/research-distillation-056-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All ten are draft discussion syntheses: the layered models they
+exclusions. All eleven are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
 two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
 Execution Supervisor with the mechanism-versus-semantics split, four-layer
@@ -1006,7 +1006,7 @@ task.
   pricing and efficiency figures are reported vendor semantics that this task
   did not verify and are not adopted as defaults. Terminal-side surfaces, the
   naming decision, the Tool API shape, and the Context Index/Compiler
-  interaction with the accepted prefix-cache design and the R2/R3/R6
+  interaction with the draft prefix-cache design and the R2/R3/R6
   dispositions route to their owners as pointers in the 056 distillation;
   lifecycle authority stays with the accepted IPC and Agent RFC and the
   R1/R5 dispositions. An opaque `ProviderState` blob remains untrusted data

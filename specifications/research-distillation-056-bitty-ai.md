@@ -191,7 +191,7 @@ module. The reconciliation with prior art is explicit: the history-versus-view
 inequality restates the 051 companion's history-versus-active-view sentence,
 the 055 drafting's "Context is not History" inequality, the
 [Context Management Architecture](context-management.md)
-`/compact`-changes-the-boundary rule, and the accepted prefix-cache
+`/compact`-changes-the-boundary rule, and the draft prefix-cache
 [stable-before-dynamic ordering](prefix-cache-context-design.md); the
 `ContextCommit`-instead-of-`messages[]` direction agrees with the 051
 checkpoint-as-commit concept and the 050-051 content-addressed context DAG;
@@ -422,10 +422,10 @@ pointers with inline summaries, not links and not decisions.
 | Source | Topic                                                                                                          | Owning destination                                                                |
 | ------ | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | 056:31 | Terminal-side surfaces: panel history versus compiled context, fork of execution snapshots, and the event log  | Terminal documentation owner; owner approval pending                              |
-| 056:32 | Owner approval of the storage-layout split, the Reasoning Record schema, and the why/what/where/how protocol   | AI and Tool API owners jointly; owner approval pending                            |
-| 056:33 | Naming decision (`rationale`/`intent` versus `reasoning`); structured action protocol as the accepted Tool API | AI and Tool API owners jointly; naming and API shape stay open                    |
-| 056:34 | Context Index and Context Compiler interaction with accepted prefix-cache design and R2/R3/R6 dispositions     | Context, retention, and persistence owners; metrics definition and surfacing open |
-| 056:35 | Capture bookkeeping: origin unrenamed by this task; split-owner capture stays Partial                          | Research archive and docs owners; no capture claim asserted beyond this draft     |
+| 056:33 | Owner approval of the storage-layout split, the Reasoning Record schema, and the why/what/where/how protocol   | AI and Tool API owners jointly; owner approval pending                            |
+| 056:34 | Naming decision (`rationale`/`intent` versus `reasoning`); structured action protocol as the accepted Tool API | AI and Tool API owners jointly; naming and API shape stay open                    |
+| 056:35 | Context Index and Context Compiler interaction with draft prefix-cache design and R2/R3/R6 dispositions        | Context, retention, and persistence owners; metrics definition and surfacing open |
+| 056:36 | Capture bookkeeping: origin unrenamed by this task; split-owner capture stays Partial                          | Research archive and docs owners; no capture claim asserted beyond this draft     |
 
 ## Sections read for boundary accuracy
 
@@ -455,7 +455,7 @@ non-`bitty-ai` content is not silently absorbed.
 - `056:32-36` open items (owner approval of the storage split, the Reasoning
   Record schema, the tool protocol, the DAG conversation model, and the
   semantic-merge rules; the naming decision; Context Index and Context
-  Compiler interaction with the accepted prefix-cache design and R2/R3/R6;
+  Compiler interaction with the draft prefix-cache design and R2/R3/R6;
   capture bookkeeping): retained as the promotion gate; this draft creates or
   closes no identifier.
 
