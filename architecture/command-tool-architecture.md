@@ -11,6 +11,8 @@ sidebar_order: 30
 
 # Command and tool architecture
 
+## Purpose and scope
+
 This specification defines the architectural separation between slash commands, tool runtime, and Lua workflow orchestration in `bitty-ai`. The design distinguishes control-plane operations from data-plane tools and establishes clear Core versus Lua boundaries to prevent feature accumulation in Rust while enabling community extensibility.
 
 **Draft relationship**: [AI Architecture](ai-architecture.md) Tool Bus (TB-1..TB-3). This elaboration selects no new transport or accepted mechanism.
@@ -211,7 +213,32 @@ The source argues (lines 376-414) this is stronger than traditional `bash` Tool 
 
 Cancellation before dispatch prevents any tool effect from starting, and incomplete streamed tool arguments are never dispatched. Cancellation after dispatch stops further admission and requests bounded cancellation of owned work; already-started effects may have happened. Report actual outcomes or `Unknown` and reconcile before retry, rather than promising rollback or exactly-once effects. Cancellation of one waiter does not cancel shared execution still required by another authorized waiter (AI Architecture MP-7 and agent-coordination supervision).
 
-## Unresolved questions
+## Design rationale summary
+
+The source's core argument (synthesized from lines 4-260, 1278-1295, 1299-1357) is that Bitty's competitive differentiation is not slash command count—those will homogenize across harnesses—but rather a foundational architectural choice:
+
+> **Traditional harnesses**: Continuously produce text → Context too large → Compress text.
+>
+> **Bitty opportunity**: From the start, do not equate the raw world with Context.
+
+The recording's source separation (lines 1318-1356) motivates a temporary semantic projection. Reconciled command evidence belongs to an authorized execution store, optionally shown by a Panel; filesystem reads, code structure, tasks and artifacts remain scoped sources with independent retention. No source is automatically copied in full or persisted.
+
+This abstraction unifies Panel, headless agent workspace, Tree-sitter, LSP sharing, log folding, and Agent Dashboard into a coherent system where context management is not post-hoc compression but deliberate semantic construction.
+
+The mechanism/policy split ensures `bitty-ai-core` remains a stable, reviewable kernel while community workflows and product features iterate in Lua without Rust churn.
+
+## Verification plan
+
+This specification records the candidate direction and comparative harness observations. It does **not** describe implemented Bitty behavior. Verification requires:
+
+- Accepted architectural decision records in `bitty-docs` for Core/Lua separation
+- `bitty-ai-core` Rust trait definitions for `Context`, `Session`, `Tool`, `Agent`, `MCP`
+- Lua API reference for command registration, agent spawning, and primitive invocation
+- Cross-repository IPC contract between `bitty-core` and `bitty-ai-core`
+
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
+
+## Open points
 
 1. **Core vs. Lua boundary enforcement**: How is the mechanism/policy separation validated at build time or reviewed at PR time? Is there a linting rule, a trait boundary, or manual review?
 
@@ -229,21 +256,7 @@ Cancellation before dispatch prevents any tool effect from starting, and incompl
 
 8. **Cross-repository boundary**: `bitty-core` and `bitty-ai-core` are proposed as distinct layers, but `bitty-terminal-docs` and `bitty-ai-docs` are separate documentation repositories. Who owns the IPC contract between them? Is there a single authoritative specification, or do both repositories maintain synchronized views?
 
-## Design rationale summary
-
-The source's core argument (synthesized from lines 4-260, 1278-1295, 1299-1357) is that Bitty's competitive differentiation is not slash command count—those will homogenize across harnesses—but rather a foundational architectural choice:
-
-> **Traditional harnesses**: Continuously produce text → Context too large → Compress text.
->
-> **Bitty opportunity**: From the start, do not equate the raw world with Context.
-
-The recording's source separation (lines 1318-1356) motivates a temporary semantic projection. Reconciled command evidence belongs to an authorized execution store, optionally shown by a Panel; filesystem reads, code structure, tasks and artifacts remain scoped sources with independent retention. No source is automatically copied in full or persisted.
-
-This abstraction unifies Panel, headless agent workspace, Tree-sitter, LSP sharing, log folding, and Agent Dashboard into a coherent system where context management is not post-hoc compression but deliberate semantic construction.
-
-The mechanism/policy split ensures `bitty-ai-core` remains a stable, reviewable kernel while community workflows and product features iterate in Lua without Rust churn.
-
-## Next steps
+### Follow-up work
 
 1. Independent review of this specification against existing `ai-architecture.md`.
 2. Cross-reference with `bitty-terminal-docs` Panel specifications and IPC contracts.
@@ -251,18 +264,7 @@ The mechanism/policy split ensures `bitty-ai-core` remains a stable, reviewable 
 4. Update `docs/README.md` navigation if this specification is accepted.
 5. Synchronize with context management specification (source lines 416-1358 and reference definitions 1360-1367).
 
-## Related specifications
+## References
 
 - [AI Architecture](ai-architecture.md) (Draft): overlapping scope; reconciliation required
 - [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): Panel lifecycle and IPC contracts
-
-## Evidence and verification boundary
-
-This specification records the candidate direction and comparative harness observations. It does **not** describe implemented Bitty behavior. Verification requires:
-
-- Accepted architectural decision records in `bitty-docs` for Core/Lua separation
-- `bitty-ai-core` Rust trait definitions for `Context`, `Session`, `Tool`, `Agent`, `MCP`
-- Lua API reference for command registration, agent spawning, and primitive invocation
-- Cross-repository IPC contract between `bitty-core` and `bitty-ai-core`
-
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).

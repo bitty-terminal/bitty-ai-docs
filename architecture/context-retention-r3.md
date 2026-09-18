@@ -18,7 +18,7 @@ sidebar_order: 36
 > stated here. Backend, replay-mechanics, and release-scope choices are frozen
 > and deferred; see [Frozen and deferred scope](#frozen-and-deferred-scope).
 
-## Scope and inputs
+## Purpose and scope
 
 This decision covers retention semantics only:
 
@@ -197,7 +197,31 @@ Pointers:
 - Persistence-scope follow-up returns as CTX-0014 (R6), which depends on this
   R3 disposition and is not decided here.
 
-## Open-question disposition
+## Verification plan
+
+A future implementation claiming this disposition must show, at minimum:
+
+- Durable writes occur only under explicit applicable consent, after
+  pre-queue and pre-write typed redaction, with minimized user-only (`0600`)
+  storage and exact export preview.
+- Negative evidence that seeded secrets never appear in default inspection,
+  unlabeled traces, queues, snapshots, or exports, and that unconsented disk
+  recording is absent.
+- Input recording off by default with separate opt-in evidence, and
+  clipboard plus raw environment absent by default.
+- Deletion and expiry propagation evidence across journal payloads,
+  artifacts, derived summaries, indexes, and caches, with tombstones holding
+  only permitted absence metadata.
+- Typed unavailable disclosure for missing, expired, deleted, or
+  never-recorded references, with no silent recovery path.
+- Re-expansion, replay, and debugging bounded by surviving authorized
+  records, with replay distinguished from effect re-execution and Unknown
+  outcomes reconciled before retry.
+- Deterministic coverage with seeded consent, redaction, deletion, and
+  expiry fixtures, plus fail-closed behavior when consent, redaction, or
+  budget machinery is unavailable.
+
+## Open points
 
 This document changes the status of no register entry:
 
@@ -231,31 +255,7 @@ This document changes the status of no register entry:
 Promotion of any of these identifiers requires the canonical admission rule
 cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 
-## Evidence bar
-
-A future implementation claiming this disposition must show, at minimum:
-
-- Durable writes occur only under explicit applicable consent, after
-  pre-queue and pre-write typed redaction, with minimized user-only (`0600`)
-  storage and exact export preview.
-- Negative evidence that seeded secrets never appear in default inspection,
-  unlabeled traces, queues, snapshots, or exports, and that unconsented disk
-  recording is absent.
-- Input recording off by default with separate opt-in evidence, and
-  clipboard plus raw environment absent by default.
-- Deletion and expiry propagation evidence across journal payloads,
-  artifacts, derived summaries, indexes, and caches, with tombstones holding
-  only permitted absence metadata.
-- Typed unavailable disclosure for missing, expired, deleted, or
-  never-recorded references, with no silent recovery path.
-- Re-expansion, replay, and debugging bounded by surviving authorized
-  records, with replay distinguished from effect re-execution and Unknown
-  outcomes reconciled before retry.
-- Deterministic coverage with seeded consent, redaction, deletion, and
-  expiry fixtures, plus fail-closed behavior when consent, redaction, or
-  budget machinery is unavailable.
-
-## Ownership and next steps
+## Acceptance criteria
 
 - Draft owner: CTX-0010 implementer (`ai-docs-ctx0010-impl`).
 - Acceptance requires independent review by the architecture category owner,

@@ -19,6 +19,8 @@ sidebar_order: 29
 > v0.1 adds zero dependencies per the
 > [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 
+## Purpose and scope
+
 **Draft relationship**: Refines the dependency implications of
 [AI Architecture](../architecture/ai-architecture.md) MP-3 (Local-first default), TB-1 (MCP as
 adapter), TB-3 (Validation before dispatch), TB-4 (Capability and consent per
@@ -490,31 +492,6 @@ any future decision.
 `tempfile` are named without versions in the source and carry no version
 observation at all.
 
-## Privacy and normative controls
-
-This proposal must not contradict P0-AC-026 ([P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)),
-PP-2 (Typed redaction), or PP-4 (No on-disk persistence without consent):
-
-- PP-2 (Typed redaction) requires redaction before queuing. Adapter choice
-  changes nothing: no provider, MCP, LSP, file-walker, parser, or store
-  payload may carry inline secrets into diagnostics, traces, snapshots, or
-  child environments, and configuration declares credential references, never
-  values (MP-10 (API-key handling)).
-- PP-4 (No on-disk persistence without consent) governs every cache, index,
-  fingerprint store, and snapshot any adapter implies. A faster prefix cache,
-  a shared LSP result, or a persistent evidence sketch never authorizes
-  durable recording on its own.
-- Minimization (PP-1, where referenced by the architecture) still prefers the
-  smallest budget-bound set. Dependency convenience never justifies sending
-  more context than the task needs or widening any consent scope.
-- Least privilege stays at dispatch per AG-4 (Least privilege at dispatch):
-  adding an SDK must not add ambient filesystem, process, or network
-  authority, and any new tool surface passes the unified backend from AIQ-33.
-
-No clause here weakens the normative security corpus linked from
-[AI Architecture](../architecture/ai-architecture.md). P0 trust boundaries stay release
-blockers.
-
 ## v0.1 scope boundary
 
 Consistent with the [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
@@ -546,7 +523,48 @@ future implementation requires the v0.1 authorization backend (AIQ-33),
 redaction evidence under P0-AC-026, and code with tests in the owning
 implementation repository; no sentence here implies that code exists.
 
-## Open questions and risks
+## Security review
+
+This proposal must not contradict P0-AC-026 ([P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)),
+PP-2 (Typed redaction), or PP-4 (No on-disk persistence without consent):
+
+- PP-2 (Typed redaction) requires redaction before queuing. Adapter choice
+  changes nothing: no provider, MCP, LSP, file-walker, parser, or store
+  payload may carry inline secrets into diagnostics, traces, snapshots, or
+  child environments, and configuration declares credential references, never
+  values (MP-10 (API-key handling)).
+- PP-4 (No on-disk persistence without consent) governs every cache, index,
+  fingerprint store, and snapshot any adapter implies. A faster prefix cache,
+  a shared LSP result, or a persistent evidence sketch never authorizes
+  durable recording on its own.
+- Minimization (PP-1, where referenced by the architecture) still prefers the
+  smallest budget-bound set. Dependency convenience never justifies sending
+  more context than the task needs or widening any consent scope.
+- Least privilege stays at dispatch per AG-4 (Least privilege at dispatch):
+  adding an SDK must not add ambient filesystem, process, or network
+  authority, and any new tool surface passes the unified backend from AIQ-33.
+
+No clause here weakens the normative security corpus linked from
+[AI Architecture](../architecture/ai-architecture.md). P0 trust boundaries stay release
+blockers.
+
+## Verification plan
+
+This specification records the candidate direction plus critical
+judgment. It is not implementation evidence. Acceptance requires independent
+review, and any future adapter adoption requires:
+
+- A reviewed contract showing the adapter sits outside the kernel, passes
+  validation, authorization, budget, and redaction at the boundary, and adds
+  no ambient authority, with fail-closed tests.
+- Re-verified upstream version, MSRV, and protocol observations with
+  lockfile evidence, not reliance on September 2026 notes.
+- Privacy evidence that redaction-before-queue, minimization, and
+  consent-gated recording hold with the adapter enabled.
+- Runtime code and tests in the owning implementation repository; no promise
+  here implies that code exists.
+
+## Open points
 
 All choices below reuse existing identifiers; no new identifier is proposed.
 Duplicate-check outcome against [AI Unresolved Questions](../product/ai-unresolved-questions.md):
@@ -579,7 +597,7 @@ questions. Version observations create no new OQ.
    maintained surface that covers the protocol, and record each adoption with
    its own review and lockfile evidence.
 
-## Related specifications
+## References
 
 - [AI Architecture](../architecture/ai-architecture.md) (Draft): MP-3 (Local-first default),
   MP-10 (API-key handling), TB-1 (MCP as adapter), TB-3 (Validation before
@@ -601,19 +619,3 @@ questions. Version observations create no new OQ.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): AIQ-08,
   AIQ-12, AIQ-13, AIQ-33, AIQ-36, AIQ-38, AIQ-41 through AIQ-48,
   AIQ-51 through AIQ-5C reused; no new identifier proposed.
-
-## Evidence and verification boundary
-
-This specification records the candidate direction plus critical
-judgment. It is not implementation evidence. Acceptance requires independent
-review, and any future adapter adoption requires:
-
-- A reviewed contract showing the adapter sits outside the kernel, passes
-  validation, authorization, budget, and redaction at the boundary, and adds
-  no ambient authority, with fail-closed tests.
-- Re-verified upstream version, MSRV, and protocol observations with
-  lockfile evidence, not reliance on September 2026 notes.
-- Privacy evidence that redaction-before-queue, minimization, and
-  consent-gated recording hold with the adapter enabled.
-- Runtime code and tests in the owning implementation repository; no promise
-  here implies that code exists.

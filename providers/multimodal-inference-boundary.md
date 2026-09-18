@@ -24,7 +24,7 @@ sidebar_order: 45
 > terminal repository and the plugin ecosystem decide acceptance, sequencing,
 > and mechanism through their own review.
 
-## Scope and inputs
+## Purpose and scope
 
 This boundary extends the Core surface defined in
 [Provider plugin boundary](provider-plugin-boundary.md) with multimodal tasks.
@@ -130,8 +130,8 @@ entry may declare text generation together with vision input and tool use,
 while image, video, speech, transcription, and embedding entries declare
 their own generation capabilities. Whether vision input reuses the existing
 MP-2 `vision` capability name or introduces a new closed-vocabulary token is
-an open choice tracked under the identifier check below; this document
-selects neither spelling as normative.
+an open choice tracked in [Open points](#open-points); this document selects
+neither spelling as normative.
 
 ## InferenceTask enum and InferenceRequest envelope
 
@@ -319,9 +319,8 @@ them under the same consent, budget, attribution, and untrusted-surface
 rules. Asset bytes live behind the reference under host mediation; retrieval
 is reader-authorized and budget-checked, never an ambient context expansion.
 Retention, expiry, and reference invalidation for held assets stay with
-their existing trackers (see
-[Open choices and identifier check](#open-choices-and-identifier-check));
-this document adds no retention rule.
+their existing trackers (see [Open points](#open-points)); this document adds
+no retention rule.
 
 ## Agent events and presentation handoff
 
@@ -475,53 +474,6 @@ interfaces stabilize. Job lifecycle, asset references, and Lua provider
 registration above are design inputs for that later increment, not v0.1
 acceptance criteria.
 
-## Open choices and identifier check
-
-Duplicate-check against
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every boundary
-question already tracked, so this document proposes no new AIQ identifier
-and no new global open-question identifier:
-
-- AIQ-02 (Compression backend selection) covers routing within provider
-  consent and budget for multimodal candidate selection.
-- AIQ-03 (Artifact expiry and reference invalidation) covers `AssetRef`
-  retention, expiry, and invalidation.
-- AIQ-08 (MCP schema cache invalidation) covers per-task schema freshness
-  for variant shapes.
-- AIQ-13 (Provider-scoped prefix-cache key and routing scope) covers
-  provider-scoped effects of multimodal routing.
-- AIQ-23 (Lease heartbeat and crash reconciliation) covers supervised job
-  ownership without relying on destructors.
-- AIQ-24 (Atomic ancestor/global budget reservation) covers generation
-  budget accounting, including the no-double-spend rule behind
-  reconcile-before-retry.
-- AIQ-29 (Optional Panel/execution projection bindings) covers gallery and
-  progress presentation as projection only.
-- AIQ-2A (No-UI execution feature profile) covers headless generation scope
-  versus persistent media services.
-- AIQ-2B (Supervisor crash recovery/adoption) covers never adopting
-  arbitrary surviving jobs or repeating `Unknown` generations.
-- AIQ-33 (Unified authorization/isolation backend) covers the gate model
-  generation effects sit behind.
-- AIQ-36 (Native versus MCP tool transport and bridge placement) covers
-  transport-path placement for provider I/O.
-- AIQ-37 (Structured exec result schema) covers the disclosure-class
-  parallel for generation outcomes.
-- AIQ-38 (Generic execution and registry ownership across repositories)
-  covers the cross-repository registry split, including the no-model-I/O
-  rule.
-- AIQ-52 (State reconstruction versus effect re-execution contract) covers
-  the replay-must-not-rerun rule generation jobs inherit.
-- AIQ-59 (Unknown effect reconciliation and retry eligibility) covers
-  `Unknown` job reconciliation and retry eligibility.
-- AIQ-5A (Typed redaction markers and invalidation mechanism) covers the
-  redaction machinery for generation records and asset references.
-
-Per-task parameter schemas, wire protocols, vendor endpoint construction,
-credential-storage tiers, management-UI design, and plugin-registry
-mechanics belong to the owning repositories or future scoped tasks and are
-not AIQ entries.
-
 ## Bitty-side handoff, not a decision
 
 The following items from the candidate direction need owning-repository review
@@ -590,3 +542,50 @@ change their APIs. Normative statements above never depend on them.
     references for the unified prediction direction (create-a-prediction and
     HTTP API reference at `https://replicate.com/docs/reference/http`);
     not adopted endpoints.
+
+## Open points
+
+Duplicate-check against
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every boundary
+question already tracked, so this document proposes no new AIQ identifier
+and no new global open-question identifier:
+
+- AIQ-02 (Compression backend selection) covers routing within provider
+  consent and budget for multimodal candidate selection.
+- AIQ-03 (Artifact expiry and reference invalidation) covers `AssetRef`
+  retention, expiry, and invalidation.
+- AIQ-08 (MCP schema cache invalidation) covers per-task schema freshness
+  for variant shapes.
+- AIQ-13 (Provider-scoped prefix-cache key and routing scope) covers
+  provider-scoped effects of multimodal routing.
+- AIQ-23 (Lease heartbeat and crash reconciliation) covers supervised job
+  ownership without relying on destructors.
+- AIQ-24 (Atomic ancestor/global budget reservation) covers generation
+  budget accounting, including the no-double-spend rule behind
+  reconcile-before-retry.
+- AIQ-29 (Optional Panel/execution projection bindings) covers gallery and
+  progress presentation as projection only.
+- AIQ-2A (No-UI execution feature profile) covers headless generation scope
+  versus persistent media services.
+- AIQ-2B (Supervisor crash recovery/adoption) covers never adopting
+  arbitrary surviving jobs or repeating `Unknown` generations.
+- AIQ-33 (Unified authorization/isolation backend) covers the gate model
+  generation effects sit behind.
+- AIQ-36 (Native versus MCP tool transport and bridge placement) covers
+  transport-path placement for provider I/O.
+- AIQ-37 (Structured exec result schema) covers the disclosure-class
+  parallel for generation outcomes.
+- AIQ-38 (Generic execution and registry ownership across repositories)
+  covers the cross-repository registry split, including the no-model-I/O
+  rule.
+- AIQ-52 (State reconstruction versus effect re-execution contract) covers
+  the replay-must-not-rerun rule generation jobs inherit.
+- AIQ-59 (Unknown effect reconciliation and retry eligibility) covers
+  `Unknown` job reconciliation and retry eligibility.
+- AIQ-5A (Typed redaction markers and invalidation mechanism) covers the
+  redaction machinery for generation records and asset references.
+
+Per-task parameter schemas, wire protocols, vendor endpoint construction,
+credential-storage tiers, management-UI design, and plugin-registry
+mechanics belong to the owning repositories or future scoped tasks and are
+not AIQ entries.

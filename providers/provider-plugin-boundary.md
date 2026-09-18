@@ -21,7 +21,7 @@ sidebar_order: 44
 > ecosystem decide acceptance, sequencing, and mechanism through their own
 > review.
 
-## Scope and inputs
+## Purpose and scope
 
 This boundary covers the provider and model-management surface only:
 
@@ -262,32 +262,6 @@ and policy stay in Core.
   redaction and consented recording remain required controls; no open
   mechanism in this document defers them.
 
-## Open choices and identifier check
-
-Duplicate-check against
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every boundary
-question already tracked, so this document proposes no new AIQ identifier and
-no new global open-question identifier:
-
-- AIQ-02 (routing within provider consent and budget) covers routing-policy
-  mechanics.
-- AIQ-13 (provider-scoped prefix-cache key and routing scope) covers
-  provider-scoped routing effects.
-- AIQ-24 (atomic ancestor and global budget reservation) covers delegation
-  budget accounting providers report into.
-- AIQ-33 (unified authorization and isolation backend) covers the gate model
-  adapters sit behind.
-- AIQ-36 (native versus MCP tool transport and bridge placement) covers
-  transport-path placement questions.
-- AIQ-38 (generic execution and registry ownership across repositories)
-  covers the cross-repository registry split, including the no-model-I/O rule.
-- AIQ-5A (typed redaction markers and invalidation mechanism) covers the
-  redaction machinery the secret invariant depends on.
-
-Credential-storage tiers remain with their existing trackers referenced by
-[AI Architecture](../architecture/ai-architecture.md); management-UI design and plugin-registry
-mechanics belong to the owning repositories and are not AIQ entries.
-
 ## Bitty-side handoff, not a decision
 
 The following items from the candidate direction need owning-repository review
@@ -319,3 +293,29 @@ handoff timing.
 - Alias configuration that looks like routing policy can drift into
   capability grants; reviewers must keep alias resolution behind consent and
   budget gates.
+
+## Open points
+
+Duplicate-check against
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) finds every boundary
+question already tracked, so this document proposes no new AIQ identifier and
+no new global open-question identifier:
+
+- AIQ-02 (routing within provider consent and budget) covers routing-policy
+  mechanics.
+- AIQ-13 (provider-scoped prefix-cache key and routing scope) covers
+  provider-scoped routing effects.
+- AIQ-24 (atomic ancestor and global budget reservation) covers delegation
+  budget accounting providers report into.
+- AIQ-33 (unified authorization and isolation backend) covers the gate model
+  adapters sit behind.
+- AIQ-36 (native versus MCP tool transport and bridge placement) covers
+  transport-path placement questions.
+- AIQ-38 (generic execution and registry ownership across repositories)
+  covers the cross-repository registry split, including the no-model-I/O rule.
+- AIQ-5A (typed redaction markers and invalidation mechanism) covers the
+  redaction machinery the secret invariant depends on.
+
+Credential-storage tiers remain with their existing trackers referenced by
+[AI Architecture](../architecture/ai-architecture.md); management-UI design and plugin-registry
+mechanics belong to the owning repositories and are not AIQ entries.

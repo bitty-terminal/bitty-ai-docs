@@ -11,6 +11,8 @@ sidebar_order: 31
 
 # Context management architecture
 
+## Purpose and scope
+
 This specification defines the context management subsystem for `bitty-ai`, distinguishing immutable session history from derived context views and establishing a multi-level compression pipeline that constructs semantic context rather than post-hoc compressing accumulated text.
 
 **Draft relationship**: [AI Architecture](../architecture/ai-architecture.md) CP-5 (Budget), CP-6 (Artifacts), CP-7 (Determinism and testability). These proposals elaborate the draft; they do not accept new mechanisms.
@@ -676,7 +678,31 @@ statusline
 
 **Status**: This is a **proposed internal architecture**, not a public API contract.
 
-## Unresolved questions
+## Design rationale summary
+
+The Session/Context separation enables:
+
+1. **Retained session evidence**: Debugging, recovery and reconstruction over authorized redacted records that still exist, independent of projection-window size.
+2. **Deliberate context construction**: Context is built semantically, not accumulated accidentally.
+3. **Multi-level optimization**: Structured output, lossless pruning, selective compression, global compaction, and provider-native backends compose without conflict.
+4. **Artifact externalization**: Large outputs stored separately and retrieved on demand reduce context bloat.
+5. **Continuous maintenance**: Gradual context reduction preserves model continuity better than periodic emergency compaction.
+6. **Provider flexibility**: Backend abstraction allows provider-native compaction, remote services, and local models without Core rewrites.
+7. **Policy in Lua**: Lua proposes compression/selection preferences and UI; host enforcement preserves mandatory privacy, retention and budget limits.
+
+## Verification plan
+
+This specification records the candidate direction and comparative harness analysis. It does **not** describe implemented Bitty behavior. Verification requires:
+
+- Accepted architectural decision records in `bitty-docs` for Session/Context separation
+- `bitty-ai-core` Rust implementation of `Session`, `Context`, `ContextBuilder`, `CompactionBackend`
+- Artifact store implementation with URI scheme and GC policy
+- Lua API reference for context inspection, compression, and retention control
+- Performance evidence showing continuous maintenance avoids emergency compaction
+
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
+
+## Open points
 
 1. **Context view generation cadence**: Is the context view generated once per LLM request, or cached and incrementally updated?
 
@@ -700,19 +726,7 @@ statusline
 
 11. **Security boundaries in context construction**: Can a malicious tool result inject instructions that manipulate context pruning, compression, or retention? Where is the trust boundary? Cross-reference Security Overview invariants 1-10, P0-AC-021 through P0-AC-026, and R-011/R-012/R-013 for existing baseline constraints; resolution requires security-reviewer evidence.
 
-## Design rationale summary
-
-The Session/Context separation enables:
-
-1. **Retained session evidence**: Debugging, recovery and reconstruction over authorized redacted records that still exist, independent of projection-window size.
-2. **Deliberate context construction**: Context is built semantically, not accumulated accidentally.
-3. **Multi-level optimization**: Structured output, lossless pruning, selective compression, global compaction, and provider-native backends compose without conflict.
-4. **Artifact externalization**: Large outputs stored separately and retrieved on demand reduce context bloat.
-5. **Continuous maintenance**: Gradual context reduction preserves model continuity better than periodic emergency compaction.
-6. **Provider flexibility**: Backend abstraction allows provider-native compaction, remote services, and local models without Core rewrites.
-7. **Policy in Lua**: Lua proposes compression/selection preferences and UI; host enforcement preserves mandatory privacy, retention and budget limits.
-
-## Next steps
+### Follow-up work
 
 1. Independent review of this specification against existing `ai-architecture.md`.
 2. Resolve unresolved questions through targeted RFCs or open-question register entries.
@@ -721,19 +735,7 @@ The Session/Context separation enables:
 5. Update `docs/README.md` navigation if this specification is accepted.
 6. Synchronize with command/tool architecture specification (see companion synthesis of source lines 1-415).
 
-## Related specifications
+## References
 
 - [AI Architecture](../architecture/ai-architecture.md) (Draft): overlapping scope; reconciliation required
 - [Command and tool architecture](../architecture/command-tool-architecture.md) (Draft): companion specification
-
-## Evidence and verification boundary
-
-This specification records the candidate direction and comparative harness analysis. It does **not** describe implemented Bitty behavior. Verification requires:
-
-- Accepted architectural decision records in `bitty-docs` for Session/Context separation
-- `bitty-ai-core` Rust implementation of `Session`, `Context`, `ContextBuilder`, `CompactionBackend`
-- Artifact store implementation with URI scheme and GC policy
-- Lua API reference for context inspection, compression, and retention control
-- Performance evidence showing continuous maintenance avoids emergency compaction
-
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).

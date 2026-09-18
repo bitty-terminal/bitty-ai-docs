@@ -18,7 +18,7 @@ sidebar_order: 35
 > stated here. Multi-agent scope is frozen and deferred; see
 > [Frozen multi-agent scope](#frozen-multi-agent-scope).
 
-## Scope and inputs
+## Purpose and scope
 
 This decision covers single-agent execution ownership only:
 
@@ -170,21 +170,7 @@ Pointers:
   [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 - Multi-agent scope returns only after single-agent primitives prove stable.
 
-## Open-question disposition
-
-This document changes the status of no register entry:
-
-- AIQ-29 (optional Panel and execution projection bindings) stays a design
-  choice. Presentation movement cannot move execution targets.
-- AIQ-2A (no-UI execution feature profile) stays a scope choice. Bounded work
-  versus persistent services needs explicit profile selection.
-- AIQ-38 (generic execution and registry ownership across repositories) stays
-  a prerequisite. BA-2 and BA-3 are preserved; the exact split needs review.
-
-Promotion of any of these identifiers requires the canonical admission rule
-cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
-
-## Evidence bar
+## Verification plan
 
 A future implementation claiming this disposition must show, at minimum:
 
@@ -204,7 +190,21 @@ A future implementation claiming this disposition must show, at minimum:
 - Deterministic headless coverage with seeded inputs and fail-closed budget,
   consent, and redaction checks.
 
-## Ownership and next steps
+## Open points
+
+This document changes the status of no register entry:
+
+- AIQ-29 (optional Panel and execution projection bindings) stays a design
+  choice. Presentation movement cannot move execution targets.
+- AIQ-2A (no-UI execution feature profile) stays a scope choice. Bounded work
+  versus persistent services needs explicit profile selection.
+- AIQ-38 (generic execution and registry ownership across repositories) stays
+  a prerequisite. BA-2 and BA-3 are preserved; the exact split needs review.
+
+Promotion of any of these identifiers requires the canonical admission rule
+cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+
+## Acceptance criteria
 
 - Draft owner: CTX-0009 implementer (`ai-docs-ctx0009-impl`).
 - Acceptance requires independent review by the architecture category owner,
