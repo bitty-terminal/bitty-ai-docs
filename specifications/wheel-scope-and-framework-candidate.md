@@ -177,8 +177,8 @@ personal-agent plugin repository that does not exist yet.
 ## Staged Wheel MVP as roadmap input
 
 The retained direction stages Wheel from a single Primary Coding Agent with
-panel, worktree, process, LSP, and task awareness, through Primary plus
-Subagents with resource budgets, permissions, typed results, progress notes,
+panel, worktree, process, LSP, and task awareness, through a Primary plus
+delegated child Agents with resource budgets, permissions, typed results, progress notes,
 and task and worktree binding, to a Commander that plans, assigns, monitors,
 reviews, and merges. Each stage narrows the same fixed Coding domain rather
 than widening it.

@@ -36,7 +36,7 @@ restating normatively. Nothing here is promoted to accepted status, and no
 implementation is described as shipped.
 
 The direction's strongest ideas are the mechanism-versus-policy rule (Core owns
-mechanism, Plugins own policy, with compact timing, subagent fan-out, and UI
+mechanism, Plugins own policy, with compact timing, child-agent fan-out, and UI
 shape as the three canonical policy examples), the two-layer Lua-to-Lua
 composition model (same-process service calls versus cross-process IPC behind
 one locality-transparent call shape), the model-gateway ignorance rule (Wheel
@@ -114,7 +114,7 @@ webhook forms).
 The load-bearing rule is kept verbatim in intent: **Wheel Core provides
 mechanism, Plugins provide policy.** Core knows what a context is but never
 decides when to compact; knows what an agent is but never decides when to
-fan out subagents; knows what a panel is but never prescribes what chat UI
+fan out child agents; knows what a panel is but never prescribes what chat UI
 looks like. Durability follows from restraint: policy churn never forces a
 Core change.
 

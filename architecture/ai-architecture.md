@@ -121,7 +121,7 @@ Status: **candidate, non-normative**. This subsection extends MP-10 without chan
 - **MPC-2 Credential references, never inline keys.** A provider declares `api_key_env` (the name of a host-allowlisted environment variable) or `api_key_cmd` (argv whose stdout is the secret, for example a password-manager lookup), never an inline key; configuration containing a literal key value fails validation. Resolution happens on the Rust host side, and Lua, plugins, diagnostics, and traces never receive the value, reusing MP-10 and ADR 0006 redaction and audit rules.
 - **MPC-3 Resolution order and project overrides.** Explicit user or CLI selection wins over profile configuration, which wins over project-level selection. A project may select among already-granted providers and models but may not introduce a credential reference, raise a `privacy_class`, or enable a provider the user has not consented to; violations fail closed with a source-attributed diagnostic.
 - **MPC-4 No implementation claim.** No provider configuration, credential reference, keyring, or `secrets.env` path is implemented today; `bitty-agent` owns no LLM I/O and no API-key handling, and `bitty-config` has no provider schema. This subsection records direction only.
-- **MPC-5 Canonical wire protocols and Lua provider presets (candidate).** Rust implements only three canonical wire-protocol adapters: `openai_compatible` (`POST /v1/chat/completions`, covering OpenAI, OpenRouter, DeepSeek, Groq, Ollama, vLLM, and compatible local gateways), `anthropic_messages` (`POST /v1/messages`), and `gemini_content` (`POST /v1beta/models/{model}:generateContent` and `:streamGenerateContent`). A provider entry names a protocol plus a base URL, models, and privacy class; the host must not accumulate vendor-specific branches beyond these adapters. Provider presets are declarative Lua data rather than compiled tables: a candidate official preset plugin (`bitty-ai-providers`) ships the common entries, and users may register their own (`ai.register_provider(id, entry)`) so model renames, base-URL changes, custom headers, and private gateways never require a Rust rebuild. Preset data cannot widen consent or capability (MPC-1 through MPC-3 still apply). Rust owns streaming and the hard gates: SSE parsing with present-cadence backpressure and cancellation, connection pooling and retry, credential resolution, the CP-5 context budget, and MCP tool-bus schema and permission validation. Lua owns presets, agent and subagent roles, prompt assembly, conversation trees, slash commands, and card UI. Tracked as [OQ-080](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+- **MPC-5 Provider wire protocols, plugin ownership, and Lua provider presets (candidate; provider-ownership clause superseded).** The clause that Rust implements the three canonical wire-protocol adapters is **superseded** by [Provider plugin boundary](../providers/provider-plugin-boundary.md), which owns the current direction: vendor HTTP integrations, local-endpoint adapters, subscription and CLI adapters, aggregator/router adapters, model discovery, and OAuth implementation belong to provider plugins, while Core owns only the `ModelProvider` contract, model descriptors, the capabilities vocabulary, the registry protocol, selection and routing, fallback, budget and usage accounting, the streaming abstraction, and provider-independent errors. Kept from this entry: the candidate wire shapes `openai_compatible` (`POST /v1/chat/completions`, covering OpenAI, OpenRouter, DeepSeek, Groq, Ollama, vLLM, and compatible local gateways), `anthropic_messages` (`POST /v1/messages`), and `gemini_content` (`POST /v1beta/models/{model}:generateContent` and `:streamGenerateContent`) remain candidate protocols a provider adapter may implement, and Core must not accumulate vendor-specific branches at all. Core retains the hard gates stated here: streaming framing with SSE parsing, present-cadence backpressure and cancellation; connection pooling with retry semantics (ordered fallback policy in Core, request-level retry mechanics in the adapter); credential resolution behind opaque handles (host-controlled, MP-10/MPC-2); the CP-5 context budget; and MCP tool-bus schema and permission validation. Provider presets are declarative Lua data rather than compiled tables: a candidate official preset plugin (`bitty-ai-providers`) ships the common entries, and users may register their own (`ai.register_provider(id, entry)`) so model renames, base-URL changes, custom headers, and private gateways never require a Rust rebuild. Preset data cannot widen consent or capability (MPC-1 through MPC-3 still apply). Lua owns presets, Agent roles, prompt assembly, conversation trees, slash commands, and card UI. Tracked as [OQ-080](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 - **MPC-6 `bitty-ai` distribution boundary (candidate).** `bitty-ai` is an independently installed and versioned plugin and repository (Rust workspace plus a Lua front end), not a bundled Core feature. Core keeps a neutral `bitty-agent` protocol skeleton and the `bitty-mcp` adapter so users who prefer external harnesses (for example Claude Code, Hermes Agent, or others) pay no AI weight or supply-chain surface and can still run `bitty-ai` standalone or headless (archival note 2026-09-14: `bitty-mcp` was archived and its MCP tool-surface functionality is covered by `bitty-ai`; the adapter boundary in this candidate needs re-evaluation under OQ-081). Installing the plugin yields the full experience through the same manifest, capability, and lazy-trigger path as any other plugin. Tracked as [OQ-081](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ## ContextProvider
@@ -522,7 +522,7 @@ latency, context length, availability, privacy, and local/remote policy.
 
 Providers would advertise a typed `ModelCapabilities` descriptor, for example
 streaming, tool calls, reasoning state, native compaction, programmatic tools,
-subagents, and vision. The host selects a provider-native path when its
+child-agent delegation, and vision. The host selects a provider-native path when its
 capabilities and policy permit it, otherwise a reviewed host/plugin fallback,
 and otherwise returns unsupported. Model names must not be security or feature
 switches.
@@ -835,16 +835,19 @@ deduplication, deadline and expiry handling, cancellation, and fail-closed
 routing to a dead or unregistered recipient. Tracked within
 [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
-### Capability-enforced roles and subagent dispatch (candidate)
+### Capability-enforced roles and child-agent dispatch (candidate)
 
 Status: **candidate, non-normative**. Roles are candidate capability sets
 enforced at the IPC/capability layer and the Tool Bus, never by prompt text.
 Today `Role` in `bitty-agent` is only a chat-message role, and no role
-capability map exists.
+capability map exists. This candidate keeps the Wheel vocabulary of Agents in
+role relations — Agent, AgentRole, AgentRelation, Delegation, Caller,
+Coordinator, Reviewer, Worker — and treats "subagent" as historical,
+external-harness terminology, not a distinct Wheel type or Core concept.
 
 | Candidate role | Candidate authority                                                            | Explicitly denied by default                            |
 | -------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------- |
-| Commander      | Read task/plan state, dispatch subagents, manage role panels, read terminal    | File writes, terminal input, credential reads           |
+| Commander      | Read task/plan state, dispatch child agents, manage role panels, read terminal | File writes, terminal input, credential reads           |
 | Implementer    | Read/write inside the scoped worktree or target, allowlisted build/test spawns | Dispatch, network, credential reads                     |
 | Tester         | Run allowlisted test commands, read terminal and `git diff`                    | Source writes outside the test scope, dispatch          |
 | Reviewer       | `terminal.read` plus `git.diff_read` only                                      | Workspace writes, process spawns, dispatch, credentials |
@@ -857,7 +860,7 @@ capability map exists.
   sources are frozen in the session snapshot and identified by the
   `InstructionEpoch` (see above). Editing or replacing a prompt never changes
   the capability set; the two are resolved independently.
-- **CRE-3 Dispatch inherits downward.** Creating a subagent uses the `Fresh
+- **CRE-3 Dispatch inherits downward.** Creating a child agent uses the `Fresh
 child sessions and AgentTree` invariant `ChildAuthority subset of
 ParentAuthority`, further limited by the role profile; a role can never
   grant a child what the parent lacks.

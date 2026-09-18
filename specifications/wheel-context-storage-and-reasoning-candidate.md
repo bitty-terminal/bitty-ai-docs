@@ -134,7 +134,7 @@ layout, and persistence backend stay with R6 and the storage dispositions.
 The retained direction stores the whole conversation while refusing to force
 it into a single linear array: conversation itself may be a **DAG**, because
 one user turn can branch to multiple agents. This matches the intended
-agent-team graph rather than a main-agent-plus-flat-subagents shape.
+agent-team graph rather than a main agent with a flat fan of child agents.
 
 **Critical judgment:** the DAG claim proposes no node, edge, or traversal
 contract. The reconciliation with prior art is narrow: the graph-conversation

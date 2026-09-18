@@ -17,7 +17,7 @@ This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
 It records the candidate direction for the Lua versus Core safety boundary: the
 four-layer architecture with the Lua-decides-how-not-whether principle,
-agent-count ceilings with authority attenuation on spawn, subagent capability
+agent-count ceilings with authority attenuation on spawn, child-agent capability
 attenuation, Commander-as-a-Lua-concept with a Core vocabulary of eight generic
 primitives, the secret-handle pattern, the Hard Safety versus Harness Policy
 versus Strategy classification restricted to its `bitty-ai`-owned rows, the
@@ -99,7 +99,7 @@ intersection of ceilings: the host ceiling, the user policy, the project
 policy, and the Lua request combine to the strictest value, so a Lua request
 for 6 against ceilings of 8, 4, and 3 yields 3. Second, spawning follows
 authority attenuation: a Commander holding a budget of 4 agents delegates
-within that budget, and a child agent cannot fan out to dozens of subagents
+within that budget, and a child agent cannot fan out to dozens of child agents
 beyond what its parent granted. The `DelegationBudget` vocabulary (maximum
 children, maximum depth, maximum parallelism, token budget, cost budget,
 execution budget) is retained as the `bitty-ai`-side enforcement vocabulary,
@@ -111,7 +111,7 @@ and the effective values 3 and 4) is an illustration with no sizing evidence,
 and the struct shape is an unreviewed sketch. The stable claims are
 shrink-only composition and runtime (not Lua) enforcement of spawn budgets.
 
-## Subagent capability attenuation
+## Child-agent capability attenuation
 
 The retained rule forbids permission copying down the spawn tree: each child
 receives a subset of its parent's capability, narrowing filesystem scope
@@ -164,7 +164,7 @@ through Agent context).
 Only the `bitty-ai`-owned rows are retained; the `bitty`-owned and config
 rows are recorded as exclusions below. The retained rows are: the maximum
 agent count as a hard ceiling composed with policy (`bitty-ai` plus Lua); the
-maximum subagent depth as a hard ceiling (`bitty-ai`); the task token and cost
+maximum child-agent depth as a hard ceiling (`bitty-ai`); the task token and cost
 budget as a hard budget (`bitty-ai`); and task delegation as AI semantics
 plus policy (`bitty-ai` plus Lua). Above the hard rows sit composable policy
 and, above that, agent-selectable strategy: hard safety cannot be broken,
@@ -240,7 +240,7 @@ candidate inputs only; the four-layer policy stack, the `DelegationBudget`
 shape, the numeric ceilings, and the spawn capability vocabulary proposed in
 the direction are **not** accepted by this candidate design and must not be read as
 crate, package, protocol, or release decisions. Delegation semantics,
-subagent attenuation, and task token and cost budgets stay with the draft
+child-agent attenuation, and task token and cost budgets stay with the draft
 architecture and its coordination dispositions; execution enforcement stays
 with [Execution ownership R1](../architecture/execution-ownership-r1.md); tool
 authorization and transport placement stay with
@@ -278,16 +278,16 @@ These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any
 safety-boundary proposal constrains `bitty-ai`.
 
-| Campaign             | Required observation                                                                                                                                                   |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Intersection rule    | A Lua request exceeding any host, user, project, delegation, or grant ceiling is denied, and no lower layer re-widens authority in reviewable tests.                   |
-| Spawn attenuation    | A child agent cannot exceed its parent delegation budget in count, depth, parallelism, tokens, cost, or execution, enforced by the runtime rather than by Lua promise. |
-| Subagent narrowing   | Each spawned generation holds a subset of its parent capability, with filesystem, execution, and agent factors all narrowing or equal in reviewable tests.             |
-| Role vocabulary      | A new team shape ships in Lua with no Core change, and Core code and identifiers carry no role ontology in review.                                                     |
-| Secret handles       | A secreted workflow completes with no raw secret value in Agent context, execution logs, Lua logs, or panel history in reviewable tests.                               |
-| Budget ceilings      | Agent-count, depth, token, and cost ceilings hold under a spawn loop, surfacing budget denials instead of machine exhaustion.                                          |
-| Boundary enforcement | An AI-side bug or compromised agent cannot exceed its granted delegation capabilities, because the runtime enforces every sensitive spawn independently.               |
-| Hygiene ordering     | A technically preventable violation is blocked or redacted by the system, while a pasted user secret triggers warning, redaction, no-persist, and no-log mitigations.  |
+| Campaign              | Required observation                                                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intersection rule     | A Lua request exceeding any host, user, project, delegation, or grant ceiling is denied, and no lower layer re-widens authority in reviewable tests.                   |
+| Spawn attenuation     | A child agent cannot exceed its parent delegation budget in count, depth, parallelism, tokens, cost, or execution, enforced by the runtime rather than by Lua promise. |
+| Child-agent narrowing | Each spawned generation holds a subset of its parent capability, with filesystem, execution, and agent factors all narrowing or equal in reviewable tests.             |
+| Role vocabulary       | A new team shape ships in Lua with no Core change, and Core code and identifiers carry no role ontology in review.                                                     |
+| Secret handles        | A secreted workflow completes with no raw secret value in Agent context, execution logs, Lua logs, or panel history in reviewable tests.                               |
+| Budget ceilings       | Agent-count, depth, token, and cost ceilings hold under a spawn loop, surfacing budget denials instead of machine exhaustion.                                          |
+| Boundary enforcement  | An AI-side bug or compromised agent cannot exceed its granted delegation capabilities, because the runtime enforces every sensitive spawn independently.               |
+| Hygiene ordering      | A technically preventable violation is blocked or redacted by the system, while a pasted user secret triggers warning, redaction, no-persist, and no-log mitigations.  |
 
 Promotion needs independent AI architecture, execution-owner, terminal and
 plugin-owner, docs-curator, and security review. Route budget values, struct

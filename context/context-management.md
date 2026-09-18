@@ -564,7 +564,7 @@ Task
 └── artifacts
 ```
 
-Rationale (lines 1193-1201): Task involves Agent lifecycle, Panel lifecycle, Subagent orchestration, Dashboard, and Persistence—all Core concerns.
+Rationale (lines 1193-1201): Task involves Agent lifecycle, Panel lifecycle, child-agent orchestration, Dashboard, and Persistence—all Core concerns.
 
 But `/task` UI and interaction remain Lua (lines 1203-1209).
 

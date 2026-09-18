@@ -33,7 +33,7 @@ The source distinguishes three layers (lines 4-10):
 2. **Tool** is the agent data plane: `read`, `edit`, `bash`, `lsp`, `task`
 3. **Skill / Workflow** is composable behavior: review, plan, release, debug
 
-Claude Code explicitly separates built-in commands controlling session state from complex multi-step commands recommended as Skills (source lines 11-12, citing [1]). OpenCode similarly treats `/compact` as built-in behavior while custom workflows like `/review` can be prompt templates with `subagent: true` (source lines 11-12, citing [2]).
+Claude Code explicitly separates built-in commands controlling session state from complex multi-step commands recommended as Skills (source lines 11-12, citing [1]). OpenCode similarly treats `/compact` as built-in behavior while custom workflows like `/review` can be prompt templates with a child-agent flag (source lines 11-12, citing [2]). Where the cited harnesses say "subagent", this document records historical, external-harness terminology; the Wheel vocabulary is defined with the capability-enforced roles candidate in [AI Architecture](ai-architecture.md#capability-enforced-roles-and-child-agent-dispatch-candidate).
 
 **Implementation consequence**: Bitty must not conflate command surface with tool invocation. A command may invoke Core primitives or orchestrate Lua workflows. A tool is a capability the model directly calls.
 
@@ -69,11 +69,11 @@ This is a **proposal** for Bitty, not a description of existing implementation. 
 
 Source lines 52-60 propose three distinct cores:
 
-| Layer           | Responsibility                                                                   | Implementation |
-| --------------- | -------------------------------------------------------------------------------- | -------------- |
-| `bitty-core`    | Panel, PTY, process, workspace, render, plugin host, logging                     | Rust           |
-| `bitty-ai-core` | Agent loop, Session, Context, Tool runtime, Provider, MCP, permissions, Subagent | Rust           |
-| `bitty-ai`      | `/review`, `/plan`, `/loop`, UI, default workflow                                | Lua            |
+| Layer           | Responsibility                                                                     | Implementation |
+| --------------- | ---------------------------------------------------------------------------------- | -------------- |
+| `bitty-core`    | Panel, PTY, process, workspace, render, plugin host, logging                       | Rust           |
+| `bitty-ai-core` | Agent loop, Session, Context, Tool runtime, Provider, MCP, permissions, Delegation | Rust           |
+| `bitty-ai`      | `/review`, `/plan`, `/loop`, UI, default workflow                                  | Lua            |
 
 The source argues (lines 61-70) that Bitty itself is not an AI Terminal but provides AI primitives. `bitty-ai-core` is an Agent Kernel; Lua decides how primitives compose into experience. This boundary allows `bitty-ai-core` to remain a mechanism layer (lines 92-112) offering `Agent`, `Context`, `Session`, `Tool`, `MCP`, `LSP`, `AST`, `Task`, while Lua plugins deliver `review`, `plan`, `loop`, `DCP`, `memory`, `statusline`, `agent-dashboard`.
 
@@ -92,7 +92,7 @@ Source lines 116-141 classify existing harness commands by their underlying prim
 | `/mcp`              | Lua UI                            | `McpManager`         |
 | `/plugins`          | Lua UI                            | Plugin Registry      |
 | `/review`           | Lua Skill / Workflow              | agent + diff + tools |
-| `/plan`             | Lua Skill / Workflow              | subagent / mode      |
+| `/plan`             | Lua Skill / Workflow              | delegation / mode    |
 | `/task`             | Lua UI / Workflow                 | Task graph           |
 | `/loop`             | Lua orchestrator                  | scheduler/events     |
 | `/settings`         | Lua UI                            | config API           |
@@ -112,7 +112,7 @@ The source argues (lines 165-176) this enables community extension without touch
 
 ## What must not enter Core
 
-Source lines 181-240 argue that `/plan`, `/review`, `/goal` must not become Core features. The example contrasts `/compact`, which changes `Session → Context representation`, with `/review`, which is a multi-step workflow: collect diff, load review instructions, run agent, spawn subagents, render result (lines 188-217).
+Source lines 181-240 argue that `/plan`, `/review`, `/goal` must not become Core features. The example contrasts `/compact`, which changes `Session → Context representation`, with `/review`, which is a multi-step workflow: collect diff, load review instructions, run agent, dispatch child agents, render result (lines 188-217).
 
 Core should provide:
 
