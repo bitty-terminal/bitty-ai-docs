@@ -94,25 +94,6 @@ relaxation; per
 trigger rules, any future change to a trust boundary itself updates the
 security corpus first.
 
-## Trust-boundary alignment
-
-This accepted contract reuses the authoritative trust language unchanged:
-
-- Data and requests from PTYs, plugins, projects, IPC clients, MCP clients,
-  Agents, packages, and reference repositories are untrusted until an explicit,
-  narrowly scoped policy grants a capability.
-- Every transition into a trusted host primitive passes a policy, capability,
-  authenticated scope, or resource budget.
-- An isolated Lua VM is a namespace and failure boundary, not an OS sandbox;
-  native in-process plugins remain rejected through P0 and P1, and future
-  high-isolation extensions use WASM or a helper process with scoped IPC.
-- MCP and Agent access is read-only by default; terminal content is untrusted
-  observation data, never instruction text.
-- A child process may receive at most a short-lived, current-terminal scope,
-  never a runtime administrator token; durable credentials are never placed
-  where shell startup or SSH environment forwarding would leak them (P0-AC-023
-  parity).
-
 ## Instance selection
 
 ### Discovery
@@ -873,7 +854,7 @@ Local Bitty UI  --SSH tunnel / mTLS-->  Remote bitty-agent / daemon
   Remote Terminal  <--------------------  Remote PTY host
 ```
 
-The accepted baseline remains Unix socket `0700`/`0600` / Windows named pipe current-user ACL with no TCP listener by default ([Trust-boundary alignment](#trust-boundary-alignment) and [Authentication](#authentication)); remote `TCP` belongs to the explicit network-auth ADR described in [ADR 0008](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md) and is not a silent broadening of this transport. The remote rendering path, if ever accepted, would consume a bounded snapshot/damage stream per the [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md) and [Workspace Compositor](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md), not raw PTY bytes.
+The accepted baseline remains Unix socket `0700`/`0600` / Windows named pipe current-user ACL with no TCP listener by default ([Security review](#security-review) and [Authentication](#authentication)); remote `TCP` belongs to the explicit network-auth ADR described in [ADR 0008](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md) and is not a silent broadening of this transport. The remote rendering path, if ever accepted, would consume a bounded snapshot/damage stream per the [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md) and [Workspace Compositor](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-compositor.md), not raw PTY bytes.
 
 ### Candidate request plus event dual model (RPC plus Event Stream)
 
@@ -985,7 +966,26 @@ focused security review before any claim of peer authentication;
 no semver-major-freeze was claimed until the RFC was accepted, and now the
 contract is accepted.
 
-## Verification
+## Security review
+
+This accepted contract reuses the authoritative trust language unchanged:
+
+- Data and requests from PTYs, plugins, projects, IPC clients, MCP clients,
+  Agents, packages, and reference repositories are untrusted until an explicit,
+  narrowly scoped policy grants a capability.
+- Every transition into a trusted host primitive passes a policy, capability,
+  authenticated scope, or resource budget.
+- An isolated Lua VM is a namespace and failure boundary, not an OS sandbox;
+  native in-process plugins remain rejected through P0 and P1, and future
+  high-isolation extensions use WASM or a helper process with scoped IPC.
+- MCP and Agent access is read-only by default; terminal content is untrusted
+  observation data, never instruction text.
+- A child process may receive at most a short-lived, current-terminal scope,
+  never a runtime administrator token; durable credentials are never placed
+  where shell startup or SSH environment forwarding would leak them (P0-AC-023
+  parity).
+
+## Verification plan
 
 ### Property: framing and channel bounds
 
@@ -1124,7 +1124,7 @@ Acceptance of this RFC on 2026-08-29 applies these same-change updates
   for any future transport implementation belong to the implementing task and
   are verified by `cargo tree --locked`.
 
-## Open questions that remain after this RFC
+## Open points
 
 - Exact CLI error message wording and `bitty doctor` diagnostics for the
   multi-session ambiguity case.
