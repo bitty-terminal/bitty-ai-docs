@@ -44,11 +44,12 @@ documents live under `docs/`. New topic trees are added only when real content
 exists; empty placeholder pages are avoided so the tree does not imply work that
 has not happened.
 
-| Path                | Owns                                              |
-| ------------------- | ------------------------------------------------- |
-| `<topic>/`          | Canonical documents for the AI-core sub-platform. |
-| `docs/README.md`    | Documentation map and authority rules.            |
-| `docs/development/` | Contributor policy and workflow.                  |
+| Path                | Owns                                                          |
+| ------------------- | ------------------------------------------------------------- |
+| `<topic>/`          | Canonical documents for the AI-core sub-platform.             |
+| `docs/README.md`    | Documentation map and authority rules.                        |
+| `docs/development/` | Contributor policy and workflow.                              |
+| `docs/sources/`     | Research provenance registers and their interpretation rules. |
 
 ## Document types and authority
 

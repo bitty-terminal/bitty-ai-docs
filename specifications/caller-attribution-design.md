@@ -302,18 +302,8 @@ vocabulary.
 
 ## Provenance
 
-- Source: workspace research record `047.md`, both halves (caller
-  attribution plus LLM-plugin boundary). Summary: 20 lines,
-  `sha256:5c6b63e6349c34c9fec40333da14092610d06a67107aa0de44f8009f035319e6`;
-  origin: 877 lines,
-  `sha256:ca7006d74f6e78e94681e24906c5fad7778c611c502e2ff6b41e182291a4a259`.
-- Verify: `sha256sum "$BITTY_WORKSPACE/research/summary/047.md"
-"$BITTY_WORKSPACE/research/origin/047.md"` and `wc -l
-"$BITTY_WORKSPACE/research/summary/047.md"
-"$BITTY_WORKSPACE/research/origin/047.md"`.
+- Source: research note `047` (read 2026-09-17), both halves (caller
+  attribution plus LLM-plugin boundary); the summary is 20 lines and the
+  origin is 877 lines.
 - `bitty-ai` survey evidence is read-only at `main` `97d3125`; no file in
-  that repository was modified. The research records are not renamed by this
-  task; renaming `origin/047.md` to `047.md.completed` waits for independent
-  review approval.
-- `$BITTY_WORKSPACE` is the workspace root environment variable; no
-  machine-specific checkout path is embedded in this document.
+  that repository was modified.

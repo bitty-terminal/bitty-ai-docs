@@ -22,9 +22,9 @@ from facts into a programmable versioned graph, and agents collaborate over
 a communication graph with Git-like operations).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](../ai-architecture.md) and its related draft
+draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the six-object vocabulary, the event names, the mailbox and
 bundle shapes, the merge-kind names, the primitive spellings, and the core
 principle sentence are **not** accepted by this distillation. Agent
@@ -51,17 +51,17 @@ primitive spellings, which name no accepted command surface. Those are
 corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Agent Coordination Architecture](../agent-coordination.md),
-[Context Management Architecture](../context-management.md),
-[Command and Tool Architecture](../command-tool-architecture.md),
-[Execution ownership R1](../execution-ownership-r1.md),
-[Context retention R3](../context-retention-r3.md),
-[Task lifecycle R5](../task-lifecycle-r5.md),
-[Tool transport R2](../tool-transport-r2.md),
-[Provider plugin boundary](../provider-plugin-boundary.md), and
-[Panel environment awareness](../panel-environment-awareness.md). The
-accepted [IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Agent Coordination Architecture](agent-coordination.md),
+[Context Management Architecture](context-management.md),
+[Command and Tool Architecture](command-tool-architecture.md),
+[Execution ownership R1](execution-ownership-r1.md),
+[Context retention R3](context-retention-r3.md),
+[Task lifecycle R5](task-lifecycle-r5.md),
+[Tool transport R2](tool-transport-r2.md),
+[Provider plugin boundary](provider-plugin-boundary.md), and
+[Panel environment awareness](panel-environment-awareness.md). The
+accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Wheel decoupling distillation (052)](research-distillation-052-bitty-ai.md)
 carries the mechanism-versus-policy rule; the companion
@@ -80,31 +80,19 @@ none.
 
 ## Provenance and evidence boundary
 
-The source is the workspace-relative `research/summary/055.md`, read
-read-only: `055.md` is **28 lines**, **7,251 bytes**, SHA-256
+The source is research note `055` (summary), read on 2026-09-18: **28
+lines**, **7,251 bytes**, SHA-256
 `a23dfd8fa93adbb530a4cf4ba881eaa0f9135eb5d00143254d84e6cdd81a09f8`.
 The summary landed on the research `main` branch as `e7a18d3`, which
 satisfies the CTX-0076 dependency on the landing task; the task description
 names CTX-0032 and this record confirms the landed revision instead. The
-origin record (`research/origin/055.md`) was not read by this task and was
-not renamed, edited, or staged; the `bitty`-side, terminal-side, and
-plugin-side passes still need their halves. The summary stays Open with
-owner-pending routing, and split-owner capture stays Partial until all owned
-conclusions are accounted for. Summary line citations below (for example
-`055:9`) refer to the summary file, not to the origin. The fingerprint
-identifies the discussion, not the truth of its claims.
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/summary/055.md
-wc -l -c $BITTY_WORKSPACE/research/summary/055.md
-```
-
-The expected output is the SHA-256 value above with 28 lines and 7,251
-bytes. The hash was verified at task start and re-verified at task end with
-no change, so the CTX-0045 growth pattern did not trigger: any later append
-is uncovered.
+origin record (`055`) was not read by this task and was not renamed, edited, or
+staged; the `bitty`-side, terminal-side, and plugin-side passes still need
+their halves. The summary stays Open with owner-pending routing, and
+split-owner capture stays Partial until all owned conclusions are accounted
+for. Summary line citations below (for example `055:9`) refer to the summary
+file, not to the origin. The fingerprint identifies the discussion, not the
+truth of its claims.
 
 The summary is a single pass: a status line, a date line, a one-liner, a
 background block, a key-conclusions block, a destination-routing line, and an
@@ -116,29 +104,29 @@ nothing beyond it.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the six-object vocabulary, the event names, the
 mailbox and bundle shapes, the manifest shape, the Git-operation mapping,
 the storage split, and the primitive spellings proposed in the source are
 **not** accepted by this distillation and must not be read as product,
 crate, package, protocol, file-schema, command, or release decisions.
 Context assembly, budget, retention, and compaction questions stay with
-[Context Management Architecture](../context-management.md),
-[Context retention R3](../context-retention-r3.md), and the 048-049
+[Context Management Architecture](context-management.md),
+[Context retention R3](context-retention-r3.md), and the 048-049
 companion; execution and panel-lifetime questions stay with
-[Execution ownership R1](../execution-ownership-r1.md),
-[Panel environment awareness](../panel-environment-awareness.md), and the
+[Execution ownership R1](execution-ownership-r1.md),
+[Panel environment awareness](panel-environment-awareness.md), and the
 044 companion; tool shape and transport placement stay with
-[Command and Tool Architecture](../command-tool-architecture.md) and
-[Tool transport R2](../tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../provider-plugin-boundary.md); coordination,
+[Command and Tool Architecture](command-tool-architecture.md) and
+[Tool transport R2](tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](provider-plugin-boundary.md); coordination,
 supervision, and task questions stay with
-[Agent Coordination Architecture](../agent-coordination.md) and
-[Task lifecycle R5](../task-lifecycle-r5.md); storage and export questions
+[Agent Coordination Architecture](agent-coordination.md) and
+[Task lifecycle R5](task-lifecycle-r5.md); storage and export questions
 stay with the 050-051 companion and the storage dispositions; each is
 referenced, never duplicated or modified.
 
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) defines the only
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
 source (object names, event names, mailbox and bundle fields, manifest
 fields, operation spellings, primitive spellings) is a discussion sketch:
@@ -154,7 +142,7 @@ discussion example below. The collaboration and merge sketches are
 conceptual vocabulary, not an adopted authorization or distribution
 contract. This draft creates or closes no AIQ or OQ identifier; open
 questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## Six-object split and founding inequalities

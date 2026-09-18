@@ -29,9 +29,9 @@ cache capability, versioning, observability, trace, worked example, and the
 five-subsystem split).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](../ai-architecture.md) and its related draft
+draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the quality-formula symbols, the `ContextUnit` and
 `CapabilityMeta` struct sketches, the zone labels, the admission-score
 formula, the authority ladder, the pass-pipeline shape, the budget numbers,
@@ -61,19 +61,19 @@ cache semantics the task did not independently verify. Those are corrected
 below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Context Management Architecture](../context-management.md),
-[Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md),
-[Prompt Layering Design](../prompt-layering-design.md),
-[Command and Tool Architecture](../command-tool-architecture.md),
-[Agent Coordination Architecture](../agent-coordination.md),
-[Execution ownership R1](../execution-ownership-r1.md),
-[Context retention R3](../context-retention-r3.md),
-[Task lifecycle R5](../task-lifecycle-r5.md),
-[Tool transport R2](../tool-transport-r2.md),
-[Provider plugin boundary](../provider-plugin-boundary.md), and
-[Panel environment awareness](../panel-environment-awareness.md). The
-accepted [IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Context Management Architecture](context-management.md),
+[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
+[Prompt Layering Design](prompt-layering-design.md),
+[Command and Tool Architecture](command-tool-architecture.md),
+[Agent Coordination Architecture](agent-coordination.md),
+[Execution ownership R1](execution-ownership-r1.md),
+[Context retention R3](context-retention-r3.md),
+[Task lifecycle R5](task-lifecycle-r5.md),
+[Tool transport R2](tool-transport-r2.md),
+[Provider plugin boundary](provider-plugin-boundary.md), and
+[Panel environment awareness](panel-environment-awareness.md). The
+accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Wheel-config and Git-model distillation (050-051)](research-distillation-050-051-bitty-ai.md)
 carries the `.wheel` configuration split and the Git-inspired storage model;
@@ -84,32 +84,20 @@ none.
 
 ## Provenance and evidence boundary
 
-The sources are the workspace-relative `research/origin/048.md` and
-`research/origin/049.md`, read read-only: `048.md` is **2,351 lines**,
-**57,159 bytes**, SHA-256
+The sources are research notes `048` and `049` (origins), read on
+2026-09-18: `048` is **2,351 lines**, **57,159 bytes**, SHA-256
 `ddfd88b2eaa66e983d1bd9dc659c03ee7615db546d3eb92510c8e4d4444d0455`;
-`049.md` is **2,135 lines**, **32,648 bytes**, SHA-256
+`049` is **2,135 lines**, **32,648 bytes**, SHA-256
 `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa`.
-Both files are untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. Neither origin file was renamed, edited, or
+Both records are untracked in the research repository, so provenance is by
+record number plus fingerprint, not by commit. Neither was renamed, edited, or
 staged by this task; the `bitty`-side pass still needs both. The body of this
 document distills the whole verified files (`048.md:1-2351`,
 `049.md:1-2135`); no post-task append existed at verification time, so no
 head-versus-tail split applies. Any later append is uncovered and follows the
 CTX-0045 pattern (distill the verified head, record the remainder as
-uncovered).
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/048.md $BITTY_WORKSPACE/research/origin/049.md
-wc -l -c $BITTY_WORKSPACE/research/origin/048.md $BITTY_WORKSPACE/research/origin/049.md
-```
-
-The expected output is the two SHA-256 values above with 2,351 lines and
-57,159 bytes for `048.md` and 2,135 lines and 32,648 bytes for `049.md`.
-Both hashes were verified at task start and re-verified at task end with no
-change, so the CTX-0045 growth pattern did not trigger.
+uncovered). Both hashes were verified at task start and re-verified at task end
+with no change, so the CTX-0045 growth pattern did not trigger.
 
 Record 048 is a single pass: an owner question block, a conclusion block, a
 quality-formula section, eleven numbered quality sections, a prioritized
@@ -130,28 +118,28 @@ reports) are unverified discussion citations, not findings reproduced here.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the quality formula, the seven-module Wheel sketch,
 the Context IR shape, the zone model, the pipeline, and the five-subsystem
 split proposed in the sources are **not** accepted by this distillation and
 must not be read as crate, package, protocol, or release decisions. Context
 assembly, budget, and retention questions stay with
-[Context Management Architecture](../context-management.md),
-[Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md),
-and [Context retention R3](../context-retention-r3.md); prompt-text layering
-stays with [Prompt Layering Design](../prompt-layering-design.md); tool shape
+[Context Management Architecture](context-management.md),
+[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
+and [Context retention R3](context-retention-r3.md); prompt-text layering
+stays with [Prompt Layering Design](prompt-layering-design.md); tool shape
 and transport placement stay with
-[Command and Tool Architecture](../command-tool-architecture.md) and
-[Tool transport R2](../tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../execution-ownership-r1.md)
-and [Panel environment awareness](../panel-environment-awareness.md);
+[Command and Tool Architecture](command-tool-architecture.md) and
+[Tool transport R2](tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
+and [Panel environment awareness](panel-environment-awareness.md);
 coordination and persistence questions stay with
-[Agent Coordination Architecture](../agent-coordination.md),
-[Task lifecycle R5](../task-lifecycle-r5.md), and the persistence
+[Agent Coordination Architecture](agent-coordination.md),
+[Task lifecycle R5](task-lifecycle-r5.md), and the persistence
 dispositions. Each is referenced, never duplicated or modified.
 
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) defines the only
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
 sources (tool names such as `code.search` or `capability.call`, hook names,
 command names, struct and enum names, metric names, CLI spellings such as
@@ -168,7 +156,7 @@ below. Capability metadata, trust levels, permission sets, and verification
 gates in the sources are conceptual vocabulary, not additions to any accepted
 registry, schema, or protocol. This draft creates or closes no AIQ or OQ
 identifier; open questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## Quality formula and optimization order
@@ -316,7 +304,7 @@ ecosystem prevalence claims. The stable claims are the Hell decomposition
 (useful for measurement), the resolver placement (deduplicate before the
 model, not through the model), and the no-implicit-trust rule (installation
 never implies executability). Enforcement placement and schema stay with
-[Tool transport R2](../tool-transport-r2.md) and the normative security
+[Tool transport R2](tool-transport-r2.md) and the normative security
 corpus.
 
 ## Small prompt and need-driven discovery

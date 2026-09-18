@@ -26,7 +26,7 @@ sidebar_order: 59
 
 This design answers the AIQ-35 row recorded in
 [AI Unresolved Questions](ai-unresolved-questions.md) and triaged in the [AIQ
-triage](research/aiq-triage-2026-09-16.md): whether agent version-control
+triage](../docs/sources/aiq-triage-2026-09-16.md): whether agent version-control
 access arrives as raw git primitives or as a structured, permission-scoped
 wrapper. This document proposes the wrapper side of that choice and sketches
 its API and audit shape. Selecting the wrapper over primitives, or rejecting
@@ -302,7 +302,7 @@ here describes that slice as the complete proposed runtime.
 
 - [AI Unresolved Questions](ai-unresolved-questions.md) (Draft): AIQ-35
   and the AIQ-31 through AIQ-38 facets; no entry status changes here.
-- [AIQ triage (2026-09-16)](research/aiq-triage-2026-09-16.md) (Draft):
+- [AIQ triage (2026-09-16)](../docs/sources/aiq-triage-2026-09-16.md) (Draft):
   the AIQ-35 `needs-evidence` verdict ("No git-primitive versus wrapper
   selection is evidenced") and the missing "API-shape owner decision" this
   document proposes DEC-0006 to cover.

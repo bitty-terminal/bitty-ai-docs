@@ -33,17 +33,9 @@ topic relationships, not accepted authority.
 
 ## Source provenance
 
-Distilled from `$BITTY_WORKSPACE/recording/research/030.md` (678 lines,
-`sha256:a48b80cba3f6d72452cb468491ede90e6ed9c2eeb748a1ac2a277c5dd5884124`).
+Distilled from research note `030` (read 2026-09-15, 678 lines).
 
-Verification:
-
-```text
-sha256sum $BITTY_WORKSPACE/recording/research/030.md
-wc -l $BITTY_WORKSPACE/recording/research/030.md
-```
-
-Expected: the hash above with `678` lines. The source is written in Chinese
+The source is written in Chinese
 and is preserved untranslated under its existing name; this document is an
 English critical distillation, not a translation. The source is shared with
 the terminal-docs track and was intentionally not renamed. Source section
@@ -219,22 +211,11 @@ consent) with PP-2 (Typed redaction).
 
 ## Provider and transport separation
 
-This section distills only the `bitty-ai`/network-relevant tail of workspace
-research `029.md.completed` (lines 1574-2018 of 2018 lines,
-`sha256:c3c71ae509850c7383e1b89bb03c81761365327108fa3fc1efe996feaae1dcc3`).
-
-Verification:
-
-```text
-sha256sum $BITTY_WORKSPACE/recording/research/029.md.completed
-wc -l $BITTY_WORKSPACE/recording/research/029.md.completed
-```
-
-Expected: the hash above with `2018` lines. The source is written in Chinese
-and is preserved untranslated under its existing name; this section is an
-English critical distillation, not a translation. The source file was already
-marked `.completed` by the sibling track and is shared with the
-terminal-docs track; it is intentionally not renamed. Lines 1-1573
+This section distills only the `bitty-ai`/network-relevant tail of research
+note `029` (read 2026-09-15, lines 1574-2018 of 2018 lines). The source is
+written in Chinese and is preserved untranslated; this section is an English
+critical distillation, not a translation. The record is shared with the
+terminal-docs track. Lines 1-1573
 (`bitty-core` network-free shape, plugin-via-git) are `bitty`-side and are
 excluded here: the terminal-docs repository owns them. Within lines
 1574-2018, every `bitty`-side row (terminal core, Lua plugin gateway, weather

@@ -1,7 +1,7 @@
 ---
 title: Research coverage ledger
 description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/046/048/049/050/051/052/053/054/055
-category: specifications
+category: provenance
 audience: mixed
 document_type: register
 status: draft
@@ -12,23 +12,25 @@ sidebar_order: 21
 # Research coverage ledger
 
 This ledger maps specific source topics to the
-[distillation](research-distillation-013-017-018.md), to the
-[prefix-cache context design](../prefix-cache-context-design.md) for record
+[distillation](../../specifications/research-distillation-013-017-018.md), to the
+[prefix-cache context design](../../specifications/prefix-cache-context-design.md) for record
 025, and to the 039/040/041/044/045/046/048/049/050/051/052/053/054/055 companion distillations, rather than claiming
-that an entire recording or specification is covered. Line ranges are
-inclusive, verified against the local recordings identified below. Repeated
+that an entire research record or specification is covered. Line ranges are
+inclusive, verified against the research records identified below. Repeated
 examples are condensed, not adopted as API definitions.
 
 ## Source identity
 
-Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the recordings' factual claims are true.
+These are content fingerprints, not Git commits or evidence that the
+records' factual claims are true.
 
-| Source                                | SHA-256                                                            |
-| ------------------------------------- | ------------------------------------------------------------------ |
-| `recording/research/013.md.completed` | `49c9a1a03aa98857f7f679d7d7a8d1e811db36c897d0ea7cc98fe8d5badb4e8d` |
-| `recording/research/017.md.completed` | `fda2144a1626d7851bb9b31ecec69a00dee1f6f726c7a5d9c6af92b102ea9070` |
-| `recording/research/018.md.completed` | `101d2848325ffe281a76ad555c35deb1cbf32518a464307324c54fce59458c9e` |
+Records `013`, `017`, and `018` were read on 2026-09-14 (distilled).
+
+| Source | SHA-256                                                            |
+| ------ | ------------------------------------------------------------------ |
+| `013`  | `49c9a1a03aa98857f7f679d7d7a8d1e811db36c897d0ea7cc98fe8d5badb4e8d` |
+| `017`  | `fda2144a1626d7851bb9b31ecec69a00dee1f6f726c7a5d9c6af92b102ea9070` |
+| `018`  | `101d2848325ffe281a76ad555c35deb1cbf32518a464307324c54fce59458c9e` |
 
 ## Disposition
 
@@ -38,24 +40,24 @@ at `3623c6b3ce33e97c1c493109ec6356219d0c9722`; mount commit
 `b6d3d6c495607f6bb2660b5442cfefcf350b486e` records the docs gitlink.
 The commander subsequently initialized the existing local mount; its revision
 and clean parent status were verified. See
-[current evidence](research-distillation-013-017-018.md#current-bitty-ai-evidence)
+[current evidence](../../specifications/research-distillation-013-017-018.md#current-bitty-ai-evidence)
 for the exact pointer, checked paths, and limits of the code observation.
 
 The companion distillation is the new draft coverage. The accepted
-[IPC contract](../ipc-agent-rfc.md), draft
-[AI architecture](../ai-architecture.md), and experimental
-[pressure-test evidence](../ai-vertical-slice-pressure-test.md) retain their
+[IPC contract](../../specifications/ipc-agent-rfc.md), draft
+[AI architecture](../../specifications/ai-architecture.md), and experimental
+[pressure-test evidence](../../specifications/ai-vertical-slice-pressure-test.md) retain their
 distinct status. Existing draft coverage is not accepted authority. No
 proposal from the records is promoted to accepted status. Claims requiring
-verification are marked as such in the distillation; source repositories under
-`recording/references` remain untrusted read-only research material.
+verification are marked as such in the distillation; reference clones remain
+untrusted read-only research material.
 
 ## Verification backlog
 
 Independent review returned **APPROVE** for the distillation, including source
 hashes, reference revisions/licenses, code slices, coverage, and `just check`.
-The commander renamed record 018 to `.md.completed` to mark **distillation
-complete only**; its content hash and source ranges are unchanged. This does
+The commander marked record 018 complete to record **distillation complete
+only**; its content hash and source ranges are unchanged. This does
 not accept the proposed architecture, certify product implementation, or
 complete the delivery lifecycle.
 
@@ -182,39 +184,32 @@ The recordings have no Git provenance established by this task; their SHA-256
 fingerprints make the checked line ranges identifiable. The three available
 reference clones do have verified immutable revisions and inspected MIT license
 files, recorded with concrete source paths in the companion
-[primary-source ledger](research-distillation-013-017-018.md#primary-source-inspection-ledger).
+[primary-source ledger](../../specifications/research-distillation-013-017-018.md#primary-source-inspection-ledger).
 Aider's exact missing paths are recorded there. Neither clean source nor a
 license file proves runtime correctness, security completeness, dependency
 compatibility, or a production-ready Bitty feature.
 
 ## Source identity: record 025 (partial, already distilled)
 
-Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the record's factual claims are true. The origin file is
-tracked in the research repository; the distilling task neither renamed,
-edited, nor staged it.
+These are content fingerprints, not Git commits or evidence that the
+record's factual claims are true. The record is tracked in the research
+repository; the distilling task neither renamed, edited, nor staged it.
 
-| Source                   | Lines | Bytes  | SHA-256                                                            |
-| ------------------------ | ----- | ------ | ------------------------------------------------------------------ |
-| `research/origin/025.md` | 1,404 | 17,288 | `e2adbbcb22a6e4e84b2e4eef5ad955c5dbb89d292ad2091d021fefb873d85b6a` |
+| Source         | Lines | Bytes  | SHA-256                                                            |
+| -------------- | ----- | ------ | ------------------------------------------------------------------ |
+| `025` (origin) | 1,404 | 17,288 | `e2adbbcb22a6e4e84b2e4eef5ad955c5dbb89d292ad2091d021fefb873d85b6a` |
 
-Record 025 is a single pass with one framing principle, twenty-three numbered
-sections, and a closing pipeline summary; no duplication handling applies.
-The fingerprint above matches `origin/025.md.completed`: the
-same content carries the `.completed` suffix because the distillation
-([Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md),
-`sidebar_order: 26`, CTX-0017) recorded its conclusions in this repository.
-
-Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/025.md.completed"`
-plus `wc -l -c` on the same path. The distillation's provenance block cites
-the pre-rename `recording/research/025.md` copy (1,404 lines, same SHA-256);
-that staging path no longer exists at the workspace root, so verify against
-the current `research/origin/025.md.completed` path.
+Record 025 (read 2026-09-15) is a single pass with one framing principle,
+twenty-three numbered sections, and a closing pipeline summary; no duplication
+handling applies. The record was marked complete after the distillation
+([Prefix-Cache-Friendly Context Design](../../specifications/prefix-cache-context-design.md),
+`sidebar_order: 26`, CTX-0017) recorded its conclusions in this repository;
+the content and fingerprint are unchanged by that marking.
 
 ## Disposition: 025 partial distillation (Captured)
 
 The companion draft is
-[Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md)
+[Prefix-Cache-Friendly Context Design](../../specifications/prefix-cache-context-design.md)
 (`sidebar_order: 26`): stable-before-dynamic layering, deterministic
 serialization, session-pinned registry snapshots, append-only epochs with
 structural compaction, provider qualifications, and privacy controls, with a
@@ -223,13 +218,12 @@ block, routing, multi-agent, and observability material as later proposals.
 It is a draft discussion synthesis: the layering, epoch, snapshot, planner,
 content-addressed block, and routing models it records are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
-contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
+contracts. The accepted [IPC contract](../../specifications/ipc-agent-rfc.md) is unaffected.
 The draft creates no AIQ or OQ identifier and closes none; it proposes
 AIQ-12 (canonical serialization, Closed adopted-draft) and AIQ-13
 (provider-scoped cache key and routing scope), whose register state stays
-with [AI Unresolved Questions](../ai-unresolved-questions.md). Source
-repositories under `recording/references` remain untrusted read-only
-research material.
+with [AI Unresolved Questions](../../specifications/ai-unresolved-questions.md). Reference
+clones remain untrusted read-only research material.
 
 The 025 design covers context assembly only (ordering, canonicalization,
 snapshots, epochs, observability). Provider-side cache behavior discussed in
@@ -305,31 +299,31 @@ are excluded from every range).
 
 ## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052 (partial), plus summaries 046, 053, 054, and 055 (AI slice)
 
-Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. All ten origin files are
-untracked in the research repository, so provenance is path plus SHA-256, and
-none of the files was renamed, edited, or staged by the distilling tasks: the
-`bitty`-side pass still needs all ten. The four summaries below are the
-CTX-0074 and CTX-0076 AI-slice sources (read-only; origins unread and untouched by those
-tasks); the `bitty`-side, plugin-side, Wheel-side, terminal-side, packaging-side, and
+These are content fingerprints, not Git commits or evidence that the
+records' factual claims are true. All ten origin records are untracked in the
+research repository, so provenance is record number plus SHA-256, and none was
+renamed, edited, or staged by the distilling tasks: the `bitty`-side pass still
+needs all ten. The four summaries below are the CTX-0074 and CTX-0076 AI-slice
+sources (read-only; origins unread and untouched by those tasks); the
+`bitty`-side, plugin-side, Wheel-side, terminal-side, packaging-side, and
 storage-side passes still need their halves.
 
-| Source                    | Lines | Bytes   | SHA-256                                                            |
-| ------------------------- | ----- | ------- | ------------------------------------------------------------------ |
-| `research/origin/039.md`  | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
-| `research/origin/040.md`  | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
-| `research/origin/041.md`  | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
-| `research/origin/044.md`  | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
-| `research/origin/045.md`  | 914   | 14,827  | `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0` |
-| `research/origin/048.md`  | 2,351 | 57,159  | `ddfd88b2eaa66e983d1bd9dc659c03ee7615db546d3eb92510c8e4d4444d0455` |
-| `research/origin/049.md`  | 2,135 | 32,648  | `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa` |
-| `research/origin/050.md`  | 940   | 13,978  | `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59` |
-| `research/origin/051.md`  | 1,308 | 17,307  | `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88` |
-| `research/origin/052.md`  | 561   | 12,836  | `999b04e9a12f30ce68102999c027727fb2a144fa96c443e8363e87276d9d72bd` |
-| `research/summary/046.md` | 16    | 4,694   | `381397ac14fdba77cd030436c7202f192430a7678eacfe6666f404d0c28f8954` |
-| `research/summary/053.md` | 24    | 6,796   | `82dfe75628d7c960bfad7d94ad07c8fdcceb06970049c9f8b1fc5ceb42dfece5` |
-| `research/summary/054.md` | 23    | 4,191   | `8b5d8b218e5bb3f8b4f32048e5bca99fcd96262a276a5ad4e189b58b2584088d` |
-| `research/summary/055.md` | 28    | 7,251   | `a23dfd8fa93adbb530a4cf4ba881eaa0f9135eb5d00143254d84e6cdd81a09f8` |
+| Source          | Lines | Bytes   | SHA-256                                                            |
+| --------------- | ----- | ------- | ------------------------------------------------------------------ |
+| `039` (origin)  | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
+| `040` (origin)  | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
+| `041` (origin)  | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
+| `044` (origin)  | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
+| `045` (origin)  | 914   | 14,827  | `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0` |
+| `048` (origin)  | 2,351 | 57,159  | `ddfd88b2eaa66e983d1bd9dc659c03ee7615db546d3eb92510c8e4d4444d0455` |
+| `049` (origin)  | 2,135 | 32,648  | `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa` |
+| `050` (origin)  | 940   | 13,978  | `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59` |
+| `051` (origin)  | 1,308 | 17,307  | `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88` |
+| `052` (origin)  | 561   | 12,836  | `999b04e9a12f30ce68102999c027727fb2a144fa96c443e8363e87276d9d72bd` |
+| `046` (summary) | 16    | 4,694   | `381397ac14fdba77cd030436c7202f192430a7678eacfe6666f404d0c28f8954` |
+| `053` (summary) | 24    | 6,796   | `82dfe75628d7c960bfad7d94ad07c8fdcceb06970049c9f8b1fc5ceb42dfece5` |
+| `054` (summary) | 23    | 4,191   | `8b5d8b218e5bb3f8b4f32048e5bca99fcd96262a276a5ad4e189b58b2584088d` |
+| `055` (summary) | 28    | 7,251   | `a23dfd8fa93adbb530a4cf4ba881eaa0f9135eb5d00143254d84e6cdd81a09f8` |
 
 Record 055 scope note: the fingerprint above covers the summary distilled by
 CTX-0076 (AI slice only; panel, event-log, tool-runtime, pipeline, storage,
@@ -418,13 +412,8 @@ duplication handling applies. Record 041 is a single pass with twelve
 numbered sections plus a closing three-layer model; no duplication handling
 applies.
 
-Verify with `sha256sum "$BITTY_WORKSPACE/research/origin/039.md"`,
-`sha256sum "$BITTY_WORKSPACE/research/origin/040.md"`, and
-`sha256sum "$BITTY_WORKSPACE/research/origin/041.md"` plus
-`wc -l -c` on all three paths. The record-040 fingerprinted head keeps verifying
-even after appends: `head -n 1829 "$BITTY_WORKSPACE/research/origin/040.md" |
-sha256sum` and `head -c 31779 "$BITTY_WORKSPACE/research/origin/040.md" |
-sha256sum` must both print
+The record-040 fingerprinted head keeps verifying even after appends: the
+first 1,829 lines and first 31,779 bytes must both hash to
 `067e3c287b203ccd9a3217c1596d55cb7181b4746d07076e1023e1ddfc2cfe0e`. Post-verification note: record 040 grew by a pure
 append after the distilling task verified its head (first 1,829 lines and 31,779
 bytes still hash to the head fingerprint above; appended tail
@@ -437,19 +426,19 @@ not grown since the append was recorded.
 ## Disposition: 039/040/041/044/045/046/048/049/050/051/052/053/054/055 partial distillations
 
 The companion drafts are
-[Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
-[Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md),
-[IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md),
-[Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md),
-[Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md),
-[Wheel scope and framework-illustration research distillation for bitty-ai (046/053/054)](research-distillation-046-053-054-bitty-ai.md),
-[Quality-formula and Context-Compiler research distillation for bitty-ai (048-049)](research-distillation-048-049-bitty-ai.md),
+[Panel research distillation for bitty-ai (039)](../../specifications/research-distillation-039-bitty-ai.md),
+[Plugin-system research distillation for bitty-ai (040)](../../specifications/research-distillation-040-bitty-ai.md),
+[IPC-value research distillation for bitty-ai (041)](../../specifications/research-distillation-041-bitty-ai.md),
+[Execution-supervisor research distillation for bitty-ai (044)](../../specifications/research-distillation-044-bitty-ai.md),
+[Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](../../specifications/research-distillation-045-bitty-ai.md),
+[Wheel scope and framework-illustration research distillation for bitty-ai (046/053/054)](../../specifications/research-distillation-046-053-054-bitty-ai.md),
+[Quality-formula and Context-Compiler research distillation for bitty-ai (048-049)](../../specifications/research-distillation-048-049-bitty-ai.md),
 and
-[Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md),
+[Wheel-config and Git-model research distillation for bitty-ai (050-051)](../../specifications/research-distillation-050-051-bitty-ai.md),
 and
-[Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](research-distillation-052-bitty-ai.md),
+[Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](../../specifications/research-distillation-052-bitty-ai.md),
 and
-[Event-Sourced Agent Workspace research distillation for bitty-ai (055)](research-distillation-055-bitty-ai.md).
+[Event-Sourced Agent Workspace research distillation for bitty-ai (055)](../../specifications/research-distillation-055-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
 exclusions. All ten are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
@@ -471,10 +460,10 @@ first-class context share, typed merges with diff inventory, Context GC
 versus compaction, Task-as-Issue with reason-as-commit-message, and the
 four-clause core principle) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
-contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
+contracts. The accepted [IPC contract](../../specifications/ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
 modifies an existing canonical document, or describes implementation as
-shipped. Source repositories under `recording/references` remain untrusted
+shipped. Source reference clones remain untrusted
 read-only research material.
 
 ## Topic-level traceability: record 039 (partial)
@@ -801,7 +790,7 @@ bundle fields, manifest fields, operation spellings, and primitive
 spellings are discussion inputs; the accepted Agent and IPC vocabulary
 stays with the IPC and Agent RFC, which the 055 draft references without
 restating. The whole verified summary (`055.md:1-28`) was distilled; no
-head-versus-tail split applies. The origin (`research/origin/055.md`) was
+head-versus-tail split applies. The origin record (`055`) was
 not read by this task.
 
 | Source lines | Topic                                                                                                | Disposition / destination                                                                                    |

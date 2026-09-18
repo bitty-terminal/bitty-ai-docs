@@ -24,20 +24,17 @@ profile and durable recovery are alternatives needing an explicit scope decision
 
 ## Source provenance
 
-- **Original recording 022:** workspace-relative
-  `recording/research/022.md.completed`, SHA-256
-  `f23ef66ec262e6f429a04b190926a82ac45f614536c6f3e4003a2b2bcebbc52f`,
-  1,368 lines. Lines 460-518 propose session versus projection; 716-778
-  discuss compaction with retained entries. Unconditional retention is corrected
-  below, not adopted from the recording.
-- **Original recording 021:** `recording/research/021.md.completed`, SHA-256
-  `b6607d330887f42133e989be70dd4791aaac0ec1723441d01461fb9631403da9`,
-  3,378 lines. Lines 262-456 motivate lint/build sharing and revision caches.
-- **Critical synthesis:** [research 021, evidence reuse](research/research-distillation-021.md#lint-build-test-and-evidence-reuse).
+- **Original recording 022:** research note `022` (read 2026-09-14, 1,368
+  lines). Lines 460-518 propose session versus projection; 716-778 discuss
+  compaction with retained entries. Unconditional retention is corrected below,
+  not adopted from the recording.
+- **Original recording 021:** research note `021` (read 2026-09-14, 3,378
+  lines). Lines 262-456 motivate lint/build sharing and revision caches.
+- **Critical synthesis:** [research 021, evidence reuse](research-distillation-021.md#lint-build-test-and-evidence-reuse).
   The imported CTX-0007 draft's lines 280-309 contain the candidate eligibility
   sequence and scheduling analysis. These are synthesis additions, not recording
   022 lines 280-309, and not proof of any upstream or Bitty implementation.
-- **Earlier recordings:** [013/017/018 coverage ledger](research/research-coverage-ledger.md#source-identity)
+- **Earlier recordings:** [013/017/018 coverage ledger](../docs/sources/research-coverage-ledger.md#source-identity)
   binds full hashes and topic ranges. In particular, 018:470-527 and 602-654
   discuss session/events and SQLite/FTS5 respectively. Storage/index proposals
   are distinct from replay guarantees.
@@ -46,7 +43,7 @@ profile and durable recovery are alternatives needing an explicit scope decision
   `agent/turn_tool_round.py:45-140` (`run_tool_round`), MIT in `LICENSE:1-21`.
   It stages and persists an assistant message before effects and stops the round
   on persistence failure. This observation is recorded in the
-  [primary-source ledger](research/research-distillation-013-017-018.md#primary-source-inspection-ledger),
+  [primary-source ledger](research-distillation-013-017-018.md#primary-source-inspection-ledger),
   not in recording 022. It does not establish exactly-once effects, complete
   event sourcing, FTS5 requirements or Bitty behavior. Read-only reinspection
   on 2026-09-14 executes no upstream code.

@@ -38,10 +38,7 @@ environment, even before any `bitty`-side mechanism lands:
   presentation, plugin-registry mechanics, per-shell integration scripts,
   and wire protocols.
 
-Inputs are workspace research record `036.md` (910 lines,
-`sha256:99c1c9de56fd74df1f66f2f1921d1c775e07a46ed0bf8c41ac87cbbbb7cc00cd`;
-verification: `sha256sum "$BITTY_WORKSPACE/recording/research/036.md.completed"` and
-`wc -l "$BITTY_WORKSPACE/recording/research/036.md.completed"`), PP-2 (Typed redaction)
+Inputs are research note `036` (read 2026-09-15, 910 lines), PP-2 (Typed redaction)
 and PP-4 (No on-disk persistence without consent) under
 [Privacy-first](ai-architecture.md#privacy-first) in
 [AI Architecture](ai-architecture.md), the R1 disposition in
@@ -285,13 +282,6 @@ awareness contracts regardless of handoff timing.
 
 ## Provenance
 
-- Source: workspace research record `036.md` (single-author Chinese-language
-  discussion, 910 lines,
-  `sha256:99c1c9de56fd74df1f66f2f1921d1c775e07a46ed0bf8c41ac87cbbbb7cc00cd`).
-- Verify: `sha256sum "$BITTY_WORKSPACE/recording/research/036.md.completed"` and
-  `wc -l "$BITTY_WORKSPACE/recording/research/036.md.completed"`.
-- The source file was renamed from `036.md` to `036.md.completed` by an external
-  track after this note was drafted; content is unchanged (same sha256, same
-  910 lines), so all `036.md:<line>` citations remain valid.
-- `$BITTY_WORKSPACE` is the workspace root environment variable; no
-  machine-specific checkout path is embedded in this document.
+- Source: research note `036` (read 2026-09-15; single-author Chinese-language
+  discussion, 910 lines). The record was later marked complete by its owning
+  track with no content change, so all `036.md:<line>` citations remain valid.

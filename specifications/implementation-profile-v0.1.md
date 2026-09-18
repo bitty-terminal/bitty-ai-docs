@@ -18,9 +18,7 @@ evidence. Anything not listed here is out of scope for v0.1, not rejected.
 
 ## Source provenance
 
-Distilled from workspace research record `023.md` (726 lines,
-`sha256:15e3ff9a0c18bfa7c0ece08299e462087513b5d0c6fcc779c5e5dc54e42b2b4a`;
-verification: `sha256sum $BITTY_WORKSPACE/recording/research/023.md`).
+Distilled from research note `023` (read 2026-09-14, 726 lines).
 The record is a single-author proposal, not an accepted decision; this profile
 preserves its direction while keeping draft authority honest.
 

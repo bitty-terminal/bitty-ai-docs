@@ -40,10 +40,7 @@ This design covers only what `bitty-ai` Core owns as storage direction:
   boundaries, hash-function selection, compression tuning, wire protocols,
   secret-store design, panel presentation, and plugin-registry mechanics.
 
-Inputs are workspace research record `037.md` (1,051 lines,
-`sha256:8c7864420c67e085b99e24932a1543e851d97ec324f6a7b3a1e63c836743e25f`;
-verification: `sha256sum "$BITTY_WORKSPACE/recording/research/037.md"` and
-`wc -l "$BITTY_WORKSPACE/recording/research/037.md"`), the R6 disposition in
+Inputs are research note `037` (read 2026-09-15, 1,051 lines), the R6 disposition in
 [Persistence profile R6](persistence-profile-r6.md), the R3 disposition in
 [Context retention R3](context-retention-r3.md), the dimension split in
 [Persistence and evidence architecture](persistence-evidence.md), PP-2 (Typed
@@ -471,12 +468,5 @@ sections above regardless of handoff timing.
 
 ## Provenance
 
-- Source: workspace research record `037.md` (single-author Chinese-language
-  discussion, 1,051 lines,
-  `sha256:8c7864420c67e085b99e24932a1543e851d97ec324f6a7b3a1e63c836743e25f`).
-- Verify: `sha256sum "$BITTY_WORKSPACE/recording/research/037.md"` and
-  `wc -l "$BITTY_WORKSPACE/recording/research/037.md"`.
-- The source file is not renamed by this task; renaming to `037.md.completed`
-  waits for independent review approval.
-- `$BITTY_WORKSPACE` is the workspace root environment variable; no
-  machine-specific checkout path is embedded in this document.
+- Source: research note `037` (read 2026-09-15; single-author Chinese-language
+  discussion, 1,051 lines).

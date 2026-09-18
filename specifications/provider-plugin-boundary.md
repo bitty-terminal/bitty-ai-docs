@@ -37,10 +37,7 @@ This boundary covers the provider and model-management surface only:
   plugin-ecosystem handoff items recorded in
   [Bitty-side handoff](#bitty-side-handoff-not-a-decision).
 
-Inputs are workspace research record `032.md` (465 lines,
-`sha256:347b5ab24a3eb10b563dca0b031c393cd58e671ac14bb1e342d388c79c7e4f5a`;
-verification: `sha256sum "$BITTY_WORKSPACE/recording/research/032.md"` and
-`wc -l "$BITTY_WORKSPACE/recording/research/032.md"`), MP-1 through MP-11 and
+Inputs are research note `032` (read 2026-09-15, 465 lines), MP-1 through MP-11 and
 the MPC-1/MPC-2 candidate extension in [AI Architecture](ai-architecture.md),
 the R1 disposition in [Execution ownership R1](execution-ownership-r1.md), the
 R2 disposition in [Tool transport R2](tool-transport-r2.md), the register in
@@ -326,12 +323,5 @@ handoff timing.
 
 ## Provenance
 
-- Source: workspace research record `032.md` (single-author Chinese-language
-  discussion, 465 lines,
-  `sha256:347b5ab24a3eb10b563dca0b031c393cd58e671ac14bb1e342d388c79c7e4f5a`).
-- Verify: `sha256sum "$BITTY_WORKSPACE/recording/research/032.md"` and
-  `wc -l "$BITTY_WORKSPACE/recording/research/032.md"`.
-- The source file is not renamed by this task; renaming to `032.md.completed`
-  waits for independent review approval.
-- `$BITTY_WORKSPACE` is the workspace root environment variable; no
-  machine-specific checkout path is embedded in this document.
+- Source: research note `032` (read 2026-09-15; single-author Chinese-language
+  discussion, 465 lines).

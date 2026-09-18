@@ -26,7 +26,7 @@ sidebar_order: 58
 
 This checklist answers the AIQ-32 facet recorded in
 [AI Unresolved Questions](ai-unresolved-questions.md) and triaged in the [AIQ
-triage](research/aiq-triage-2026-09-16.md): what acceptance criteria a
+triage](../docs/sources/aiq-triage-2026-09-16.md): what acceptance criteria a
 promotion-review owner applies before a prototype becomes Core mechanism. It
 covers the workflow-to-Core path only: experimental workflow code proved
 outside the Core, then landed as tested mechanism inside
@@ -223,7 +223,7 @@ slice as the complete proposed runtime.
 
 - [AI Unresolved Questions](ai-unresolved-questions.md) (Draft): AIQ-32 and
   the AIQ-31 through AIQ-38 facets; no entry status changes here.
-- [AIQ triage (2026-09-16)](research/aiq-triage-2026-09-16.md) (Draft):
+- [AIQ triage (2026-09-16)](../docs/sources/aiq-triage-2026-09-16.md) (Draft):
   per-merge evidence rows (AI-0076 through AI-0097 precedents, PX-0412
   through PX-0427 review ids, `8c5418b` and `97d3125` merge pins) and the
   AIQ-13 close-ready recommendation pattern (recommendation only, register

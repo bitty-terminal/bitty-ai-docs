@@ -45,10 +45,7 @@ It references that document and does not duplicate it:
   wire protocols, vendor endpoint construction, the host secret store, Panel
   and gallery presentation, and plugin-registry mechanics.
 
-Inputs are workspace research record `033.md` (645 lines,
-`sha256:f65510b86b9c0efbb2ceef5c5cad7e2007d59bc699db1a0e3c3c2659646571f5`;
-verification: `sha256sum "$BITTY_WORKSPACE/recording/research/033.md"` and
-`wc -l "$BITTY_WORKSPACE/recording/research/033.md"`), MP-1 through MP-11
+Inputs are research note `033` (read 2026-09-15, 645 lines), MP-1 through MP-11
 and the MPC-1/MPC-2 candidate extension in [AI Architecture](ai-architecture.md),
 the R1 disposition in [Execution ownership R1](execution-ownership-r1.md), the
 R2 disposition in [Tool transport R2](tool-transport-r2.md), the register in
@@ -597,12 +594,5 @@ change their APIs. Normative statements above never depend on them.
 
 ## Provenance
 
-- Source: workspace research record `033.md` (single-author Chinese-language
-  discussion, 645 lines,
-  `sha256:f65510b86b9c0efbb2ceef5c5cad7e2007d59bc699db1a0e3c3c2659646571f5`).
-- Verify: `sha256sum "$BITTY_WORKSPACE/recording/research/033.md"` and
-  `wc -l "$BITTY_WORKSPACE/recording/research/033.md"`.
-- The source file is not renamed by this task; renaming to `033.md.completed`
-  waits for independent review approval.
-- `$BITTY_WORKSPACE` is the workspace root environment variable; no
-  machine-specific checkout path is embedded in this document.
+- Source: research note `033` (read 2026-09-15; single-author Chinese-language
+  discussion, 645 lines).

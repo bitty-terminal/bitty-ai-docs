@@ -28,9 +28,9 @@ multi-agent DAG, Git vocabulary, context diff, typed merge, the storage
 diagram, and the closing philosophy).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](../ai-architecture.md) and its related draft
+draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `.wheel` Lua API sketches, the directory layouts, the
 hook and permission sketches, the trust-flow wording, the `ContextObject`
 enum sketch, the CLI spellings, and the storage diagram are **not** accepted
@@ -57,18 +57,18 @@ and the storage paths and hash choices, which are illustrations, not adopted
 layout or cryptography. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Context Management Architecture](../context-management.md),
-[Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md),
-[Command and Tool Architecture](../command-tool-architecture.md),
-[Agent Coordination Architecture](../agent-coordination.md),
-[Execution ownership R1](../execution-ownership-r1.md),
-[Context retention R3](../context-retention-r3.md),
-[Task lifecycle R5](../task-lifecycle-r5.md),
-[Tool transport R2](../tool-transport-r2.md),
-[Provider plugin boundary](../provider-plugin-boundary.md), and
-[Panel environment awareness](../panel-environment-awareness.md). The
-accepted [IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Context Management Architecture](context-management.md),
+[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
+[Command and Tool Architecture](command-tool-architecture.md),
+[Agent Coordination Architecture](agent-coordination.md),
+[Execution ownership R1](execution-ownership-r1.md),
+[Context retention R3](context-retention-r3.md),
+[Task lifecycle R5](task-lifecycle-r5.md),
+[Tool transport R2](tool-transport-r2.md),
+[Provider plugin boundary](provider-plugin-boundary.md), and
+[Panel environment awareness](panel-environment-awareness.md). The
+accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Quality-formula and Context-Compiler distillation (048-049)](research-distillation-048-049-bitty-ai.md)
 carries the quality framing and the compiler design; this draft links to it
@@ -78,32 +78,20 @@ and closes none.
 
 ## Provenance and evidence boundary
 
-The sources are the workspace-relative `research/origin/050.md` and
-`research/origin/051.md`, read read-only: `050.md` is **940 lines**,
-**13,978 bytes**, SHA-256
+The sources are research notes `050` and `051` (origins), read on
+2026-09-18: `050` is **940 lines**, **13,978 bytes**, SHA-256
 `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59`;
-`051.md` is **1,308 lines**, **17,307 bytes**, SHA-256
+`051` is **1,308 lines**, **17,307 bytes**, SHA-256
 `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88`.
-Both files are untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. Neither origin file was renamed, edited, or
+Both records are untracked in the research repository, so provenance is by
+record number plus fingerprint, not by commit. Neither was renamed, edited, or
 staged by this task; the `bitty`-side pass still needs both. The body of this
 document distills the whole verified files (`050.md:1-940`,
 `051.md:1-1308`); no post-task append existed at verification time, so no
 head-versus-tail split applies. Any later append is uncovered and follows the
 CTX-0045 pattern (distill the verified head, record the remainder as
-uncovered).
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/050.md $BITTY_WORKSPACE/research/origin/051.md
-wc -l -c $BITTY_WORKSPACE/research/origin/050.md $BITTY_WORKSPACE/research/origin/051.md
-```
-
-The expected output is the two SHA-256 values above with 940 lines and
-13,978 bytes for `050.md` and 1,308 lines and 17,307 bytes for `051.md`.
-Both hashes were verified at task start and re-verified at task end with no
-change, so the CTX-0045 growth pattern did not trigger.
+uncovered). Both hashes were verified at task start and re-verified at task end
+with no change, so the CTX-0045 growth pattern did not trigger.
 
 Record 050 is a single pass: an opening rename-and-split statement, a
 portable-capabilities section, a How-versus-What section with the entry
@@ -119,27 +107,27 @@ fingerprints identify the discussions, not the truth of their claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the `.wheel` class list, the Lua contract, the trust
 flow, the object model, the ref namespace, and the storage diagram proposed
 in the sources are **not** accepted by this distillation and must not be read
 as crate, package, protocol, file-schema, or release decisions. Context
 assembly, budget, and retention questions stay with
-[Context Management Architecture](../context-management.md),
-[Prefix-Cache-Friendly Context Design](../prefix-cache-context-design.md),
-and [Context retention R3](../context-retention-r3.md); tool shape and
+[Context Management Architecture](context-management.md),
+[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
+and [Context retention R3](context-retention-r3.md); tool shape and
 transport placement stay with
-[Command and Tool Architecture](../command-tool-architecture.md) and
-[Tool transport R2](../tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../execution-ownership-r1.md)
-and [Panel environment awareness](../panel-environment-awareness.md);
+[Command and Tool Architecture](command-tool-architecture.md) and
+[Tool transport R2](tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
+and [Panel environment awareness](panel-environment-awareness.md);
 coordination and persistence questions stay with
-[Agent Coordination Architecture](../agent-coordination.md),
-[Task lifecycle R5](../task-lifecycle-r5.md), and the persistence
+[Agent Coordination Architecture](agent-coordination.md),
+[Task lifecycle R5](task-lifecycle-r5.md), and the persistence
 dispositions. Each is referenced, never duplicated or modified.
 
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) defines the only
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
 sources (Lua function spellings, hook names, command names, agent-profile
 fields, permission names, ref spellings, CLI spellings) is a discussion
@@ -154,7 +142,7 @@ consented recording, secret minimization) override every discussion example
 below. The Lua trust and sandbox sketches are conceptual vocabulary, not an
 adopted authorization contract. This draft creates or closes no AIQ or OQ
 identifier; open questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## Owner rename decision (recorded verbatim)

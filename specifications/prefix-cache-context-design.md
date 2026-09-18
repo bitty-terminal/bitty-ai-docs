@@ -24,17 +24,9 @@ proposal does not change. These are topic relationships, not accepted authority.
 
 ## Source provenance
 
-Distilled from `$BITTY_WORKSPACE/recording/research/025.md` (1,404 lines,
-`sha256:e2adbbcb22a6e4e84b2e4eef5ad955c5dbb89d292ad2091d021fefb873d85b6a`).
+Distilled from research note `025` (read 2026-09-15, 1,404 lines).
 
-Verification:
-
-```text
-sha256sum $BITTY_WORKSPACE/recording/research/025.md
-wc -l $BITTY_WORKSPACE/recording/research/025.md
-```
-
-Expected: the hash above and `1404` lines. The source is written in Chinese
+The source is written in Chinese
 and is preserved untranslated; this document is an English critical
 distillation, not a translation. Source section numbers below refer to that
 record. Provider and harness behavior cited by the source was not

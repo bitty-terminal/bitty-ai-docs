@@ -11,13 +11,13 @@ sidebar_order: 20
 
 # AI research distillation from 013, 017, and 018
 
-This draft records AI-relevant findings from `recording/research/013.md.completed`,
-`017.md.completed`, and `018.md.completed`. The sibling `bitty-ai` repository exists;
+This draft records AI-relevant findings from research notes `013`, `017`, and
+`018` (read 2026-09-14). The sibling `bitty-ai` repository exists;
 commits `b6d3d6c` and `3623c6b` record its documentation gitlink and an
 experimental vertical-slice implementation, respectively. This is a discussion
 input, not an accepted contract. Observations below identify inspected source;
 historical assessments and proposals are not current capability evidence.
-The [coverage ledger](research-coverage-ledger.md) binds source line ranges to
+The [coverage ledger](../docs/sources/research-coverage-ledger.md) binds source line ranges to
 content hashes and distinguishes exclusions, corrections, and unresolved work.
 
 ## Stable boundary candidates
@@ -78,11 +78,11 @@ future discussion items.
 ## Evidence and disagreements
 
 Security requirements retain the authority of the
-[normative sources](../ai-architecture.md#normative-sources-this-specification-must-not-weaken).
+[normative sources](ai-architecture.md#normative-sources-this-specification-must-not-weaken).
 The proposed runtime design cannot relax read-only defaults, consent, project
 trust, resource budgets, secret minimization, or host-side enforcement.
 013's fixed context-byte limit is not a new global limit: the current
-[context contract](../ai-architecture.md#purpose-and-scope) is token-first, with
+[context contract](ai-architecture.md#purpose-and-scope) is token-first, with
 the byte default a candidate profile. Neither 018's proposed v0.1 schedule nor
 the terminal-facing architecture's historical post-1.0 scope decides the
 standalone AI release profile. Persistence/replay requirements remain unresolved;
@@ -91,9 +91,8 @@ neither an ephemeral v0.1 nor a post-1.0 persistence deferral is selected here.
 ## Primary-source inspection ledger
 
 Read-only inspection on 2026-09-14 ran `git rev-parse HEAD` and
-`git status --short` inside each available clone. All three had clean working
-trees. Paths below are relative to the named snapshot under
-`recording/references/`; revision plus path identifies immutable source.
+`git status --short` inside each available local reference clone. All three had
+clean working trees. Revision plus path identifies immutable source.
 No reference code was executed. License observations apply to the inspected
 files, not every bundled dependency or asset.
 
@@ -111,10 +110,9 @@ files, not every bundled dependency or asset.
 | Oh-My-Pi `packages/agent/src/agent-loop.ts:533–562,944–981`, `agentLoop` / `runLoop`                 | Copies initial context, emits an agent-start event, launches async loop work, passes an abort signal/stream function, and closes telemetry spans.                                                   | Useful event/driver seams, but this is an asynchronous implementation, not evidence of a serializable sans-I/O state machine.                                                                        |
 | Oh-My-Pi `packages/coding-agent/src/tools/index.ts:461–518,622–714`, `BUILTIN_TOOLS` / `createTools` | Session configuration filters a registry of read/edit/bash/LSP and other factories; selected factories initialize concurrently and populate the registry.                                           | Separate tool composition/availability from invocation authorization. Concurrent factory creation does not prove concurrent tool execution or safe multi-file writes.                                |
 
-Aider was genuinely unavailable locally: direct reads of
-`recording/references/aider/.git` and `recording/references/aider/LICENSE`
-returned not found; `**/*aider*` under `recording/` and `**/aider/.git` under
-the workspace found no matches. Therefore 018's RepoMap ranking description
+Aider was genuinely unavailable locally: direct reads of its reference-clone
+`.git` and `LICENSE` returned not found, and a workspace search found no
+matches. Therefore 018's RepoMap ranking description
 remains a secondary-source proposal; no Aider revision or license is asserted.
 The actual Hermes guide is `website/docs/developer-guide/agent-loop.md`, not
 the recording's abbreviated filesystem path.
@@ -126,7 +124,7 @@ At `bitty-ai` HEAD `3623c6b3ce33e97c1c493109ec6356219d0c9722`,
 conditional bounded context collection, tool dispatch, and fragment emission.
 This is real experimental code, not an empty scaffold. It does not prove the
 proposed context-before-provider, tool-result/model-continuation, SQLite/replay
-runtime. The [pressure-test specification](../ai-vertical-slice-pressure-test.md)
+runtime. The [pressure-test specification](ai-vertical-slice-pressure-test.md)
 records its deterministic local provider and loopback host limitations; its
 historical test results were not rerun for this documentation task.
 

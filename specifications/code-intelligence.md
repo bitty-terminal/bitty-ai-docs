@@ -17,9 +17,7 @@ This specification defines shared code intelligence services for `bitty-ai`: lan
 
 ## Source provenance
 
-This distillation extracts code intelligence sharing from `$BITTY_WORKSPACE/recording/research/021.md.completed` (sha256: `b6607d330887f42133e989be70dd4791aaac0ec1723441d01461fb9631403da9`, 3,378 lines, 2026-09-14), principally recording lines 156-456 and 641-700. The broker safeguards, complete fingerprint and candidate eligibility sequence are critical synthesis additions in [research 021](research/research-distillation-021.md#lint-build-test-and-evidence-reuse), whose imported draft lines 280-309 contain the eligibility/scheduling discussion. They are not recording 022 lines 280-309 or upstream implementation evidence.
-
-**Verification**: `sha256sum "$BITTY_WORKSPACE/recording/research/021.md.completed"`
+This distillation extracts code intelligence sharing from research note `021` (read 2026-09-14), principally record lines 156-456 and 641-700. The broker safeguards, complete fingerprint and candidate eligibility sequence are critical synthesis additions in [research 021](research-distillation-021.md#lint-build-test-and-evidence-reuse), whose imported draft lines 280-309 contain the eligibility/scheduling discussion. They are not recording 022 lines 280-309 or upstream implementation evidence.
 
 The source analyzes LSP broker patterns, verification fingerprinting, and result caching with comparative references to existing systems. This specification separates observations from proposed Bitty contracts.
 

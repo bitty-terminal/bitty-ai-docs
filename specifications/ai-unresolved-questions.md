@@ -110,7 +110,7 @@ Adopted-draft wording only.
   boundary plus alias-proof test). Follow-up pointer, not an open facet: the
   implicit-versus-explicit routing half narrows to a pure policy choice
   operating inside non-leaking keys; see the [AIQ-13 close-ready
-  addendum](research/aiq-triage-2026-09-16.md#addendum-2026-09-16-aiq-13-close-ready-recommendation).
+  addendum](../docs/sources/aiq-triage-2026-09-16.md#addendum-2026-09-16-aiq-13-close-ready-recommendation).
 
 ## Commands and tools
 

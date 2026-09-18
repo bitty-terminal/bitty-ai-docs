@@ -6,7 +6,7 @@ audience: mixed
 document_type: research
 status: draft
 website_publish: false
-sidebar_order: 22
+sidebar_order: 21
 ---
 
 # Shared workspace services and agent coordination research
@@ -27,32 +27,25 @@ agent/panel lifecycles. Its weakest claims are unconditional deduplication,
 automatic control of headless panels, globally shared authority, and persistence
 without a retention or recovery contract. Those are corrected below.
 
-This elaborates the draft [AI architecture](../ai-architecture.md), especially code
+This elaborates the draft [AI architecture](ai-architecture.md), especially code
 services, execution identity, context recovery, message delivery, and leased
-workstations. The [IPC and Agent RFC](../ipc-agent-rfc.md) remains the accepted
+workstations. The [IPC and Agent RFC](ipc-agent-rfc.md) remains the accepted
 transport and consent contract. The
-[pressure test](../ai-vertical-slice-pressure-test.md) is experimental evidence, and
-the [browser/agent pre-study](../browser-agent-pre-study.md) remains a draft.
+[pressure test](ai-vertical-slice-pressure-test.md) is experimental evidence, and
+the [browser/agent pre-study](browser-agent-pre-study.md) remains a draft.
 
 ## Provenance and evidence boundary
 
-The entire workspace-relative `recording/research/021.md.completed` was read on
-2026-09-14: **3,378 lines**, including the final blank line. Its SHA-256 is
+The entire research note `021` was read on 2026-09-14: **3,378 lines**,
+including the final blank line. Its SHA-256 is
 `b6607d330887f42133e989be70dd4791aaac0ec1723441d01461fb9631403da9`.
-All source ranges below are inclusive and refer to that exact byte snapshot.
-The fingerprint identifies the discussion, not the truth of its claims.
-
-**Verification:** Confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/recording/research/021.md.completed
-```
-
-The expected output is the SHA-256 above.
+All source ranges below are inclusive and refer to that record. The fingerprint
+identifies the discussion, not the truth of its claims.
 
 Prior discussion inputs were read in the uncommitted CTX-0003 worktree:
-`specifications/research-distillation-013-017-018.md` and
-`specifications/research-coverage-ledger.md`. They remain separate drafts and
+[research distillation 013/017/018](research-distillation-013-017-018.md) and
+the [coverage ledger](../docs/sources/research-coverage-ledger.md). They remain
+separate drafts and
 are not copied into this task or promoted to accepted authority. They already
 cover sans-I/O runtime direction, code-intelligence adapters, evidence,
 transactional edits, optional CarryCtx integration, and deferred multi-agent
@@ -66,12 +59,12 @@ No upstream scripts, tests, binaries, or installers were executed. Paths in this
 table are relative to the named repository; revision plus path identifies the
 source independently of machine layout.
 
-| Source and revision                                                                   | Inspected range                                            | Observation and limit                                                                                                                                                                                                                                                |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sibling `bitty-ai`, `3623c6b3ce33e97c1c493109ec6356219d0c9722`                        | `crates/bitty-ai-slice/src/session.rs:68–136`              | `run_turn` calls a provider, conditionally collects bounded context, dispatches an optional tool, and emits fragments. This is real experimental code. It does not implement this proposed service supervisor, organization graph, context compiler, or lease model. |
-| Same sibling                                                                          | Tracked `crates/` inventory and `docs` gitlink             | Core and experimental slice sources exist; the initialized docs gitlink is `39b4c7568a8807e0940bd298660c972db0cfa92a`. Repository-existence denials in older guides are stale. Inventory is not a full behavior audit.                                               |
-| Read-only `recording/references/opencode`, `95daf90670b7c039c436c85537da5fbfe2205b41` | `packages/opencode/src/lsp/lsp.ts:112–117,145–206,208–297` | State has clients and an in-flight spawn map. Initialization registers a shutdown finalizer. Lookup reuses root/server-ID clients and in-flight spawns; failed initialization and duplicate creation stop the newly created process.                                 |
-| Same upstream                                                                         | `LICENSE:1–21`                                             | MIT, copyright 2025 opencode. This license observation is for the inspected snapshot, not a dependency or bundled-asset audit.                                                                                                                                       |
+| Source and revision                                                           | Inspected range                                            | Observation and limit                                                                                                                                                                                                                                                |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sibling `bitty-ai`, `3623c6b3ce33e97c1c493109ec6356219d0c9722`                | `crates/bitty-ai-slice/src/session.rs:68–136`              | `run_turn` calls a provider, conditionally collects bounded context, dispatches an optional tool, and emits fragments. This is real experimental code. It does not implement this proposed service supervisor, organization graph, context compiler, or lease model. |
+| Same sibling                                                                  | Tracked `crates/` inventory and `docs` gitlink             | Core and experimental slice sources exist; the initialized docs gitlink is `39b4c7568a8807e0940bd298660c972db0cfa92a`. Repository-existence denials in older guides are stale. Inventory is not a full behavior audit.                                               |
+| Read-only OpenCode reference clone `95daf90670b7c039c436c85537da5fbfe2205b41` | `packages/opencode/src/lsp/lsp.ts:112–117,145–206,208–297` | State has clients and an in-flight spawn map. Initialization registers a shutdown finalizer. Lookup reuses root/server-ID clients and in-flight spawns; failed initialization and duplicate creation stop the newly created process.                                 |
+| Same upstream                                                                 | `LICENSE:1–21`                                             | MIT, copyright 2025 opencode. This license observation is for the inspected snapshot, not a dependency or bundled-asset audit.                                                                                                                                       |
 
 **Disagreement with 021:115–155:** the user's report of memory growth and
 surviving language-server processes is valid incident input, but the inspected
@@ -109,7 +102,7 @@ correction.
 ## Authority and reconciliation
 
 The architecture's
-[normative source map](../ai-architecture.md#normative-sources-this-specification-must-not-weaken)
+[normative source map](ai-architecture.md#normative-sources-this-specification-must-not-weaken)
 routes to the canonical security overview, threat model, risk register, and
 P0 acceptance criteria. Their requirements override every discussion example:
 
@@ -475,7 +468,7 @@ not a replacement Panel Runtime state machine.
 No-UI agent execution is distinct from a terminal daemon surviving GUI exit,
 detach/reattach across restarts, or remote UI. Those broader features remain
 subject to the accepted ADR 0008 deferral and trust-boundary gate linked by the
-[existing architecture](../ai-architecture.md#execution-profiles-targets-and-provider-negotiation).
+[existing architecture](ai-architecture.md#execution-profiles-targets-and-provider-negotiation).
 
 ### Leases and access modes
 
