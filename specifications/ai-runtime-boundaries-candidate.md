@@ -170,7 +170,7 @@ checks, and return compact verification results. The proposed post-edit
 pipeline is parse → format → LSP diagnostics → lint → build/check → targeted
 tests.
 
-The staged code-intelligence roadmap in is: syntax/project map,
+The staged code-intelligence roadmap is: syntax/project map,
 inspection/search/read/graph, multi-file edits, and compact verification;
 then LSP definitions, references, implementations, diagnostics, rename, and
 code actions; later typed pipelines, persistent indexing, SCIP, and semantic
@@ -196,7 +196,7 @@ agent/task/run identity and consent must not be inferred from panel occupancy.
 Candidate libraries named by the candidate direction include `genai`, `rig-core`,
 `rmcp`, ACP Rust SDKs, `async-lsp`, Tree-sitter, `ast-grep`, `rusqlite`,
 `tracing`, OpenTelemetry, `backon`, `secrecy`, `keyring`, and `tiktoken-rs`.
-additionally names `tokio`, `tokio-util::CancellationToken`,
+The same direction additionally names `tokio`, `tokio-util::CancellationToken`,
 `futures`, `serde` / `serde_json`, `schemars`, `jsonschema`, `reqwest` /
 `rustls`, and `cap-std`. Candidate test libraries are **`insta`** for event
 snapshots, **`wiremock`** for provider contract mocks, and **`proptest`** for

@@ -40,15 +40,16 @@ Core ignorant of providers (which agrees with the network-dependency
 independence direction), the Agent/Panel lifecycle separation carried over
 IPC (which agrees with the projection-only panel direction), the Capability
 API unity (Lua, IPC, and CLI as frontends of one capability model, consistent
-with the mediation direction kept from the plugin-extension-model direction), and IPC-native
-capability permissions (consistent with the unified authorization backend
-direction and the non-inheritance principle kept from the plugin-extension-model direction). Its weakest
-claims are the concrete method and event names (`agent.spawn`,
-`panel.create`, `agent.status.changed`, and similar), which are unreviewed
-interface sketches with no ownership, versioning, or compatibility evidence;
-the three-layer model, which is product positioning without packaging or
-process-boundary evidence; and the "terminal platform" reframing, which is
-motivation, not architecture. Those are corrected below.
+with the mediation rule kept from the plugin-extension-model candidate), and
+IPC-native capability permissions (consistent with the unified authorization
+backend direction and the non-inheritance principle kept from the
+plugin-extension-model candidate). Its weakest claims are the concrete method
+and event names (`agent.spawn`, `panel.create`, `agent.status.changed`, and
+similar), which are unreviewed interface sketches with no ownership,
+versioning, or compatibility evidence; the three-layer model, which is product
+positioning without packaging or process-boundary evidence; and the "terminal
+platform" reframing, which is motivation, not architecture. Those are
+corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
 [AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
@@ -129,8 +130,8 @@ dispositions. The `agent.*` and `panel.*` method sketches are unreviewed
 interface proposals recorded as discussion inputs only: they propose no wire
 method and change nothing in the accepted RFC. The stable claims are the
 daemon direction and Core's provider ignorance, which reinforce the
-minimal-base principle kept from the plugin-extension-model direction (a bare install carries no AI
-machinery until the user opts in).
+minimal-base principle kept from the plugin-extension-model candidate (a bare
+install carries no AI machinery until the user opts in).
 
 ## Panel as a public abstraction
 
@@ -138,8 +139,8 @@ The retained direction is that Panel becomes a public abstraction external
 programs operate through protocol rather than internal structs, with tiled,
 floating, and headless panels behind one Panel Manager. The AI entry is
 positional only: AI appears as one panel kind among others, which is
-consistent with the boundary context kept from the plugin-extension-model direction (AI as hosted
-content under projection-only panels).
+consistent with the boundary context kept from the plugin-extension-model
+candidate (AI as hosted content under projection-only panels).
 
 **Critical judgment:** every operation and message shape in this range is a
 proposal, not a protocol. The stable claim is the abstraction direction
@@ -199,10 +200,11 @@ invocation) states the intent, not a schema.
 accepted contract: it names no owner, no versioning policy, and no
 enforcement mechanism, and it must not be read as the accepted scope or
 method registry, which stays with the RFC. The stable claim is the unity
-objective, which is compatible in direction with the mediation rule kept
-from the plugin-extension-model direction (extensions attach through declared, reviewable seams);
-whether the IPC-extension-boundary capability model and the plugin-extension-model extension-point model are the
-same mechanism is undecided and stays with the owning tasks.
+objective, which is compatible with the mediation rule kept from the
+plugin-extension-model candidate (extensions attach through declared,
+reviewable seams); whether the IPC-extension-boundary capability model and the
+plugin-extension-model extension-point model are the same mechanism is
+undecided and stays with the owning tasks.
 
 ## IPC as a natural permission system
 
@@ -210,20 +212,35 @@ The retained direction is that the IPC boundary carries permissions
 naturally: a plugin authenticates, receives capability-scoped rights, and
 Core admits or denies each operation (including `agent.control`) against
 those rights, with a human-readable permission display for review. The
-candidate direction's judgment that this boundary is easier to hold than exposing a
-whole in-process API is recorded as supporting opinion for capability
-attenuation at the IPC layer.
+candidate direction's judgment that this boundary is easier to hold than
+exposing a whole in-process API is recorded as supporting opinion for
+capability attenuation at the IPC layer.
 
 **Critical judgment:** the manifest fields, token shape, check semantics,
 and display format are unreviewed sketches, not a permission schema. They
 align with, and do not relax, the normative least-privilege and fail-closed
-obligations and the non-inheritance principle kept from the plugin-extension-model direction
-(relationship to a powerful host confers no capability; each sensitive right
-is an explicit grant). The stable claim is the placement direction
-(permissions enforced at the IPC boundary behind a unified authorization
-backend per R2); the vocabulary, grant mechanics, attenuation rules, and
+obligations and the non-inheritance principle kept from the
+plugin-extension-model candidate (relationship to a powerful host confers no
+capability; each sensitive right is an explicit grant). The stable claim is
+the placement direction (permissions enforced at the IPC boundary behind a
+unified authorization backend per R2); the vocabulary, grant mechanics,
+attenuation rules, and
 audit consequences are open and need security review before any enforcement
 claim.
+
+## The Lua-versus-IPC split's direct Agent consequence
+
+The split between the Lua boundary and the IPC boundary carries one direct
+Agent consequence. The retained placement rule for `bitty-ai` is that AI sits
+on the IPC side because it has an independent lifecycle, may crash, carries
+complex dependencies, may use other languages, needs network or database
+access, and is invoked at coarse granularity. This is consistent with the
+daemon direction and the heavyweight plugin shape above; it adds the explicit
+negative (that AI does not belong in-process) to the positive daemon claim.
+
+**Critical judgment:** a placement heuristic, not a decision procedure. New
+AI-adjacent work that is fine-grained, latency-sensitive, or UI-coupled would
+need its own placement review rather than inheriting the IPC side by default.
 
 ## Closing three-layer model and bitty-ai placement
 
