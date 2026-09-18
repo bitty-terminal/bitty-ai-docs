@@ -16,7 +16,8 @@ sidebar_order: 65
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
 It records the candidate direction of Wheel as an Event-Sourced Agent Workspace:
-agents act only in headless panels, an immutable event log records facts,
+agents act through `ExecutionContext` objects rather than panels (Agent !=
+Panel; ExecutionContext != Panel), an immutable event log records facts,
 context compiles from facts into a programmable versioned graph, and agents
 collaborate over a communication graph with Git-like operations.
 
@@ -214,7 +215,7 @@ The retained candidate direction models a Task as an Issue-like durable
 object with status, owner, collaborators, dependencies, context,
 artifacts, progress, and blockers, claimable by any replacement agent so
 that work survives agent turnover. The dashboard direction (ask, inspect,
-pause, cancel, fork, message, handoff, diff, merge, with no subagents
+pause, cancel, fork, message, handoff, diff, merge, with no subagent type
 exposed) is recorded as terminal-owned surface vocabulary, not as an
 accepted view: the operation names propose no command or wire. The
 per-call reason is retained as durable rationale in the shape of a commit
@@ -256,10 +257,17 @@ rules; programmability restates the quality-and-context-compiler compiler-as-vie
 the prefix-cache context stable-first layering; panels-as-workspaces restates the panel-workspace
 Panel-as-host boundary with the R1 projection-only rule; agents-as-actors
 restates the execution-supervisor and Lua-core-safety-boundary placement (mechanism in the runtime, organization
-in Lua) with the RFC as the only accepted vocabulary. The headless-only
-agent clause is recorded with its terminal-owned half as a pointer (see
-below): headed panels stay human-owned and agent touch means forking an
-execution snapshot, never typing into the user's panel.
+in Lua) with the RFC as the only accepted vocabulary. The direction's
+headless-panel framing is **reconciled** to the model kept in
+[Agent Coordination Architecture](../agent/agent-coordination.md): `Agent !=
+Panel`, `ExecutionContext != Panel`, a Panel projects or interacts with an
+`ExecutionContext`, and headed versus headless is a presentation property,
+never authority or persistence. That an Agent defaults to creating a
+headless Panel is **Wheel policy**, not a Core invariant, and no mechanism
+requires an Agent to exist inside a Panel of any kind. The terminal-owned
+half stays a pointer (see below): headed panels stay human-owned and agent
+touch means forking an execution snapshot, never typing into the user's
+panel.
 
 ## Owner-pending pointers
 
@@ -277,6 +285,7 @@ pointers with inline summaries, not links and not decisions.
 | Output pipeline stage placement (blob store, structured parser, result summary)                                     | Compiler and storage owners; stage contracts stay open                           |
 | Hybrid storage layout (SQLite index plus content-addressed object store; JSON and JSONL for interchange)            | Storage and terminal owners; schema, paths, and formats stay open                |
 | Dashboard mechanics (company-console view; ask, inspect, pause, cancel, fork, message, handoff, diff)               | Terminal documentation owner; operation names are vocabulary only                |
+| Headless-only Agent wording in the terminal-side event-sourced panel candidate                                      | Terminal documentation owner; owner approval pending; companion fix owed         |
 
 ## Relation to existing systems
 

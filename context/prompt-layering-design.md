@@ -33,15 +33,18 @@ it and adds only the prompt-layering facet:
 
 - Core-versus-Lua ownership (mechanism versus policy) stays with
   [Command and Tool Architecture](../architecture/command-tool-architecture.md). The `.wheel`
-  manifest sketches and agent-profile sketches in the source are configuration
-  shapes, not ownership assignments; enforcement of the split is tracked as
-  AIQ-31 and promotion review as AIQ-32.
-- The `.wheel/` project-manifest direction (declarative, versionable project
+  configuration sketches and agent-profile sketches in the source are
+  configuration shapes, not ownership assignments; enforcement of the split is
+  tracked as AIQ-31 and promotion review as AIQ-32.
+- The `.wheel/` project-configuration direction (declarative, versionable project
   intent; ordinary-setting precedence built-in to user to project to
   session/CLI within non-overridable security ceilings; a project declaration
   requests authority but never grants it) stays with
-  [AI runtime boundaries (candidate)](../specifications/ai-runtime-boundaries-candidate.md).
-  This proposal consumes that precedence and adds only prompt-text layering.
+  [AI runtime boundaries (candidate)](../specifications/ai-runtime-boundaries-candidate.md),
+  while the `.agents`/`.wheel` directory boundary and the Wheel-native function
+  classes stay with
+  [Wheel configuration and context git model (candidate)](../specifications/wheel-config-and-context-git-model-candidate.md).
+  This proposal consumes that precedence and boundary and adds only prompt-text layering.
 - Stable-prefix layering, deterministic serialization, epochs, and planner
   types stay with [Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md).
   This proposal aligns its assembly order with that layering and adopts no
@@ -61,11 +64,11 @@ The source proposes (lines 113-129) splitting the effective prompt into five
 layers, from most stable to most dynamic:
 
 ```text
-[1] Bitty Core Contract       <- stable, versioned, non-overridable
-[2] User Global Instructions  <- rarely changes
-[3] Project .wheel Manifest   <- stable within a session
-[4] Skills / Agent Profile    <- stable within a session (single-agent v0.1)
-[5] Runtime / Current Turn    <- dynamic per turn
+[1] Bitty Core Contract           <- stable, versioned, non-overridable
+[2] User Global Instructions      <- rarely changes
+[3] Project .wheel Configuration  <- stable within a session
+[4] Skills / Agent Profile        <- stable within a session (single-agent v0.1)
+[5] Runtime / Current Turn        <- dynamic per turn
 ```
 
 **Draft disposition: adopt.** Stable content precedes dynamic content,
@@ -102,23 +105,30 @@ tool preferences, and standing safety rules (source lines 175-203). **Draft disp
 This layer is fully user-editable and travels across projects. It configures
 desired behavior only; it grants no capability (see below).
 
-### Layer 3: Project `.wheel` Manifest
+### Layer 3: Project `.wheel` Configuration
 
 Project-owned intent loaded when an agent enters the project: project
-instructions plus a structured manifest rather than one giant Markdown file
-(source lines 205-307). The source sketches a `.wheel/` tree (`config.lua`,
-`instructions.md`, `agents/`, `skills/`, `tools/`, `mcp/`, `hooks/`,
-`context/`).
+instructions plus structured configuration rather than one giant Markdown file
+(source lines 205-307). The directory boundary is owned by
+[Wheel configuration and context git model (candidate)](../specifications/wheel-config-and-context-git-model-candidate.md):
+`.agents/` carries portable ecosystem capabilities (skills and MCP material),
+while `.wheel/` carries Wheel-native behavior (capability filtering over the
+discovered registry, rules, custom commands, custom tools, and policy).
+`.wheel` references, filters, and constrains what `.agents` exposes instead of
+re-storing skills or MCP material.
 
-Judgment: **draft disposition: adopt the manifest direction; qualify the sketch.** The tree layout,
-file names, and `config.lua` shape are illustrative proposals, not an adopted
-schema. Canonical `.wheel` coverage stays in the AI runtime boundaries candidate;
-precedence follows its built-in to user to project to session/CLI order
-within security ceilings. An untrusted repository manifest must never execute
-or self-authorize: project trust, inspection, explicit approval, and
-host-enforced policy are required before any project declaration takes
-effect. Manifest schema and merge semantics need a reviewed contract (facets
-of AIQ-31 and AIQ-34); this draft proposes no new identifier for them.
+Judgment: **draft disposition: adopt the configuration direction; defer to the canonical split.** The
+`.wheel` tree, file names, and entry-file shape from the source are
+illustrative, not an adopted schema; this layer consumes the `.agents`/`.wheel`
+boundary, the single-entry contract, and the Wheel-native function classes from
+the canonical config document rather than sketching a competing filesystem
+tree here. Precedence follows the built-in to user to project to session/CLI
+order in the AI runtime boundaries candidate, within security ceilings. An
+untrusted repository manifest must never execute or self-authorize: project
+trust, inspection, explicit approval, and host-enforced policy are required
+before any project declaration takes effect. Manifest schema and merge
+semantics need a reviewed contract (facets of AIQ-31 and AIQ-34); this draft
+proposes no new identifier for them.
 
 ### Layer 4: Skills and Agent Profile
 
@@ -368,7 +378,7 @@ Consistent with [v0.1 Implementation Profile](../product/implementation-profile-
   prompt-never-grants-capability enforcement rule, stable-before-dynamic
   assembly discipline, and single-agent profiles.
 - Beyond-v0.1 proposals (not commitments): multi-agent profile sets and
-  delegation, `.wheel` manifest schema and merge semantics, introspection
+  delegation, `.wheel` configuration schema and merge semantics, introspection
   API surface, pinned core-version identifiers, registry snapshots, planner
   and epoch types, and any observability UI. Each needs its own reviewed
   contract and evidence before any implementation claim.
@@ -474,4 +484,7 @@ questions stay with AIQ-29.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): AIQ-09,
   AIQ-12, AIQ-13, AIQ-29, AIQ-31, AIQ-33, AIQ-34 reused; no new identifier proposed.
 - [AI runtime boundaries (candidate)](../specifications/ai-runtime-boundaries-candidate.md)
-  (Draft): canonical `.wheel` and precedence coverage consumed here.
+  (Draft): `.wheel` project-configuration direction and precedence coverage consumed here.
+- [Wheel configuration and context git model (candidate)](../specifications/wheel-config-and-context-git-model-candidate.md)
+  (Draft): canonical `.agents`/`.wheel` directory boundary and Wheel-native
+  function classes consumed by Layer 3.

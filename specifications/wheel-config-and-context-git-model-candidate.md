@@ -276,12 +276,12 @@ snapshot discipline is an explicit design input for compression.
 
 ### Branches for hypotheses, merges for synthesis
 
-The retained model treats subagent exploration as cheap branches (shared
+The retained model treats child-agent exploration as cheap branches (shared
 parent, no transcript copying, per-branch deltas) and multi-agent synthesis
 as merge with first-class conflicts: contradictory hypotheses surface as
 structured pending conflicts rather than being quietly summarized into a
 vague consensus. Cherry-picking carries a single finding plus evidence into
-another context, which is the mechanism behind subagent isolation: parents
+another context, which is the mechanism behind child-agent isolation: parents
 absorb conclusions, never transcripts.
 
 **Critical judgment:** no branch, merge, or conflict schema is adopted. The

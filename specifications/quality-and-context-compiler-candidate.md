@@ -118,7 +118,7 @@ The retained diagnosis is that low signal-to-noise ratio, not raw length, is
 the first-order context problem: stale logs, full build outputs, resolved
 stacks, unrelated file dumps, abandoned diffs and hypotheses, full MCP tool
 schemas, overlapping skill descriptions, duplicated instructions, and whole
-subagent transcripts are all formerly-useful content billed against every
+child-agent transcripts are all formerly-useful content billed against every
 future inference. The objective is therefore Context Efficiency
 (task-relevant information over total active tokens): a smaller high-signal
 context routinely beats a larger diluted one on cost, latency, and
@@ -314,7 +314,7 @@ shell text parsing; Agent, Panel, Process, Workspace, Task, and Session are
 independent entities joined by association, so agents attach, spawn
 headless, release, and reattach while panels outlive any single agent; and
 spawning is a scheduled, budgeted primitive weighed against coordination
-cost rather than a model impulse, with subagents returning structured
+cost rather than a model impulse, with child agents returning structured
 conclusions plus evidence and confidence while transcripts stay in storage.
 Providers are kept out of the agent architecture behind a capability profile
 (window, reasoning levels, tool calling, structured output, vision, caching,
