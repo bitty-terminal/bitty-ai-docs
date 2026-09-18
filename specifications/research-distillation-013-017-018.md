@@ -78,11 +78,11 @@ future discussion items.
 ## Evidence and disagreements
 
 Security requirements retain the authority of the
-[normative sources](ai-architecture.md#normative-sources-this-specification-must-not-weaken).
+[normative sources](../architecture/ai-architecture.md#normative-sources-this-specification-must-not-weaken).
 The proposed runtime design cannot relax read-only defaults, consent, project
 trust, resource budgets, secret minimization, or host-side enforcement.
 013's fixed context-byte limit is not a new global limit: the current
-[context contract](ai-architecture.md#purpose-and-scope) is token-first, with
+[context contract](../architecture/ai-architecture.md#purpose-and-scope) is token-first, with
 the byte default a candidate profile. Neither 018's proposed v0.1 schedule nor
 the terminal-facing architecture's historical post-1.0 scope decides the
 standalone AI release profile. Persistence/replay requirements remain unresolved;
@@ -124,7 +124,7 @@ At `bitty-ai` HEAD `3623c6b3ce33e97c1c493109ec6356219d0c9722`,
 conditional bounded context collection, tool dispatch, and fragment emission.
 This is real experimental code, not an empty scaffold. It does not prove the
 proposed context-before-provider, tool-result/model-continuation, SQLite/replay
-runtime. The [pressure-test specification](ai-vertical-slice-pressure-test.md)
+runtime. The [pressure-test specification](../product/ai-vertical-slice-pressure-test.md)
 records its deterministic local provider and loopback host limitations; its
 historical test results were not rerun for this documentation task.
 

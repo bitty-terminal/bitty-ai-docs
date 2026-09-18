@@ -23,7 +23,7 @@ builds a small stable-prefix prompt while treating cache hit rate as one
 optimization rather than the goal).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the three-layer split, the `ContextCommit` shape, the Reasoning
@@ -60,19 +60,19 @@ schema; and the 2026 prompt-caching figures, which are reported vendor
 semantics that this task did not verify. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Context Management Architecture](context-management.md),
-[Command and Tool Architecture](command-tool-architecture.md),
-[Agent Coordination Architecture](agent-coordination.md),
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
-[Prompt Layering Design](prompt-layering-design.md),
-[Execution ownership R1](execution-ownership-r1.md),
-[Context retention R3](context-retention-r3.md),
-[Task lifecycle R5](task-lifecycle-r5.md),
-[Tool transport R2](tool-transport-r2.md),
-[Persistence profile R6](persistence-profile-r6.md),
-[Provider plugin boundary](provider-plugin-boundary.md), and
-[Panel environment awareness](panel-environment-awareness.md). The accepted
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Context Management Architecture](../context/context-management.md),
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+[Prompt Layering Design](../context/prompt-layering-design.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Context retention R3](../architecture/context-retention-r3.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Persistence profile R6](../architecture/persistence-profile-r6.md),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). The accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. The
 companion
 [Event-Sourced Agent Workspace distillation (055)](research-distillation-055-bitty-ai.md)
@@ -115,7 +115,7 @@ design-discussion record, not as implementation evidence.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the three-layer split, the `ContextCommit` shape, the
 Reasoning Record and rationale fields, the `Action`/`Intent`/`Outcome`
 protocol, the Episode shape, the Context Index, Context Graph, and Context
@@ -124,21 +124,21 @@ the Git-operation mapping, and the philosophy sentence proposed in the source
 are **not** accepted by this distillation and must not be read as product,
 crate, package, protocol, file-schema, command, or release decisions.
 Context assembly, ordering, budget, retention, and compaction questions stay
-with [Context Management Architecture](context-management.md),
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
-[Prompt Layering Design](prompt-layering-design.md),
-[Context retention R3](context-retention-r3.md), and the 048-049 companion;
+with [Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+[Prompt Layering Design](../context/prompt-layering-design.md),
+[Context retention R3](../architecture/context-retention-r3.md), and the 048-049 companion;
 execution and panel-lifetime questions stay with
-[Execution ownership R1](execution-ownership-r1.md),
-[Panel environment awareness](panel-environment-awareness.md), and the 055
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Panel environment awareness](../interfaces/panel-environment-awareness.md), and the 055
 companion; tool shape, intent fields, and transport placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md); coordination, supervision, and
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); coordination, supervision, and
 task questions stay with
-[Agent Coordination Architecture](agent-coordination.md) and
-[Task lifecycle R5](task-lifecycle-r5.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md); storage and export
-questions stay with the 050-051 companion, [Persistence profile R6](persistence-profile-r6.md),
+[Agent Coordination Architecture](../agent/agent-coordination.md) and
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); storage and export
+questions stay with the 050-051 companion, [Persistence profile R6](../architecture/persistence-profile-r6.md),
 and the storage dispositions; each is referenced, never duplicated or
 modified.
 
@@ -161,7 +161,7 @@ not become a trusted channel or a secret-bearing object. The semantic-merge
 sketch is conceptual vocabulary, not an adopted authorization or
 distribution contract. This draft creates or closes no AIQ or OQ identifier;
 open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Stored history versus compiled context
@@ -190,9 +190,9 @@ mapping are unreviewed vocabulary proposing no type, schema, registry, or
 module. The reconciliation with prior art is explicit: the history-versus-view
 inequality restates the 051 companion's history-versus-active-view sentence,
 the 055 drafting's "Context is not History" inequality, the
-[Context Management Architecture](context-management.md)
+[Context Management Architecture](../context/context-management.md)
 `/compact`-changes-the-boundary rule, and the draft prefix-cache
-[stable-before-dynamic ordering](prefix-cache-context-design.md); the
+[stable-before-dynamic ordering](../context/prefix-cache-context-design.md); the
 `ContextCommit`-instead-of-`messages[]` direction agrees with the 051
 checkpoint-as-commit concept and the 050-051 content-addressed context DAG;
 the three-layer split agrees with the 049 `Context Compiler` framing
@@ -313,8 +313,8 @@ semantic-merge rule agrees with the 051 merge paragraph and the 055
 companion's typed merge kinds, and the source's own non-concatenation rule is
 recorded as the load-bearing part; the Episode direction agrees with the 044
 partition classes and the session-journal direction in
-[Context Management Architecture](context-management.md); the ProviderState
-split agrees with the [Provider plugin boundary](provider-plugin-boundary.md),
+[Context Management Architecture](../context/context-management.md); the ProviderState
+split agrees with the [Provider plugin boundary](../providers/provider-plugin-boundary.md),
 the 049 provider-cache capability seam, and the 025 provider qualifications.
 An opaque provider blob is untrusted state under the security baseline; this
 draft proposes no merge algorithm, conflict schema, episode schema, staging
@@ -342,8 +342,8 @@ with the 048-049 expose-intent rule and its tools-versus-APIs
 intent-hiding critique, and it tightens the 044 tool-run record and the 055
 companion's reason-as-commit-message direction without adopting any field;
 tool shape, placement, and transport stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md), and any protocol becoming the
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md), and any protocol becoming the
 accepted Tool API is an owner decision recorded as open. This draft adopts no
 action, intent, outcome, or reason field and proposes no command surface.
 
@@ -386,10 +386,10 @@ the correctness-before-cache ordering agrees with the 048-049
 correctness-first guardrail and the 025 invariant set, and the
 maximize-cache-last rule agrees with the 048-049 prioritized optimization
 order; the stable-prefix, structured-state, dynamic-tail shape restates the
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md)
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md)
 stable-before-dynamic layering and the 049 stability zones and
 inverse-volatility placement, and it is consistent with
-[Prompt Layering Design](prompt-layering-design.md); the prefix-exactness and
+[Prompt Layering Design](../context/prompt-layering-design.md); the prefix-exactness and
 provider-cost caveats agree with the 025 provider qualifications and the 049
 provider-cache capability seam. Whether context-efficiency metrics are
 defined and surfaced stays open with the context and observability owners,

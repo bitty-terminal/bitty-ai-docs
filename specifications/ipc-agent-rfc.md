@@ -632,7 +632,7 @@ exists, for the case where a terminal program is reading a secret without echo.
   1. _Secret input_ (no-echo): no automated input of any kind; human typing
      only.
   2. _Destructive or privileged confirmation_ (echo on, command classified at
-     high risk by the [AI Architecture](ai-architecture.md#command-risk-classification-and-syntax-level-audit-candidate)
+     high risk by the [AI Architecture](../architecture/ai-architecture.md#command-risk-classification-and-syntax-level-audit-candidate)
      candidate command audit, [OQ-087](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)): no
      automatic reply; an explicit human decision is required.
   3. _Safe interactive prompt_ (echo on, no risk classification): an agent may
@@ -653,7 +653,7 @@ exists, for the case where a terminal program is reading a secret without echo.
   data access and does not weaken the accepted recording rules.
 - **SI-5 Ownership seam.** Core owns PTY observation, the input lockout, and
   the human path; the AI stack owns the command audit and redaction
-  ([AI Architecture](ai-architecture.md)); Lua policy decides which
+  ([AI Architecture](../architecture/ai-architecture.md)); Lua policy decides which
   interactions may be automated within that envelope. No layer can upgrade an
   observation into authority, matching the observation-labeling rule in the
   AI Architecture (hook authority and observation labeling).

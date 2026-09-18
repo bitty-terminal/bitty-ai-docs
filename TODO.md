@@ -18,12 +18,11 @@ accumulating here.
 
 ## Blocked / open
 
-- Further AI-core topic trees (architecture, context, providers, reference)
-  land as reviewed content is produced; empty placeholder pages are avoided.
-  Per-tree owning open questions, prerequisite specifications, and landing
-  order are recorded in the [Planned
-  trees](docs/README.md#planned-trees) table of the documentation map.
+- The `reference/` AI-core topic tree lands only when reviewed implementation
+  evidence exists; empty placeholder pages are avoided. Its owning open
+  questions, prerequisite evidence, and landing order are recorded in the
+  [Planned trees](docs/README.md#planned-trees) table of the documentation map.
 - Vertical-slice pressure-test gaps G-1 through G-6
-  ([AI Vertical Slice Pressure Test](specifications/ai-vertical-slice-pressure-test.md))
+  ([AI Vertical Slice Pressure Test](product/ai-vertical-slice-pressure-test.md))
   are proposals owned by `bitty`, `bitty-terminal-docs`, and `bitty-docs`; they
   are tracked there and not resolved in this repository.

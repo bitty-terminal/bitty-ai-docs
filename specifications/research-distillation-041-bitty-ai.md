@@ -29,7 +29,7 @@ exclusion accuracy and stay `bitty`-side, except for the direct Agent
 consequence of the split recorded below.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `agent.*` method and event names, the Capability API, the
@@ -56,11 +56,11 @@ process-boundary evidence; and the "terminal platform" reframing, which is
 motivation, not architecture. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Provider plugin boundary](provider-plugin-boundary.md),
-[Panel environment awareness](panel-environment-awareness.md),
-[Execution ownership R1](execution-ownership-r1.md), and
-[Tool transport R2](tool-transport-r2.md). The accepted
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md),
+[Panel environment awareness](../interfaces/panel-environment-awareness.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md), and
+[Tool transport R2](../architecture/tool-transport-r2.md). The accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
@@ -90,16 +90,16 @@ the truth of its claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the three-layer model and the Capability Layer
 proposed in the source are **not** accepted by this distillation and must
 not be read as crate, package, protocol, or release decisions. Provider
 contract and transport questions stay with the draft
-[Provider plugin boundary](provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
-and [Panel environment awareness](panel-environment-awareness.md); tool
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
 authorization and transport placement stay with
-[Tool transport R2](tool-transport-r2.md). Each is referenced, never
+[Tool transport R2](../architecture/tool-transport-r2.md). Each is referenced, never
 duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
@@ -118,7 +118,7 @@ below. The source's method names, event names, manifest fields, permission
 display, and capability list are conceptual vocabulary, not additions to any
 accepted registry, schema, or protocol. This draft creates or closes no AIQ
 or OQ identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## IPC as the second extension boundary

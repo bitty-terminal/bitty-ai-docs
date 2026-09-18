@@ -113,7 +113,7 @@ nodes:
     level: L1
     status: draft
     description: Sole lifecycle authority for product task transitions; CarryCtx is backend-or-handoff only
-    trace: specifications/task-lifecycle-r5.md#decision
+    trace: architecture/task-lifecycle-r5.md#decision
 
   # --- L1 mailbox and context share ---
   - id: mailbox
@@ -123,7 +123,7 @@ nodes:
     level: L1
     status: draft
     description: Actor-model per-agent inbox; three outcomes stay distinct (accepted, delivered, processed)
-    trace: specifications/agent-coordination.md#messages-ipc-and-recovery
+    trace: agent/agent-coordination.md#messages-ipc-and-recovery
   - id: context-bundle
     label: Context Bundle
     kind: data
@@ -157,7 +157,7 @@ nodes:
     level: L1
     status: draft
     description: Authorized redacted retained fact records; session is fact
-    trace: specifications/context-management.md#core-invariant-session-versus-context
+    trace: context/context-management.md#core-invariant-session-versus-context
   - id: context-compiler
     label: Context Compiler
     kind: module
@@ -197,7 +197,7 @@ nodes:
     level: L2
     status: draft
     description: Stable-before-dynamic assembly order for prefix-cache reuse
-    trace: specifications/prefix-cache-context-design.md#stable-prefix-layering
+    trace: context/prefix-cache-context-design.md#stable-prefix-layering
   - id: context-gc
     label: Context GC
     kind: module
@@ -213,7 +213,7 @@ nodes:
     level: L2
     status: draft
     description: Boundary-changing compact that records metadata without deleting retained history
-    trace: specifications/prefix-cache-context-design.md#the-eight-design-invariants
+    trace: context/prefix-cache-context-design.md#the-eight-design-invariants
 
   # --- Implemented anchors (bitty-ai evidence at pinned revision) ---
   - id: runtime-agent

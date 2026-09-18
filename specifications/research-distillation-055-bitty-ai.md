@@ -22,7 +22,7 @@ from facts into a programmable versioned graph, and agents collaborate over
 a communication graph with Git-like operations).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the six-object vocabulary, the event names, the mailbox and
@@ -51,16 +51,16 @@ primitive spellings, which name no accepted command surface. Those are
 corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Agent Coordination Architecture](agent-coordination.md),
-[Context Management Architecture](context-management.md),
-[Command and Tool Architecture](command-tool-architecture.md),
-[Execution ownership R1](execution-ownership-r1.md),
-[Context retention R3](context-retention-r3.md),
-[Task lifecycle R5](task-lifecycle-r5.md),
-[Tool transport R2](tool-transport-r2.md),
-[Provider plugin boundary](provider-plugin-boundary.md), and
-[Panel environment awareness](panel-environment-awareness.md). The
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Context Management Architecture](../context/context-management.md),
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Context retention R3](../architecture/context-retention-r3.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). The
 accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Wheel decoupling distillation (052)](research-distillation-052-bitty-ai.md)
@@ -104,25 +104,25 @@ nothing beyond it.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the six-object vocabulary, the event names, the
 mailbox and bundle shapes, the manifest shape, the Git-operation mapping,
 the storage split, and the primitive spellings proposed in the source are
 **not** accepted by this distillation and must not be read as product,
 crate, package, protocol, file-schema, command, or release decisions.
 Context assembly, budget, retention, and compaction questions stay with
-[Context Management Architecture](context-management.md),
-[Context retention R3](context-retention-r3.md), and the 048-049
+[Context Management Architecture](../context/context-management.md),
+[Context retention R3](../architecture/context-retention-r3.md), and the 048-049
 companion; execution and panel-lifetime questions stay with
-[Execution ownership R1](execution-ownership-r1.md),
-[Panel environment awareness](panel-environment-awareness.md), and the
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Panel environment awareness](../interfaces/panel-environment-awareness.md), and the
 044 companion; tool shape and transport placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md); coordination,
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); coordination,
 supervision, and task questions stay with
-[Agent Coordination Architecture](agent-coordination.md) and
-[Task lifecycle R5](task-lifecycle-r5.md); storage and export questions
+[Agent Coordination Architecture](../agent/agent-coordination.md) and
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md); storage and export questions
 stay with the 050-051 companion and the storage dispositions; each is
 referenced, never duplicated or modified.
 
@@ -142,7 +142,7 @@ discussion example below. The collaboration and merge sketches are
 conceptual vocabulary, not an adopted authorization or distribution
 contract. This draft creates or closes no AIQ or OQ identifier; open
 questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Six-object split and founding inequalities

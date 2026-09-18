@@ -27,12 +27,12 @@ agent/panel lifecycles. Its weakest claims are unconditional deduplication,
 automatic control of headless panels, globally shared authority, and persistence
 without a retention or recovery contract. Those are corrected below.
 
-This elaborates the draft [AI architecture](ai-architecture.md), especially code
+This elaborates the draft [AI architecture](../architecture/ai-architecture.md), especially code
 services, execution identity, context recovery, message delivery, and leased
 workstations. The [IPC and Agent RFC](ipc-agent-rfc.md) remains the accepted
 transport and consent contract. The
-[pressure test](ai-vertical-slice-pressure-test.md) is experimental evidence, and
-the [browser/agent pre-study](browser-agent-pre-study.md) remains a draft.
+[pressure test](../product/ai-vertical-slice-pressure-test.md) is experimental evidence, and
+the [browser/agent pre-study](../interfaces/browser-agent-pre-study.md) remains a draft.
 
 ## Provenance and evidence boundary
 
@@ -102,7 +102,7 @@ correction.
 ## Authority and reconciliation
 
 The architecture's
-[normative source map](ai-architecture.md#normative-sources-this-specification-must-not-weaken)
+[normative source map](../architecture/ai-architecture.md#normative-sources-this-specification-must-not-weaken)
 routes to the canonical security overview, threat model, risk register, and
 P0 acceptance criteria. Their requirements override every discussion example:
 
@@ -468,7 +468,7 @@ not a replacement Panel Runtime state machine.
 No-UI agent execution is distinct from a terminal daemon surviving GUI exit,
 detach/reattach across restarts, or remote UI. Those broader features remain
 subject to the accepted ADR 0008 deferral and trust-boundary gate linked by the
-[existing architecture](ai-architecture.md#execution-profiles-targets-and-provider-negotiation).
+[existing architecture](../architecture/ai-architecture.md#execution-profiles-targets-and-provider-negotiation).
 
 ### Leases and access modes
 

@@ -28,7 +28,7 @@ multi-agent DAG, Git vocabulary, context diff, typed merge, the storage
 diagram, and the closing philosophy).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `.wheel` Lua API sketches, the directory layouts, the
@@ -57,17 +57,17 @@ and the storage paths and hash choices, which are illustrations, not adopted
 layout or cryptography. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Context Management Architecture](context-management.md),
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
-[Command and Tool Architecture](command-tool-architecture.md),
-[Agent Coordination Architecture](agent-coordination.md),
-[Execution ownership R1](execution-ownership-r1.md),
-[Context retention R3](context-retention-r3.md),
-[Task lifecycle R5](task-lifecycle-r5.md),
-[Tool transport R2](tool-transport-r2.md),
-[Provider plugin boundary](provider-plugin-boundary.md), and
-[Panel environment awareness](panel-environment-awareness.md). The
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Context retention R3](../architecture/context-retention-r3.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). The
 accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Quality-formula and Context-Compiler distillation (048-049)](research-distillation-048-049-bitty-ai.md)
@@ -107,24 +107,24 @@ fingerprints identify the discussions, not the truth of their claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the `.wheel` class list, the Lua contract, the trust
 flow, the object model, the ref namespace, and the storage diagram proposed
 in the sources are **not** accepted by this distillation and must not be read
 as crate, package, protocol, file-schema, or release decisions. Context
 assembly, budget, and retention questions stay with
-[Context Management Architecture](context-management.md),
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
-and [Context retention R3](context-retention-r3.md); tool shape and
+[Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+and [Context retention R3](../architecture/context-retention-r3.md); tool shape and
 transport placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
-and [Panel environment awareness](panel-environment-awareness.md);
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
 coordination and persistence questions stay with
-[Agent Coordination Architecture](agent-coordination.md),
-[Task lifecycle R5](task-lifecycle-r5.md), and the persistence
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md), and the persistence
 dispositions. Each is referenced, never duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
@@ -142,7 +142,7 @@ consented recording, secret minimization) override every discussion example
 below. The Lua trust and sandbox sketches are conceptual vocabulary, not an
 adopted authorization contract. This draft creates or closes no AIQ or OQ
 identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Owner rename decision (recorded verbatim)

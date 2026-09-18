@@ -24,7 +24,7 @@ composition across a service bus and Bitty IPC with a dependency graph, the
 `bitty-ai` as a possible meta package).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the boundary-table cell contents, the Lua API sketches, the
@@ -55,16 +55,16 @@ or conflict semantics; and the install and flavor spellings, which propose no
 command surface or release vehicle. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Context Management Architecture](context-management.md),
-[Command and Tool Architecture](command-tool-architecture.md),
-[Agent Coordination Architecture](agent-coordination.md),
-[Execution ownership R1](execution-ownership-r1.md),
-[Context retention R3](context-retention-r3.md),
-[Task lifecycle R5](task-lifecycle-r5.md),
-[Tool transport R2](tool-transport-r2.md),
-[Provider plugin boundary](provider-plugin-boundary.md), and
-[Panel environment awareness](panel-environment-awareness.md). The
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Context Management Architecture](../context/context-management.md),
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Context retention R3](../architecture/context-retention-r3.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). The
 accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Quality-formula and Context-Compiler distillation (048-049)](research-distillation-048-049-bitty-ai.md)
@@ -102,24 +102,24 @@ its claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the boundary-table placement, the Lua call shapes,
 the plugin names, the `.wheel/` file sketch, the dependency declarations,
 the install spellings, and the distribution tree proposed in the source are
 **not** accepted by this distillation and must not be read as crate,
 package, protocol, file-schema, or release decisions. Context assembly,
 budget, and retention questions stay with
-[Context Management Architecture](context-management.md) and
-[Context retention R3](context-retention-r3.md); tool shape and transport
+[Context Management Architecture](../context/context-management.md) and
+[Context retention R3](../architecture/context-retention-r3.md); tool shape and transport
 placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
-and [Panel environment awareness](panel-environment-awareness.md);
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
 coordination and persistence questions stay with
-[Agent Coordination Architecture](agent-coordination.md) and
-[Task lifecycle R5](task-lifecycle-r5.md). Configuration-class, trust,
+[Agent Coordination Architecture](../agent/agent-coordination.md) and
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md). Configuration-class, trust,
 and storage questions stay with the companion
 [Wheel-config and Git-model distillation](research-distillation-050-051-bitty-ai.md);
 each is referenced, never duplicated or modified.
@@ -139,7 +139,7 @@ consented recording, secret minimization) override every discussion example
 below. The plugin-composition sketches are conceptual vocabulary, not an
 adopted authorization or distribution contract. This draft creates or closes
 no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Core-Plugin boundary and the mechanism rule
@@ -251,7 +251,7 @@ upgrade a plugin, never the kernel.
 unreviewed vocabulary proposing no API or package; the provider and product
 names are ecosystem illustrations the task did not verify, implying no
 integration claim. Provider-side placement questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md). The stable
+[Provider plugin boundary](../providers/provider-plugin-boundary.md). The stable
 claims are the single-interface ignorance rule and the churn-containment
 direction.
 
