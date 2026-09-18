@@ -19,7 +19,7 @@ and proposals below are not current capability evidence.
 
 ## Stable boundary candidates
 
-The records consistently propose an independent `bitty-ai` runtime: Bitty
+The candidate direction consistently proposes an independent `bitty-ai` runtime: Bitty
 Terminal supplies terminal, panel, process, rendering, and transport mechanisms;
 the AI runtime supplies model/context policy, agent state, tools, permissions,
 and semantic events. This document must not be read as a product capability
@@ -49,7 +49,7 @@ questions, not settled facts.
 
 ## Providers, tools, and security
 
-The records propose using mature provider/MCP/ACP libraries behind Bitty-owned
+The candidate direction proposes using mature provider/MCP/ACP libraries behind Bitty-owned
 traits, while preserving replaceability. These library choices are unaccepted
 until license, version, API, and security review. MCP tools must pass the same
 capability and permission pipeline as native or remote tools. Permission must
@@ -65,7 +65,7 @@ idempotency and must never blanket-wrap destructive tools.
 
 ## Persistence and release scope
 
-The records propose SQLite plus FTS5 and an append-only event model before
+The candidate direction proposes SQLite plus FTS5 and an append-only event model before
 embeddings/vector memory. A first vertical slice is proposed from input through
 context, streaming model, permissioned tool call, result, final answer, event
 persistence, and replay. Multi-agent coordination, RAG, browser/voice/image
@@ -78,7 +78,7 @@ Security requirements retain the authority of the
 [normative sources](../architecture/ai-architecture.md#normative-sources-this-specification-must-not-weaken).
 The proposed runtime design cannot relax read-only defaults, consent, project
 trust, resource budgets, secret minimization, or host-side enforcement.
-The first candidate direction's fixed context-byte limit is not a new global
+The candidate direction's fixed context-byte limit is not a new global
 limit: the current [context contract](../architecture/ai-architecture.md#purpose-and-scope)
 is token-first, with the byte default a candidate profile. Neither the proposed
 v0.1 schedule nor the terminal-facing architecture's historical post-1.0 scope
@@ -119,7 +119,7 @@ repetition.
    required for v0.1?
 6. Which findings block the next milestone rather than remaining candidate notes?
 
-## Additional coverage from the full records
+## Additional candidate coverage
 
 The candidate direction proposes a **Rust kernel / Lua userspace** boundary: Rust owns
 correctness, storage, process and network mechanisms, enforcement, IPC,
@@ -187,13 +187,13 @@ or requiring the CLI subprocess, but API/license suitability remains open.
 Typed local pipelines are proposed instead of arbitrary-code execution as an
 initial batching mechanism, with permissions and budgets on every node.
 
-The first candidate direction's native/embodied workspace vision remains speculative: semantic IDs and
+The candidate direction's native/embodied workspace vision remains speculative: semantic IDs and
 command-completion events could connect bounded observations, reveal/focus
 suggestions, panel leases, preserved work, and human handoffs. Rendering,
 PTY ownership, and physical session restore remain terminal mechanisms;
 agent/task/run identity and consent must not be inferred from panel occupancy.
 
-Candidate libraries mentioned by the records include `genai`, `rig-core`,
+Candidate libraries named by the candidate direction include `genai`, `rig-core`,
 `rmcp`, ACP Rust SDKs, `async-lsp`, Tree-sitter, `ast-grep`, `rusqlite`,
 `tracing`, OpenTelemetry, `backon`, `secrecy`, `keyring`, and `tiktoken-rs`.
 additionally names `tokio`, `tokio-util::CancellationToken`,

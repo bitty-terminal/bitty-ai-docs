@@ -342,7 +342,7 @@ illustrative mechanism needs, never ambient access.
   lock baked into the artifact. No manifest field, lockfile shape, or
   command spelling is adopted here.
 
-Everything else in the record (manager ownership, manifest and permission
+Everything else in the candidate direction (manager ownership, manifest and permission
 model, resolver and loader boundaries, the Lua subset definition, the
 build-time Lux flow, registry and index scope) routes to the core, plugin,
 SDK, and packaging owners as owner-pending pointers below.
