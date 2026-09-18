@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/046/048/049/050/051/052/053/054
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/046/048/049/050/051/052/053/054/055
 category: specifications
 audience: mixed
 document_type: register
@@ -14,7 +14,7 @@ sidebar_order: 21
 This ledger maps specific source topics to the
 [distillation](research-distillation-013-017-018.md), to the
 [prefix-cache context design](../prefix-cache-context-design.md) for record
-025, and to the 039/040/041/044/045/046/048/049/050/051/052/053/054 companion distillations, rather than claiming
+025, and to the 039/040/041/044/045/046/048/049/050/051/052/053/054/055 companion distillations, rather than claiming
 that an entire recording or specification is covered. Line ranges are
 inclusive, verified against the local recordings identified below. Repeated
 examples are condensed, not adopted as API definitions.
@@ -303,16 +303,16 @@ are excluded from every range).
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions.
 
-## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052 (partial), plus summaries 046, 053, and 054 (AI slice)
+## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052 (partial), plus summaries 046, 053, 054, and 055 (AI slice)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
 or evidence that the records' factual claims are true. All ten origin files are
 untracked in the research repository, so provenance is path plus SHA-256, and
 none of the files was renamed, edited, or staged by the distilling tasks: the
-`bitty`-side pass still needs all ten. The three summaries below are the
-CTX-0074 AI-slice sources (read-only; origins unread and untouched by that
-task); the `bitty`-side, plugin-side, Wheel-side, and packaging-side passes
-still need their halves.
+`bitty`-side pass still needs all ten. The four summaries below are the
+CTX-0074 and CTX-0076 AI-slice sources (read-only; origins unread and untouched by those
+tasks); the `bitty`-side, plugin-side, Wheel-side, terminal-side, packaging-side, and
+storage-side passes still need their halves.
 
 | Source                    | Lines | Bytes   | SHA-256                                                            |
 | ------------------------- | ----- | ------- | ------------------------------------------------------------------ |
@@ -329,6 +329,17 @@ still need their halves.
 | `research/summary/046.md` | 16    | 4,694   | `381397ac14fdba77cd030436c7202f192430a7678eacfe6666f404d0c28f8954` |
 | `research/summary/053.md` | 24    | 6,796   | `82dfe75628d7c960bfad7d94ad07c8fdcceb06970049c9f8b1fc5ceb42dfece5` |
 | `research/summary/054.md` | 23    | 4,191   | `8b5d8b218e5bb3f8b4f32048e5bca99fcd96262a276a5ad4e189b58b2584088d` |
+| `research/summary/055.md` | 28    | 7,251   | `a23dfd8fa93adbb530a4cf4ba881eaa0f9135eb5d00143254d84e6cdd81a09f8` |
+
+Record 055 scope note: the fingerprint above covers the summary distilled by
+CTX-0076 (AI slice only; panel, event-log, tool-runtime, pipeline, storage,
+and dashboard halves as owner-pending pointers in the companion). The origin
+`055.md` was unread and untouched by this task; it stays unrenamed until its
+owners' captures land, and split-owner capture stays Partial until all owned
+conclusions are accounted for. The summary landed on the research `main`
+branch as `e7a18d3`, which satisfies the CTX-0076 dependency on the landing
+task; CTX-0032 is completed and this record confirms the landed revision
+instead.
 
 Record 046/053/054 scope note: the fingerprints above cover the summaries
 distilled by CTX-0074 (AI slice only; plugin and governance halves as
@@ -423,7 +434,7 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040/041/044/045/046/048/049/050/051/052/053/054 partial distillations
+## Disposition: 039/040/041/044/045/046/048/049/050/051/052/053/054/055 partial distillations
 
 The companion drafts are
 [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
@@ -436,9 +447,11 @@ The companion drafts are
 and
 [Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md),
 and
-[Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](research-distillation-052-bitty-ai.md).
+[Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](research-distillation-052-bitty-ai.md),
+and
+[Event-Sourced Agent Workspace research distillation for bitty-ai (055)](research-distillation-055-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All nine are draft discussion syntheses: the layered models they
+exclusions. All ten are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
 two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
 Execution Supervisor with the mechanism-versus-semantics split, four-layer
@@ -452,7 +465,11 @@ Git-inspired content-addressed context DAG with checkpoint, branch, merge,
 and GC discipline, Wheel decoupling with the mechanism-versus-policy rule,
 two-layer Lua composition, distribution-as-composition, and the 053
 owner-pending provider, tool-schema, and streaming illustrations with the
-054 host-services and trust-boundary notes) are candidate inputs
+054 host-services and trust-boundary notes, and the 055 six-object split with
+founding inequalities, agent-graph versus task-graph split, mailbox IPC with
+first-class context share, typed merges with diff inventory, Context GC
+versus compaction, Task-as-Issue with reason-as-commit-message, and the
+four-clause core principle) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
@@ -776,7 +793,39 @@ file (`052.md:1-561`) was distilled; no head-versus-tail split applies.
 | 052:514-540  | Minimal versus recommended installs; flavor list                          | 052 meta-package section; retain composition direction; spellings propose no surface.    |
 | 052:544-560  | Closing thesis; Runtime-Kernel-Distribution formula                       | 052 meta-package section; retain thesis as author opinion; formula is a slogan.          |
 
-## Explicit exclusions: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052
+## Topic-level traceability: record 055 (AI slice)
+
+Section names below refer to the companion 055 distillation unless a linked
+existing document is named. All object names, event names, mailbox and
+bundle fields, manifest fields, operation spellings, and primitive
+spellings are discussion inputs; the accepted Agent and IPC vocabulary
+stays with the IPC and Agent RFC, which the 055 draft references without
+restating. The whole verified summary (`055.md:1-28`) was distilled; no
+head-versus-tail split applies. The origin (`research/origin/055.md`) was
+not read by this task.
+
+| Source lines | Topic                                                                                                | Disposition / destination                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 055:1-5      | Status, date, one-liner; Open capture state with owner-pending routing                               | 055 provenance section; retain routing; no capture claim beyond the AI slice.                                |
+| 055:6-8      | Owner context-management question; flat-shape limits; log volume; Git-style storage proposal         | 055 boundary context; retain workspace framing as candidate; terminal halves route to pointers.              |
+| 055:10       | Six-object split with four founding inequalities                                                     | 055 split section; retain vocabulary and inequalities as candidate; reconciled per the section.              |
+| 055:11       | Headless-only agent rule; headed, shared, and detached panel kinds; fork-snapshot touch rule         | Read for boundary accuracy; agent-side consequence retained; panel mechanics route to terminal owner.        |
+| 055:12       | Immutable event-log vocabulary                                                                       | Read for boundary accuracy; shape routes to terminal owner; no event name adopted here.                      |
+| 055:13       | Per-call reason as durable rationale (commit-message shape); thinking stays ephemeral                | 055 Task section; retain rationale convention as candidate; no field adopted.                                |
+| 055:14       | Tool-call detachment from terminal input; Wheel tool runtime under policy and control                | Read for boundary accuracy; placement routes to terminal and runtime owners; no contract adopted.            |
+| 055:15       | Batch plus DAG multi-tool shape                                                                      | 055 principle section; compatible context for tool dispositions; mechanics stay open.                        |
+| 055:16       | Running-task status discipline; UI collapse decoupled from materialization                           | Read for boundary accuracy; status direction retained; views route to terminal owner.                        |
+| 055:17       | Output pipeline (blob store, parser, summary, compiler) with hashed stable blocks                    | 055 principle section; compatible context for the 048-049 compiler; stage contracts stay open.               |
+| 055:18       | Context Manifest with parent lineage as a selectable tree; prompt as budgeted materialized view      | 055 merge section; retain manifest direction as candidate; no schema adopted.                                |
+| 055:19       | Git analogues on versionable context only; squash keeps provenance and stays expandable              | 055 merge section; retain non-rewriting rule as load-bearing; defer to the 051 companion.                    |
+| 055:20       | Agent Graph (cyclic, uniform Agents, dynamic roles) distinct from Task DAG; fork without reseeding   | 055 graph section; retain split as candidate; reconciled per the section.                                    |
+| 055:21       | Mailbox IPC with context base and refs; lazy ContextBundles; typed merges; six-way context diff      | 055 mailbox and merge sections; retain directions as candidate; no wire adopted.                             |
+| 055:22       | Hybrid storage (SQLite index plus content-addressed store; JSON and JSONL interchange); GC lifetimes | Read for boundary accuracy; storage routes to owning repos; GC direction retained per the section.           |
+| 055:23       | Task-as-Issue durable objects; company-console dashboard; first-priority primitives; core principle  | 055 Task and principle sections; retain Task and principle as candidate; dashboard routes to terminal owner. |
+| 055:24       | Destination routing to terminal and AI owners                                                        | 055 pointers section; retain routing; no canonical page claimed beyond this draft.                           |
+| 055:25-28    | Open items; origin stays unrenamed; split-owner capture stays Partial                                | 055 coverage section; retain; origin stays unrenamed and split-owner capture stays Partial.                  |
+
+## Explicit exclusions: records 039, 040, 041, 044, 045, 048, 049, 050, 051, 052, and 055
 
 - 039 widget-layer, terminal-as-widget, effects, focus and idle visual-state,
   application-services, editor-application, and startup-performance sections
@@ -895,6 +944,15 @@ file (`052.md:1-561`) was distilled; no head-versus-tail split applies.
   Lifecycle authority stays with the accepted IPC and Agent RFC and the
   R1/R5 dispositions. Decoupling modes (headless operation) are design-only
   with no implementation claim.
+- 055 six-object vocabulary, event names, mailbox and bundle shapes, manifest
+  fields, Git-operation mapping, storage split, dashboard mechanics, and
+  primitive spellings are unreviewed discussion inputs, not adopted types,
+  schemas, events, wire formats, commands, views, or packaging. Panel,
+  event-log, tool-runtime, pipeline-stage, storage, and dashboard halves
+  route to the terminal, tool, compiler, and storage owners as pointers in
+  the 055 distillation; lifecycle authority stays with the accepted IPC and
+  Agent RFC and the R1/R5 dispositions. The headless-only agent rule and the
+  dashboard mechanics are design-only with no implementation claim.
 - This task does not close identity, workspace-overlay, CarryCtx backend,
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions, and it changes no normative contract.
