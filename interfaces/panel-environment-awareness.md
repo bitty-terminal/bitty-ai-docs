@@ -48,9 +48,8 @@ and PP-4 (No on-disk persistence without consent) under
 [Persistence profile R6](../architecture/persistence-profile-r6.md), the register in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate
 in [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), and the
-accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The
-source record is a single-author Chinese-language discussion; this document is
-the English-language draft distillation, not a translation.
+accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
+stands alone.
 
 No product code is introduced or described as implemented.
 

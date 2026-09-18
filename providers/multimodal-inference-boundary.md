@@ -51,9 +51,8 @@ the R1 disposition in [Execution ownership R1](../architecture/execution-ownersh
 R2 disposition in [Tool transport R2](../architecture/tool-transport-r2.md), the register in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate in
 [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), and the accepted
-[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The source
-record is a single-author Chinese-language discussion; this document is the
-English-language draft distillation, not a translation.
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
+stands alone.
 
 No product code is introduced or described as implemented. Rust and Lua
 sketches below are illustrative proposal shapes, not configuration contracts
@@ -338,7 +337,7 @@ GenerationCompleted(asset://...)
 
 `bitty` or a plugin decides how to present them (inline summary, gallery,
 floating panel, progress indicator, cancel control). The gallery and video
-progress sketches in the source record (multi-image grid, progress bar with
+progress sketches in the candidate direction (multi-image grid, progress bar with
 duration and resolution line, cancel affordance) are illustrative interface
 ideation from a candidate discussion, not an accepted panel design. Panel
 ownership, shortcut allocation, rendering, and the image protocol belong to
@@ -567,7 +566,7 @@ timing.
 
 ## Upstream observations (September 2026, not pins)
 
-The source record cites three upstream API families as September-2026
+The candidate direction cites three upstream API families as September-2026
 direction observations only: a unified content-generation interface, an
 asynchronous video-job interface, and a unified prediction lifecycle with
 sync/async operation modes.[^1][^2][^3] No endpoint URL, request shape, or

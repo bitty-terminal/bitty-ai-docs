@@ -383,7 +383,7 @@ proposes `bitty-ai` as an out-of-process daemon on the IPC side of Core, a
 Capability Layer with Lua, IPC, and CLI frontends over one capability model
 (the Bitty Capability Protocol framing), IPC-native permission enforcement at
 the boundary, and Agent/Panel lifecycle separation carried over IPC. Method,
-event, manifest, and capability names in both distillations are discussion
+event, manifest, and capability names in both candidate designs are discussion
 vocabulary, not accepted schemas or protocols.
 
 Deferred decision: whether the two layerings merge, coexist, or one is dropped

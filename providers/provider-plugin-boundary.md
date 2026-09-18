@@ -44,16 +44,15 @@ R2 disposition in [Tool transport R2](../architecture/tool-transport-r2.md), the
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate in
 [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), the dependency
 posture in [Dependency Strategy](dependency-strategy.md), and the accepted
-[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The source
-record is a single-author Chinese-language discussion; this document is the
-English-language draft distillation, not a translation.
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
+stands alone.
 
 No product code is introduced or described as implemented.
 
 ## Core-owned surface
 
 Core owns the abstraction and the policy; it performs no vendor integration
-and holds no credentials. Each item below restates the candidate direction-record proposal
+and holds no credentials. Each item below restates the candidate direction proposal
 against its existing contract anchor; nothing here widens Core authority.
 
 - `ModelProvider` interface (MP-1, MP-4 through MP-7). Core defines the
@@ -155,7 +154,7 @@ not as `bitty-ai` decisions.
   CLI, plus community adapters), each registering through the Core-owned
   registry protocol. New adapters arrive without Core modification.
 
-The manager-panel sketch in the source record (keyboard shortcut, provider
+The manager-panel sketch in the candidate direction (keyboard shortcut, provider
 status list, role-model slots such as default, fast, planning, and background
 models, ordered fallback chains) is illustrative interface ideation from a
 candidate discussion, not an accepted panel design. Panel ownership, shortcut

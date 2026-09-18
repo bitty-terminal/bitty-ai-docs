@@ -49,9 +49,8 @@ redaction) and PP-4 (No on-disk persistence without consent) under
 [AI Architecture](../architecture/ai-architecture.md), the narrow scope gate in
 [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), the register in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), and the accepted
-[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The source
-record is a single-author Chinese-language discussion; this document is the
-English-language draft distillation, not a translation.
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
+stands alone.
 
 No product code is introduced or described as implemented. Rust, SQL, and Lua
 sketches below are illustrative proposal shapes, not configuration contracts
@@ -76,8 +75,8 @@ object store (tool output, files, images, attachments)
 The global catalog records only control-plane fields:
 session identifier, title, project identifier, creation and update timestamps,
 status, model, provider, summary, size, pin and archive markers, and the
-storage path. It never holds complete messages or tool output. The source
-record observes that a catalog of tens of thousands of sessions can stay in
+storage path. It never holds complete messages or tool output. The candidate
+direction observes that a catalog of tens of thousands of sessions can stay in
 the tens-of-megabytes range; that sizing is an unmeasured observation, not a
 verified claim (see [Critical judgments](#critical-judgments)).
 
@@ -295,7 +294,7 @@ binds to, but lifecycle authority itself stays open and undecided here.
   content; PP-2 (Typed redaction) applies pre-queue and pre-write; PP-4 (No
   on-disk persistence without consent) gates every durable write; P0-AC-026
   in the P0 Security Acceptance Criteria remains overriding authority.
-  Anything in the source record that reads as unconditional retention is
+  Anything in the candidate direction that reads as unconditional retention is
   restated under this floor: there is no lossless, complete, or always
   recoverable promise for unredacted, unconsented, deleted, expired, or
   never-recorded bytes.
@@ -317,7 +316,7 @@ binds to, but lifecycle authority itself stays open and undecided here.
   obligations. Everything else (shard shape, catalog fields, event tables and
   types, recipe slots, tier homes, export contents, API sketches, archive
   layout, lifecycle transitions, collection verbs, identity fields) is a
-  proposal carried from the source record for review, not a contract.
+  proposal carried from the candidate direction for review, not a contract.
 - Retention restatement. Where the source record discusses keeping,
   exporting, or restoring session content without naming consent, redaction,
   or deletion, this document restates that content under the R3 floor. No

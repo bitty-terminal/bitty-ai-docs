@@ -52,10 +52,9 @@ PP-4 (No on-disk persistence without consent) under
 (CTX-0034: sessions hold references, no history duplication), the register in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate
 in [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), and the
-accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The
-source record is a single-author Chinese-language discussion; this document is
-the English-language draft distillation, not a translation. The source file
-stays at its workspace path unrenamed: the terminal track owns it.
+accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding
+authority. This document is the English-language candidate summary, not a
+translation, and it stands alone.
 
 No product code is introduced or described as implemented. Rust, Lua, and JSON
 sketches below are illustrative proposal shapes, not configuration contracts
