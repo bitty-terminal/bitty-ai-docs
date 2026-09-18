@@ -57,8 +57,15 @@ hashes, reference revisions/licenses, code slices, coverage, and `just check`.
 The commander renamed record 018 to `.md.completed` to mark **distillation
 complete only**; its content hash and source ranges are unchanged. This does
 not accept the proposed architecture, certify product implementation, or
-complete the delivery lifecycle. The drafts remain uncommitted/unpublished and
-CTX-0003 remains in review awaiting discussion.
+complete the delivery lifecycle.
+
+Historical snapshot (2026-09-14): the companion distillation and this ledger
+were captured locally in
+`fa18390586babc2c63555c72e691ffb8463a7d76` (PR #7, merged 2026-09-14,
+closing issue #6). That capture records local committed history only: it is
+not architecture acceptance, not product verification, and not evidence of
+current remote publication, task, or PR status. The delivery state of later
+drafts is tracked separately and is not inferred here.
 
 Before acceptance, verify library versions and licenses from upstream release
 metadata, reproduce any local measurement with a documented fixture, and compare
