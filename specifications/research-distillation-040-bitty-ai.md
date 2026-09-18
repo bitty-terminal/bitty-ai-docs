@@ -27,9 +27,9 @@ statusline, Docker, media, search, browser, and developer-runtime material is
 handoff input, not as a decision.
 
 The recommendation is to treat every layered model below as a candidate input
-to the draft [AI Architecture](../ai-architecture.md) and its related draft
+to the draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the two-layer split, the three-layer model, and the four-level
 extension ladder are **not** accepted by this distillation. Nothing here is
 promoted to accepted status, and no implementation is described as shipped.
@@ -45,44 +45,26 @@ runtime and a framework plugin, which has no ownership, packaging, or
 compatibility evidence behind it. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Provider plugin boundary](../provider-plugin-boundary.md),
-[Panel environment awareness](../panel-environment-awareness.md),
-[Execution ownership R1](../execution-ownership-r1.md), and
-[Tool transport R2](../tool-transport-r2.md). The accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this draft. This
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Provider plugin boundary](provider-plugin-boundary.md),
+[Panel environment awareness](panel-environment-awareness.md),
+[Execution ownership R1](execution-ownership-r1.md), and
+[Tool transport R2](tool-transport-r2.md). The accepted
+[IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
 ## Provenance and evidence boundary
 
-The source is the workspace-relative `research/origin/040.md`, read read-only
-on 2026-09-16: **2,215 lines**, **42,579 bytes**. Its SHA-256 is
+The source is research note `040` (origin), read on 2026-09-16: **2,215
+lines**, **42,579 bytes**. Its SHA-256 is
 `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b`.
-The file is untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. The origin file was not renamed, edited, or
-staged by this task; the `bitty`-side pass still needs it. The body of this
-document distills the fingerprinted head (`040.md:1-1829`); the addendum at
-the end distills the bitty-ai-relevant parts of the appended tail
-(`040.md:1830-2215`).
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/040.md
-wc -l -c $BITTY_WORKSPACE/research/origin/040.md
-```
-
-The expected output is the SHA-256 above with 2,215 lines and 42,579 bytes.
-
-The fingerprinted head keeps verifying even after further appends:
-
-```bash
-head -n 1829 $BITTY_WORKSPACE/research/origin/040.md | sha256sum
-head -c 31779 $BITTY_WORKSPACE/research/origin/040.md | sha256sum
-```
-
-Both must print
-`067e3c287b203ccd9a3217c1596d55cb7181b4746d07076e1023e1ddfc2cfe0e`.
+The record is untracked in the research repository, so provenance is by record
+number plus fingerprint, not by commit. It was not renamed, edited, or staged by
+this task; the `bitty`-side pass still needs it. The body of this document
+distills the fingerprinted head (`040.md:1-1829`); the addendum at the end
+distills the bitty-ai-relevant parts of the appended tail (`040.md:1830-2215`).
+The fingerprinted head (`067e3c287b203ccd9a3217c1596d55cb7181b4746d07076e1023e1ddfc2cfe0e`)
+keeps verifying even after further appends.
 
 Unlike record 039, record 040 was a single pass with distinct sections at
 verification time; no duplication handling applies. Adjacent boundary sections `040.md:1131-1294`
@@ -112,16 +94,16 @@ verifies against the head fingerprint.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the two-layer split, three-layer model, and four-level
 ladder proposed in the source are **not** accepted by this distillation and
 must not be read as crate, package, or release decisions. Provider contract
 and transport questions stay with the draft
-[Provider plugin boundary](../provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../execution-ownership-r1.md)
-and [Panel environment awareness](../panel-environment-awareness.md); tool
+[Provider plugin boundary](provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
+and [Panel environment awareness](panel-environment-awareness.md); tool
 authorization and transport placement stay with
-[Tool transport R2](../tool-transport-r2.md). Each is referenced, never
+[Tool transport R2](tool-transport-r2.md). Each is referenced, never
 duplicated or modified.
 
 Normative security obligations (least privilege, per-action scopes,
@@ -132,7 +114,7 @@ below. The source's registry names (`Tool Registry`, `Context Registry`,
 version strings are conceptual vocabulary, not additions to any accepted
 registry or schema. This draft creates or closes no AIQ or OQ identifier;
 open questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## Boundary context: where AI sits in the discussed models
@@ -363,7 +345,7 @@ conversation stores until the user opts into AI capability.
 distilled ranges. It has no ownership, packaging, versioning-compatibility,
 or process-boundary evidence behind it, and it must not be read as an
 accepted crate, package, or release decision. It is recorded as a candidate
-input to [AI Architecture](../ai-architecture.md) and the related R-series
+input to [AI Architecture](ai-architecture.md) and the related R-series
 dispositions, where the std-only runtime direction, provider boundary, and
 transport placement are decided on their own evidence. The neighboring
 four-level ladder (`040.md:1779-1829`) and the native-versus-extension axis
@@ -431,9 +413,9 @@ tail (`040.md:1830-2215`, 386 lines, verified unchanged since the append
 was recorded: the whole file still holds 2,215 lines and 42,579 bytes). It
 carries the same standing as the body above: a draft discussion synthesis
 and candidate input to the draft
-[AI Architecture](../ai-architecture.md) and its related draft
+[AI Architecture](ai-architecture.md) and its related draft
 dispositions, never an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 The layered models below stay candidate-only. This addendum creates no AIQ
 or OQ identifier and closes none. Relations are referenced, not modified.
 

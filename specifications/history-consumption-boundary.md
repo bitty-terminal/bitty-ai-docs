@@ -41,10 +41,7 @@ history, even before any `bitty`-side mechanism lands:
   transaction boundaries, hash-function selection, compression tuning,
   secret-store design, panel presentation, and plugin-registry mechanics.
 
-Inputs are workspace research record `038.md` (1,470 lines,
-`sha256:4220aa9b480aded616782a9b54d31492d06d49eeb1ed07b9394dea0343b6a513`;
-verification: `sha256sum "$BITTY_WORKSPACE/recording/research/038.md"` and
-`wc -l "$BITTY_WORKSPACE/recording/research/038.md"`), the R1 disposition in
+Inputs are research note `038` (read 2026-09-15, 1,470 lines), the R1 disposition in
 [Execution ownership R1](execution-ownership-r1.md), the R2 disposition in
 [Tool transport R2](tool-transport-r2.md), the R3 disposition in
 [Context retention R3](context-retention-r3.md), PP-2 (Typed redaction) and

@@ -17,9 +17,7 @@ This specification defines the architectural separation between slash commands, 
 
 ## Source provenance
 
-This distillation critically evaluates `$BITTY_WORKSPACE/recording/research/022.md.completed` (sha256: `f23ef66ec262e6f429a04b190926a82ac45f614536c6f3e4003a2b2bcebbc52f`, lines 1-1368, 2026-09-14).
-
-**Verification**: `sha256sum $BITTY_WORKSPACE/recording/research/022.md.completed`
+This distillation critically evaluates research note `022` (read 2026-09-14, lines 1-1368).
 
 The source compares Claude Code, OpenCode, Codex, and oh-my-pi implementations with upstream references:
 
@@ -286,4 +284,4 @@ This specification distills research 022 discussion and comparative harness obse
 - Lua API reference for command registration, agent spawning, and primitive invocation
 - Cross-repository IPC contract between `bitty-core` and `bitty-ai-core`
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](research/research-distillation-013-017-018.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](research-distillation-013-017-018.md#current-bitty-ai-evidence).

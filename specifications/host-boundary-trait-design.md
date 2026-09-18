@@ -26,7 +26,7 @@ sidebar_order: 57
 
 This design answers two of the AIQ-31 facets recorded in
 [AI Unresolved Questions](ai-unresolved-questions.md) and triaged in the [AIQ
-triage](research/aiq-triage-2026-09-16.md): (a) a trait-level enforcement
+triage](../docs/sources/aiq-triage-2026-09-16.md): (a) a trait-level enforcement
 point for the Core versus Lua split, and (b) a lint-level gate that rejects
 direct cross-layer references. Review-time policy (the remaining review facet)
 is out of scope here.
@@ -38,7 +38,7 @@ boundary](provider-plugin-boundary.md) (Core owns the contract, plugins own
 integration), the draft [Tool transport
 R2](tool-transport-r2.md) (unified authorization backend with fail-closed
 denial), the Lua-versus-Core distillation in [Research
-045](research/research-distillation-045-bitty-ai.md) (mechanism in Rust, Lua
+045](research-distillation-045-bitty-ai.md) (mechanism in Rust, Lua
 decides how, never whether), and the readiness note in [RFC-split
 readiness](rfc-split-readiness.md) that Core/Lua enforcement stays open under
 AIQ-31.
@@ -299,7 +299,7 @@ proposed runtime.
   backend and fail-closed denial the trait composes.
 - [Provider plugin boundary](provider-plugin-boundary.md) (Draft): Core owns
   the contract, plugins own integration.
-- [Research 045](research/research-distillation-045-bitty-ai.md) (Draft):
+- [Research 045](research-distillation-045-bitty-ai.md) (Draft):
   mechanism-in-Rust plus Lua-decides-how direction.
 - [RFC-split readiness](rfc-split-readiness.md) (Draft): AIQ-31 stays open;
   no split promoted here.

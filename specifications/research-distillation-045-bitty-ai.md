@@ -30,9 +30,9 @@ were read for exclusion accuracy and stay `bitty`-side; they are recorded as
 exclusions, not distilled claims.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](../ai-architecture.md) and its related draft
+draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `DelegationBudget` sketch, the `agent.spawn` capability and
 budget sketches, the `PrivilegeRequest` sketch, the numeric ceilings (8, 4, 3,
 6, 16), the concrete permission names, and the four-layer policy stack are
@@ -58,12 +58,12 @@ mechanism that has no owner, scoping rule, or review evidence. Those are
 corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Execution ownership R1](../execution-ownership-r1.md),
-[Tool transport R2](../tool-transport-r2.md),
-[Provider plugin boundary](../provider-plugin-boundary.md), and
-[Panel environment awareness](../panel-environment-awareness.md) (references
-only). The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Execution ownership R1](execution-ownership-r1.md),
+[Tool transport R2](tool-transport-r2.md),
+[Provider plugin boundary](provider-plugin-boundary.md), and
+[Panel environment awareness](panel-environment-awareness.md) (references
+only). The accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by
 this draft. The unmerged-candidates comparison added under CTX-0047 in the AI
 Architecture stays consistent with this draft; this draft references that
 comparison and re-decides nothing. This document creates no AIQ or OQ
@@ -71,27 +71,17 @@ identifier and closes none.
 
 ## Provenance and evidence boundary
 
-The source is the workspace-relative `research/origin/045.md`, read read-only
-on 2026-09-17: **914 lines**, **14,827 bytes**. Its SHA-256 is
+The source is research note `045` (origin), read on 2026-09-17: **914
+lines**, **14,827 bytes**. Its SHA-256 is
 `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0`.
-The file is untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. The origin file was not renamed, edited, or
-staged by this task; the `bitty`-side pass still needs it. The body of this
-document distills the whole verified file (`045.md:1-914`); no post-task
-append existed at verification time, so no head-versus-tail split applies.
-Any later append is uncovered and follows the CTX-0045 pattern (distill the
-verified head, record the remainder as uncovered).
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/045.md
-wc -l -c $BITTY_WORKSPACE/research/origin/045.md
-```
-
-The expected output is the SHA-256 above with 914 lines and 14,827 bytes.
-The hash was verified at task start and re-verified at task end with no
-change, so the CTX-0045 growth pattern did not trigger.
+The record is untracked in the research repository, so provenance is by record
+number plus fingerprint, not by commit. It was not renamed, edited, or staged by
+this task; the `bitty`-side pass still needs it. The body of this document
+distills the whole verified file (`045.md:1-914`); no post-task append existed
+at verification time, so no head-versus-tail split applies. Any later append is
+uncovered and follows the CTX-0045 pattern (distill the verified head, record
+the remainder as uncovered). The hash was verified at task start and re-verified
+at task end with no change, so the CTX-0045 growth pattern did not trigger.
 
 Unlike record 039, record 045 is a single pass with one framing diagram, one
 core principle, twelve numbered sections plus a closing strengths section, and
@@ -105,22 +95,22 @@ discussion, not the truth of its claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the four-layer policy stack, the `DelegationBudget`
 shape, the numeric ceilings, and the spawn capability vocabulary proposed in
 the source are **not** accepted by this distillation and must not be read as
 crate, package, protocol, or release decisions. Delegation semantics,
 subagent attenuation, and task token and cost budgets stay with the draft
 architecture and its coordination dispositions; execution enforcement stays
-with [Execution ownership R1](../execution-ownership-r1.md); tool
+with [Execution ownership R1](execution-ownership-r1.md); tool
 authorization and transport placement stay with
-[Tool transport R2](../tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../provider-plugin-boundary.md); panel environment
+[Tool transport R2](tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](provider-plugin-boundary.md); panel environment
 semantics stay with
-[Panel environment awareness](../panel-environment-awareness.md). Each is
+[Panel environment awareness](panel-environment-awareness.md). Each is
 referenced, never duplicated or modified.
 
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) defines the only
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every name in the source
 (`DelegationBudget`, `max_children`, `max_depth`, `max_parallel`,
 `token_budget`, `cost_budget`, `execution_budget`, `agent.spawn`,
@@ -139,7 +129,7 @@ below. The source's capability names (filesystem, exec, agents), path
 patterns, permission examples, and console-style ceilings are conceptual
 vocabulary, not additions to any accepted registry, schema, or protocol. This
 draft creates or closes no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## Four-layer architecture and the Lua-decides-how principle

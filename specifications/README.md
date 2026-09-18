@@ -68,12 +68,33 @@ does not authorize shipped, stable, or compatibility-guaranteed behavior.
 | [HostBoundary trait and lint-gate design](host-boundary-trait-design.md)  | Draft  | Core versus Lua enforcement sketch through a trait and a fail-closed lint gate.    |
 | [Prototype-to-Core promotion checklist](prototype-promotion-checklist.md) | Draft  | Hard-gate checklist for promoting workflow prototypes into the AI Core.            |
 
-## Registers and research
+## Registers
 
 | Document                                              | Status | Purpose                                                               |
 | ----------------------------------------------------- | ------ | --------------------------------------------------------------------- |
 | [AI Unresolved Questions](ai-unresolved-questions.md) | Draft  | Local research choices with feature prerequisites and review routing. |
-| [Research distillations](research/README.md)          | Draft  | Provenance-preserving research syntheses and the coverage ledger.     |
+
+## Research distillations
+
+Provenance-preserving research syntheses. A distillation is a research record,
+not a contract: it preserves provenance and observations and never becomes a
+decision or an implementation claim by implication. The coverage register and
+AIQ triage live under [`docs/sources/`](../docs/sources/README.md).
+
+| Distillation                                                                                                                             | Status | Purpose                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
+| [AI research distillation from 013, 017, and 018](research-distillation-013-017-018.md)                                                  | Draft  | Traceable synthesis of AI-relevant research findings and unresolved questions.            |
+| [Shared workspace services and agent coordination research](research-distillation-021.md)                                                | Draft  | Tooling reuse, teams, context messaging, and panel lifecycle synthesis.                   |
+| [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md)                                                  | Draft  | Panel topics, AI workspace object model, and agent workspace sequencing.                  |
+| [Plugin-system research distillation for bitty-ai (040)](research-distillation-040-bitty-ai.md)                                          | Draft  | Extension model, host plugin registries, manifest, permissions, and layer split.          |
+| [IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md)                                              | Draft  | IPC second extension boundary, out-of-process agent runtime, and capability permissions.  |
+| [Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md)                                   | Draft  | Execution supervisor, job service object model, lifetime, timeout, and outcome boundary.  |
+| [Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md)                        | Draft  | Four-layer architecture, budgets, attenuation, commander, and secret-handle policy stack. |
+| [Quality-formula and Context-Compiler research distillation for bitty-ai (048-049)](research-distillation-048-049-bitty-ai.md)           | Draft  | Quality formula, Wheel architecture, Context Compiler zones, cache, and budgets.          |
+| [Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md)                     | Draft  | Wheel agents split, config classes, trust, and Git-inspired context storage modes.        |
+| [Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](research-distillation-052-bitty-ai.md)              | Draft  | Wheel Core versus Plugin boundary, Lua-to-Lua composition, and layering.                  |
+| [Wheel scope and framework-illustration research distillation for bitty-ai (046/053/054)](research-distillation-046-053-054-bitty-ai.md) | Draft  | Wheel Coding scope, provider and streaming illustrations, and packaging notes.            |
+| [Event-Sourced Agent Workspace research distillation for bitty-ai (055)](research-distillation-055-bitty-ai.md)                          | Draft  | Six-object split, agent versus task graphs, mailbox, typed merges, and Task-as-Issue.     |
 
 ## Authority and status
 

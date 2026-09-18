@@ -26,27 +26,15 @@ These are topic relationships, not accepted authority.
 
 ## Source provenance
 
-Distilled from `$BITTY_WORKSPACE/recording/research/026.md` (717 lines,
-`sha256:ce664909a2d2f292b7d43578a66c47a321e876f330a08e66ecbdf148f0dc0b24`).
+Distilled from research note `026` (read 2026-09-15, 717 lines).
 
 Harness-budget evidence in [Harness budget evidence](#harness-budget-evidence)
-distills `$BITTY_WORKSPACE/recording/research/027.md` (619 lines,
-`sha256:d5da8778f0221ba8b0f2ade29270ee208be9f72f9355b482916fc97211b2828d`)
+distills research note `027` (read 2026-09-15, 619 lines)
 as order-of-magnitude observations only, with verification limits stated in
 that section. It adds evidence for the short-core direction and proposes no
 new mechanism, schema, identifier, or decision.
 
-Verification:
-
-```text
-sha256sum $BITTY_WORKSPACE/recording/research/026.md
-wc -l $BITTY_WORKSPACE/recording/research/026.md
-sha256sum $BITTY_WORKSPACE/recording/research/027.md
-wc -l $BITTY_WORKSPACE/recording/research/027.md
-```
-
-Expected: the hashes above with `717` lines for research 026 and `619`
-lines for research 027. Both sources are written in Chinese and are
+Both sources are written in Chinese and are
 preserved untranslated; this document is an English critical distillation,
 not a translation. Source section numbers below refer to record 026 unless
 research 027 is named explicitly. No provider, benchmark, or runtime
@@ -67,7 +55,7 @@ it and adds only the prompt-layering facet:
   intent; ordinary-setting precedence built-in to user to project to
   session/CLI within non-overridable security ceilings; a project declaration
   requests authority but never grants it) stays with
-  [AI research distillation from 013, 017, and 018](research/research-distillation-013-017-018.md).
+  [AI research distillation from 013, 017, and 018](research-distillation-013-017-018.md).
   This proposal consumes that precedence and adds only prompt-text layering.
 - Stable-prefix layering, deterministic serialization, epochs, and planner
   types stay with [Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md).
@@ -483,7 +471,7 @@ questions stay with AIQ-29.
   later proposals.
 - [AI Unresolved Questions](ai-unresolved-questions.md) (Draft): AIQ-09,
   AIQ-12, AIQ-13, AIQ-29, AIQ-31, AIQ-33, AIQ-34 reused; no new identifier proposed.
-- [AI research distillation from 013, 017, and 018](research/research-distillation-013-017-018.md)
+- [AI research distillation from 013, 017, and 018](research-distillation-013-017-018.md)
   (Draft): canonical `.wheel` and precedence coverage consumed here.
 
 ## Evidence and verification boundary

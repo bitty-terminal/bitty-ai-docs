@@ -39,7 +39,7 @@ nodes:
     level: L0
     status: candidate
     description: Thinking actor, mobile across panels; distinct from Panel and Task
-    trace: specifications/research/research-distillation-055-bitty-ai.md#six-object-split-and-founding-inequalities
+    trace: specifications/research-distillation-055-bitty-ai.md#six-object-split-and-founding-inequalities
   - id: panel
     label: Panel
     kind: object
@@ -47,7 +47,7 @@ nodes:
     level: L0
     status: candidate
     description: Execution environment, may sit agentless; host-owned lifecycle
-    trace: specifications/research/research-distillation-055-bitty-ai.md#six-object-split-and-founding-inequalities
+    trace: specifications/research-distillation-055-bitty-ai.md#six-object-split-and-founding-inequalities
   - id: event-log
     label: Event Log
     kind: object
@@ -55,7 +55,7 @@ nodes:
     level: L0
     status: candidate
     description: Immutable fact record until GC; never rewritten by squash or merge
-    trace: specifications/research/research-distillation-055-bitty-ai.md#merge-rebase-and-diff-semantics
+    trace: specifications/research-distillation-055-bitty-ai.md#merge-rebase-and-diff-semantics
   - id: context-view
     label: Context
     kind: object
@@ -63,7 +63,7 @@ nodes:
     level: L0
     status: candidate
     description: Recompilable LLM view compiled from facts; distinct from History
-    trace: specifications/research/research-distillation-055-bitty-ai.md#core-principle
+    trace: specifications/research-distillation-055-bitty-ai.md#core-principle
   - id: task
     label: Task
     kind: object
@@ -71,7 +71,7 @@ nodes:
     level: L0
     status: candidate
     description: Goal and state, may span agents; distinct from Agent
-    trace: specifications/research/research-distillation-055-bitty-ai.md#task-as-issue-and-reason-as-commit-message
+    trace: specifications/research-distillation-055-bitty-ai.md#task-as-issue-and-reason-as-commit-message
   - id: artifact
     label: Artifact
     kind: object
@@ -79,7 +79,7 @@ nodes:
     level: L0
     status: candidate
     description: Content-addressed output referenced, not copied, by context
-    trace: specifications/research/research-distillation-055-bitty-ai.md#six-object-split-and-founding-inequalities
+    trace: specifications/research-distillation-055-bitty-ai.md#six-object-split-and-founding-inequalities
 
   # --- L0/L1 graphs: Agent Graph vs Task DAG ---
   - id: agent-graph
@@ -89,7 +89,7 @@ nodes:
     level: L0
     status: candidate
     description: Collaboration and communication topology; uniform agents, dynamic roles, may be cyclic
-    trace: specifications/research/research-distillation-055-bitty-ai.md#agent-graph-versus-task-dependency-graph
+    trace: specifications/research-distillation-055-bitty-ai.md#agent-graph-versus-task-dependency-graph
   - id: task-dag
     label: Task DAG
     kind: topology
@@ -97,7 +97,7 @@ nodes:
     level: L0
     status: candidate
     description: Goal-ordering topology; stays acyclic to avoid deadlocks
-    trace: specifications/research/research-distillation-055-bitty-ai.md#agent-graph-versus-task-dependency-graph
+    trace: specifications/research-distillation-055-bitty-ai.md#agent-graph-versus-task-dependency-graph
   - id: agent-role
     label: Agent Role
     kind: capability
@@ -105,7 +105,7 @@ nodes:
     level: L1
     status: candidate
     description: Per-task configuration (leader, worker, reviewer); never an agent class
-    trace: specifications/research/research-distillation-046-053-054-bitty-ai.md
+    trace: specifications/research-distillation-046-053-054-bitty-ai.md
   - id: product-task
     label: Product Task
     kind: domain
@@ -131,7 +131,7 @@ nodes:
     level: L1
     status: candidate
     description: Lazy first-class share unit; summary first, decisions and checkpoints expand on demand
-    trace: specifications/research/research-distillation-055-bitty-ai.md#mailbox-ipc-and-first-class-context-share
+    trace: specifications/research-distillation-055-bitty-ai.md#mailbox-ipc-and-first-class-context-share
   - id: ipc-channel
     label: IPC Channel
     kind: domain
@@ -165,7 +165,7 @@ nodes:
     level: L1
     status: candidate
     description: Per-turn compiled-view builder over append-until-compact; correctness over cache hit
-    trace: specifications/research/research-distillation-048-049-bitty-ai.md
+    trace: specifications/research-distillation-048-049-bitty-ai.md
   - id: cold-world
     label: Cold
     kind: data
@@ -173,7 +173,7 @@ nodes:
     level: L2
     status: candidate
     description: Durable universe of retained records under consent and retention policy
-    trace: specifications/research/research-distillation-048-049-bitty-ai.md
+    trace: specifications/research-distillation-048-049-bitty-ai.md
   - id: warm-world
     label: Warm
     kind: data
@@ -181,7 +181,7 @@ nodes:
     level: L2
     status: candidate
     description: Eligible working set admitted toward the turn under budget and authority checks
-    trace: specifications/research/research-distillation-048-049-bitty-ai.md
+    trace: specifications/research-distillation-048-049-bitty-ai.md
   - id: hot-view
     label: Hot
     kind: data
@@ -189,7 +189,7 @@ nodes:
     level: L2
     status: candidate
     description: Materialized budgeted prompt view the model sees this turn
-    trace: specifications/research/research-distillation-048-049-bitty-ai.md
+    trace: specifications/research-distillation-048-049-bitty-ai.md
   - id: stable-prefix
     label: Stable Prefix
     kind: data
@@ -205,7 +205,7 @@ nodes:
     level: L2
     status: candidate
     description: Rooted reclamation of versioned context objects with a grace policy; distinct from compaction
-    trace: specifications/research/research-distillation-055-bitty-ai.md#context-gc-versus-structural-compaction
+    trace: specifications/research-distillation-055-bitty-ai.md#context-gc-versus-structural-compaction
   - id: structural-compaction
     label: Structural Compaction
     kind: module

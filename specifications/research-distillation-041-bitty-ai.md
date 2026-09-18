@@ -29,9 +29,9 @@ exclusion accuracy and stay `bitty`-side, except for the direct Agent
 consequence of the split recorded below.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](../ai-architecture.md) and its related draft
+draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `agent.*` method and event names, the Capability API, the
 permission-manifest sketch, and the three-layer model are **not** accepted by
 this distillation. Agent lifecycle, Agent events, and Agent semantics in the
@@ -56,35 +56,26 @@ process-boundary evidence; and the "terminal platform" reframing, which is
 motivation, not architecture. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Provider plugin boundary](../provider-plugin-boundary.md),
-[Panel environment awareness](../panel-environment-awareness.md),
-[Execution ownership R1](../execution-ownership-r1.md), and
-[Tool transport R2](../tool-transport-r2.md). The accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this draft. This
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Provider plugin boundary](provider-plugin-boundary.md),
+[Panel environment awareness](panel-environment-awareness.md),
+[Execution ownership R1](execution-ownership-r1.md), and
+[Tool transport R2](tool-transport-r2.md). The accepted
+[IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
 ## Provenance and evidence boundary
 
-The source is the workspace-relative `research/origin/041.md`, read read-only
-on 2026-09-16: **821 lines**, **13,140 bytes**. Its SHA-256 is
+The source is research note `041` (origin), read on 2026-09-16: **821
+lines**, **13,140 bytes**. Its SHA-256 is
 `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754`.
-The file is untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. The origin file was not renamed, edited, or
-staged by this task; the `bitty`-side pass still needs it. The body of this
-document distills the whole verified file (`041.md:1-821`); no post-task
-append existed at verification time, so no head-versus-tail split applies.
-Any later append is uncovered and follows the CTX-0045 pattern (distill the
-verified head, record the remainder as uncovered).
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/041.md
-wc -l -c $BITTY_WORKSPACE/research/origin/041.md
-```
-
-The expected output is the SHA-256 above with 821 lines and 13,140 bytes.
+The record is untracked in the research repository, so provenance is by record
+number plus fingerprint, not by commit. It was not renamed, edited, or staged by
+this task; the `bitty`-side pass still needs it. The body of this document
+distills the whole verified file (`041.md:1-821`); no post-task append existed
+at verification time, so no head-versus-tail split applies. Any later append is
+uncovered and follows the CTX-0045 pattern (distill the verified head, record
+the remainder as uncovered).
 
 Unlike record 039, record 041 is a single pass with twelve numbered sections
 plus a closing three-layer model at verification time; no duplication
@@ -99,19 +90,19 @@ the truth of its claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the three-layer model and the Capability Layer
 proposed in the source are **not** accepted by this distillation and must
 not be read as crate, package, protocol, or release decisions. Provider
 contract and transport questions stay with the draft
-[Provider plugin boundary](../provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../execution-ownership-r1.md)
-and [Panel environment awareness](../panel-environment-awareness.md); tool
+[Provider plugin boundary](provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
+and [Panel environment awareness](panel-environment-awareness.md); tool
 authorization and transport placement stay with
-[Tool transport R2](../tool-transport-r2.md). Each is referenced, never
+[Tool transport R2](tool-transport-r2.md). Each is referenced, never
 duplicated or modified.
 
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) defines the only
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every `agent.*` and
 `panel.*` name in the source (`agent.spawn`, `agent.send`, `agent.cancel`,
 `panel.create`, `agent.status.changed`, `agent.started`, `agent.finished`,
@@ -127,7 +118,7 @@ below. The source's method names, event names, manifest fields, permission
 display, and capability list are conceptual vocabulary, not additions to any
 accepted registry, schema, or protocol. This draft creates or closes no AIQ
 or OQ identifier; open questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## IPC as the second extension boundary

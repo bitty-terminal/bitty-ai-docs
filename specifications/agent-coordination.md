@@ -17,9 +17,7 @@ This specification defines agent coordination, workspace service supervision, mu
 
 ## Source provenance
 
-This distillation extracts agent coordination and service supervision from `$BITTY_WORKSPACE/recording/research/021.md.completed` (sha256: `b6607d330887f42133e989be70dd4791aaac0ec1723441d01461fb9631403da9`, 3,378 lines, 2026-09-14). Topic ranges below refer to this recording, including service supervision at 41-772, coordination/context at 773-2400, and execution/panel lifecycles at 2402-3378. Critical additions are inherited from [the 021 synthesis](research/research-distillation-021.md), not verbatim recording contracts. Its pinned upstream inspection is separate evidence.
-
-**Verification**: `sha256sum "$BITTY_WORKSPACE/recording/research/021.md.completed"`
+This distillation extracts agent coordination and service supervision from research note `021` (read 2026-09-14, 3,378 lines). Topic ranges below refer to that record, including service supervision at 41-772, coordination/context at 773-2400, and execution/panel lifecycles at 2402-3378. Critical additions are inherited from [the 021 synthesis](research-distillation-021.md), not verbatim recording contracts. Its pinned upstream inspection is separate evidence.
 
 The source analyzes agent/process separation, shared workspace services, team delegation, and panel lifecycle with comparative references to existing systems. This specification separates observations of existing systems from proposed Bitty contracts.
 

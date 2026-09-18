@@ -17,9 +17,7 @@ This specification defines the context management subsystem for `bitty-ai`, dist
 
 ## Source provenance
 
-This distillation critically evaluates `$BITTY_WORKSPACE/recording/research/022.md.completed` (sha256: `f23ef66ec262e6f429a04b190926a82ac45f614536c6f3e4003a2b2bcebbc52f`, 1,368 lines, substantive coverage 416-1358 plus reference definitions 1360-1367, 2026-09-14).
-
-**Verification**: `sha256sum $BITTY_WORKSPACE/recording/research/022.md.completed`
+This distillation critically evaluates research note `022` (read 2026-09-14), with substantive coverage at lines 416-1358 plus reference definitions at 1360-1367.
 
 The source analyzes context management in Claude Code, OpenCode DCP, and oh-my-pi with upstream references:
 
@@ -753,4 +751,4 @@ This specification distills research 022 discussion and comparative harness anal
 - Lua API reference for context inspection, compression, and retention control
 - Performance evidence showing continuous maintenance avoids emergency compaction
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](research/research-distillation-013-017-018.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](research-distillation-013-017-018.md#current-bitty-ai-evidence).

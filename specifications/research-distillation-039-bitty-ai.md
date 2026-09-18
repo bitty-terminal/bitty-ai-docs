@@ -26,9 +26,9 @@ focus states, application services, editor application design) are
 not decisions.
 
 The recommendation is to treat every Panel-side claim below as a candidate
-input to the draft [AI Architecture](../ai-architecture.md) and its related
+input to the draft [AI Architecture](ai-architecture.md) and its related
 draft dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 Nothing here is promoted to accepted status, and no implementation is
 described as shipped.
 
@@ -43,31 +43,22 @@ a live background session, and the sequencing proposal, which is an opinion
 about build order rather than an accepted plan. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Provider plugin boundary](../provider-plugin-boundary.md),
-[Panel environment awareness](../panel-environment-awareness.md),
-[Execution ownership R1](../execution-ownership-r1.md), and
-[Tool transport R2](../tool-transport-r2.md). The accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this draft. This
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Provider plugin boundary](provider-plugin-boundary.md),
+[Panel environment awareness](panel-environment-awareness.md),
+[Execution ownership R1](execution-ownership-r1.md), and
+[Tool transport R2](tool-transport-r2.md). The accepted
+[IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
 ## Provenance and evidence boundary
 
-The source is the workspace-relative `research/origin/039.md`, read read-only
-on 2026-09-16: **6,079 lines**, **123,712 bytes**. Its SHA-256 is
+The source is research note `039` (origin), read on 2026-09-16: **6,079
+lines**, **123,712 bytes**. Its SHA-256 is
 `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d`.
-The file is untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. The origin file was not renamed, edited, or
-staged by this task; the `bitty`-side pass still needs it.
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/039.md
-wc -l -c $BITTY_WORKSPACE/research/origin/039.md
-```
-
-The expected output is the SHA-256 above with 6,079 lines and 123,712 bytes.
+The record is untracked in the research repository, so provenance is by record
+number plus fingerprint, not by commit. It was not renamed, edited, or staged by
+this task; the `bitty`-side pass still needs it.
 
 ### Duplication structure
 
@@ -89,14 +80,14 @@ evidence.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models discussed
+The draft [AI Architecture](ai-architecture.md) layered models discussed
 in the source are candidate inputs only and are **not** accepted by this
 distillation. Provider placement questions stay with the draft
-[Provider plugin boundary](../provider-plugin-boundary.md); panel environment
-semantics stay with [Panel environment awareness](../panel-environment-awareness.md);
+[Provider plugin boundary](provider-plugin-boundary.md); panel environment
+semantics stay with [Panel environment awareness](panel-environment-awareness.md);
 single-agent execution ownership stays with
-[Execution ownership R1](../execution-ownership-r1.md); tool authorization and
-transport placement stay with [Tool transport R2](../tool-transport-r2.md).
+[Execution ownership R1](execution-ownership-r1.md); tool authorization and
+transport placement stay with [Tool transport R2](tool-transport-r2.md).
 Each is referenced, never duplicated or modified.
 
 Normative security obligations (authenticated local IPC, per-action scopes,
@@ -105,7 +96,7 @@ minimization) override every discussion example below. The source's `PanelId`,
 `ViewId`, `TerminalId`, `PanelContent`, and mode names are conceptual
 vocabulary from the discussion, not additions to any accepted registry.
 This draft creates or closes no AIQ or OQ identifier; open questions stay
-with [AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+with [AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## AI Workspace in the object model
@@ -155,7 +146,7 @@ The retained boundary for future Agent UI panels is:
 **Critical judgment:** the enum variants and lifecycle verb names are
 discussion vocabulary, not an accepted interface. The stable claim is the
 ownership direction, which agrees with R1 (projection-only panels) and with
-[Panel environment awareness](../panel-environment-awareness.md)
+[Panel environment awareness](panel-environment-awareness.md)
 (host-mediated environment, no ambient authority).
 
 ## Floating-mode AI and shared workspace operations

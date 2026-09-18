@@ -35,9 +35,9 @@ side; concrete tool, method, event, struct, and wire sketches stay unreviewed
 vocabulary.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](../ai-architecture.md) and its related draft
+draft [AI Architecture](ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
-[IPC and Agent RFC](../ipc-agent-rfc.md) or the normative security corpus.
+[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `exec` and `job_*` tool sketches, the `execution.*` IPC
 sketches, the `ExecutionResult` and `JobResult` struct sketches, the
 `Lifetime`, `JobKind`, outcome, and cancel enums, the three-phase rollout,
@@ -64,12 +64,12 @@ console mockup, which is a view sketch without a data-contract or
 authorization analysis. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](../ai-architecture.md) (candidate inputs only),
-[Execution ownership R1](../execution-ownership-r1.md),
-[Tool transport R2](../tool-transport-r2.md),
-[Panel environment awareness](../panel-environment-awareness.md), and
-[Provider plugin boundary](../provider-plugin-boundary.md) (references only).
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) is unaffected by this
+[AI Architecture](ai-architecture.md) (candidate inputs only),
+[Execution ownership R1](execution-ownership-r1.md),
+[Tool transport R2](tool-transport-r2.md),
+[Panel environment awareness](panel-environment-awareness.md), and
+[Provider plugin boundary](provider-plugin-boundary.md) (references only).
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The 041 Capability Layer versus 044 capability-enforcement split stays
 consistent with the unmerged-candidates comparison added under CTX-0047 in
 the AI Architecture; this draft references that comparison and re-decides
@@ -77,27 +77,17 @@ nothing. This document creates no AIQ or OQ identifier and closes none.
 
 ## Provenance and evidence boundary
 
-The source is the workspace-relative `research/origin/044.md`, read read-only
-on 2026-09-16: **2,630 lines**, **46,063 bytes**. Its SHA-256 is
+The source is research note `044` (origin), read on 2026-09-16: **2,630
+lines**, **46,063 bytes**. Its SHA-256 is
 `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0`.
-The file is untracked in the research repository, so provenance is by path
-plus fingerprint, not by commit. The origin file was not renamed, edited, or
-staged by this task; the `bitty`-side pass still needs it. The body of this
-document distills the whole verified file (`044.md:1-2630`); no post-task
-append existed at verification time, so no head-versus-tail split applies.
-Any later append is uncovered and follows the CTX-0045 pattern (distill the
-verified head, record the remainder as uncovered).
-
-**Verification:** confirm the source file integrity with:
-
-```bash
-sha256sum $BITTY_WORKSPACE/research/origin/044.md
-wc -l -c $BITTY_WORKSPACE/research/origin/044.md
-```
-
-The expected output is the SHA-256 above with 2,630 lines and 46,063 bytes.
-The hash was verified at task start and re-verified at task end with no
-change, so the CTX-0045 growth pattern did not trigger.
+The record is untracked in the research repository, so provenance is by record
+number plus fingerprint, not by commit. It was not renamed, edited, or staged by
+this task; the `bitty`-side pass still needs it. The body of this document
+distills the whole verified file (`044.md:1-2630`); no post-task append existed
+at verification time, so no head-versus-tail split applies. Any later append is
+uncovered and follows the CTX-0045 pattern (distill the verified head, record
+the remainder as uncovered). The hash was verified at task start and re-verified
+at task end with no change, so the CTX-0045 growth pattern did not trigger.
 
 Unlike record 039, record 044 is a single pass with twenty-eight numbered
 sections plus a four-point follow-up with its own mechanism-versus-semantics
@@ -110,8 +100,8 @@ discussion, not the truth of its claims.
 
 ### Pueue reference inspection
 
-The pueue clone at `$BITTY_WORKSPACE/recording/references/pueue/` was read
-read-only for design grounding on 2026-09-16 at revision
+The pueue reference clone was read read-only for design grounding on
+2026-09-16 at revision
 `193ed2264338bd30a06e347b48183a8800bd178b` with a clean working tree. The
 clone carries dual `LICENSE.MIT` (MIT, Arne Beer, 2018) and `LICENSE.APACHE`
 (Apache-2.0) files. Inspected slices: `pueue_lib/src/task.rs`
@@ -126,19 +116,19 @@ proposes no pueue backend.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](../ai-architecture.md) layered models are
+The draft [AI Architecture](ai-architecture.md) layered models are
 candidate inputs only; the Execution Supervisor, the three-phase rollout,
 and the proposed supervisor document are **not** accepted by this
 distillation and must not be read as crate, package, protocol, or release
 decisions. Execution and environment questions stay with
-[Execution ownership R1](../execution-ownership-r1.md) and
-[Panel environment awareness](../panel-environment-awareness.md); tool
+[Execution ownership R1](execution-ownership-r1.md) and
+[Panel environment awareness](panel-environment-awareness.md); tool
 authorization and transport placement stay with
-[Tool transport R2](../tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../provider-plugin-boundary.md). Each is
+[Tool transport R2](tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](provider-plugin-boundary.md). Each is
 referenced, never duplicated or modified.
 
-The accepted [IPC and Agent RFC](../ipc-agent-rfc.md) defines the only
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
 accepted IPC wire, scope, and Agent vocabulary. Every method, event, struct,
 and enum name in the source (`exec`, `job_spawn`, `job_get`, `job_read`,
 `execution.spawn`, `execution.exited`, `ExecutionResult`, `JobResult`,
@@ -156,7 +146,7 @@ below. The source's permission names (`execution.observe`,
 similar), operation lists, and console fields are conceptual vocabulary, not
 additions to any accepted registry, schema, or protocol. This draft creates
 or closes no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](../ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](ai-unresolved-questions.md) and shared
 governance.
 
 ## Core thesis: a supervisor, not a stronger spawn

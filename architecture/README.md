@@ -31,16 +31,16 @@ node traces to accepted or draft code or RFC; no diagram invents nodes.
   ([Prefix-cache design](../specifications/prefix-cache-context-design.md)),
   and draft structural compaction (same design, eight invariants).
 - **Candidate discussion input:** the 055 research distillation
-  ([055](../specifications/research/research-distillation-055-bitty-ai.md))
+  ([055](../specifications/research-distillation-055-bitty-ai.md))
   plus companions
-  [048-049](../specifications/research/research-distillation-048-049-bitty-ai.md),
-  [050-051](../specifications/research/research-distillation-050-051-bitty-ai.md),
-  [052](../specifications/research/research-distillation-052-bitty-ai.md),
-  [044](../specifications/research/research-distillation-044-bitty-ai.md),
-  [046/053/054](../specifications/research/research-distillation-046-053-054-bitty-ai.md),
-  [039](../specifications/research/research-distillation-039-bitty-ai.md),
-  [040](../specifications/research/research-distillation-040-bitty-ai.md),
-  [041](../specifications/research/research-distillation-041-bitty-ai.md),
+  [048-049](../specifications/research-distillation-048-049-bitty-ai.md),
+  [050-051](../specifications/research-distillation-050-051-bitty-ai.md),
+  [052](../specifications/research-distillation-052-bitty-ai.md),
+  [044](../specifications/research-distillation-044-bitty-ai.md),
+  [046/053/054](../specifications/research-distillation-046-053-054-bitty-ai.md),
+  [039](../specifications/research-distillation-039-bitty-ai.md),
+  [040](../specifications/research-distillation-040-bitty-ai.md),
+  [041](../specifications/research-distillation-041-bitty-ai.md),
   and [047](../specifications/caller-attribution-design.md).
   Dashed nodes and edges are vocabulary only: no schema, wire, command,
   threshold, or release decision follows.

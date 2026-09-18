@@ -24,17 +24,11 @@ sidebar_order: 41
 
 This input assembles three source groups:
 
-1. Ten `bitty`-side blockers from workspace research record `031.md`
-   (913 lines, `sha256:8d5bc5e076022a07a33cd3799a4ec66840aeea3f4d174f0fa8106baa68687619`;
-   verification: `sha256sum "$BITTY_WORKSPACE/recording/research/031.md.completed"`).
-   No prior recorded fingerprint for this record was found in CarryCtx search
-   or in specifications provenance; the value above is established here as the
-   first record. The record is a single-author proposal, not an accepted
+1. Ten `bitty`-side blockers from research note `031` (read 2026-09-15,
+   913 lines). The record is a single-author proposal, not an accepted
    decision.
-2. The `023.md` G-2/G-3 `bitty`-side gaps (726 lines,
-   `sha256:15e3ff9a0c18bfa7c0ece08299e462087513b5d0c6fcc779c5e5dc54e42b2b4a`;
-   verification: `sha256sum "$BITTY_WORKSPACE/recording/research/023.md.completed"`),
-   matching the fingerprint recorded by CTX-0015 and preserved in
+2. The `023` G-2/G-3 `bitty`-side gaps from research note `023` (read
+   2026-09-14, 726 lines), matching the direction preserved in
    [v0.1 Implementation Profile](implementation-profile-v0.1.md).
 3. The merged R1 disposition in [Execution ownership R1](execution-ownership-r1.md),
    the R2 transport open surface in [Tool transport R2](tool-transport-r2.md),

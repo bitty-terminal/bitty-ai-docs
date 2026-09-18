@@ -41,7 +41,7 @@ remain open `bitty`-side or future work and are not claimed here.
 
 Sources inspected read-only for this document:
 
-- Implementation: workspace checkout `$BITTY_WORKSPACE/bitty-ai` at
+- Implementation: `bitty-ai` checkout at
   `main` commit `3242a5d` (`AI-0073` pin bump), module
   `crates/bitty-ai-slice/src/fragment_transport.rs` (module header `:1-64`,
   rule list `:19-52`).
