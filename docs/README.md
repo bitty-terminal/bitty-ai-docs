@@ -40,11 +40,11 @@ the repository root; this repository's own process documents live under
 
 ## Content trees
 
-| Tree              | Entry points                                                                                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `architecture/`   | [Architecture diagrams](../architecture/README.md) — glossary-driven overview, agent graph, and context compile.                                                          |
-| `specifications/` | [Specification register](../specifications/README.md) plus the flat technical contracts and [research distillations](../specifications/README.md#research-distillations). |
-| `docs/sources/`   | [Sources and provenance](sources/README.md) — research coverage ledger and AIQ triage registers.                                                                          |
+| Tree              | Entry points                                                                                                                                                                                                                                                                                          |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `architecture/`   | [Architecture diagrams](../architecture/README.md) — glossary-driven overview, agent graph, and context compile.                                                                                                                                                                                      |
+| `specifications/` | [Specification register](../specifications/README.md) plus the flat technical contracts and [research distillations](../specifications/README.md#research-distillations), including [research 056 context storage and reasoning management](../specifications/research-distillation-056-bitty-ai.md). |
+| `docs/sources/`   | [Sources and provenance](sources/README.md) — research coverage ledger and AIQ triage registers.                                                                                                                                                                                                      |
 
 New topic trees are created only as real content lands; empty placeholder pages
 are not added.
