@@ -106,11 +106,11 @@ the two repositories must not diverge.
 
 Canonical documents must be self-contained. A canonical document must not
 reference the research repository in any way: no research links or checkout
-paths, no record numbers or record filenames, no `summary/`, `origin/`, or
-`.md.completed` citations, no coverage or provenance ledgers, no source line
-ranges or hash/fingerprint blocks, and no "distilled from record NNN" or
-"Provenance and evidence boundary" framing. A reader must be able to use every
-document with the research repository absent.
+paths, no record numbers or record filenames, no summary- or origin-directory
+citations, no completion-marker citations, no coverage or provenance ledgers, no
+source line ranges or hash/fingerprint blocks, and no "distilled from record
+NNN" or "Provenance and evidence boundary" framing. A reader must be able to use
+every document with the research repository absent.
 
 The document's own `status` and candidate qualifiers carry the trust level;
 provenance machinery is not part of canonical text. Record-to-document coverage
