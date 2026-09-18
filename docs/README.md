@@ -79,7 +79,7 @@ ai-architecture.md (Main specification)
 - `ai-architecture.md` defines ModelProvider, ContextProvider, Tool Bus, Agent levels, and Rich streaming (CP-1..CP-11, MP-1..MP-11, AG-1..AG-5, TB-1..TB-7, RS-1..RS-5).
 - `context-management.md` elaborates CP-5 (Budget), CP-6 (Artifacts), and CP-7 (Determinism and testability) with a consent-bounded journal and projection proposal.
 - `prefix-cache-context-design.md` refines CP-5 (Budget), CP-6 (Artifacts), and CP-7 (Determinism and testability) for stable-prefix layering and deterministic serialization; Planner, epoch, and L2+ material stays beyond-v0.1 proposal.
-- `prompt-layering-design.md` layers prompt text (Core Contract, User, Project `.bitty`, Skills/Agent profile, Runtime/Turn) over the context pipeline with stable-before-dynamic assembly; prompt text never grants capability (AG-4) and profiles stay single-agent for v0.1.
+- `prompt-layering-design.md` layers prompt text (Core Contract, User, Project `.wheel`, Skills/Agent profile, Runtime/Turn) over the context pipeline with stable-before-dynamic assembly; prompt text never grants capability (AG-4) and profiles stay single-agent for v0.1.
 - `dependency-strategy.md` keeps `bitty-ai-runtime` std-only with dependency inversion and maps provider, tool-bus, MCP, code, and store adapters to post-v0.1 proposals; v0.1 adds zero dependencies and MSRV bumps stay open decisions.
 - `command-tool-architecture.md` extends TB-1..TB-3 with Core versus Lua boundary, slash command registry, and tool runtime separation.
 - `agent-coordination.md` elaborates coordination under AG-4 (Least privilege at dispatch) and AG-5 (Orchestration versus execution).

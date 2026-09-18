@@ -509,7 +509,7 @@ Source lines 1076-1114 argue Skills should be a Core registry with discovery, pa
 Directory compatibility proposal (lines 1089-1101, citing [8]):
 
 ```text
-.bitty/skills/
+.wheel/skills/
 ~/.config/bitty/skills/
 
 .agents/skills/

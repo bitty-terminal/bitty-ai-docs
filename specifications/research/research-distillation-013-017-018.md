@@ -169,7 +169,7 @@ prompts, workflows, hooks, routing, and context strategy. This is a proposal,
 not a decision. A harness is composition policy, while an agent is a runtime
 configuration/workflow; neither should weaken Rust enforcement.
 
-The records propose `.bitty/` as declarative, versionable project intent and
+The records propose `.wheel/` as declarative, versionable project intent and
 policy. Proposed ordinary-setting precedence, from lowest to highest, is
 **built-in → user → project → session/CLI** (018:3974–4024); later layers
 override earlier ones only within non-overridable security ceilings. System or

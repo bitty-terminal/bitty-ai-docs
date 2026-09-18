@@ -432,7 +432,7 @@ Evidence bar today:
   turn plus a session helper comment about a fresh prompt. Zero `#[test]`
   attributes cover prompt layering, assembly order, or capability separation.
 - Design direction exists in prose: five prompt layers (Core Contract, User,
-  Project `.bitty`, Skills and Agent profile, Runtime and Turn) assembled
+  Project `.wheel`, Skills and Agent profile, Runtime and Turn) assembled
   stable-before-dynamic, aligned with the seven stable-prefix layers (Runtime
   Protocol and Core System Prompt, Stable Tool Schemas, Stable Loaded Skills,
   Project and Workspace Context, Conversation and Agent History, Tool Results
@@ -474,7 +474,7 @@ Split Request For Comments boundary draft (for a future task, not accepted here)
   separation stating that prompt text never grants authority, single-agent
   profile scope for v0.1, and alignment with the stable-prefix layering order.
 - Out of scope: serializer selection, epoch schema, planner types, Level 2
-  and above compaction, `.bitty` manifest ownership, skill format, command
+  and above compaction, `.wheel` manifest ownership, skill format, command
   registration API, and any cache-hit-rate guarantee.
 - Required evidence before acceptance: conformance tests pinning layer order
   with fixtures for dynamic-value placement (time, working directory, branch,

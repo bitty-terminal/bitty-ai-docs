@@ -161,12 +161,13 @@ governance.
 
 Source: `050.md:1-17` (the opening rename statement and the two-scope
 diagram), recorded here as an owner decision about naming and scope, not as
-an implementation claim.
+an implementation claim. The 050 source record used the provisional project-config
+name; the owner decision renames it to `.wheel/` with no semantic change.
 
-> `.bitty/` is renamed to `.wheel/` (050.md:1-17; the source states the
+> The project-config directory is renamed to `.wheel/` (050.md:1-17; the source states the
 > directory-level rename only and fixes `init.lua` as the single `.wheel/`
-> entry at 050.md:108-140 — no `.bitty.lua`-style filename mapping appears
-> in the source).
+> entry at 050.md:108-140 — no single-file-style filename mapping appears
+> in the source for the project-config name).
 > Wheel reads `.agents` for skills and MCP compatibility. `.wheel/` owns
 > skill toggles, rules, custom commands, and custom tools.
 
@@ -600,50 +601,50 @@ retain the objective with the correction above. Reject means reject that
 mechanism or absolute claim; defer means no commitment pending named
 evidence.
 
-| Source lines  | Topic                                                               | Disposition, rationale, and alternative                                                                   |
-| ------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 050:1-17      | Rename `.bitty` to `.wheel`; two scopes; coexistence                | Record owner decision verbatim; naming and scope only; no implementation claim.                           |
-| 050:19-73     | `.agents` as portable capabilities; skills and MCP; migration value | Retain coexistence and non-pollution; tree sketches are illustration, not schema.                         |
-| 050:77-140    | How-versus-What; single entry; Neovim-style organization            | Retain one-entry contract as candidate; organization is proposal; survey item owns `.agents` constraints. |
-| 050:142-220   | Capability filtering; registry to resolved set                      | Retain class as candidate; API spellings are vocabulary; enforcement needs review.                        |
-| 050:222-282   | Context policy declarations; policy-over-code rule                  | Retain declarative direction; budget and field sketches are illustration.                                 |
-| 050:284-353   | Structured rules; deterministic enforcement                         | Retain engine-over-reminder direction; rule shapes are vocabulary.                                        |
-| 050:355-399   | Core-prompt shortening through runtimes                             | Retain rationale; prompt lines are illustration, not adopted text.                                        |
-| 050:401-435   | Custom commands in Lua                                              | Retain class as candidate; command shapes are vocabulary, not API.                                        |
-| 050:437-486   | Custom tools with provenance separation                             | Retain provenance rule; tool URIs and fields are illustration.                                            |
-| 050:488-548   | Agent definitions with per-profile trimming                         | Retain structured-profile direction; profile fields are vocabulary.                                       |
-| 050:550-600   | Verification declarations; completion gates                         | Retain evidence-gating direction; check lists and gates are illustration.                                 |
-| 050:602-644   | Hooks with safe, advanced, unsafe grading                           | Retain grading requirement; hook names are vocabulary; owner open.                                        |
-| 050:646-709   | No runtime state; XDG and git-ignored placement                     | Retain separation rule; directory names are illustration.                                                 |
-| 050:711-803   | Lua trust; no silent execution; direnv-like flow                    | Retain no-silent-execution and re-review rules; flow is candidate needing review.                         |
-| 050:805-843   | Capability sandbox; mediated access; permission sketch              | Retain mediated-access posture; permission fields are vocabulary.                                         |
-| 050:845-940   | Final layout; discovery-to-runtime pipeline; boundary slogan        | Retain reference-not-copy rule; layout and pipeline are candidate topology.                               |
-| 051:1-8       | Git borrowing thesis and principle list                             | Retain as author motivation; principles become design inputs, not claims.                                 |
-| 051:9-60      | Context DAG over message list                                       | Retain graph topology as candidate; node list is vocabulary.                                              |
-| 051:62-121    | Object sketch; hashing; sharded storage                             | Retain immutability and addressing; enum, hash, paths are illustration.                                   |
-| 051:123-168   | Deduplication by hash; ref sharing                                  | Retain ref-sharing rule; hash choice open.                                                                |
-| 051:170-231   | Checkpoint as commit with parents and evidence                      | Retain chain topology; checkpoint fields are vocabulary.                                                  |
-| 051:233-301   | Compaction as snapshot without deletion                             | Retain view-change rule; schema and bounds open.                                                          |
-| 051:303-351   | HEAD pointer; per-phase advance; log sketch                         | Retain single-pointer rule; lifecycle stays RFC-owned; syntax open.                                       |
-| 051:352-403   | Hypothesis branches with shared parents                             | Retain delta-only branching; branch mechanics open.                                                       |
-| 051:405-482   | Multi-agent merge with explicit conflicts                           | Retain explicit-merge rule; conflict schema open.                                                         |
-| 051:484-520   | Cherry-picking findings with evidence                               | Retain finding-level rule; procedure open.                                                                |
-| 051:522-557   | Ref sharing between agents                                          | Retain ref-cost rule; exchange protocol open.                                                             |
-| 051:559-611   | Semantic rebase with staleness checks                               | Retain validate-before-replay; procedure open.                                                            |
-| 051:613-655   | Worktree binding per agent                                          | Retain isolation direction; binding shape and lifecycle open.                                             |
-| 051:657-695   | Ref namespace for task and agent state                              | Retain namespace direction; spellings are vocabulary.                                                     |
-| 051:697-734   | Reflog recovery and restore                                         | Retain recoverability rule; syntax open.                                                                  |
-| 051:736-788   | GC from live roots with grace period                                | Retain rooted-collection rule; policy open.                                                               |
-| 051:790-842   | Packfile packing with delta compression                             | Retain pack discipline; format open.                                                                      |
-| 051:844-894   | Hash-keyed compiler caches                                          | Retain hash-exact identity; key shapes open.                                                              |
-| 051:896-942   | Store-cache separation chain                                        | Retain two-layer split; no store schema adopted.                                                          |
-| 051:944-1012  | Checkout-like compiler to Active View                               | Retain checkout metaphor; passes defer to the companion pipeline.                                         |
-| 051:1014-1074 | Multi-agent DAG with parent lists                                   | Retain DAG topology as candidate; procedures open.                                                        |
-| 051:1076-1125 | Vocabulary decision; CLI sketch                                     | Retain two-level naming; spellings propose no surface.                                                    |
-| 051:1127-1165 | Context diff across checkpoints                                     | Retain inspectability rule; diff format open.                                                             |
-| 051:1167-1203 | Typed merge with per-type rules                                     | Retain never-concatenate rule; merge rules open.                                                          |
-| 051:1205-1262 | Storage diagram; refs over DAG over objects                         | Retain as candidate architecture; boxes are not packaging.                                                |
-| 051:1264-1308 | Closing philosophy; history versus active view                      | Retain slogan as author opinion; inequality is the load-bearing claim.                                    |
+| Source lines  | Topic                                                                                                         | Disposition, rationale, and alternative                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 050:1-17      | Rename project-config to `.wheel` (owner decision; 050 source used provisional name); two scopes; coexistence | Record owner decision verbatim; naming and scope only; no implementation claim.                           |
+| 050:19-73     | `.agents` as portable capabilities; skills and MCP; migration value                                           | Retain coexistence and non-pollution; tree sketches are illustration, not schema.                         |
+| 050:77-140    | How-versus-What; single entry; Neovim-style organization                                                      | Retain one-entry contract as candidate; organization is proposal; survey item owns `.agents` constraints. |
+| 050:142-220   | Capability filtering; registry to resolved set                                                                | Retain class as candidate; API spellings are vocabulary; enforcement needs review.                        |
+| 050:222-282   | Context policy declarations; policy-over-code rule                                                            | Retain declarative direction; budget and field sketches are illustration.                                 |
+| 050:284-353   | Structured rules; deterministic enforcement                                                                   | Retain engine-over-reminder direction; rule shapes are vocabulary.                                        |
+| 050:355-399   | Core-prompt shortening through runtimes                                                                       | Retain rationale; prompt lines are illustration, not adopted text.                                        |
+| 050:401-435   | Custom commands in Lua                                                                                        | Retain class as candidate; command shapes are vocabulary, not API.                                        |
+| 050:437-486   | Custom tools with provenance separation                                                                       | Retain provenance rule; tool URIs and fields are illustration.                                            |
+| 050:488-548   | Agent definitions with per-profile trimming                                                                   | Retain structured-profile direction; profile fields are vocabulary.                                       |
+| 050:550-600   | Verification declarations; completion gates                                                                   | Retain evidence-gating direction; check lists and gates are illustration.                                 |
+| 050:602-644   | Hooks with safe, advanced, unsafe grading                                                                     | Retain grading requirement; hook names are vocabulary; owner open.                                        |
+| 050:646-709   | No runtime state; XDG and git-ignored placement                                                               | Retain separation rule; directory names are illustration.                                                 |
+| 050:711-803   | Lua trust; no silent execution; direnv-like flow                                                              | Retain no-silent-execution and re-review rules; flow is candidate needing review.                         |
+| 050:805-843   | Capability sandbox; mediated access; permission sketch                                                        | Retain mediated-access posture; permission fields are vocabulary.                                         |
+| 050:845-940   | Final layout; discovery-to-runtime pipeline; boundary slogan                                                  | Retain reference-not-copy rule; layout and pipeline are candidate topology.                               |
+| 051:1-8       | Git borrowing thesis and principle list                                                                       | Retain as author motivation; principles become design inputs, not claims.                                 |
+| 051:9-60      | Context DAG over message list                                                                                 | Retain graph topology as candidate; node list is vocabulary.                                              |
+| 051:62-121    | Object sketch; hashing; sharded storage                                                                       | Retain immutability and addressing; enum, hash, paths are illustration.                                   |
+| 051:123-168   | Deduplication by hash; ref sharing                                                                            | Retain ref-sharing rule; hash choice open.                                                                |
+| 051:170-231   | Checkpoint as commit with parents and evidence                                                                | Retain chain topology; checkpoint fields are vocabulary.                                                  |
+| 051:233-301   | Compaction as snapshot without deletion                                                                       | Retain view-change rule; schema and bounds open.                                                          |
+| 051:303-351   | HEAD pointer; per-phase advance; log sketch                                                                   | Retain single-pointer rule; lifecycle stays RFC-owned; syntax open.                                       |
+| 051:352-403   | Hypothesis branches with shared parents                                                                       | Retain delta-only branching; branch mechanics open.                                                       |
+| 051:405-482   | Multi-agent merge with explicit conflicts                                                                     | Retain explicit-merge rule; conflict schema open.                                                         |
+| 051:484-520   | Cherry-picking findings with evidence                                                                         | Retain finding-level rule; procedure open.                                                                |
+| 051:522-557   | Ref sharing between agents                                                                                    | Retain ref-cost rule; exchange protocol open.                                                             |
+| 051:559-611   | Semantic rebase with staleness checks                                                                         | Retain validate-before-replay; procedure open.                                                            |
+| 051:613-655   | Worktree binding per agent                                                                                    | Retain isolation direction; binding shape and lifecycle open.                                             |
+| 051:657-695   | Ref namespace for task and agent state                                                                        | Retain namespace direction; spellings are vocabulary.                                                     |
+| 051:697-734   | Reflog recovery and restore                                                                                   | Retain recoverability rule; syntax open.                                                                  |
+| 051:736-788   | GC from live roots with grace period                                                                          | Retain rooted-collection rule; policy open.                                                               |
+| 051:790-842   | Packfile packing with delta compression                                                                       | Retain pack discipline; format open.                                                                      |
+| 051:844-894   | Hash-keyed compiler caches                                                                                    | Retain hash-exact identity; key shapes open.                                                              |
+| 051:896-942   | Store-cache separation chain                                                                                  | Retain two-layer split; no store schema adopted.                                                          |
+| 051:944-1012  | Checkout-like compiler to Active View                                                                         | Retain checkout metaphor; passes defer to the companion pipeline.                                         |
+| 051:1014-1074 | Multi-agent DAG with parent lists                                                                             | Retain DAG topology as candidate; procedures open.                                                        |
+| 051:1076-1125 | Vocabulary decision; CLI sketch                                                                               | Retain two-level naming; spellings propose no surface.                                                    |
+| 051:1127-1165 | Context diff across checkpoints                                                                               | Retain inspectability rule; diff format open.                                                             |
+| 051:1167-1203 | Typed merge with per-type rules                                                                               | Retain never-concatenate rule; merge rules open.                                                          |
+| 051:1205-1262 | Storage diagram; refs over DAG over objects                                                                   | Retain as candidate architecture; boxes are not packaging.                                                |
+| 051:1264-1308 | Closing philosophy; history versus active view                                                                | Retain slogan as author opinion; inequality is the load-bearing claim.                                    |
 
 ## Proposed validation and promotion path
 

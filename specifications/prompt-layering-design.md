@@ -59,11 +59,11 @@ Each item below stays owned by its existing document; this proposal references
 it and adds only the prompt-layering facet:
 
 - Core-versus-Lua ownership (mechanism versus policy) stays with
-  [Command and Tool Architecture](command-tool-architecture.md). The `.bitty`
+  [Command and Tool Architecture](command-tool-architecture.md). The `.wheel`
   manifest sketches and agent-profile sketches in the source are configuration
   shapes, not ownership assignments; enforcement of the split is tracked as
   AIQ-31 and promotion review as AIQ-32.
-- The `.bitty/` project-manifest direction (declarative, versionable project
+- The `.wheel/` project-manifest direction (declarative, versionable project
   intent; ordinary-setting precedence built-in to user to project to
   session/CLI within non-overridable security ceilings; a project declaration
   requests authority but never grants it) stays with
@@ -90,7 +90,7 @@ layers, from most stable to most dynamic:
 ```text
 [1] Bitty Core Contract       <- stable, versioned, non-overridable
 [2] User Global Instructions  <- rarely changes
-[3] Project .bitty Manifest   <- stable within a session
+[3] Project .wheel Manifest   <- stable within a session
 [4] Skills / Agent Profile    <- stable within a session (single-agent v0.1)
 [5] Runtime / Current Turn    <- dynamic per turn
 ```
@@ -129,17 +129,17 @@ tool preferences, and standing safety rules (source lines 175-203). **Draft disp
 This layer is fully user-editable and travels across projects. It configures
 desired behavior only; it grants no capability (see below).
 
-### Layer 3: Project `.bitty` Manifest
+### Layer 3: Project `.wheel` Manifest
 
 Project-owned intent loaded when an agent enters the project: project
 instructions plus a structured manifest rather than one giant Markdown file
-(source lines 205-307). The source sketches a `.bitty/` tree (`config.lua`,
+(source lines 205-307). The source sketches a `.wheel/` tree (`config.lua`,
 `instructions.md`, `agents/`, `skills/`, `tools/`, `mcp/`, `hooks/`,
 `context/`).
 
 Judgment: **draft disposition: adopt the manifest direction; qualify the sketch.** The tree layout,
 file names, and `config.lua` shape are illustrative proposals, not an adopted
-schema. Canonical `.bitty` coverage stays in the 013/017/018 distillation;
+schema. Canonical `.wheel` coverage stays in the 013/017/018 distillation;
 precedence follows its built-in to user to project to session/CLI order
 within security ceilings. An untrusted repository manifest must never execute
 or self-authorize: project trust, inspection, explicit approval, and
@@ -305,7 +305,7 @@ Illustrative budget sketch from the source, still a proposal:
 | **Core subtotal (proposed)**         |  **~800-1,300** |
 | Tool schemas                         |     1,000-2,500 |
 | Runtime environment                  |         100-300 |
-| `.bitty` project instructions        |        Variable |
+| `.wheel` project instructions        |        Variable |
 | Active skills                        |        Variable |
 
 A freshly started Bitty coding agent would therefore aim to reach the first
@@ -325,7 +325,7 @@ A thin harness core keeps the runtime contract reviewable; capability
 breadth comes from schemas and skills that load lazily. This is also the
 cache-alignment closing: the roughly 1K Runtime Contract can stay immutable
 within a version and sit at the very front of the context, ahead of User,
-`.bitty`, Agent-profile, append-only history, and the trailing runtime
+`.wheel`, Agent-profile, append-only history, and the trailing runtime
 delta, which is exactly the stable-before-dynamic assembly order the next
 section adopts.
 
@@ -336,7 +336,7 @@ The source's assembly sketch (lines 583-636, 705-717):
 ```text
 [BITTY CORE] Bitty runtime contract...        <- almost never changes
 [USER] User global instructions...            <- rarely changes
-[PROJECT] .bitty/instructions.md...           <- stable in session
+[PROJECT] .wheel/instructions.md...           <- stable in session
 [AGENT] Agent profile...                      <- stable in session
 [SESSION] Current task...                     <- append-only history
 [RUNTIME DELTA] cwd / branch / dynamic facts  <- dynamic
@@ -415,7 +415,7 @@ Consistent with [v0.1 Implementation Profile](implementation-profile-v0.1.md)
   prompt-never-grants-capability enforcement rule, stable-before-dynamic
   assembly discipline, and single-agent profiles.
 - Beyond-v0.1 proposals (not commitments): multi-agent profile sets and
-  delegation, `.bitty` manifest schema and merge semantics, introspection
+  delegation, `.wheel` manifest schema and merge semantics, introspection
   API surface, pinned core-version identifiers, registry snapshots, planner
   and epoch types, and any observability UI. Each needs its own reviewed
   contract and evidence before any implementation claim.
@@ -484,7 +484,7 @@ questions stay with AIQ-29.
 - [AI Unresolved Questions](ai-unresolved-questions.md) (Draft): AIQ-09,
   AIQ-12, AIQ-13, AIQ-29, AIQ-31, AIQ-33, AIQ-34 reused; no new identifier proposed.
 - [AI research distillation from 013, 017, and 018](research/research-distillation-013-017-018.md)
-  (Draft): canonical `.bitty` and precedence coverage consumed here.
+  (Draft): canonical `.wheel` and precedence coverage consumed here.
 
 ## Evidence and verification boundary
 
