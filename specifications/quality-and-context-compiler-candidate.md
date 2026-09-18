@@ -33,8 +33,7 @@ In particular, the quality-formula symbols, the `ContextUnit` and
 formula, the authority ladder, the pass-pipeline shape, the budget numbers,
 the cache-namespace fields, the `/context` display sketches, and the Wheel
 module diagram are **not** accepted by this candidate design. Agent lifecycle,
-Agent events, and Agent semantics in the candidate direction are **discussion inputs
-only**: the accepted Agent contract stays entirely with the RFC, which this
+Agent events, and Agent semantics in the candidate direction are **discussion inputs only**: the accepted Agent contract stays entirely with the RFC, which this
 draft references without restating normatively. Nothing here is promoted to
 accepted status, and no implementation is described as shipped.
 
