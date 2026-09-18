@@ -35,7 +35,7 @@ side; concrete tool, method, event, struct, and wire sketches stay unreviewed
 vocabulary.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `exec` and `job_*` tool sketches, the `execution.*` IPC
@@ -64,11 +64,11 @@ console mockup, which is a view sketch without a data-contract or
 authorization analysis. Those are corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Execution ownership R1](execution-ownership-r1.md),
-[Tool transport R2](tool-transport-r2.md),
-[Panel environment awareness](panel-environment-awareness.md), and
-[Provider plugin boundary](provider-plugin-boundary.md) (references only).
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Panel environment awareness](../interfaces/panel-environment-awareness.md), and
+[Provider plugin boundary](../providers/provider-plugin-boundary.md) (references only).
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The 041 Capability Layer versus 044 capability-enforcement split stays
 consistent with the unmerged-candidates comparison added under CTX-0047 in
@@ -116,16 +116,16 @@ proposes no pueue backend.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the Execution Supervisor, the three-phase rollout,
 and the proposed supervisor document are **not** accepted by this
 distillation and must not be read as crate, package, protocol, or release
 decisions. Execution and environment questions stay with
-[Execution ownership R1](execution-ownership-r1.md) and
-[Panel environment awareness](panel-environment-awareness.md); tool
+[Execution ownership R1](../architecture/execution-ownership-r1.md) and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
 authorization and transport placement stay with
-[Tool transport R2](tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md). Each is
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md). Each is
 referenced, never duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
@@ -146,7 +146,7 @@ below. The source's permission names (`execution.observe`,
 similar), operation lists, and console fields are conceptual vocabulary, not
 additions to any accepted registry, schema, or protocol. This draft creates
 or closes no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Core thesis: a supervisor, not a stronger spawn

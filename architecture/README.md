@@ -22,13 +22,13 @@ node traces to accepted or draft code or RFC; no diagram invents nodes.
   defines the only accepted IPC wire, scope, and Agent vocabulary. Solid
   edges to `IPC Channel` and `AgentMessage` rest on that contract.
 - **Draft dispositions:** R1 single-agent execution ownership
-  ([R1](../specifications/execution-ownership-r1.md)), draft mailbox
-  directions ([Agent coordination](../specifications/agent-coordination.md)),
-  draft single-authority Task model ([R5](../specifications/task-lifecycle-r5.md)),
+  ([R1](execution-ownership-r1.md)), draft mailbox
+  directions ([Agent coordination](../agent/agent-coordination.md)),
+  draft single-authority Task model ([R5](task-lifecycle-r5.md)),
   draft session-versus-context invariant
-  ([Context management](../specifications/context-management.md)), draft
+  ([Context management](../context/context-management.md)), draft
   stable-prefix ordering
-  ([Prefix-cache design](../specifications/prefix-cache-context-design.md)),
+  ([Prefix-cache design](../context/prefix-cache-context-design.md)),
   and draft structural compaction (same design, eight invariants).
 - **Candidate discussion input:** the 055 research distillation
   ([055](../specifications/research-distillation-055-bitty-ai.md))
@@ -41,7 +41,7 @@ node traces to accepted or draft code or RFC; no diagram invents nodes.
   [039](../specifications/research-distillation-039-bitty-ai.md),
   [040](../specifications/research-distillation-040-bitty-ai.md),
   [041](../specifications/research-distillation-041-bitty-ai.md),
-  and [047](../specifications/caller-attribution-design.md).
+  and [047](../agent/caller-attribution-design.md).
   Dashed nodes and edges are vocabulary only: no schema, wire, command,
   threshold, or release decision follows.
 - **Implemented anchors:** observed in `bitty-ai` at `3623c6b3`

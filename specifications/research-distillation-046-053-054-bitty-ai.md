@@ -26,7 +26,7 @@ mostly owner-pending). The summaries were built from read-only, and the origin
 records were not read, renamed, edited, or staged by this task.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the fixed-Coding-domain wording, the Non-goals text, the staged
@@ -55,19 +55,19 @@ MVP, which is a roadmap opinion with no milestone evidence. Those are
 corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only, including the
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only, including the
 CTX-0047 unmerged-candidates comparison, which is reconciled here and
 re-decided nowhere),
-[Provider plugin boundary](provider-plugin-boundary.md),
-[Caller attribution design](caller-attribution-design.md),
-[Command and Tool Architecture](command-tool-architecture.md),
-[Context Management Architecture](context-management.md),
-[Agent Coordination Architecture](agent-coordination.md),
-[Execution ownership R1](execution-ownership-r1.md),
-[Context retention R3](context-retention-r3.md),
-[Task lifecycle R5](task-lifecycle-r5.md),
-[Tool transport R2](tool-transport-r2.md), and
-[Panel environment awareness](panel-environment-awareness.md). The accepted
+[Provider plugin boundary](../providers/provider-plugin-boundary.md),
+[Caller attribution design](../agent/caller-attribution-design.md),
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+[Context Management Architecture](../context/context-management.md),
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Context retention R3](../architecture/context-retention-r3.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md),
+[Tool transport R2](../architecture/tool-transport-r2.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). The accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. The
 companion
 [Wheel decoupling distillation (052)](research-distillation-052-bitty-ai.md)
@@ -109,26 +109,26 @@ identify the discussions, not the truth of their claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the fixed-domain wording, the Non-goals text, the
 staged MVP, the primitive list, the interface and call sketches, the event and
 field names, and the manifest, lockfile, CLI, install, and flavor spellings
 proposed in the sources are **not** accepted by this distillation and must not
 be read as product, crate, package, protocol, file-schema, command, or release
 decisions. Provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md) and
-[Caller attribution design](caller-attribution-design.md); tool shape and
+[Provider plugin boundary](../providers/provider-plugin-boundary.md) and
+[Caller attribution design](../agent/caller-attribution-design.md); tool shape and
 transport placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md); context assembly, budget, and
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); context assembly, budget, and
 retention questions stay with
-[Context Management Architecture](context-management.md) and
-[Context retention R3](context-retention-r3.md); coordination and
+[Context Management Architecture](../context/context-management.md) and
+[Context retention R3](../architecture/context-retention-r3.md); coordination and
 persistence questions stay with
-[Agent Coordination Architecture](agent-coordination.md) and
-[Task lifecycle R5](task-lifecycle-r5.md); execution and environment
-questions stay with [Execution ownership R1](execution-ownership-r1.md)
-and [Panel environment awareness](panel-environment-awareness.md); each is
+[Agent Coordination Architecture](../agent/agent-coordination.md) and
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md); execution and environment
+questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md); each is
 referenced, never duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
@@ -146,7 +146,7 @@ consented recording, secret minimization) override every discussion example
 below. The composition sketches are conceptual vocabulary, not an adopted
 authorization or distribution contract. This draft creates or closes no AIQ or
 OQ identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Wheel scope reconciliation (046; reconcile, not re-decide)
@@ -155,7 +155,7 @@ Source: `046:5-16` (the one-liner, the background with the fixed-Domain-open-Rol
 rule, the scope plus Non-goals block, the future-shape paragraph, the
 anti-premature-abstraction rule, the staged MVP, and the destination plus open
 items). This section reconciles the fixed-Coding-domain statement against the
-candidate text in [AI Architecture](ai-architecture.md) and the CTX-0047
+candidate text in [AI Architecture](../architecture/ai-architecture.md) and the CTX-0047
 unmerged-candidates comparison. Reconciliation means recording how the
 statements fit together without merging, accepting, or dropping any of them.
 
@@ -298,7 +298,7 @@ a replaceable plugin while callers see a stable generation surface. This
 matches the model-gateway ignorance direction already carried by the
 companion [052 distillation](research-distillation-052-bitty-ai.md) and the
 Router transport plus two-level plugin model in
-[Provider plugin boundary](provider-plugin-boundary.md); this draft adds
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); this draft adds
 no interface and duplicates neither.
 
 **Critical judgment:** the illustration does not establish Wheel ownership of
@@ -319,8 +319,8 @@ layout or implementation language.
 **Critical judgment:** no schema, registry, or discovery mechanism is adopted
 here. A declared service requirement is not a permission grant: tool
 authorization and transport placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md), and the permission
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md), and the permission
 non-inheritance direction from the 040 distillation still applies. The
 deterministic tool-schema direction stays consistent with the prefix-cache
 design's determinism requirement, which this draft references instead of
@@ -348,10 +348,10 @@ Context and memory composition, workflow layering, and multi-agent
 orchestration appear in the source only as illustrations of reusable
 framework layers above a narrow SDK. This draft records them as pointers:
 context assembly and retention stay with
-[Context Management Architecture](context-management.md) and
-[Context retention R3](context-retention-r3.md); coordination stays with
-[Agent Coordination Architecture](agent-coordination.md); lifecycle stays
-with [Task lifecycle R5](task-lifecycle-r5.md). No agent lifecycle is
+[Context Management Architecture](../context/context-management.md) and
+[Context retention R3](../architecture/context-retention-r3.md); coordination stays with
+[Agent Coordination Architecture](../agent/agent-coordination.md); lifecycle stays
+with [Task lifecycle R5](../architecture/task-lifecycle-r5.md). No agent lifecycle is
 established here.
 
 ### Layering and authority guardrails

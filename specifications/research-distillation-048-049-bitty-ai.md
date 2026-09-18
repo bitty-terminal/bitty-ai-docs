@@ -29,7 +29,7 @@ cache capability, versioning, observability, trace, worked example, and the
 five-subsystem split).
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the quality-formula symbols, the `ContextUnit` and
@@ -61,18 +61,18 @@ cache semantics the task did not independently verify. Those are corrected
 below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Context Management Architecture](context-management.md),
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
-[Prompt Layering Design](prompt-layering-design.md),
-[Command and Tool Architecture](command-tool-architecture.md),
-[Agent Coordination Architecture](agent-coordination.md),
-[Execution ownership R1](execution-ownership-r1.md),
-[Context retention R3](context-retention-r3.md),
-[Task lifecycle R5](task-lifecycle-r5.md),
-[Tool transport R2](tool-transport-r2.md),
-[Provider plugin boundary](provider-plugin-boundary.md), and
-[Panel environment awareness](panel-environment-awareness.md). The
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+[Prompt Layering Design](../context/prompt-layering-design.md),
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Context retention R3](../architecture/context-retention-r3.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). The
 accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this
 draft. The companion
 [Wheel-config and Git-model distillation (050-051)](research-distillation-050-051-bitty-ai.md)
@@ -118,25 +118,25 @@ reports) are unverified discussion citations, not findings reproduced here.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the quality formula, the seven-module Wheel sketch,
 the Context IR shape, the zone model, the pipeline, and the five-subsystem
 split proposed in the sources are **not** accepted by this distillation and
 must not be read as crate, package, protocol, or release decisions. Context
 assembly, budget, and retention questions stay with
-[Context Management Architecture](context-management.md),
-[Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md),
-and [Context retention R3](context-retention-r3.md); prompt-text layering
-stays with [Prompt Layering Design](prompt-layering-design.md); tool shape
+[Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+and [Context retention R3](../architecture/context-retention-r3.md); prompt-text layering
+stays with [Prompt Layering Design](../context/prompt-layering-design.md); tool shape
 and transport placement stay with
-[Command and Tool Architecture](command-tool-architecture.md) and
-[Tool transport R2](tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](execution-ownership-r1.md)
-and [Panel environment awareness](panel-environment-awareness.md);
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
 coordination and persistence questions stay with
-[Agent Coordination Architecture](agent-coordination.md),
-[Task lifecycle R5](task-lifecycle-r5.md), and the persistence
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md), and the persistence
 dispositions. Each is referenced, never duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
@@ -156,7 +156,7 @@ below. Capability metadata, trust levels, permission sets, and verification
 gates in the sources are conceptual vocabulary, not additions to any accepted
 registry, schema, or protocol. This draft creates or closes no AIQ or OQ
 identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Quality formula and optimization order
@@ -304,7 +304,7 @@ ecosystem prevalence claims. The stable claims are the Hell decomposition
 (useful for measurement), the resolver placement (deduplicate before the
 model, not through the model), and the no-implicit-trust rule (installation
 never implies executability). Enforcement placement and schema stay with
-[Tool transport R2](tool-transport-r2.md) and the normative security
+[Tool transport R2](../architecture/tool-transport-r2.md) and the normative security
 corpus.
 
 ## Small prompt and need-driven discovery

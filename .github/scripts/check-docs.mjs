@@ -119,14 +119,17 @@ const METADATA_ENUMS = new Map([
 const CJK_PATTERN =
   /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Bopomofo}\u3000-\u303f]/u;
 const CONTENT_ROOTS = new Set([
+  "agent",
   "architecture",
   "configuration",
   "context",
   "examples",
   "extensibility",
   "how-to",
+  "integration",
   "interfaces",
   "migrations",
+  "persistence",
   "product",
   "providers",
   "reference",

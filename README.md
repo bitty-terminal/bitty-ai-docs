@@ -35,11 +35,13 @@ This repository does not own:
 
 Cross-project contracts and registers are linked, never copied.
 
-The four projected AI-core topic trees — `architecture/`, `context/`,
-`providers/`, and `reference/` — are plans, not directories: the
+Canonical AI-core content is organized into root topic trees —
+`architecture/`, `context/`, `providers/`, `agent/`, `persistence/`,
+`interfaces/`, `integration/`, `product/`, and `specifications/` — each with a
+route-only index. The
 [documentation map](https://github.com/bitty-terminal/bitty-ai-docs/blob/main/docs/README.md)
-records each tree's owning open questions, prerequisite specifications, and
-landing order, and no tree exists until reviewed content lands.
+records every tree and entry point plus the one remaining planned tree
+(`reference/`), which lands only when reviewed implementation evidence exists.
 
 ## Composition
 
@@ -56,7 +58,7 @@ topic trees; this repository's process documents stay under `docs/`.
 | `docs/README.md`                 | Documentation map and authority rules for this repository.   |
 | `docs/development/`              | Contributor workflow and the normative documentation policy. |
 | `docs/sources/`                  | Research coverage ledger and provenance registers.           |
-| `<topic>/`                       | Canonical AI-core documents (currently `specifications/`).   |
+| `<topic>/`                       | Canonical AI-core documents in root topic trees.             |
 | `TODO.md`                        | Work register for this repository.                           |
 | `AGENTS.md`                      | Agent scope, CarryCtx workflow, and local gate rules.        |
 | `.github/scripts/check-docs.mjs` | Links, metadata, language, budgets, and hygiene checks.      |

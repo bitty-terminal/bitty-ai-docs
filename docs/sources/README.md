@@ -26,4 +26,4 @@ only and restates no row status, record range, or capture label.
 - [Documentation map](../README.md)
 - [Specifications register](../../specifications/README.md)
 - [Documentation workflow](../development/documentation-workflow.md)
-- [AI Unresolved Questions](../../specifications/ai-unresolved-questions.md)
+- [AI Unresolved Questions](../../product/ai-unresolved-questions.md)

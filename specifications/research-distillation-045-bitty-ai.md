@@ -30,7 +30,7 @@ were read for exclusion accuracy and stay `bitty`-side; they are recorded as
 exclusions, not distilled claims.
 
 The recommendation is to treat every model below as a candidate input to the
-draft [AI Architecture](ai-architecture.md) and its related draft
+draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
 [IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
 In particular, the `DelegationBudget` sketch, the `agent.spawn` capability and
@@ -58,11 +58,11 @@ mechanism that has no owner, scoping rule, or review evidence. Those are
 corrected below.
 
 This synthesis references, without duplicating or modifying, the draft
-[AI Architecture](ai-architecture.md) (candidate inputs only),
-[Execution ownership R1](execution-ownership-r1.md),
-[Tool transport R2](tool-transport-r2.md),
-[Provider plugin boundary](provider-plugin-boundary.md), and
-[Panel environment awareness](panel-environment-awareness.md) (references
+[AI Architecture](../architecture/ai-architecture.md) (candidate inputs only),
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Tool transport R2](../architecture/tool-transport-r2.md),
+[Provider plugin boundary](../providers/provider-plugin-boundary.md), and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md) (references
 only). The accepted [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by
 this draft. The unmerged-candidates comparison added under CTX-0047 in the AI
 Architecture stays consistent with this draft; this draft references that
@@ -95,19 +95,19 @@ discussion, not the truth of its claims.
 
 ## Authority and reconciliation
 
-The draft [AI Architecture](ai-architecture.md) layered models are
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
 candidate inputs only; the four-layer policy stack, the `DelegationBudget`
 shape, the numeric ceilings, and the spawn capability vocabulary proposed in
 the source are **not** accepted by this distillation and must not be read as
 crate, package, protocol, or release decisions. Delegation semantics,
 subagent attenuation, and task token and cost budgets stay with the draft
 architecture and its coordination dispositions; execution enforcement stays
-with [Execution ownership R1](execution-ownership-r1.md); tool
+with [Execution ownership R1](../architecture/execution-ownership-r1.md); tool
 authorization and transport placement stay with
-[Tool transport R2](tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](provider-plugin-boundary.md); panel environment
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); panel environment
 semantics stay with
-[Panel environment awareness](panel-environment-awareness.md). Each is
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). Each is
 referenced, never duplicated or modified.
 
 The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
@@ -129,7 +129,7 @@ below. The source's capability names (filesystem, exec, agents), path
 patterns, permission examples, and console-style ceilings are conceptual
 vocabulary, not additions to any accepted registry, schema, or protocol. This
 draft creates or closes no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](ai-unresolved-questions.md) and shared
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
 governance.
 
 ## Four-layer architecture and the Lua-decides-how principle

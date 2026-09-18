@@ -13,7 +13,7 @@ sidebar_order: 21
 
 This ledger maps specific source topics to the
 [distillation](../../specifications/research-distillation-013-017-018.md), to the
-[prefix-cache context design](../../specifications/prefix-cache-context-design.md) for record
+[prefix-cache context design](../../context/prefix-cache-context-design.md) for record
 025, and to the 039/040/041/044/045/046/048/049/050/051/052/053/054/055/056 companion distillations, rather than claiming
 that an entire research record or specification is covered. Line ranges are
 inclusive, verified against the research records identified below. Repeated
@@ -45,8 +45,8 @@ for the exact pointer, checked paths, and limits of the code observation.
 
 The companion distillation is the new draft coverage. The accepted
 [IPC contract](../../specifications/ipc-agent-rfc.md), draft
-[AI architecture](../../specifications/ai-architecture.md), and experimental
-[pressure-test evidence](../../specifications/ai-vertical-slice-pressure-test.md) retain their
+[AI architecture](../../architecture/ai-architecture.md), and experimental
+[pressure-test evidence](../../product/ai-vertical-slice-pressure-test.md) retain their
 distinct status. Existing draft coverage is not accepted authority. No
 proposal from the records is promoted to accepted status. Claims requiring
 verification are marked as such in the distillation; reference clones remain
@@ -202,14 +202,14 @@ repository; the distilling task neither renamed, edited, nor staged it.
 Record 025 (read 2026-09-15) is a single pass with one framing principle,
 twenty-three numbered sections, and a closing pipeline summary; no duplication
 handling applies. The record was marked complete after the distillation
-([Prefix-Cache-Friendly Context Design](../../specifications/prefix-cache-context-design.md),
+([Prefix-Cache-Friendly Context Design](../../context/prefix-cache-context-design.md),
 `sidebar_order: 26`, CTX-0017) recorded its conclusions in this repository;
 the content and fingerprint are unchanged by that marking.
 
 ## Disposition: 025 partial distillation (Captured)
 
 The companion draft is
-[Prefix-Cache-Friendly Context Design](../../specifications/prefix-cache-context-design.md)
+[Prefix-Cache-Friendly Context Design](../../context/prefix-cache-context-design.md)
 (`sidebar_order: 26`): stable-before-dynamic layering, deterministic
 serialization, session-pinned registry snapshots, append-only epochs with
 structural compaction, provider qualifications, and privacy controls, with a
@@ -222,7 +222,7 @@ contracts. The accepted [IPC contract](../../specifications/ipc-agent-rfc.md) is
 The draft creates no AIQ or OQ identifier and closes none; it proposes
 AIQ-12 (canonical serialization, Closed adopted-draft) and AIQ-13
 (provider-scoped cache key and routing scope), whose register state stays
-with [AI Unresolved Questions](../../specifications/ai-unresolved-questions.md). Reference
+with [AI Unresolved Questions](../../product/ai-unresolved-questions.md). Reference
 clones remain untrusted read-only research material.
 
 The 025 design covers context assembly only (ordering, canonicalization,
