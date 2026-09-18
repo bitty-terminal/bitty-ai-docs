@@ -69,7 +69,7 @@ This register explicitly does not:
 These are bitty-ai-side `CarryCtx` tasks already scheduled against the same
 review campaign. Each was observed at status `ready` (not started) at
 inspection; none is claimed done, and none substitutes for the cross-repo
-contracts above.
+contracts below.
 
 - AI-0065 - define the `ProtocolAgentId` to `client_id` binding rule: covers the
   identity half of risks 4 and 2.

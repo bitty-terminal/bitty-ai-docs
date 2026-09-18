@@ -166,12 +166,6 @@ Retain the proposed console's organization/task/agent/panel/resource views, bidi
 
 Agent coordination separates logical agent identity from OS processes and model conversations, enabling async state machines while preserving fault isolation through explicit boundaries. Shared workspace services reduce duplicate work through authorization-checked leases rather than ambient access. Multi-agent teams use explicit delegation budgets, independent review, and bounded hierarchies to avoid uncontrolled recursion and cost escalation. Panel-execution separation preserves many-to-many observation without conflating presentation with ownership or authority.
 
-## Related specifications
-
-- [AI Architecture](../architecture/ai-architecture.md) (Draft): overlapping scope; reconciliation required
-- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): Panel lifecycle and IPC contracts
-- [Code Intelligence Architecture](code-intelligence.md) (Draft): companion specification for LSP sharing
-
 ## Verification plan
 
 This specification records the candidate direction through its critical synthesis and separately attributed comparative observations. It does **not** establish implementation of these coordination proposals. Verification requires:
@@ -220,3 +214,9 @@ This specification records the candidate direction through its critical synthesi
 5. Define team budget reservation and reconciliation protocol.
 6. Update `docs/README.md` navigation if this specification is accepted.
 7. Cross-reference with IPC and Agent RFC for panel lifecycle contracts.
+
+## References
+
+- [AI Architecture](../architecture/ai-architecture.md) (Draft): overlapping scope; reconciliation required
+- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): Panel lifecycle and IPC contracts
+- [Code Intelligence Architecture](code-intelligence.md) (Draft): companion specification for LSP sharing

@@ -127,7 +127,8 @@ Conclusion: the Core cannot spawn a child process today, and the generic
 execution path it mirrors belongs to the host side (`bitty` #707), not to
 the runtime. Any version-control capability must therefore arrive either as
 opaque host-executed argv or as a purpose-built wrapper in front of that
-path. The next section argues the wrapper is the only auditable choice.
+path. [Alternatives considered](#alternatives-considered) argues that the
+wrapper is the only auditable choice.
 
 ## No existing git or version-control abstraction
 

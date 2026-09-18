@@ -138,12 +138,6 @@ LSP services follow the supervision model from [Agent Coordination Architecture]
 
 Code intelligence sharing reduces duplicate language server instances and redundant builds while preserving per-agent authorization and attribution. Stateful LSP mediation prevents conflicting document state and orders lifecycle operations correctly. Verification fingerprinting enables safe result reuse by capturing complete input identity rather than only Git HEAD. Semantic tool surfaces prevent arbitrary LSP command generation while providing progressive disclosure and clear confidence/freshness metadata.
 
-## Related specifications
-
-- [Agent Coordination Architecture](agent-coordination.md) (Draft): service supervision model
-- [AI Architecture](../architecture/ai-architecture.md) (Draft): tool bus and execution profiles
-- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): permission model for effectful proposals
-
 ## Verification plan
 
 This specification records the candidate direction through its critical synthesis; comparative source observations retain their separately pinned provenance. It does **not** establish implementation of these code-intelligence proposals. Verification requires:
@@ -184,3 +178,9 @@ This specification records the candidate direction through its critical synthesi
 5. Define semantic tool API surface and result metadata schema.
 6. Implement result filtering mechanism for privileged servers.
 7. Update `docs/README.md` navigation if this specification is accepted.
+
+## References
+
+- [Agent Coordination Architecture](agent-coordination.md) (Draft): service supervision model
+- [AI Architecture](../architecture/ai-architecture.md) (Draft): tool bus and execution profiles
+- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): permission model for effectful proposals
