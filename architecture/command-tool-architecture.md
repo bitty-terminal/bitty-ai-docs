@@ -15,25 +15,6 @@ This specification defines the architectural separation between slash commands, 
 
 **Draft relationship**: [AI Architecture](ai-architecture.md) Tool Bus (TB-1..TB-3). This elaboration selects no new transport or accepted mechanism.
 
-## Source provenance
-
-This distillation critically evaluates research note `022` (read 2026-09-14, lines 1-1368).
-
-The source compares Claude Code, OpenCode, Codex, and oh-my-pi implementations with upstream references:
-
-- Claude Code Glossary: `https://code.claude.com/docs/en/glossary` (referenced as [1], accessed via source discussion)
-- OpenCode Commands: `https://opencode.ai/docs/zh-cn/commands/` (referenced as [2], accessed via source discussion)
-- Codex tooltips: `https://github.com/openai/codex/blob/main/codex-rs/tui/tooltips.txt` (referenced as [3], accessed via source discussion)
-- oh-my-pi README: `https://github.com/can1357/oh-my-pi/blob/main/README.md` (referenced as [4], accessed via source discussion)
-- OpenCode DCP plugin: `https://github.com/Opencode-DCP/opencode-dynamic-context-pruning` (referenced as [5], accessed via source discussion)
-- oh-my-pi compaction: `https://github.com/can1357/oh-my-pi/blob/main/docs/compaction.md` (referenced as [6], accessed via source discussion)
-- OpenAI Responses API: `https://developers.openai.com/api/reference/java/resources/responses/methods/compact` (referenced as [7], accessed via source discussion)
-- OpenCode Skills: `https://opencode.ai/docs/skills` (referenced as [8], accessed via source discussion)
-
-The source presents implementation observations, architectural proposals, and design rationale. This distillation separates observations of existing systems from proposed Bitty contracts and explicitly marks what remains unresolved.
-
-Upstream comparisons below are attributed recording claims, not current implementation verification. Source crate names, examples and numbers are illustrative. In particular, the source's `bitty-ai` Lua layer is not the actual repository boundary: the independent `bitty-ai` repository contains Rust code as well as proposed Lua-facing integration.
-
 ## Core principle: mechanism versus policy
 
 The foundational design constraint is:
@@ -264,7 +245,7 @@ The mechanism/policy split ensures `bitty-ai-core` remains a stable, reviewable 
 
 ## Next steps
 
-1. Independent review of this distillation against source provenance and existing `ai-architecture.md`.
+1. Independent review of this specification against existing `ai-architecture.md`.
 2. Cross-reference with `bitty-terminal-docs` Panel specifications and IPC contracts.
 3. Resolve unresolved questions through targeted RFCs or open-question register entries.
 4. Update `docs/README.md` navigation if this specification is accepted.
@@ -277,11 +258,11 @@ The mechanism/policy split ensures `bitty-ai-core` remains a stable, reviewable 
 
 ## Evidence and verification boundary
 
-This specification distills research 022 discussion and comparative harness observations. It does **not** describe implemented Bitty behavior. Verification requires:
+This specification records the candidate direction and comparative harness observations. It does **not** describe implemented Bitty behavior. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for Core/Lua separation
 - `bitty-ai-core` Rust trait definitions for `Context`, `Session`, `Tool`, `Agent`, `MCP`
 - Lua API reference for command registration, agent spawning, and primitive invocation
 - Cross-repository IPC contract between `bitty-core` and `bitty-ai-core`
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/research-distillation-013-017-018.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).

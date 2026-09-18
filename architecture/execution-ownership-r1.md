@@ -62,7 +62,7 @@ optional Panel -> projection of execution and retained evidence
 ```
 
 **Option B is rejected as an ownership model.** The mandatory
-`agent.exec -> Headless Panel -> PTY/process` path from research 022
+`agent.exec -> Headless Panel -> PTY/process` path from the candidate direction
 (022:332-342, via [Command and tool architecture](command-tool-architecture.md))
 is not adopted. A headless panel must not be required per agent, per execution,
 or as the authority for process ownership, cleanup, or consent. Headed and

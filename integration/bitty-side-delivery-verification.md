@@ -3,7 +3,7 @@ title: Bitty-side delivery verification
 description: Draft read-only verification mapping bitty main deliveries to BII inputs without acceptance decision
 category: specifications
 audience: contributor
-document_type: research
+document_type: explanation
 status: draft
 website_publish: false
 sidebar_order: 42
@@ -13,7 +13,7 @@ sidebar_order: 42
 
 > Status: **draft**. This note records read-only verification of `bitty`
 > `main` against the [Bitty-Side Integration Input](bitty-side-integration-input.md)
-> (BII-01 through BII-10 with research 023 G-2 and G-3). It describes what
+> (BII-01 through BII-10, with the G-2 and G-3 items). It describes what
 > was delivered and what remains missing. It grants no acceptance, sets no
 > `bitty`-side priority, closes no open question, and changes the status of
 > no AIQ entry. Acceptance, sequencing, and mechanism decisions stay with
@@ -410,15 +410,15 @@ Each code group landed with its linked evidence bar of bounded validation
 and fail-closed tests. Whether the order satisfies the `bitty`
 repository is for that repository to decide.
 
-## Research 023 G-2 and G-3 confirmation
+## G-2 and G-3 confirmation
 
-Research 023 G-2 (`terminal.snapshot` host service) maps to BII-01 and is
+G-2 (`terminal.snapshot` host service) maps to BII-01 and is
 addressed in shape by #703 as a bounded service under `terminal.inspect`,
 with the live-binding IPC half added by #723 as a bounded store plus live
-providers. Research 023 G-3 (generic Tool Bus dispatch) maps to BII-02 with BII-03
+providers. G-3 (generic Tool Bus dispatch) maps to BII-02 with BII-03
 and is addressed in shape by #705 as generic dispatch with per-tool
 consent, with live read-only inspect providers plus the `HostCaller` bind
-added by #723. The remaining 023 gaps stay where the BII input puts them:
+added by #723. The remaining G-1 through G-6 gaps stay where the BII input puts them:
 packaging (G-1) is addressed in shape by the publishable bridge boundary
 (#709) without consumer substitution proof, transport (G-4) is addressed
 in shape by text-first fragments (#711) plus the text-first projection

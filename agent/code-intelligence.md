@@ -15,12 +15,6 @@ This specification defines shared code intelligence services for `bitty-ai`: lan
 
 **Draft relationship**: [Agent Coordination Architecture](agent-coordination.md) service supervision model. Neither draft accepts these mechanisms.
 
-## Source provenance
-
-This distillation extracts code intelligence sharing from research note `021` (read 2026-09-14), principally record lines 156-456 and 641-700. The broker safeguards, complete fingerprint and candidate eligibility sequence are critical synthesis additions in [research 021](../specifications/research-distillation-021.md#lint-build-test-and-evidence-reuse), whose imported draft lines 280-309 contain the eligibility/scheduling discussion. They are not recording 022 lines 280-309 or upstream implementation evidence.
-
-The source analyzes LSP broker patterns, verification fingerprinting, and result caching with comparative references to existing systems. This specification separates observations from proposed Bitty contracts.
-
 ## Stateful language-service mediation
 
 Retain a semantic tool surface rather than arbitrary model-generated LSP calls (source lines 206-261). Return source identity, snapshot/document version, method, provider, freshness, confidence, and truncation. Syntax search is a useful fallback but cannot silently claim semantic equivalence to language-service references or rename.
@@ -162,7 +156,7 @@ Code intelligence sharing reduces duplicate language server instances and redund
 
 ## Next steps
 
-1. Independent review of this distillation against source provenance and agent coordination architecture.
+1. Independent review of this specification against agent coordination architecture.
 2. Resolve unresolved questions through targeted RFCs or open-question register entries.
 3. Define verification fingerprint schema and manifest format.
 4. Specify LSP broker protocol and document overlay coordination.
@@ -178,7 +172,7 @@ Code intelligence sharing reduces duplicate language server instances and redund
 
 ## Evidence and verification boundary
 
-This specification distills recording 021 through its critical synthesis; comparative source observations retain their separately pinned provenance. It does **not** establish implementation of these code-intelligence proposals. Verification requires:
+This specification records the candidate direction through its critical synthesis; comparative source observations retain their separately pinned provenance. It does **not** establish implementation of these code-intelligence proposals. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for LSP sharing and result reuse
 - `bitty-ai-core` Rust implementation of LSP broker, verification fingerprinting, result cache

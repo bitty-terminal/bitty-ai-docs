@@ -1,6 +1,6 @@
 ---
 title: Storage memory and export design
-description: Draft bitty-ai storage memory and export design distilled from research 037
+description: Draft bitty-ai storage memory and export design derived from the candidate direction
 category: specifications
 audience: contributor
 document_type: specification
@@ -11,7 +11,7 @@ sidebar_order: 47
 
 # Storage memory and export design
 
-> Status: **draft**. This document distills workspace research record `037.md`
+> Status: **draft**. This document records the candidate direction
 > into the draft `bitty-ai`-side storage, memory, and export design:
 > per-session SQLite with a global catalog control plane, a content-addressed
 > object store, an event-oriented session model, context recipes, memory tiers,
@@ -40,7 +40,7 @@ This design covers only what `bitty-ai` Core owns as storage direction:
   boundaries, hash-function selection, compression tuning, wire protocols,
   secret-store design, panel presentation, and plugin-registry mechanics.
 
-Inputs are research note `037` (read 2026-09-15, 1,051 lines), the R6 disposition in
+Inputs are the candidate direction, the R6 disposition in
 [Persistence profile R6](../architecture/persistence-profile-r6.md), the R3 disposition in
 [Context retention R3](../architecture/context-retention-r3.md), the dimension split in
 [Persistence and evidence architecture](persistence-evidence.md), PP-2 (Typed
@@ -59,9 +59,6 @@ and not implementation claims.
 
 ## Shard design: catalog, per-session store, and objects
 
-Source: `037.md:106-175` (single-database rejection at 108-130; shard sketch
-at 134-150; catalog as control plane at 151-173).
-
 The proposal rejects one global database holding sessions, messages, tool
 calls, memory, panel history, artifacts, embeddings, and logs with unrelated
 lifetimes. The draft direction instead shards storage by session:
@@ -76,7 +73,7 @@ catalog.sqlite (small, control plane)
 object store (tool output, files, images, attachments)
 ```
 
-The global catalog records only control-plane fields (source `037.md:155-169`):
+The global catalog records only control-plane fields:
 session identifier, title, project identifier, creation and update timestamps,
 status, model, provider, summary, size, pin and archive markers, and the
 storage path. It never holds complete messages or tool output. The source
@@ -95,12 +92,7 @@ redacted-before-write, minimized, user-only storage with export preview
 
 ## Event-oriented session model
 
-Source: `037.md:177-258` (per-session tables at 188-202; Session/Agent/Panel
-hierarchy at 208-219; lifetime decoupling at 221-224; event fields at 229-239;
-event types at 242-255).
-
-Each session directory holds a manifest plus one session database
-(source `037.md:182-186`):
+Each session directory holds a manifest plus one session database:
 
 ```text
 sessions/2026/09/<session-id>/
@@ -132,10 +124,6 @@ authority questions stay open and are not decided here.
 
 ## Context recipes, not context copies
 
-Source: `037.md:366-444` (per-turn copy arithmetic at 370-385; recipe sketch
-at 390-415; composition-over-copy rule at 417-420; materialize-on-export at
-421-431; decision-provenance value at 433-442).
-
 The proposal observes that storing a full context per turn repeats mostly
 identical bytes, and instead records a context snapshot as a recipe: named
 slots (system prompt, core prompt, skills, messages, summary, tool schema,
@@ -156,10 +144,6 @@ contract, and never a permission to rerun tools.
 
 ## Memory tiers and derived indexes
 
-Source: `037.md:447-527` (three-tier split at 449-463; session memory at
-467-476; project memory at 478-493; global memory at 495-501; embeddings as
-derived at 503-526).
-
 The proposal separates three canonical tiers from one derived tier:
 
 | Tier           | Proposed home                       | Holds                                                       |
@@ -172,7 +156,7 @@ The proposal separates three canonical tiers from one derived tier:
 The load-bearing rule is that memory is canonical data while embeddings are a
 derived representation: a lost embedding index is rebuilt from memory with an
 index-rebuild operation, so a multi-gigabyte derived index never joins the
-backup set (source `037.md:505-526`).
+backup set.
 
 **Critical judgment:** tier names and store shapes are proposals. Cross-tier
 retrieval stays under consent, freshness, and deletion propagation; every
@@ -182,10 +166,6 @@ representation needs no full-text index, and each new index is another copy
 that must invalidate with its source.
 
 ## Export semantics: panel, agent, session, workspace
-
-Source: `037.md:651-722` (four-way table at 654-660; panel contents at
-665-683; agent contents at 688-708; session composition at 710-721; workspace
-as project-level sessions plus memory at 660).
 
 The proposal keeps four export scopes with distinct meanings:
 
@@ -210,10 +190,6 @@ before bytes leave the host.
 
 ## Core storage API versus Lua frontends
 
-Source: `037.md:595-648` (Lua-owns-command versus Core-owns-snapshot at
-597-601; direct-DB-access rejection at 603-610; snapshot call sketch at
-614-624; four frontends at 626-635; schema-migration independence at 637-648).
-
 The proposal places command and presentation in Lua plugins while snapshot,
 serialization, and the storage API stay Core capabilities. Lua never opens a
 session database directly; a future storage-schema upgrade must not break
@@ -230,10 +206,6 @@ privilege at dispatch), and consent attachment for each frontend stay open and
 need their own scoped task with security review.
 
 ## Stable interchange format direction
-
-Source: `037.md:725-801` (raw-database-export rejection at 729-750; stable
-format proposal at 751-770; manifest sketch at 774-783; exporter chain at
-787-797; live-snapshot note at 801).
 
 The proposal rejects exporting the internal database file: schema versions
 would make migration painful. Instead it sketches a versioned interchange
@@ -253,10 +225,6 @@ What survives a restore is bounded by surviving authorized records; restore
 never resurrects deleted, expired, or never-recorded content (AIQ-57 facet).
 
 ## Hot, closed, and archived lifecycle
-
-Source: `037.md:805-885` (three-state chain at 810-817; active write-ahead
-state at 819-827; close checkpointing at 829-841; backup-friendliness at
-843-861; archive packing at 863-884).
 
 The proposal adds a session lifecycle to avoid the single ever-mutating
 database problem:
@@ -280,9 +248,6 @@ operations or stay deferred with durability.
 
 ## Storage collection direction
 
-Source: `037.md:888-935` (per-category usage report at 894-905; collection
-and maintenance verbs at 909-918; reachability sweep at 920-934).
-
 The proposal asks for storage management from the first version: a
 per-category usage report (sessions, objects, panel state, memory, cache,
 logs), collection and maintenance verbs, and per-session archive and delete
@@ -301,10 +266,6 @@ and absent evidence explicitly (AIQ-5B facet). No background collector is
 adopted here.
 
 ## Project identity link
-
-Source: `037.md:938-992` (project directory sketch at 944-952; project
-identifier field at 956-960; machine-A/machine-B recognition at 962-980;
-worktree sharing at 982-991).
 
 The proposal links storage to project identity rather than filesystem paths:
 a declarative project file carries a project identifier that enters version
@@ -364,7 +325,7 @@ binds to, but lifecycle authority itself stays open and undecided here.
   adopted beyond surviving authorized records.
 - Upstream footnotes qualified. The source footnotes cite a write-ahead
   logging overview, the XDG base-directory specification 0.8, a database
-  backup API page, and a checkpoint reference page (source `037.md:1047-1050`).
+  backup API page, and a checkpoint reference page.
   These are September-2026 observations about upstream documentation
   direction, never pins on behavior, versions, or availability; mechanism
   claims built on them need their own evidence before any implementation
@@ -411,36 +372,34 @@ records them; this document reopens none of them.
 
 ## Bitty-side handoff, not a decision
 
-The following items from the research record need owning-repository review
+The following items from the candidate direction need owning-repository review
 and are recorded here as input only:
 
 1. XDG directory stratification (configuration, data, state, cache, and
-   runtime separation with a per-kind path table; source `037.md:19-33`)
+   runtime separation with a per-kind path table)
    (owner: `bitty` side; constraint: no placement, migration, or dotfiles
    contract is adopted here).
 2. Repository layout sketch under those directories (configuration files,
    catalog, dated session shards, object store, memory stores, archives,
-   panel segments, search and embedding caches, sockets and locks; source
-   `037.md:37-80`) (owner: `bitty` side; constraint: no path, filename, or
+   panel segments, search and embedding caches, sockets and locks; source) (owner: `bitty` side; constraint: no path, filename, or
    layout contract is accepted here).
 3. Migration and archiving flow (configuration via dotfiles, sessions and
-   memory via export and import, cache/logs/runtime excluded from migration;
-   source `037.md:84-98`) (owner: `bitty` side; constraint: no migration
+   memory via export and import, cache/logs/runtime excluded from migration) (owner: `bitty` side; constraint: no migration
    procedure is adopted here).
 4. Project-directory rule (declarative portable project configuration only,
-   no databases, history, or cache inside the project; source `037.md:102`)
+   no databases, history, or cache inside the project)
    (owner: `bitty` side with project-format review; constraint: no
    project-file contract is accepted here).
 5. Panel history segment files (append-only compressed segments under the
-   state directory with session-side panel references; source `037.md:561-589`)
+   state directory with session-side panel references)
    (owner: `bitty` side; constraint: no segment format, retention, or
    reference protocol is accepted here).
 6. Storage CLI verbs (usage report, collection, per-session archive and
-   delete, and doctor verbs; source `037.md:894-918`) (owner: `bitty` side
+   delete, and doctor verbs) (owner: `bitty` side
    with CLI-surface review; constraint: no verb name, flag, or output
    contract is adopted here).
 7. Project-identity file ownership (project identifier field, version-control
-   treatment, and per-project memory binding; source `037.md:944-971`)
+   treatment, and per-project memory binding)
    (owner: `bitty` side; constraint: no field name, file name, or binding
    rule is accepted here).
 
@@ -465,8 +424,3 @@ sections above regardless of handoff timing.
 - Lifecycle transitions hide schedulers: close and archive sweeps that run on
   timers reintroduce the background maintenance R6 removed, so transitions
   must stay explicit and bounded.
-
-## Provenance
-
-- Source: research note `037` (read 2026-09-15; single-author Chinese-language
-  discussion, 1,051 lines).

@@ -24,11 +24,10 @@ sidebar_order: 41
 
 This input assembles three source groups:
 
-1. Ten `bitty`-side blockers from research note `031` (read 2026-09-15,
-   913 lines). The record is a single-author proposal, not an accepted
-   decision.
-2. The `023` G-2/G-3 `bitty`-side gaps from research note `023` (read
-   2026-09-14, 726 lines), matching the direction preserved in
+1. Ten `bitty`-side blockers from the candidate direction, a single-author
+   proposal, not an accepted decision.
+2. The G-2/G-3 `bitty`-side gaps from the candidate direction, matching the
+   direction preserved in
    [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 3. The merged R1 disposition in [Execution ownership R1](../architecture/execution-ownership-r1.md),
    the R2 transport open surface in [Tool transport R2](../architecture/tool-transport-r2.md),
@@ -37,7 +36,7 @@ This input assembles three source groups:
    and register entries from [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 
 No file in the `bitty` repository is read for writing or modified by this task;
-sibling-repository facts below are cited from the research records and the
+sibling-repository facts below are cited from the candidate direction and the
 pressure-test document only.
 
 ## Requirement inputs
@@ -218,10 +217,9 @@ capability cleanup (BII-08).
 - Suggested evidence: each group lands with its linked evidence bar before the
   next group starts.
 
-## Research 023 G-2 and G-3 confirmation
+## G-2 and G-3 confirmation
 
-Research record `023.md` section 8 independently confirms the two load-bearing
-findings: G-2 (`terminal.snapshot` host service) and G-3 (generic Tool Bus
+The candidate direction independently confirms the two load-bearing findings: G-2 (`terminal.snapshot` host service) and G-3 (generic Tool Bus
 dispatch) are the cross-repository items that must be solved on the `bitty`
 side, while the remaining gaps are packaging (G-1), transport (G-4), or design
 reconciliation (G-5, G-6). This input carries that confirmation into BII-01

@@ -1,6 +1,6 @@
 ---
 title: Caller attribution design
-description: Draft candidate caller-attribution field and LLM-plugin boundary distilled from research record 047
+description: Draft candidate caller-attribution field and LLM-plugin boundary derived from the candidate direction
 category: specifications
 audience: contributor
 document_type: specification
@@ -11,9 +11,8 @@ sidebar_order: 60
 
 # Caller attribution design
 
-> Status: **draft**. This document distills workspace research record `047.md`
-> (both halves: caller attribution and the LLM-plugin boundary) into a draft
-> candidate design. It proposes no accepted architecture, authorizes no shipped
+> Status: **draft**. This document records the candidate direction (both halves: caller
+> attribution and the LLM-plugin boundary) as a draft candidate design. It proposes no accepted architecture, authorizes no shipped
 > behavior, closes no Artificial Intelligence Question entry, mints no AIQ or
 > OQ identifier, introduces no product code, and changes no accepted document.
 > The accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and the normative security
@@ -23,7 +22,7 @@ sidebar_order: 60
 
 ## Scope and inputs
 
-This design captures two halves of research record `047.md` as one draft:
+This design captures two halves of the candidate direction as one draft:
 
 1. Caller attribution for provider calls: an optional caller-identity field
    on the turn-request contract so usage can be attributed to the calling
@@ -34,8 +33,7 @@ This design captures two halves of research record `047.md` as one draft:
    existing two-level plugin model in
    [Provider plugin boundary](../providers/provider-plugin-boundary.md).
 
-Inputs are the research summary and origin records (`047.md`, provenance in
-[Provenance](#provenance)), the draft [Provider plugin
+Inputs are the candidate direction, the draft [Provider plugin
 boundary](../providers/provider-plugin-boundary.md) (the `Router` transport at `:130-132`,
 the two-level plugin model at `:141-166`, the secret invariant at `:194`), and
 the accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority.
@@ -46,7 +44,7 @@ No product code is introduced or described as implemented.
 
 ## Observed mechanism: caller-declared attribution
 
-The research record's first half observes how a gateway-side Apps ranking
+The candidate direction's first half observes how a gateway-side Apps ranking
 works, using OpenRouter model pages as the concrete example. The mechanism is
 caller-declared attribution, not gateway scanning:
 
@@ -77,7 +75,7 @@ ranking is not total usage (direct vendor connections, header-less calls, and
 hidden traffic are absent); token height is not a quality or popularity
 verdict.
 
-The owner requirement recorded in `047.md` is that this attribution must
+The owner requirement recorded in the candidate direction is that this attribution must
 enter future design, otherwise callers cannot know where usage was spent.
 
 ## Code survey (read-only evidence at `bitty-ai` `main` `97d3125`)
@@ -263,8 +261,8 @@ nevertheless be decided before the Wheel MVP writes its first
 vendor-specific provider or subscription OAuth integration, or later
 extraction will be painful.
 
-Anti-premature-abstraction applies throughout, shared with research record
-`046.md`: no universal agent API for imagined agents, no provider machinery
+Anti-premature-abstraction applies throughout, shared with the companion
+wheel-scope-and-framework candidate direction: no universal agent API for imagined agents, no provider machinery
 for imagined gateways. The record's rule is to generalize from two real
 implementations.
 
@@ -299,11 +297,3 @@ vocabulary.
   in this document.
 - [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): normative IPC framing
   that overrides any statement here.
-
-## Provenance
-
-- Source: research note `047` (read 2026-09-17), both halves (caller
-  attribution plus LLM-plugin boundary); the summary is 20 lines and the
-  origin is 877 lines.
-- `bitty-ai` survey evidence is read-only at `main` `97d3125`; no file in
-  that repository was modified.

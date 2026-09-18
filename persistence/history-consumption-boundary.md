@@ -1,6 +1,6 @@
 ---
 title: History consumption boundary
-description: Draft bitty-ai history consumption boundary distilled from research 038
+description: Draft bitty-ai history consumption boundary derived from the candidate direction
 category: specifications
 audience: contributor
 document_type: specification
@@ -11,7 +11,7 @@ sidebar_order: 48
 
 # History consumption boundary
 
-> Status: **draft**. This document distills workspace research record `038.md`
+> Status: **draft**. This document records the candidate direction
 > into the draft `bitty-ai`-side history consumption boundary: consume-not-own
 > principle, backend-agnostic `HistoryProvider` direction, scoped
 > `panel.history`-style reads, `CommandRecord` attribution with external
@@ -41,7 +41,7 @@ history, even before any `bitty`-side mechanism lands:
   transaction boundaries, hash-function selection, compression tuning,
   secret-store design, panel presentation, and plugin-registry mechanics.
 
-Inputs are research note `038` (read 2026-09-15, 1,470 lines), the R1 disposition in
+Inputs are the candidate direction, the R1 disposition in
 [Execution ownership R1](../architecture/execution-ownership-r1.md), the R2 disposition in
 [Tool transport R2](../architecture/tool-transport-r2.md), the R3 disposition in
 [Context retention R3](../architecture/context-retention-r3.md), PP-2 (Typed redaction) and
@@ -63,9 +63,6 @@ and not implementation claims.
 
 ## Contract 1: consume-not-own
 
-Source: `038.md:547-602` (no `panel_history` store inside `bitty-ai` at
-551-556; consumer diagram at 560-571; scoped read shapes at 576-595).
-
 `bitty-ai` holds no panel history store. It consumes a host-provided History
 API and never owns retention, indexing, or eviction of terminal history. The
 source direction is:
@@ -84,11 +81,6 @@ not an accepted cross-repository interface. No History API name, version, or
 transport below is stable until the `bitty` side accepts it.
 
 ## Contract 2: backend-agnostic HistoryProvider direction
-
-Source: `038.md:1301-1357` (`history.search/get/output` proposal at
-1322-1328; `AtuinHistoryProvider` versus `BittyHistoryProvider` at 1332-1335;
-`trait HistoryProvider { search/get/output }` at 1339-1345; backend list at
-1347-1355).
 
 The draft direction is one narrow provider interface between `bitty-ai` and
 any history backend (local keeper, Atuin, SSH host, or future custom
@@ -113,9 +105,6 @@ all backend-agnostic.
 
 ## Contract 3: scoped panel.history-style reads, never SQL
 
-Source: `038.md:573-602` (agent calls `panel.history({ panel_id,
-since_command })` at 590-595; explicit rejection of direct SQL at 597-601).
-
 Agents request history through scoped host calls, never through direct store
 access. The source read shapes are illustrative only:
 
@@ -138,10 +127,6 @@ order as any tool call (see
 [Consistency](#consistency-with-r1-r2-r3-and-ctx-0034-storage-design)).
 
 ## Contract 4: CommandRecord attribution and external references
-
-Source: `038.md:739-769` (`CommandRecord` sketch at 741-758; `actor` at
-760-769) and `038.md:1202-1223` (`external_history_id` link at 1202-1208;
-provider-plus-id shape at 1212-1221).
 
 The draft record carries identity, execution facts, attribution, and an
 optional external reference. Illustrative shape from the source record (not a
@@ -184,11 +169,6 @@ hold references rather than duplicated history.
 
 ## Contract 5: agent-executed-command sink direction
 
-Source: `038.md:1062-1133` (agent commands may bypass shell hooks at
-1070-1082; `history start` then `history end --exit --duration` lifecycle at
-1086-1099; start-on-`command_started`, end-on-`command_finished` adapter at
-1101-1116).
-
 Commands the agent executes through host execution (R1 `ExecutionContext`,
 not ambient shell access) may never pass through an interactive shell hook,
 so they would be invisible to shell-attached history unless the host records
@@ -211,9 +191,6 @@ binary) is `bitty`-side handoff, not a `bitty-ai` decision.
 
 ## Contract 6: Atuin MCP tools as reference shape
 
-Source: `038.md:1301-1320` (`atuin mcp` at 1305-1307; `atuin_history` and
-`atuin_output` at 1311-1314; example agent question at 1316-1320).
-
 The Atuin MCP pair (`history` lookup plus `output` retrieval) is the
 reference shape for `bitty-ai` history tools: one operation finds candidate
 commands, a separate bounded operation fetches output for a chosen entry. The
@@ -232,12 +209,6 @@ No MCP server, schema, or version is adopted, and no direct MCP bypass around
 the unified backend is permitted.
 
 ## Contract 7: command-history versus panel-output boundary
-
-Source: `038.md:773-834` (bounded volatile output at 775-809; decoupled
-persistent-output direction at 811-834) and `038.md:1136-1225` (Atuin answers
-"what commands ran" at 1140-1144; Bitty answers "what happened in this panel"
-at 1146-1150; output plus agent and session relations stay Bitty-side at
-1169-1200).
 
 `bitty-ai` may request two different things with different cost and
 sensitivity:
@@ -303,41 +274,41 @@ Every item below is handoff input owned by the `bitty` side. Inclusion here
 records that the source proposes it; nothing here accepts, sequences, or
 specifies it.
 
-- **Core `PanelEvent` emission and fan-out** (source `038.md:8-87`): the
+- **Core `PanelEvent` emission and fan-out**: the
   event enum sketch, PTY-to-parser-to-state-to-bus flow, and Lua subscription
   shapes. Owner: `bitty` side.
-- **Volatile scrollback ownership** (source `038.md:89-129`): in-memory row
+- **Volatile scrollback ownership**: in-memory row
   buffer as the Core terminal function, discarded with the panel. Owner:
   `bitty` side.
-- **Append-only segment layout** (source `038.md:206-288`): segment files,
+- **Append-only segment layout**: segment files,
   size-triggered seal and compress rotation, and time and size retention by
   segment deletion. Owner: `bitty` side.
-- **SQLite-as-rebuilt-index option** (source `038.md:290-349`): canonical log
+- **SQLite-as-rebuilt-index option**: canonical log
   as source of truth with a regenerable query index. Owner: `bitty` side.
-- **Lua storage and capability APIs** (source `038.md:352-450`): mediated
+- **Lua storage and capability APIs**: mediated
   store and capability-scoped filesystem access instead of direct database or
   native-library access from plugins. Owner: `bitty` side.
-- **History modes** (source `038.md:453-544`): commands-only, commands plus
+- **History modes**: commands-only, commands plus
   bounded output, and full replay tiers with retention and compression
   policy. Owner: `bitty` side.
-- **Export plugin on the History API** (source `038.md:605-647`): metadata,
+- **Export plugin on the History API**: metadata,
   commands, outputs, and timeline assembled into an export bundle by a
   plugin against a stable host API. Owner: `bitty` side.
-- **Layering without Core database dependency** (source `038.md:650-702`):
+- **Layering without Core database dependency**:
   Core keeps volatile state plus event and plugin-host APIs while official
   plugins own command history, output persistence, compression, retention,
   export, and search. Owner: `bitty` side.
-- **Atuin provider, sink, and import mechanics** (source `038.md:842-1133`):
+- **Atuin provider, sink, and import mechanics**:
   provider selection, field mapping, CLI-mediated access instead of direct
   database reads, lifecycle sink calls, and the import command surface.
   Owner: `bitty` side.
-- **Raw-output exclusion and external linkage** (source `038.md:1136-1225`):
+- **Raw-output exclusion and external linkage**:
   keeping raw panel output out of command history with opaque cross-system
   correlation handles. Owner: `bitty` side.
-- **Federated query presentation** (source `038.md:1227-1299`): multi-scope
+- **Federated query presentation**: multi-scope
   search merged across local and external providers without copying data.
   Owner: `bitty` side.
-- **Semantic marker handling (`OSC 133`, source `038.md:1428-1453`): prompt and
+- **Semantic marker handling (`OSC 133`, source): prompt and
   command-boundary markers as the shared command model for blocks, folding,
   navigation, export, and agent reads. Owner: `bitty` side.
 

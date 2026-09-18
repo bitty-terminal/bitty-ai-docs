@@ -22,32 +22,6 @@ profile and durable recovery are alternatives needing an explicit scope decision
 [agent coordination](../agent/agent-coordination.md), and
 [code intelligence](../agent/code-intelligence.md). These drafts accept no mechanisms.
 
-## Source provenance
-
-- **Original recording 022:** research note `022` (read 2026-09-14, 1,368
-  lines). Lines 460-518 propose session versus projection; 716-778 discuss
-  compaction with retained entries. Unconditional retention is corrected below,
-  not adopted from the recording.
-- **Original recording 021:** research note `021` (read 2026-09-14, 3,378
-  lines). Lines 262-456 motivate lint/build sharing and revision caches.
-- **Critical synthesis:** [research 021, evidence reuse](../specifications/research-distillation-021.md#lint-build-test-and-evidence-reuse).
-  The imported CTX-0007 draft's lines 280-309 contain the candidate eligibility
-  sequence and scheduling analysis. These are synthesis additions, not recording
-  022 lines 280-309, and not proof of any upstream or Bitty implementation.
-- **Earlier recordings:** [013/017/018 coverage ledger](../docs/sources/research-coverage-ledger.md#source-identity)
-  binds full hashes and topic ranges. In particular, 018:470-527 and 602-654
-  discuss session/events and SQLite/FTS5 respectively. Storage/index proposals
-  are distinct from replay guarantees.
-- **Separately inspected upstream:** Hermes Agent at
-  `b6b53c69a6ed49cb099cf1bfe76b5e6edd718e5a`,
-  `agent/turn_tool_round.py:45-140` (`run_tool_round`), MIT in `LICENSE:1-21`.
-  It stages and persists an assistant message before effects and stops the round
-  on persistence failure. This observation is recorded in the
-  [primary-source ledger](../specifications/research-distillation-013-017-018.md#primary-source-inspection-ledger),
-  not in recording 022. It does not establish exactly-once effects, complete
-  event sourcing, FTS5 requirements or Bitty behavior. Read-only reinspection
-  on 2026-09-14 executes no upstream code.
-
 ## Privacy and retention boundary
 
 The normative security corpus, especially P0-AC-026, overrides every recording
@@ -125,7 +99,7 @@ effect re-execution are separate operations, and effects require current grants.
 
 ## Unresolved design choices
 
-Stable identifiers live in the [local AI research register](../product/ai-unresolved-questions.md),
+Stable identifiers live in the [local AI unresolved-questions register](../product/ai-unresolved-questions.md),
 not the accepted global OQ register:
 
 1. **AIQ-51 Schema:** Which representations and transaction boundaries support the selected feature profile?

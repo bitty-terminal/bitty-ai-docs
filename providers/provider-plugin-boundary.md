@@ -11,7 +11,7 @@ sidebar_order: 44
 
 # Provider plugin boundary
 
-> Status: **draft**. This document distills workspace research record `032.md`
+> Status: **draft**. This document records the candidate direction
 > into the draft `bitty-ai` Core versus provider-plugin boundary. It proposes
 > no accepted architecture, authorizes no shipped behavior, closes no Artificial
 > Intelligence Question entry, introduces no new identifier, and contains no
@@ -37,7 +37,7 @@ This boundary covers the provider and model-management surface only:
   plugin-ecosystem handoff items recorded in
   [Bitty-side handoff](#bitty-side-handoff-not-a-decision).
 
-Inputs are research note `032` (read 2026-09-15, 465 lines), MP-1 through MP-11 and
+Inputs are the candidate direction, MP-1 through MP-11 and
 the MPC-1/MPC-2 candidate extension in [AI Architecture](../architecture/ai-architecture.md),
 the R1 disposition in [Execution ownership R1](../architecture/execution-ownership-r1.md), the
 R2 disposition in [Tool transport R2](../architecture/tool-transport-r2.md), the register in
@@ -53,7 +53,7 @@ No product code is introduced or described as implemented.
 ## Core-owned surface
 
 Core owns the abstraction and the policy; it performs no vendor integration
-and holds no credentials. Each item below restates the research-record proposal
+and holds no credentials. Each item below restates the candidate direction-record proposal
 against its existing contract anchor; nothing here widens Core authority.
 
 - `ModelProvider` interface (MP-1, MP-4 through MP-7). Core defines the
@@ -102,7 +102,7 @@ code, and store adapters sit outside the std-only runtime.
 
 ## Transport taxonomy proposal
 
-The research record proposes distinguishing API providers from
+The candidate direction proposes distinguishing API providers from
 subscription and CLI-backed access, because a consumer subscription, a CLI
 account, and API billing are different systems. Treating a subscription as a
 source of API keys (for example extracting session tokens to impersonate an
@@ -137,19 +137,19 @@ behind the registry protocol, subject to the secret invariant in
 
 ## Two-level plugin model
 
-The research record proposes two plugin levels instead of one monolithic
+The candidate direction proposes two plugin levels instead of one monolithic
 model manager containing every provider. Both levels are
 `bitty`-side or plugin-ecosystem concerns; they appear here as handoff input,
 not as `bitty-ai` decisions.
 
-- Level 1: a Model Manager UI and configuration plugin (research-record
+- Level 1: a Model Manager UI and configuration plugin (candidate direction
   sketch: a `models` plugin) responsible for provider administration, model
   listing, default-model selection, fallback order, model aliases, auth-state
   display, quota and usage display, latency and pricing display, context-window
   display, capabilities display, endpoint display, and routing-policy
   configuration. It administers but does not itself implement network
   protocols.
-- Level 2: independent provider adapter plugins (research-record sketch:
+- Level 2: independent provider adapter plugins (candidate direction sketch:
   one plugin per vendor or transport, for example OpenAI, Anthropic, Google,
   OpenRouter, Ollama, OpenAI-compatible, Codex-style CLI, Claude-Code-style
   CLI, plus community adapters), each registering through the Core-owned
@@ -158,14 +158,14 @@ not as `bitty-ai` decisions.
 The manager-panel sketch in the source record (keyboard shortcut, provider
 status list, role-model slots such as default, fast, planning, and background
 models, ordered fallback chains) is illustrative interface ideation from a
-research discussion, not an accepted panel design. Panel ownership, shortcut
+candidate discussion, not an accepted panel design. Panel ownership, shortcut
 allocation, and presentation belong to the `bitty` terminal repository; the
 plugin API surface belongs to the plugin ecosystem. Neither is decided here.
 
 ## Model aliases and routing inputs
 
 Agents address semantic aliases, not vendor model strings. A draft alias
-shape from the research record (illustrative, not a configuration contract):
+shape from the candidate direction (illustrative, not a configuration contract):
 
 ```toml
 [models]
@@ -291,7 +291,7 @@ mechanics belong to the owning repositories and are not AIQ entries.
 
 ## Bitty-side handoff, not a decision
 
-The following items from the research record need owning-repository review
+The following items from the candidate direction need owning-repository review
 and are recorded here as input only:
 
 1. Host secret store with opaque credential handles (owner: `bitty` side;
@@ -320,8 +320,3 @@ handoff timing.
 - Alias configuration that looks like routing policy can drift into
   capability grants; reviewers must keep alias resolution behind consent and
   budget gates.
-
-## Provenance
-
-- Source: research note `032` (read 2026-09-15; single-author Chinese-language
-  discussion, 465 lines).

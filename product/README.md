@@ -36,4 +36,4 @@ conflicting direction.
 | --------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------ |
 | [v0.1 Implementation Profile](implementation-profile-v0.1.md)         | Draft  | Minimal experimental scope for the first runtime increment.                    |
 | [AI Vertical Slice Pressure Test](ai-vertical-slice-pressure-test.md) | Draft  | Experimental vertical slice on generic Core primitives with a mapped gap list. |
-| [AI Unresolved Questions](ai-unresolved-questions.md)                 | Draft  | Local research choices with feature prerequisites and review routing.          |
+| [AI Unresolved Questions](ai-unresolved-questions.md)                 | Draft  | Local unresolved choices with feature prerequisites and review routing.        |
