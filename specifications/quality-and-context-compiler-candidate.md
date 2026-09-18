@@ -11,7 +11,7 @@ sidebar_order: 61
 
 # Quality formula and context compiler (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -77,48 +77,14 @@ multi-agent design touches that model, as design input rather than
 implementation. This document creates no AIQ or OQ identifier and closes
 none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the quality formula, the seven-module Wheel sketch,
-the Context IR shape, the zone model, the pipeline, and the five-subsystem
-split proposed in the candidate direction are **not** accepted by this candidate design and
-must not be read as crate, package, protocol, or release decisions. Context
-assembly, budget, and retention questions stay with
-[Context Management Architecture](../context/context-management.md),
-[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
-and [Context retention R3](../architecture/context-retention-r3.md); prompt-text layering
-stays with [Prompt Layering Design](../context/prompt-layering-design.md); tool shape
-and transport placement stay with
-[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
-[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
-and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
-coordination and persistence questions stay with
-[Agent Coordination Architecture](../agent/agent-coordination.md),
-[Task lifecycle R5](../architecture/task-lifecycle-r5.md), and the persistence
-dispositions. Each is referenced, never duplicated or modified.
-
-The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
-accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
-candidate direction (tool names such as `code.search` or `capability.call`, hook names,
-command names, struct and enum names, metric names, CLI spellings such as
-`wheel eval` or `wheel context log`) is a discussion sketch: this draft
-records it as input and proposes no command, tool, event, wire format, or
-CLI surface. Where the direction's sketches overlap RFC-owned ground (Agent
-lifecycle, Agent events, Agent semantics, scopes), the RFC wins without
-further argument.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed redaction,
-consented recording, secret minimization) override every discussion example
-below. Capability metadata, trust levels, permission sets, and verification
-gates in the candidate direction are conceptual vocabulary, not additions to any accepted
-registry, schema, or protocol. This draft creates or closes no AIQ or OQ
-identifier; open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Quality formula and optimization order
 
@@ -581,7 +547,50 @@ Harness manages a growing session knowledge graph and compiles per-turn
 views, with threshold compaction demoted to one optimization pass among
 many.
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the quality formula, the seven-module Wheel sketch,
+the Context IR shape, the zone model, the pipeline, and the five-subsystem
+split proposed in the candidate direction are **not** accepted by this candidate design and
+must not be read as crate, package, protocol, or release decisions. Context
+assembly, budget, and retention questions stay with
+[Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+and [Context retention R3](../architecture/context-retention-r3.md); prompt-text layering
+stays with [Prompt Layering Design](../context/prompt-layering-design.md); tool shape
+and transport placement stay with
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
+coordination and persistence questions stay with
+[Agent Coordination Architecture](../agent/agent-coordination.md),
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md), and the persistence
+dispositions. Each is referenced, never duplicated or modified.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
+accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
+candidate direction (tool names such as `code.search` or `capability.call`, hook names,
+command names, struct and enum names, metric names, CLI spellings such as
+`wheel eval` or `wheel context log`) is a discussion sketch: this draft
+records it as input and proposes no command, tool, event, wire format, or
+CLI surface. Where the direction's sketches overlap RFC-owned ground (Agent
+lifecycle, Agent events, Agent semantics, scopes), the RFC wins without
+further argument.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed redaction,
+consented recording, secret minimization) override every discussion example
+throughout this document. Capability metadata, trust levels, permission sets, and verification
+gates in the candidate direction are conceptual vocabulary, not additions to any accepted
+registry, schema, or protocol. This draft creates or closes no AIQ or OQ
+identifier; open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any

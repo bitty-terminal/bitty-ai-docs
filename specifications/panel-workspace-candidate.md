@@ -11,7 +11,7 @@ sidebar_order: 51
 
 # Panel and agent workspace boundary (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -47,26 +47,14 @@ This synthesis references, without duplicating or modifying, the draft
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models discussed
-in the direction are candidate inputs only and are **not** accepted by this
-candidate design. Provider placement questions stay with the draft
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); panel environment
-semantics stay with [Panel environment awareness](../interfaces/panel-environment-awareness.md);
-single-agent execution ownership stays with
-[Execution ownership R1](../architecture/execution-ownership-r1.md); tool authorization and
-transport placement stay with [Tool transport R2](../architecture/tool-transport-r2.md).
-Each is referenced, never duplicated or modified.
-
-Normative security obligations (authenticated local IPC, per-action scopes,
-read-only agent defaults, typed redaction, consented recording, secret
-minimization) override every discussion example below. The direction's `PanelId`,
-`ViewId`, `TerminalId`, `PanelContent`, and mode names are conceptual
-vocabulary from the discussion, not additions to any accepted registry.
-This draft creates or closes no AIQ or OQ identifier; open questions stay
-with [AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## AI Workspace in the object model
 
@@ -193,7 +181,28 @@ host-side evidence before `bitty-ai` relies on them. The final object-model
 tree is a proposal; the accepted lifecycle vocabulary is unchanged by this
 draft.
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models discussed
+in the direction are candidate inputs only and are **not** accepted by this
+candidate design. Provider placement questions stay with the draft
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); panel environment
+semantics stay with [Panel environment awareness](../interfaces/panel-environment-awareness.md);
+single-agent execution ownership stays with
+[Execution ownership R1](../architecture/execution-ownership-r1.md); tool authorization and
+transport placement stay with [Tool transport R2](../architecture/tool-transport-r2.md).
+Each is referenced, never duplicated or modified.
+
+Normative security obligations (authenticated local IPC, per-action scopes,
+read-only agent defaults, typed redaction, consented recording, secret
+minimization) override every discussion example throughout this document. The direction's `PanelId`,
+`ViewId`, `TerminalId`, `PanelContent`, and mode names are conceptual
+vocabulary from the discussion, not additions to any accepted registry.
+This draft creates or closes no AIQ or OQ identifier; open questions stay
+with [AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any Panel-side

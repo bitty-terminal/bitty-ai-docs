@@ -11,7 +11,7 @@ sidebar_order: 56
 
 # Lua and Core safety boundary (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -64,44 +64,14 @@ Architecture stays consistent with this draft; this draft references that
 comparison and re-decides nothing. This document creates no AIQ or OQ
 identifier and closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the four-layer policy stack, the `DelegationBudget`
-shape, the numeric ceilings, and the spawn capability vocabulary proposed in
-the direction are **not** accepted by this candidate design and must not be read as
-crate, package, protocol, or release decisions. Delegation semantics,
-subagent attenuation, and task token and cost budgets stay with the draft
-architecture and its coordination dispositions; execution enforcement stays
-with [Execution ownership R1](../architecture/execution-ownership-r1.md); tool
-authorization and transport placement stay with
-[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); panel environment
-semantics stay with
-[Panel environment awareness](../interfaces/panel-environment-awareness.md). Each is
-referenced, never duplicated or modified.
-
-The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
-accepted IPC wire, scope, and Agent vocabulary. Every name in the direction
-(`DelegationBudget`, `max_children`, `max_depth`, `max_parallel`,
-`token_budget`, `cost_budget`, `execution_budget`, `agent.spawn`,
-`execution.spawn`, `execution.run`, `panel.acquire`, `fs.read`,
-`PrivilegeRequest`, `BudgetExceeded`, `ResourceLimitExceeded`,
-`ExecutionBudgetExhausted`, `ConcurrencyLimitReached`, and similar) is a
-discussion sketch: this draft records it as input and proposes no command,
-tool, event, or wire format. Where the direction's sketches overlap RFC-owned
-ground (Agent lifecycle, Agent events, Agent semantics, scopes), the RFC wins
-without further argument.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed redaction,
-consented recording, secret minimization) override every discussion example
-below. The direction's capability names (filesystem, exec, agents), path
-patterns, permission examples, and console-style ceilings are conceptual
-vocabulary, not additions to any accepted registry, schema, or protocol. This
-draft creates or closes no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Four-layer architecture and the Lua-decides-how principle
 
@@ -263,7 +233,46 @@ are unreviewed vocabulary proposing no wire or API. The raw-escape-hatch
 restriction is the weakest claim here (no sandbox owner, scoping rule, or
 review evidence) and is recorded as a proposal needing its own task.
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the four-layer policy stack, the `DelegationBudget`
+shape, the numeric ceilings, and the spawn capability vocabulary proposed in
+the direction are **not** accepted by this candidate design and must not be read as
+crate, package, protocol, or release decisions. Delegation semantics,
+subagent attenuation, and task token and cost budgets stay with the draft
+architecture and its coordination dispositions; execution enforcement stays
+with [Execution ownership R1](../architecture/execution-ownership-r1.md); tool
+authorization and transport placement stay with
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); panel environment
+semantics stay with
+[Panel environment awareness](../interfaces/panel-environment-awareness.md). Each is
+referenced, never duplicated or modified.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
+accepted IPC wire, scope, and Agent vocabulary. Every name in the direction
+(`DelegationBudget`, `max_children`, `max_depth`, `max_parallel`,
+`token_budget`, `cost_budget`, `execution_budget`, `agent.spawn`,
+`execution.spawn`, `execution.run`, `panel.acquire`, `fs.read`,
+`PrivilegeRequest`, `BudgetExceeded`, `ResourceLimitExceeded`,
+`ExecutionBudgetExhausted`, `ConcurrencyLimitReached`, and similar) is a
+discussion sketch: this draft records it as input and proposes no command,
+tool, event, or wire format. Where the direction's sketches overlap RFC-owned
+ground (Agent lifecycle, Agent events, Agent semantics, scopes), the RFC wins
+without further argument.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed redaction,
+consented recording, secret minimization) override every discussion example
+throughout this document. The direction's capability names (filesystem, exec, agents), path
+patterns, permission examples, and console-style ceilings are conceptual
+vocabulary, not additions to any accepted registry, schema, or protocol. This
+draft creates or closes no AIQ or OQ identifier; open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any

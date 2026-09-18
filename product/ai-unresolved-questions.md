@@ -11,13 +11,15 @@ sidebar_order: 22
 
 # AI Unresolved Questions
 
+## Purpose
+
 This local draft preserves 53 identifiers, including aliases, not 53 independent
 questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
 AIQ-11 L0/L1 enforcement facet (Closed(partial)); no accepted global decision is made here.
 
-## Blocking meaning and proposed routing
+## Disposition
 
 **Prerequisite** blocks enabling the named feature until its mechanism and
 evidence satisfy the stated control. A reviewed safe profile may explicitly
