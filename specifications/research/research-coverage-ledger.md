@@ -1,6 +1,6 @@
 ---
 title: Research coverage ledger
-description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/048/049/050/051/052
+description: Coverage and disposition of AI-relevant research records 013, 017, 018, 025, and partial 039/040/041/044/045/046/048/049/050/051/052/053/054
 category: specifications
 audience: mixed
 document_type: register
@@ -14,7 +14,7 @@ sidebar_order: 21
 This ledger maps specific source topics to the
 [distillation](research-distillation-013-017-018.md), to the
 [prefix-cache context design](../prefix-cache-context-design.md) for record
-025, and to the 039/040/041/044/045/048/049/050/051/052 companion distillations, rather than claiming
+025, and to the 039/040/041/044/045/046/048/049/050/051/052/053/054 companion distillations, rather than claiming
 that an entire recording or specification is covered. Line ranges are
 inclusive, verified against the local recordings identified below. Repeated
 examples are condensed, not adopted as API definitions.
@@ -296,26 +296,39 @@ are excluded from every range).
   agent-growth, dependency, protocol, registry, manifest, versioning, or
   release-scope decisions.
 
-## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052 (partial)
+## Source identity: records 039, 040, 041, 044, 045, 048, 049, 050, 051, and 052 (partial), plus summaries 046, 053, and 054 (AI slice)
 
 Paths are workspace-relative; these are content fingerprints, not Git commits
-or evidence that the records' factual claims are true. All ten files are
+or evidence that the records' factual claims are true. All ten origin files are
 untracked in the research repository, so provenance is path plus SHA-256, and
-none of the files was renamed, edited, or staged by the distilling task: the
-`bitty`-side pass still needs all ten.
+none of the files was renamed, edited, or staged by the distilling tasks: the
+`bitty`-side pass still needs all ten. The three summaries below are the
+CTX-0074 AI-slice sources (read-only; origins unread and untouched by that
+task); the `bitty`-side, plugin-side, Wheel-side, and packaging-side passes
+still need their halves.
 
-| Source                   | Lines | Bytes   | SHA-256                                                            |
-| ------------------------ | ----- | ------- | ------------------------------------------------------------------ |
-| `research/origin/039.md` | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
-| `research/origin/040.md` | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
-| `research/origin/041.md` | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
-| `research/origin/044.md` | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
-| `research/origin/045.md` | 914   | 14,827  | `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0` |
-| `research/origin/048.md` | 2,351 | 57,159  | `ddfd88b2eaa66e983d1bd9dc659c03ee7615db546d3eb92510c8e4d4444d0455` |
-| `research/origin/049.md` | 2,135 | 32,648  | `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa` |
-| `research/origin/050.md` | 940   | 13,978  | `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59` |
-| `research/origin/051.md` | 1,308 | 17,307  | `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88` |
-| `research/origin/052.md` | 561   | 12,836  | `999b04e9a12f30ce68102999c027727fb2a144fa96c443e8363e87276d9d72bd` |
+| Source                    | Lines | Bytes   | SHA-256                                                            |
+| ------------------------- | ----- | ------- | ------------------------------------------------------------------ |
+| `research/origin/039.md`  | 6,079 | 123,712 | `d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d` |
+| `research/origin/040.md`  | 2,215 | 42,579  | `a0c714f16b2db8e48e078d61a570ab01a8c0e60edee14b118da96901fe0a234b` |
+| `research/origin/041.md`  | 821   | 13,140  | `15182dc1d8b709a8d6a7f18de57f387e2db83f476fed12c8e5b19087387d9754` |
+| `research/origin/044.md`  | 2,630 | 46,063  | `d00d7f6c5845d9964cd09bcf447c71f2759cf1322fec03a5da4d0e0d8d49c5d0` |
+| `research/origin/045.md`  | 914   | 14,827  | `6d0954320cedfa43bc5c6fe0d6216f8a6f15974af87bff2765b629c35c6c6dd0` |
+| `research/origin/048.md`  | 2,351 | 57,159  | `ddfd88b2eaa66e983d1bd9dc659c03ee7615db546d3eb92510c8e4d4444d0455` |
+| `research/origin/049.md`  | 2,135 | 32,648  | `30b6c86d8c61b692d95527d487ac1ab523c59da324eadde77e6469f8920594aa` |
+| `research/origin/050.md`  | 940   | 13,978  | `ce3b7f10baa003f99a2fe11824e0f4386ff55371324045edea776a19733a7d59` |
+| `research/origin/051.md`  | 1,308 | 17,307  | `2c9ac93f653fc923be3e95bc275b88dbfa0f0dd0687fe339e571ceb338f3ef88` |
+| `research/origin/052.md`  | 561   | 12,836  | `999b04e9a12f30ce68102999c027727fb2a144fa96c443e8363e87276d9d72bd` |
+| `research/summary/046.md` | 16    | 4,694   | `381397ac14fdba77cd030436c7202f192430a7678eacfe6666f404d0c28f8954` |
+| `research/summary/053.md` | 24    | 6,796   | `82dfe75628d7c960bfad7d94ad07c8fdcceb06970049c9f8b1fc5ceb42dfece5` |
+| `research/summary/054.md` | 23    | 4,191   | `8b5d8b218e5bb3f8b4f32048e5bca99fcd96262a276a5ad4e189b58b2584088d` |
+
+Record 046/053/054 scope note: the fingerprints above cover the summaries
+distilled by CTX-0074 (AI slice only; plugin and governance halves as
+owner-pending pointers in the companion). Origins `046.md` (643 lines,
+12,530 bytes), `053.md` (1,328 lines, 20,316 bytes), and `054.md` (741
+lines, 12,298 bytes) were unread and untouched by that task; split-owner
+capture stays Partial until all owned conclusions are accounted for.
 
 Record 052 is a single pass: an opening plugin-between-plugins question, a
 distribution-framing paragraph, a recommended-boundary table with the
@@ -403,7 +416,7 @@ cited in this ledger still verifies against the head fingerprint; the
 whole-file fingerprint in the table above matches the current file, which has
 not grown since the append was recorded.
 
-## Disposition: 039/040/041/044/045/048/049/050/051/052 partial distillations
+## Disposition: 039/040/041/044/045/046/048/049/050/051/052/053/054 partial distillations
 
 The companion drafts are
 [Panel research distillation for bitty-ai (039)](research-distillation-039-bitty-ai.md),
@@ -411,23 +424,28 @@ The companion drafts are
 [IPC-value research distillation for bitty-ai (041)](research-distillation-041-bitty-ai.md),
 [Execution-supervisor research distillation for bitty-ai (044)](research-distillation-044-bitty-ai.md),
 [Lua-versus-Core safety-boundary research distillation for bitty-ai (045)](research-distillation-045-bitty-ai.md),
+[Wheel scope and framework-illustration research distillation for bitty-ai (046/053/054)](research-distillation-046-053-054-bitty-ai.md),
 [Quality-formula and Context-Compiler research distillation for bitty-ai (048-049)](research-distillation-048-049-bitty-ai.md),
 and
 [Wheel-config and Git-model research distillation for bitty-ai (050-051)](research-distillation-050-051-bitty-ai.md),
 and
 [Wheel decoupling and Core-Plugin boundary research distillation for bitty-ai (052)](research-distillation-052-bitty-ai.md).
 Each carries its own provenance block, topic-traceability table, and explicit
-exclusions. All eight are draft discussion syntheses: the layered models they
+exclusions. All nine are draft discussion syntheses: the layered models they
 record (Panel object model, two-level extension model, Host Plugin,
 two-layer `bitty-ai-runtime` split, three-layer model, Capability Layer,
 Execution Supervisor with the mechanism-versus-semantics split, four-layer
-safety boundary with the intersection-only authority rule, multiplicative
+safety boundary with the intersection-only authority rule, fixed-Coding-domain
+Wheel scope with open Roles reconciled against the architecture candidates,
+multiplicative
 quality formula with the Context Compiler and Verification Runtime, Cold,
 Warm, and Hot stratification with stability zones and the pass pipeline,
 `.wheel` configuration classes with the portable-capability split,
 Git-inspired content-addressed context DAG with checkpoint, branch, merge,
 and GC discipline, Wheel decoupling with the mechanism-versus-policy rule,
-two-layer Lua composition, and distribution-as-composition) are candidate inputs
+two-layer Lua composition, distribution-as-composition, and the 053
+owner-pending provider, tool-schema, and streaming illustrations with the
+054 host-services and trust-boundary notes) are candidate inputs
 to the draft AI architecture and its related draft dispositions, not accepted
 contracts. The accepted [IPC contract](../ipc-agent-rfc.md) is unaffected.
 No draft creates or closes an AIQ or OQ identifier, duplicates or
