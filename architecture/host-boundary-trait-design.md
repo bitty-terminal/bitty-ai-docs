@@ -25,11 +25,10 @@ sidebar_order: 57
 ## Scope and inputs
 
 This design answers two of the AIQ-31 facets recorded in
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and triaged in the [AIQ
-triage](../docs/sources/aiq-triage-2026-09-16.md): (a) a trait-level enforcement
-point for the Core versus Lua split, and (b) a lint-level gate that rejects
-direct cross-layer references. Review-time policy (the remaining review facet)
-is out of scope here.
+[AI Unresolved Questions](../product/ai-unresolved-questions.md): (a) a
+trait-level enforcement point for the Core versus Lua split, and (b) a
+lint-level gate that rejects direct cross-layer references. Review-time policy
+(the remaining review facet) is out of scope here.
 
 Inputs are the draft [Command and Tool
 Architecture](command-tool-architecture.md) (Core implements mechanism, Lua
@@ -37,9 +36,9 @@ implements policy and workflow), the draft [Provider plugin
 boundary](../providers/provider-plugin-boundary.md) (Core owns the contract, plugins own
 integration), the draft [Tool transport
 R2](tool-transport-r2.md) (unified authorization backend with fail-closed
-denial), the Lua-versus-Core distillation in [Research
-045](../specifications/research-distillation-045-bitty-ai.md) (mechanism in Rust, Lua
-decides how, never whether), and the readiness note in [RFC-split
+denial), the Lua-versus-Core candidate design in the
+[Lua and Core safety boundary candidate](../specifications/lua-core-safety-boundary-candidate.md)
+(mechanism in Rust, Lua decides how, never whether), and the readiness note in [RFC-split
 readiness](../integration/rfc-split-readiness.md) that Core/Lua enforcement stays open under
 AIQ-31.
 
@@ -299,7 +298,7 @@ proposed runtime.
   backend and fail-closed denial the trait composes.
 - [Provider plugin boundary](../providers/provider-plugin-boundary.md) (Draft): Core owns
   the contract, plugins own integration.
-- [Research 045](../specifications/research-distillation-045-bitty-ai.md) (Draft):
+- [Lua and Core safety boundary (candidate)](../specifications/lua-core-safety-boundary-candidate.md) (Draft):
   mechanism-in-Rust plus Lua-decides-how direction.
 - [RFC-split readiness](../integration/rfc-split-readiness.md) (Draft): AIQ-31 stays open;
   no split promoted here.

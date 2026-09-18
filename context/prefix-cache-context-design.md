@@ -11,8 +11,8 @@ sidebar_order: 26
 
 # Prefix-Cache-Friendly Context Design
 
-> Status: **draft**. This document distills a single-author workspace research
-> record into a reviewable proposal. It accepts nothing, describes no shipped
+> Status: **draft**. This document records a single-author candidate
+> direction as a reviewable proposal. It accepts nothing, describes no shipped
 > behavior, and authorizes no compatibility promise. Mechanisms marked
 > beyond-v0.1 are proposals for later increments, not commitments.
 
@@ -21,17 +21,6 @@ which elaborates [AI Architecture](../architecture/ai-architecture.md) CP-5 (Bud
 CP-7 (Determinism and testability). See also AG-4 (Least privilege at dispatch)
 in [AI Architecture](../architecture/ai-architecture.md) for dispatch authorization, which this
 proposal does not change. These are topic relationships, not accepted authority.
-
-## Source provenance
-
-Distilled from research note `025` (read 2026-09-15, 1,404 lines).
-
-The source is written in Chinese
-and is preserved untranslated; this document is an English critical
-distillation, not a translation. Source section numbers below refer to that
-record. Provider and harness behavior cited by the source was not
-independently verified against current upstream implementations; numbers and
-examples from the source are illustrative, never adopted defaults.
 
 ## Problem statement
 
@@ -401,7 +390,7 @@ read.
 
 ## Evidence and verification boundary
 
-This specification distills one workspace research record plus critical
+This specification records the candidate direction plus critical
 judgment. It is not implementation evidence. Acceptance requires independent
 review, and any future implementation requires:
 

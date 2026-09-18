@@ -15,21 +15,6 @@ This specification defines the context management subsystem for `bitty-ai`, dist
 
 **Draft relationship**: [AI Architecture](../architecture/ai-architecture.md) CP-5 (Budget), CP-6 (Artifacts), CP-7 (Determinism and testability). These proposals elaborate the draft; they do not accept new mechanisms.
 
-## Source provenance
-
-This distillation critically evaluates research note `022` (read 2026-09-14), with substantive coverage at lines 416-1358 plus reference definitions at 1360-1367.
-
-The source analyzes context management in Claude Code, OpenCode DCP, and oh-my-pi with upstream references:
-
-- Claude Code Glossary and `/compact` behavior: `https://code.claude.com/docs/en/glossary` (referenced as [1], accessed via source discussion)
-- OpenCode DCP plugin: `https://github.com/Opencode-DCP/opencode-dynamic-context-pruning` (referenced as [5], accessed via source discussion)
-- oh-my-pi compaction: `https://github.com/can1357/oh-my-pi/blob/main/docs/compaction.md` (referenced as [6], accessed via source discussion)
-- OpenAI Responses compact API: `https://developers.openai.com/api/reference/java/resources/responses/methods/compact` (referenced as [7], accessed via source discussion)
-
-The source compares traditional post-hoc compression with progressive context construction strategies and proposes a foundational architectural model for Bitty.
-
-Harness/API comparisons below are claims made by that recording, not independently verified current upstream behavior. Source examples and numbers are illustrative, not adopted defaults. The privacy and ownership corrections here are critical synthesis, reconciled with [AI Architecture PP-2/PP-4](../architecture/ai-architecture.md#privacy-first) and governed by the normative security corpus linked there. “Core” below means the independent AI runtime mechanism layer for context/provider work, never model I/O in terminal `bitty-agent`; see [ownership reconciliation](../architecture/command-tool-architecture.md#layer-ownership-proposal).
-
 ## Core invariant: session versus context
 
 The foundational principle (lines 460-506) is:
@@ -729,12 +714,12 @@ The Session/Context separation enables:
 
 ## Next steps
 
-1. Independent review of this distillation against source provenance and existing `ai-architecture.md`.
+1. Independent review of this specification against existing `ai-architecture.md`.
 2. Resolve unresolved questions through targeted RFCs or open-question register entries.
 3. Define `CompactionBackend` trait and `ContextItem` schema in implementation specifications.
 4. Specify artifact URI scheme and garbage collection policy.
 5. Update `docs/README.md` navigation if this specification is accepted.
-6. Synchronize with command/tool architecture specification (see companion distillation of source lines 1-415).
+6. Synchronize with command/tool architecture specification (see companion synthesis of source lines 1-415).
 
 ## Related specifications
 
@@ -743,7 +728,7 @@ The Session/Context separation enables:
 
 ## Evidence and verification boundary
 
-This specification distills research 022 discussion and comparative harness analysis. It does **not** describe implemented Bitty behavior. Verification requires:
+This specification records the candidate direction and comparative harness analysis. It does **not** describe implemented Bitty behavior. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for Session/Context separation
 - `bitty-ai-core` Rust implementation of `Session`, `Context`, `ContextBuilder`, `CompactionBackend`
@@ -751,4 +736,4 @@ This specification distills research 022 discussion and comparative harness anal
 - Lua API reference for context inspection, compression, and retention control
 - Performance evidence showing continuous maintenance avoids emergency compaction
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/research-distillation-013-017-018.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).

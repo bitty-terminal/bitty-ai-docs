@@ -37,6 +37,6 @@ conflicting direction.
 | -------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------ |
 | [Agent coordination architecture](agent-coordination.md)             | Draft  | Workspace services, supervision, delegation, teams, and panel lifecycle.             |
 | [Code intelligence architecture](code-intelligence.md)               | Draft  | LSP sharing, stateful mediation, lint/build/test reuse, verification fingerprinting. |
-| [Caller attribution design](caller-attribution-design.md)            | Draft  | Candidate caller-attribution field and LLM-plugin boundary from research 047.        |
+| [Caller attribution design](caller-attribution-design.md)            | Draft  | Candidate caller-attribution field and LLM-plugin boundary.                          |
 | [Audited git wrapper API design](git-wrapper-api-design.md)          | Draft  | Candidate API shape for audited version-control access behind a scoped wrapper.      |
 | [Fragment pre-split and reassembly rule](fragment-pre-split-rule.md) | Draft  | Implemented slice-layer fragment pre-split and reassembly mapping rule.              |

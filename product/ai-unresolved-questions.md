@@ -1,6 +1,6 @@
 ---
 title: AI Unresolved Questions
-description: Local research choices with feature prerequisites and proposed review routing
+description: Local unresolved choices with feature prerequisites and proposed review routing
 category: specifications
 audience: mixed
 document_type: register
@@ -109,8 +109,7 @@ Adopted-draft wording only.
   key mechanism plus 7-test harness) and `2b984c4` (AI-0084, length-aware
   boundary plus alias-proof test). Follow-up pointer, not an open facet: the
   implicit-versus-explicit routing half narrows to a pure policy choice
-  operating inside non-leaking keys; see the [AIQ-13 close-ready
-  addendum](../docs/sources/aiq-triage-2026-09-16.md#addendum-2026-09-16-aiq-13-close-ready-recommendation).
+  operating inside non-leaking keys.
 
 ## Commands and tools
 

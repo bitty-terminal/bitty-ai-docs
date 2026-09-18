@@ -1,6 +1,6 @@
 ---
 title: Prototype-to-Core promotion checklist
-description: Draft hard-gate checklist for promoting workflow prototypes into the AI Core, distilled from landed practice
+description: Draft hard-gate checklist for promoting workflow prototypes into the AI Core, derived from landed practice
 category: specifications
 audience: contributor
 document_type: specification
@@ -25,9 +25,9 @@ sidebar_order: 58
 ## Scope and inputs
 
 This checklist answers the AIQ-32 facet recorded in
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and triaged in the [AIQ
-triage](../docs/sources/aiq-triage-2026-09-16.md): what acceptance criteria a
-promotion-review owner applies before a prototype becomes Core mechanism. It
+[AI Unresolved Questions](../product/ai-unresolved-questions.md): what
+acceptance criteria a promotion-review owner applies before a prototype
+becomes Core mechanism. It
 covers the workflow-to-Core path only: experimental workflow code proved
 outside the Core, then landed as tested mechanism inside
 `crates/bitty-ai-runtime`. The sibling review facet (who reviews, how
@@ -36,7 +36,7 @@ AIQ-32 remainder and AIQ-31 (see the [HostBoundary trait and lint-gate
 design](host-boundary-trait-design.md)); this document gates process, never
 semantics.
 
-Every gate below is distilled from landed practice across AI-0076 through
+Every gate below is derived from landed practice across AI-0076 through
 AI-0097. Each gate names the precedent merges that prove it is passable, with
 `bitty-ai` `main` short SHAs a reviewer can re-verify read-only.
 
@@ -223,11 +223,6 @@ slice as the complete proposed runtime.
 
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): AIQ-32 and
   the AIQ-31 through AIQ-38 facets; no entry status changes here.
-- [AIQ triage (2026-09-16)](../docs/sources/aiq-triage-2026-09-16.md) (Draft):
-  per-merge evidence rows (AI-0076 through AI-0097 precedents, PX-0412
-  through PX-0427 review ids, `8c5418b` and `97d3125` merge pins) and the
-  AIQ-13 close-ready recommendation pattern (recommendation only, register
-  untouched) this checklist generalizes.
 - [HostBoundary trait and lint-gate design](host-boundary-trait-design.md)
   (Draft): the AIQ-31 enforcement facet; review-time policy stays with
   AIQ-32 and is not claimed here.

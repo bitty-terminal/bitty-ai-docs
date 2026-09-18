@@ -422,8 +422,8 @@ AG-4 (Least privilege at dispatch) in [AI Architecture](../architecture/ai-archi
 the Core-versus-Lua boundary in
 [Command and tool architecture](../architecture/command-tool-architecture.md).
 
-Readiness: **stay-draft**. This candidate is the farthest from a split. It is
-research distillation with illustrative sketches only and zero runtime tests.
+Readiness: **stay-draft**. This candidate is the farthest from a split, with
+illustrative sketches only and zero runtime tests.
 
 Evidence bar today:
 
@@ -439,7 +439,7 @@ Evidence bar today:
   and Runtime State, Current Turn), with prompt text never granting capability
   under AG-4 (Least privilege at dispatch) and profiles staying single-agent
   for v0.1.
-- Harness-budget material from research 027 is preserved as
+- Harness-budget material from the candidate direction is preserved as
   order-of-magnitude observations only, with verification limits stated in
   the design document. No benchmark, provider trace, or runtime measurement
   is cited.
@@ -498,7 +498,7 @@ Split Request For Comments boundary draft (for a future task, not accepted here)
 | Context Request v1   | Stay-draft | 7 unit plus turn-level L0 and L1 proofs      | AIQ-11 blocking, L2 and above absent, byte default is candidate only |
 | Runtime Identity v1  | Stay-draft | 8 bridge plus 6 session tests, closest split | No Panel projection wiring, fencing plus crash proofs absent         |
 | Tool Dispatch v1     | Stay-draft | 9 unit plus 15 turn plus 11 slice denials    | AIQ-33 mechanism open, MCP path absent, BII-03 gaps                  |
-| Prompt Assembly v1   | Stay-draft | Zero runtime tests, prose direction only     | AIQ-12 plus AIQ-13 open, no measurement, research sketches only      |
+| Prompt Assembly v1   | Stay-draft | Zero runtime tests, prose direction only     | AIQ-12 plus AIQ-13 open, no measurement, illustrative sketches only  |
 
 No candidate is ready to split into a narrow Request For Comments in this
 increment. Runtime Identity version 1 is the closest because its

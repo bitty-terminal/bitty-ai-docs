@@ -11,8 +11,8 @@ sidebar_order: 27
 
 # Prompt Layering Design
 
-> Status: **draft**. This document distills a single-author workspace research
-> record into a reviewable proposal. It accepts nothing, describes no shipped
+> Status: **draft**. This document records a single-author candidate
+> direction as a reviewable proposal. It accepts nothing, describes no shipped
 > behavior, and authorizes no compatibility promise. Mechanisms marked
 > beyond-v0.1 are proposals for later increments, not commitments.
 
@@ -23,23 +23,6 @@ and CP-7 (Determinism and testability). Capability separation is constrained by
 AG-4 (Least privilege at dispatch) in [AI Architecture](../architecture/ai-architecture.md) and the
 Core-versus-Lua boundary in [Command and Tool Architecture](../architecture/command-tool-architecture.md).
 These are topic relationships, not accepted authority.
-
-## Source provenance
-
-Distilled from research note `026` (read 2026-09-15, 717 lines).
-
-Harness-budget evidence in [Harness budget evidence](#harness-budget-evidence)
-distills research note `027` (read 2026-09-15, 619 lines)
-as order-of-magnitude observations only, with verification limits stated in
-that section. It adds evidence for the short-core direction and proposes no
-new mechanism, schema, identifier, or decision.
-
-Both sources are written in Chinese and are
-preserved untranslated; this document is an English critical distillation,
-not a translation. Source section numbers below refer to record 026 unless
-research 027 is named explicitly. No provider, benchmark, or runtime
-evidence is cited by either source; all sketches are illustrative, never
-adopted defaults.
 
 ## What this document does not duplicate
 
@@ -55,7 +38,7 @@ it and adds only the prompt-layering facet:
   intent; ordinary-setting precedence built-in to user to project to
   session/CLI within non-overridable security ceilings; a project declaration
   requests authority but never grants it) stays with
-  [AI research distillation from 013, 017, and 018](../specifications/research-distillation-013-017-018.md).
+  [AI runtime boundaries (candidate)](../specifications/ai-runtime-boundaries-candidate.md).
   This proposal consumes that precedence and adds only prompt-text layering.
 - Stable-prefix layering, deterministic serialization, epochs, and planner
   types stay with [Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md).
@@ -127,7 +110,7 @@ instructions plus a structured manifest rather than one giant Markdown file
 
 Judgment: **draft disposition: adopt the manifest direction; qualify the sketch.** The tree layout,
 file names, and `config.lua` shape are illustrative proposals, not an adopted
-schema. Canonical `.wheel` coverage stays in the 013/017/018 distillation;
+schema. Canonical `.wheel` coverage stays in the AI runtime boundaries candidate;
 precedence follows its built-in to user to project to session/CLI order
 within security ceilings. An untrusted repository manifest must never execute
 or self-authorize: project trust, inspection, explicit approval, and
@@ -221,7 +204,7 @@ illustrative, never adopted defaults.
 
 ## Harness budget evidence
 
-Order-of-magnitude observations distilled from research 027 (survey of
+Order-of-magnitude observations derived from the candidate direction (survey of
 harness core-prompt token budgets), offered as evidence for the short-core
 direction above. Nothing here is a measurement, a benchmark, or a decision:
 the Bitty `~1K` core target below stays a proposal, and no figure in this
@@ -471,12 +454,12 @@ questions stay with AIQ-29.
   later proposals.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): AIQ-09,
   AIQ-12, AIQ-13, AIQ-29, AIQ-31, AIQ-33, AIQ-34 reused; no new identifier proposed.
-- [AI research distillation from 013, 017, and 018](../specifications/research-distillation-013-017-018.md)
+- [AI runtime boundaries (candidate)](../specifications/ai-runtime-boundaries-candidate.md)
   (Draft): canonical `.wheel` and precedence coverage consumed here.
 
 ## Evidence and verification boundary
 
-This specification distills one workspace research record plus critical
+This specification records the candidate direction plus critical
 judgment. It is not implementation evidence. Acceptance requires independent
 review, and any future implementation requires:
 

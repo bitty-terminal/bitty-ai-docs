@@ -16,12 +16,6 @@ before the full architecture is decided. It accepts nothing: every mechanism
 below is adopted **experimentally** and stays revisable by implementation
 evidence. Anything not listed here is out of scope for v0.1, not rejected.
 
-## Source provenance
-
-Distilled from research note `023` (read 2026-09-14, 726 lines).
-The record is a single-author proposal, not an accepted decision; this profile
-preserves its direction while keeping draft authority honest.
-
 ## v0.1 in scope
 
 - Single `bitty-ai-runtime` crate with modules for provider, context, session,

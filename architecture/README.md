@@ -30,18 +30,18 @@ node traces to accepted or draft code or RFC; no diagram invents nodes.
   stable-prefix ordering
   ([Prefix-cache design](../context/prefix-cache-context-design.md)),
   and draft structural compaction (same design, eight invariants).
-- **Candidate discussion input:** the 055 research distillation
-  ([055](../specifications/research-distillation-055-bitty-ai.md))
+- **Candidate discussion input:** the [event-sourced agent workspace
+  candidate](../specifications/event-sourced-agent-workspace-candidate.md)
   plus companions
-  [048-049](../specifications/research-distillation-048-049-bitty-ai.md),
-  [050-051](../specifications/research-distillation-050-051-bitty-ai.md),
-  [052](../specifications/research-distillation-052-bitty-ai.md),
-  [044](../specifications/research-distillation-044-bitty-ai.md),
-  [046/053/054](../specifications/research-distillation-046-053-054-bitty-ai.md),
-  [039](../specifications/research-distillation-039-bitty-ai.md),
-  [040](../specifications/research-distillation-040-bitty-ai.md),
-  [041](../specifications/research-distillation-041-bitty-ai.md),
-  and [047](../agent/caller-attribution-design.md).
+  [quality formula and context compiler](../specifications/quality-and-context-compiler-candidate.md),
+  [wheel configuration and context git model](../specifications/wheel-config-and-context-git-model-candidate.md),
+  [wheel core and plugin boundary](../specifications/wheel-core-plugin-boundary-candidate.md),
+  [execution supervisor](../specifications/execution-supervisor-candidate.md),
+  [wheel scope and framework](../specifications/wheel-scope-and-framework-candidate.md),
+  [panel and agent workspace](../specifications/panel-workspace-candidate.md),
+  [plugin and extension model](../specifications/plugin-extension-model-candidate.md),
+  [IPC extension boundary](../specifications/ipc-extension-boundary-candidate.md),
+  and [caller attribution](../agent/caller-attribution-design.md).
   Dashed nodes and edges are vocabulary only: no schema, wire, command,
   threshold, or release decision follows.
 - **Implemented anchors:** observed in `bitty-ai` at `3623c6b3`

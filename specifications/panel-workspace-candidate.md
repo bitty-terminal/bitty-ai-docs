@@ -1,29 +1,25 @@
 ---
-title: Panel research distillation for bitty-ai (039)
-description: Draft bitty-ai distillation of research 039 panel topics AI workspace object model panel boundary floating AI text editor agent workspace sequencing
+title: Panel and agent workspace boundary (candidate)
+description: Candidate panel identity, AI workspace object model, prompt editor consumption, and agent workspace composition
 category: specifications
 audience: mixed
-document_type: research
+document_type: specification
 status: draft
 website_publish: false
 sidebar_order: 51
 ---
 
-# Panel research distillation for bitty-ai (039)
+# Panel and agent workspace boundary (candidate)
 
 ## Status and recommendation
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
-It distills only the `bitty-ai`-relevant parts of workspace research record
-`039.md` (a Panel discussion): the AI Workspace position in the object model,
-the Panel identity and lifecycle boundary that future Agent UI panels inherit,
-floating-mode AI, the Rust `TextEditor` primitive consumed by the AI prompt
-editor, the Agent Workspace composition, and the proposed sequencing with its
-unifying principle. Terminal-platform mechanics (widget layer, effects,
-focus states, application services, editor application design) are
-`bitty`-side matters and are excluded; they are recorded as handoff input,
-not decisions.
+It records the candidate direction for Panel and the agent workspace: the AI
+Workspace position in the object model, the Panel identity and lifecycle
+boundary that future Agent UI panels inherit, floating-mode AI, the Rust
+`TextEditor` primitive consumed by the AI prompt editor, the Agent Workspace
+composition, and the proposed sequencing with its unifying principle.
 
 The recommendation is to treat every Panel-side claim below as a candidate
 input to the draft [AI Architecture](../architecture/ai-architecture.md) and its related
@@ -32,7 +28,7 @@ draft dispositions, never as an override of the accepted
 Nothing here is promoted to accepted status, and no implementation is
 described as shipped.
 
-The source's strongest ideas are the Panel-as-host boundary (`Panel` is not a
+The direction's strongest ideas are the Panel-as-host boundary (`Panel` is not a
 terminal; a terminal is one activity among several), the identity separation
 `PanelId != ViewId != TerminalId` with host-owned lifecycle, mode-as-property
 sharing (so AI panels reuse workspace operations), and the `Document != View
@@ -51,38 +47,11 @@ This synthesis references, without duplicating or modifying, the draft
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
-## Provenance and evidence boundary
-
-The source is research note `039` (origin), read on 2026-09-16: **6,079
-lines**, **123,712 bytes**. Its SHA-256 is
-`d5559e19bdeb73b8a71a03b79f2ed7f8f666ac7cfeecc5d7bd43159ced28c46d`.
-The record is untracked in the research repository, so provenance is by record
-number plus fingerprint, not by commit. It was not renamed, edited, or staged by
-this task; the `bitty`-side pass still needs it.
-
-### Duplication structure
-
-The file is five pasted rounds of one 15-section conversation. Rounds 1
-through 4 (`039.md:46-1258`, `1259-2471`, `2472-3684`, `3685-4897`) are
-byte-identical (each round MD5 `1722f56ee75e9ac76eef1f90c187113b`); round 5
-(`039.md:4898-6079`) equals round 1 minus the trailing 31-line conclusion
-block. All source ranges below cite round 1 (`039.md:1-1258`) as canonical;
-the duplication is recorded here so nobody re-extracts the later rounds.
-
-Only the ranges in the coverage table were distilled. The source is a
-single-author Chinese-language discussion; this document is the
-English-language draft synthesis, not a translation. The fingerprint
-identifies the discussion, not the truth of its claims. Cited repository and
-RFC statements (for example the Panel Runtime RFC, Plugin API v1, and Panel
-Animations RFC) carry no pinned revision in the source and were not
-independently verified here; they are treated as discussion claims, not as
-evidence.
-
 ## Authority and reconciliation
 
 The draft [AI Architecture](../architecture/ai-architecture.md) layered models discussed
-in the source are candidate inputs only and are **not** accepted by this
-distillation. Provider placement questions stay with the draft
+in the direction are candidate inputs only and are **not** accepted by this
+candidate design. Provider placement questions stay with the draft
 [Provider plugin boundary](../providers/provider-plugin-boundary.md); panel environment
 semantics stay with [Panel environment awareness](../interfaces/panel-environment-awareness.md);
 single-agent execution ownership stays with
@@ -92,7 +61,7 @@ Each is referenced, never duplicated or modified.
 
 Normative security obligations (authenticated local IPC, per-action scopes,
 read-only agent defaults, typed redaction, consented recording, secret
-minimization) override every discussion example below. The source's `PanelId`,
+minimization) override every discussion example below. The direction's `PanelId`,
 `ViewId`, `TerminalId`, `PanelContent`, and mode names are conceptual
 vocabulary from the discussion, not additions to any accepted registry.
 This draft creates or closes no AIQ or OQ identifier; open questions stay
@@ -101,11 +70,7 @@ governance.
 
 ## AI Workspace in the object model
 
-Source: `039.md:15-45` (head conclusion: Panel as host of the Native
-Application Runtime; `Bitty` tree with `AI Workspace` as a first-class
-branch; Emacs plus window-manager plus terminal plus native toolkit analogy).
-
-The source proposes placing an `AI Workspace` beside the terminal emulator,
+The direction proposes placing an `AI Workspace` beside the terminal emulator,
 window and workspace manager, native UI runtime, Lua application platform,
 plugin runtime, and automation runtime, with `Panel` as the place where they
 meet. For `bitty-ai`, the retained candidate direction is narrow: AI surfaces
@@ -118,15 +83,10 @@ extension layer) is motivation, not an adopted architecture.
 **Critical judgment:** the object-model tree is a proposal. The stable claim
 is only the hosting direction: AI content lives inside host-managed
 containers under host lifecycle, consistent with the R1
-`ExecutionContext`-primary model. The source's repository and RFC citations
+`ExecutionContext`-primary model. The direction's repository and RFC citations
 are unverified here and cannot ground scope claims.
 
 ## Panel identity and lifecycle boundary
-
-Source: `039.md:46-83` (section 1: `PanelId != ViewId != TerminalId`;
-`PanelRuntime` create, mount, suspend, resume, dispose; PTY, GPU object, and
-OS window handle not owned by Panel; `PanelContent` enum with terminal, rich,
-browser, helper, and canvas variants; `Panel != Pty`).
 
 The retained boundary for future Agent UI panels is:
 
@@ -151,15 +111,10 @@ ownership direction, which agrees with R1 (projection-only panels) and with
 
 ## Floating-mode AI and shared workspace operations
 
-Source: `039.md:84-145` (section 2: mode table with `tiled`, `floating`
-covering help, settings, AI, pet, and tool uses, `overlay`, `fullscreen`,
-`scratchpad`, `pinned`, `popover`; mode as runtime property with identity
-preserved across transitions; shared key operations across all panel kinds).
-
 The retained direction is that AI panels need no bespoke windowing: because
 mode is a runtime property rather than a panel type, an AI panel can move
 between tiled, floating, fullscreen, and scratchpad states while keeping its
-identity, lifecycle, input routing, and surface. The source's example
+identity, lifecycle, input routing, and surface. The direction's example
 operation set (toggle fullscreen, toggle floating, scratchpad recall, focus
 and move navigation) applies uniformly to AI, editor, Docker, mail, and
 terminal panels alike.
@@ -171,14 +126,6 @@ stays inspectable under user authority. The key bindings are illustrations,
 not adopted defaults.
 
 ## TextEditor primitive and the AI prompt editor
-
-Source: `039.md:407-489` (section 6: Rust Core versus Lua application split;
-buffer, rope, cursor, selection, IME, grapheme segmentation, shaping,
-undo and redo engine, viewport, virtualized rendering, and clipboard
-primitive on the Rust side; modes, keymaps, commands, LSP integration, syntax
-configuration, UI, and workflows on the Lua side; `bitty-ai` prompt editor
-listed as a `TextEditor` consumer; Emacs buffer analogy; `Document != View
-!= Panel`).
 
 The retained `bitty-ai` direction is consumer-only:
 
@@ -202,10 +149,6 @@ primitive grants no ambient file authority.
 
 ## Agent Workspace composition
 
-Source: `039.md:1067-1153` (section 14: terminal-first programmable
-workspace framing; IDE, DevOps, personal, and Agent workspace compositions;
-`Bitty` as a runtime that can construct an IDE rather than being one).
-
 The retained Agent Workspace composition is `Agent, Terminal, Diff, Task
 Board, Logs, Browser` as co-hosted panels over one runtime. For `bitty-ai`,
 the consequences are:
@@ -227,14 +170,6 @@ authorized, redacted, bounded read, consistent with R2 and R3.
 
 ## Sequencing and unifying principle
 
-Source: `039.md:1154-1258` (section 15: six-step order from Panel Runtime
-completion through activity and surface layer, widget tree, `TextEditor`
-primitive with a small reference plugin, application services under
-capability sandbox, and deferred advanced effects; closing object model with
-presentation versus activity split; the principle sentence developing
-"Panel is not Terminal" into "Panel is a host; Terminal is only one
-Activity").
-
 The retained unifying principle is **Panel is a host; Terminal is only one
 Activity**. It explains, in one sentence, why agent panels, editor panels,
 mail panels, shell panels, and native-app panels belong to the same system:
@@ -242,7 +177,7 @@ each is an activity hosted by a generic workspace-managed container with a
 presentation state (tiled, floating, fullscreen, scratchpad, pinned) and an
 activity kind (terminal, native application, rich content, canvas, helper).
 
-The six-step build order is recorded as the source author's opinion, not as
+The six-step build order is recorded as the author opinion, not as
 an accepted plan: finish the Panel Runtime first, then the
 activity and surface layer, then the widget tree, then the `TextEditor`
 primitive validated by a small reference plugin, then application services,
@@ -252,41 +187,11 @@ and lifecycle, activity switching with a surviving background session) and is
 otherwise decoupled from terminal-side sequencing.
 
 **Critical judgment:** lossless activity switching with a live background
-session is asserted, not demonstrated, in the source. Session survival,
+session is asserted, not demonstrated, in the direction. Session survival,
 state reconciliation after switching, and the cost of hidden activities need
 host-side evidence before `bitty-ai` relies on them. The final object-model
 tree is a proposal; the accepted lifecycle vocabulary is unchanged by this
 draft.
-
-## Source coverage and critical disposition
-
-Retain means retain as a **proposal**, not accept as normative. Improve means
-retain the objective with the correction above. Reject means reject that
-mechanism or absolute claim; defer means no commitment pending named
-evidence. Round-1 ranges are canonical; rounds 2 through 5 duplicate them as
-documented in the provenance section.
-
-| Source lines | Topic                                         | Disposition, rationale, and alternative                                                                   |
-| ------------ | --------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 1-14         | Opening Panel question                        | Boundary context; motivates the distillation, not a distilled claim                                       |
-| 15-45        | Head conclusion, AI Workspace in object model | Retain hosting direction; improve with R1 projection-only rule; reject analogy as architecture            |
-| 46-83        | Panel identity, lifecycle, content enum       | Retain identity separation and host-owned lifecycle; improve vocabulary as discussion-only, not registry  |
-| 84-145       | Modes, floating AI, shared operations         | Retain mode-as-property and uniform operations; reject agent-driven windowing; defer key bindings         |
-| 146-237      | Panel versus Activity layer                   | Excluded (`bitty`-side container design); AI consequence covered via identity and activity sections above |
-| 238-328      | Native UI versus traditional TUI              | Excluded (`bitty`-side UI direction); no `bitty-ai` contract follows from the comparison                  |
-| 329-406      | Reference editor plugin existence             | Excluded (editor application design); `bitty-ai` consequence is consumer-only, covered above              |
-| 407-489      | TextEditor primitive, AI prompt editor        | Retain consumer-only direction; improve with R2 gating on editing effects; defer API shape                |
-| 490-620      | Native widget layer proposal                  | Excluded (`bitty`-side UI runtime); `bitty-ai` declares needs, never widgets                              |
-| 621-698      | Terminal as a native widget                   | Excluded (`bitty`-side rendering direction); execution ownership stays with R1                            |
-| 699-809      | Panel effects abstraction                     | Excluded (`bitty`-side effects design); advanced effects deferred by the source itself                    |
-| 810-895      | Focus and idle visual states                  | Excluded (`bitty`-side presentation state); agent authority unaffected by presentation                    |
-| 896-954      | Docker, mail, chat plugins as applications    | Excluded (application designs); composition consequence covered via Agent Workspace above                 |
-| 955-1018     | Application services half                     | Excluded (`bitty`-side services); capability-sandbox note is handoff input, not a `bitty-ai` decision     |
-| 1019-1066    | Editor startup performance comparison         | Excluded (unmeasured claim); no performance conclusion is drawn here                                      |
-| 1067-1153    | IDE question, Agent Workspace composition     | Retain composition as illustration; improve with per-panel authorization; reject composition as plan      |
-| 1154-1227    | Six-step sequencing                           | Retain as author opinion; defer as plan pending host-side acceptance                                      |
-| 1228-1258    | Closing object model and principle sentence   | Retain principle sentence as candidate; improve closing tree as proposal, not accepted vocabulary         |
-| 1259-6079    | Rounds 2-5 duplicates                         | Not re-extracted; byte-identity documented in provenance                                                  |
 
 ## Proposed validation and promotion path
 

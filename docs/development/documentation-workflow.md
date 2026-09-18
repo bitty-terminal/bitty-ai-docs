@@ -44,12 +44,11 @@ documents live under `docs/`. New topic trees are added only when real content
 exists; empty placeholder pages are avoided so the tree does not imply work that
 has not happened.
 
-| Path                | Owns                                                          |
-| ------------------- | ------------------------------------------------------------- |
-| `<topic>/`          | Canonical documents for the AI-core sub-platform.             |
-| `docs/README.md`    | Documentation map and authority rules.                        |
-| `docs/development/` | Contributor policy and workflow.                              |
-| `docs/sources/`     | Research provenance registers and their interpretation rules. |
+| Path                | Owns                                              |
+| ------------------- | ------------------------------------------------- |
+| `<topic>/`          | Canonical documents for the AI-core sub-platform. |
+| `docs/README.md`    | Documentation map and authority rules.            |
+| `docs/development/` | Contributor policy and workflow.                  |
 
 ## Document types and authority
 
@@ -74,9 +73,10 @@ Each `document_type` has a fixed section spine. The spine order is normative: a
 document presents the sections of its type in the order below, and a section
 may be omitted only when it is genuinely inapplicable, never because it is
 inconvenient or unfinished. A present section uses the canonical vocabulary
-named in the spine; a synonym such as `Source provenance` or `Scope and inputs`
-for `Purpose and scope`, or `Next steps` for `Open items`, signals a document
-that has not adopted the spine. Use `Provenance` only for source notes.
+named in the spine; a synonym such as `Scope and inputs` for
+`Purpose and scope`, or `Next steps` for `Open items`, signals a document that
+has not adopted the spine. Provenance sections are governed by
+[Docs self-containment](#docs-self-containment) below.
 
 The leading `Document status` position may be satisfied by the short status
 block that immediately follows the H1 (the pattern used by the accepted RFCs)
@@ -85,7 +85,6 @@ rather than by a heading; when written as a heading, it leads the document.
 | `document_type`             | Section spine (in order)                                                                                                                                                                                                                                                                                                                                      |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `specification`             | Document status / Purpose and scope / Normative sources this specification must not weaken (or Normative precedence) / Terminology / body / Security review (or Security alignment and traceability) / Verification plan / Alternatives considered / Affected contracts / Open points (or Open items) / Acceptance criteria / P0 Review Sign-off / References |
-| `research`                  | Purpose and scope / Status vocabulary / source-slice sections (`T-1`..`Tn`) / Owner-pending pointers / Relation to existing systems / Open items (not global open questions) / Provenance                                                                                                                                                                     |
 | `index`                     | Admission criteria / Authority and status / route tables                                                                                                                                                                                                                                                                                                      |
 | `register`                  | Purpose / Source identity / Disposition / Verification backlog                                                                                                                                                                                                                                                                                                |
 | `overview` or `explanation` | Purpose and scope / body / Relation to existing systems / References                                                                                                                                                                                                                                                                                          |
@@ -102,6 +101,26 @@ status meanings, or review ownership defined elsewhere in this policy. The
 spine is shared verbatim with
 [bitty-plugins-docs](https://github.com/bitty-terminal/bitty-plugins-docs), and
 the two repositories must not diverge.
+
+## Docs self-containment
+
+Canonical documents must be self-contained. A canonical document must not
+reference the research repository in any way: no research links or checkout
+paths, no record numbers or record filenames, no summary- or origin-directory
+citations, no completion-marker citations, no coverage or provenance ledgers, no
+source line ranges or hash/fingerprint blocks, and no "distilled from record
+NNN" or "Provenance and evidence boundary" framing. A reader must be able to use
+every document with the research repository absent.
+
+The document's own `status` and candidate qualifiers carry the trust level;
+provenance machinery is not part of canonical text. Record-to-document coverage
+mappings live only in the research repository, never in a canonical document.
+Future research capture writes the self-contained canonical document first and
+then updates the archive.
+
+This rule is enforced at review: a review that finds a research reference,
+record number, or coverage ledger in a canonical document returns
+`NEEDS-FIX`.
 
 ## Required metadata
 

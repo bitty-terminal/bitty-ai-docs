@@ -1,6 +1,6 @@
 ---
 title: Panel environment awareness
-description: Draft bitty-ai awareness note for panel environment contracts from research 036
+description: Draft bitty-ai awareness note for panel environment contracts from the candidate direction
 category: specifications
 audience: contributor
 document_type: specification
@@ -11,7 +11,7 @@ sidebar_order: 46
 
 # Panel environment awareness
 
-> Status: **draft**. This document distills workspace research record `036.md`
+> Status: **draft**. This document records the candidate direction
 > into the draft `bitty-ai`-facing awareness note: sanitized Agent View,
 > Use-versus-Read boundary, env-handle semantics, no-persistence default, and
 > exported-only scope. It proposes no accepted architecture, authorizes no
@@ -38,7 +38,7 @@ environment, even before any `bitty`-side mechanism lands:
   presentation, plugin-registry mechanics, per-shell integration scripts,
   and wire protocols.
 
-Inputs are research note `036` (read 2026-09-15, 910 lines), PP-2 (Typed redaction)
+Inputs are the candidate direction, PP-2 (Typed redaction)
 and PP-4 (No on-disk persistence without consent) under
 [Privacy-first](../architecture/ai-architecture.md#privacy-first) in
 [AI Architecture](../architecture/ai-architecture.md), the R1 disposition in
@@ -48,18 +48,12 @@ and PP-4 (No on-disk persistence without consent) under
 [Persistence profile R6](../architecture/persistence-profile-r6.md), the register in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate
 in [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), and the
-accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The
-source record is a single-author Chinese-language discussion; this document is
-the English-language draft distillation, not a translation.
+accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
+stands alone.
 
 No product code is introduced or described as implemented.
 
 ## Contract 1: sanitized Agent View only
-
-Source: `036.md:461-559` (never pipe the snapshot into model context at
-461-493; Execution View versus Agent View split at 495-505; redacted inspect
-example at 507-533; presence-only JSON shape at 535-549; presence-without-value
-rule at 552-558).
 
 The agent-facing view of panel environment is always sanitized. `bitty-ai`
 must assume an Execution View with full values exists only on the
@@ -95,10 +89,6 @@ applies unchanged to environment-derived secrets.
 
 ## Contract 2: Use-versus-Read boundary
 
-Source: `036.md:562-618` (agent need not know secrets at 562-575; execute
-through Core at 576-600; `Use Environment != Read Environment` at 602-606;
-usable-without-visible rule at 608-618).
-
 An agent may use panel environment to execute without reading it. The
 proposed flow is `agent execute(panel, command)` against `bitty` Core, which
 combines panel environment, credentials, and working directory into the child
@@ -114,10 +104,6 @@ backend in [Tool transport R2](../architecture/tool-transport-r2.md) (one common
 for every effect; transport never grants authority).
 
 ## Contract 3: env-handle semantics
-
-Source: `036.md:622-667` (`EnvSnapshot` handle proposal at 622-630;
-clone-by-reference at 632-649; agent holds only `env_snapshot_id` at 651-659;
-fit with the Agent-Panel lifecycle at 661-667).
 
 When an agent clones or spawns from a panel, `bitty-ai` must assume
 handle semantics: the agent names an `EnvSnapshot` identifier while byte
@@ -137,10 +123,6 @@ grants no execution authority.
 
 ## Contract 4: no persistence by default
 
-Source: `036.md:748-800` (inherit-versus-persist split at 748-766; secrets
-rationale at 768; restart from OS plus config plus shell rc at 770-786;
-explicit allowlist exception at 788-800).
-
 Panel environment inheritance never implies durability. `bitty-ai` must
 assume the default is no on-disk persistence: inherited use in the live panel,
 in newly spawned panels, and in headless clones is in-scope discussion, while
@@ -159,11 +141,6 @@ persistence without consent) and P0-AC-026 in
 [AI Architecture](../architecture/ai-architecture.md#privacy-first).
 
 ## Contract 5: exported-only scope
-
-Source: `036.md:804-844` (unexported shell variables out of scope at 808-822;
-aliases, functions, locals, options, history, and prompt internals out of
-scope at 824-834; exported-process-environment definition at 836-839; no full
-shell clone at 842-844).
 
 `Bitty Panel Environment` means exported process environment only. Shell-local
 variables without export, aliases, shell functions, shell options, history,
@@ -237,27 +214,26 @@ scoped tasks and are not AIQ entries.
 
 ## Bitty-side handoff, not a decision
 
-The following items from the research record need owning-repository review
+The following items from the candidate direction need owning-repository review
 and are recorded here as input only:
 
 1. Four-layer environment composition (`ProcessEnv`, `ConfigEnv`,
-   `LaunchEnv`, `RuntimeEnv` with ordered inheritance; source `036.md:44-67`)
+   `LaunchEnv`, `RuntimeEnv` with ordered inheritance)
    (owner: `bitty` side; constraint: composition and override order stay
    host-defined).
 2. Shell-sync collection helper (`bitty __shell-sync` as a shell child
    inheriting exported environment at prompt time, with `std::env::vars_os`
-   collection; source `036.md:188-269` and prompt-cadence `036.md:347-393`;
-   rejected alternatives: command parsing at `036.md:137-178` and
-   `/proc/<pid>/environ` at `036.md:180-186`) (owner: `bitty` side;
+   collection and prompt-cadence;
+   rejected alternatives: command parsing at and
+   `/proc/<pid>/environ` at) (owner: `bitty` side;
    constraint: no parser-based or proc-based collection contract is adopted
    here).
 3. `ShellState` unification (`cwd`, `env`, command, prompt, shell, remote as
-   one state with `PanelEnvSnapshot` revisioning; source `036.md:396-457`
-   and core sketch `036.md:848-905`, including snapshot-versus-diff note at
-   `036.md:328-343`) (owner: `bitty` side; constraint: no store shape or
+   one state with `PanelEnvSnapshot` revisioning
+   and core sketch, including snapshot-versus-diff note at) (owner: `bitty` side; constraint: no store shape or
    revision protocol is accepted here).
 4. New-panel default semantics (`new` inherits, `clean` resets to base,
-   `spawn --env` overrides; source `036.md:671-744`) (owner: `bitty` side
+   `spawn --env` overrides) (owner: `bitty` side
    with plugin-ecosystem review for the Lua surface; constraint: naming and
    defaults undecided here).
 
@@ -279,9 +255,3 @@ awareness contracts regardless of handoff timing.
 - Agents that assume shell-local state will break silently on clean or
   foreign-shell panels; documentation and errors must keep the
   exported-only boundary explicit.
-
-## Provenance
-
-- Source: research note `036` (read 2026-09-15; single-author Chinese-language
-  discussion, 910 lines). The record was later marked complete by its owning
-  track with no content change, so all `036.md:<line>` citations remain valid.

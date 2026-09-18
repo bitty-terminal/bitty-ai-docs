@@ -11,7 +11,7 @@ sidebar_order: 45
 
 # Multimodal inference boundary
 
-> Status: **draft**. This document distills workspace research record `033.md`
+> Status: **draft**. This document records the candidate direction
 > into the draft `bitty-ai` Core multimodal extension: capability vocabulary,
 > task envelope, generation-job lifecycle, and asset outputs. It proposes no
 > accepted architecture, authorizes no shipped behavior, closes no Artificial
@@ -45,15 +45,14 @@ It references that document and does not duplicate it:
   wire protocols, vendor endpoint construction, the host secret store, Panel
   and gallery presentation, and plugin-registry mechanics.
 
-Inputs are research note `033` (read 2026-09-15, 645 lines), MP-1 through MP-11
+Inputs are the candidate direction, MP-1 through MP-11
 and the MPC-1/MPC-2 candidate extension in [AI Architecture](../architecture/ai-architecture.md),
 the R1 disposition in [Execution ownership R1](../architecture/execution-ownership-r1.md), the
 R2 disposition in [Tool transport R2](../architecture/tool-transport-r2.md), the register in
 [AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate in
 [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), and the accepted
-[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. The source
-record is a single-author Chinese-language discussion; this document is the
-English-language draft distillation, not a translation.
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
+stands alone.
 
 No product code is introduced or described as implemented. Rust and Lua
 sketches below are illustrative proposal shapes, not configuration contracts
@@ -67,14 +66,14 @@ while others keep separate endpoints per modality with asynchronous jobs for
 long-running generation, and aggregation platforms unify heterogeneous models
 behind a single prediction lifecycle (see
 [Upstream observations](#upstream-observations-september-2026-not-pins)).
-The research record therefore proposes that `bitty-ai` Core unify the
+The candidate direction therefore proposes that `bitty-ai` Core unify the
 lifecycle and the capability description while leaving each task's request
 parameters in its own shape. This document adopts that direction as draft
 proposal only.
 
 ## Capability vocabulary extension
 
-The research record proposes extending the Core-owned closed capabilities
+The candidate direction proposes extending the Core-owned closed capabilities
 vocabulary (MP-2, MP-4 in [AI Architecture](../architecture/ai-architecture.md)) with
 multimodal capabilities. The proposed extension is:
 
@@ -101,7 +100,7 @@ names; it does not change the registration protocol, the fail-closed rule for
 unrecognized fields, or the rule that aliases and routing inputs are
 configuration, never capability grants.
 
-Indicative registration examples from the research record (illustrative, not
+Indicative registration examples from the candidate direction (illustrative, not
 a configuration contract):
 
 ```text
@@ -136,7 +135,7 @@ selects neither spelling as normative.
 
 ## InferenceTask enum and InferenceRequest envelope
 
-The research record proposes one envelope with per-task request shapes. The
+The candidate direction proposes one envelope with per-task request shapes. The
 proposed shape is:
 
 ```rust
@@ -219,7 +218,7 @@ dispatch.
 Text, image, and video generations have different temporal shapes: text
 streams tokens to completion, image generation processes to a single asset,
 and video generation typically submits an asynchronous job that queues, runs
-with progress, and completes to an asset. The research record therefore
+with progress, and completes to an asset. The candidate direction therefore
 proposes unifying the job lifecycle rather than the request timing. The
 proposed trait shape is:
 
@@ -264,7 +263,7 @@ the cancellation contract in
 [Tool transport R2](../architecture/tool-transport-r2.md)).
 
 Blind re-execution after timeout or connection loss is therefore rejected.
-The research record states the cost argument directly: a video generation may
+The candidate direction states the cost argument directly: a video generation may
 already be running and billable on the provider side, so resubmitting the
 same request after a local network failure can charge the user two or three
 times for one intent. The client must query job status (or await an
@@ -274,7 +273,7 @@ reconstructs state without re-executing effects.
 
 ## GenerationOutput: Text versus AssetRef
 
-The research record proposes unifying outputs as text or asset references,
+The candidate direction proposes unifying outputs as text or asset references,
 never inline media bytes. The proposed shape is:
 
 ```rust
@@ -326,7 +325,7 @@ this document adds no retention rule.
 
 ## Agent events and presentation handoff
 
-The research record proposes that the agent layer emit lifecycle events
+The candidate direction proposes that the agent layer emit lifecycle events
 while presentation stays outside `bitty-ai`:
 
 ```text
@@ -338,9 +337,9 @@ GenerationCompleted(asset://...)
 
 `bitty` or a plugin decides how to present them (inline summary, gallery,
 floating panel, progress indicator, cancel control). The gallery and video
-progress sketches in the source record (multi-image grid, progress bar with
+progress sketches in the candidate direction (multi-image grid, progress bar with
 duration and resolution line, cancel affordance) are illustrative interface
-ideation from a research discussion, not an accepted panel design. Panel
+ideation from a candidate discussion, not an accepted panel design. Panel
 ownership, shortcut allocation, rendering, and the image protocol belong to
 the `bitty` terminal repository; the gallery, job-panel, player, and manager
 surface API belongs to the plugin ecosystem. Neither is decided here, and
@@ -350,7 +349,7 @@ context access, or manufactures consent.
 
 ## Lua as adapter, policy, and configuration layer
 
-The research record draws an explicit placement line for Lua. Proposed
+The candidate direction draws an explicit placement line for Lua. Proposed
 ownership (Core rows restated from
 [Provider plugin boundary](provider-plugin-boundary.md); Lua and transport
 rows are proposal only):
@@ -368,7 +367,7 @@ rows are proposal only):
 
 Lua is suited to orchestration, UI, and provider mapping: registering a
 provider entry, declaring its capabilities, and mapping task shapes to
-provider operations (research-record sketch, illustrative only):
+provider operations (candidate direction sketch, illustrative only):
 
 ```lua
 bitty.ai.providers.register({
@@ -411,8 +410,8 @@ re-validated on change.
 ## Generic providers and Model Hub direction
 
 Because aggregation platforms already unify many models behind one
-prediction lifecycle, the research record proposes generic provider adapters
-(research-record sketch: one plugin per platform family covering image,
+prediction lifecycle, the candidate direction proposes generic provider adapters
+(candidate direction sketch: one plugin per platform family covering image,
 video, speech, music, upscaling, and similar models) so that installing one
 adapter surfaces many models without one plugin per model. This direction is
 proposal only; each generic adapter is still one registry entry with its own
@@ -420,11 +419,11 @@ descriptor, capabilities, and accounting per
 [Provider plugin boundary](provider-plugin-boundary.md), not a bypass around
 routing policy.
 
-The research record further suggests renaming the management surface from
+The candidate direction further suggests renaming the management surface from
 `Model Manager` toward `AI Models` or `Model Hub`, since the managed set may
 eventually span language, vision, embedding, image, video, audio, speech,
 music, realtime, and ranking models. That rename is illustrative naming
-direction from a research discussion, not an accepted product or panel
+direction from a candidate discussion, not an accepted product or panel
 decision; ownership of any such surface stays with the `bitty` side and the
 plugin ecosystem as handoff input.
 
@@ -525,7 +524,7 @@ not AIQ entries.
 
 ## Bitty-side handoff, not a decision
 
-The following items from the research record need owning-repository review
+The following items from the candidate direction need owning-repository review
 and are recorded here as input only:
 
 1. Generation gallery, video progress panel, audio player, and Model Hub
@@ -567,7 +566,7 @@ timing.
 
 ## Upstream observations (September 2026, not pins)
 
-The source record cites three upstream API families as September-2026
+The candidate direction cites three upstream API families as September-2026
 direction observations only: a unified content-generation interface, an
 asynchronous video-job interface, and a unified prediction lifecycle with
 sync/async operation modes.[^1][^2][^3] No endpoint URL, request shape, or
@@ -591,8 +590,3 @@ change their APIs. Normative statements above never depend on them.
     references for the unified prediction direction (create-a-prediction and
     HTTP API reference at `https://replicate.com/docs/reference/http`);
     not adopted endpoints.
-
-## Provenance
-
-- Source: research note `033` (read 2026-09-15; single-author Chinese-language
-  discussion, 645 lines).

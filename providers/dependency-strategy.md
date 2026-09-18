@@ -11,8 +11,8 @@ sidebar_order: 29
 
 # Dependency Strategy
 
-> Status: **draft**. This document distills a single-author workspace research
-> record into a reviewable proposal. It accepts nothing, describes no shipped
+> Status: **draft**. This document records a single-author candidate
+> direction as a reviewable proposal. It accepts nothing, describes no shipped
 > behavior, adopts no dependency, and authorizes no compatibility promise.
 > Every adapter, crate sketch, and version number below is a post-v0.1
 > proposal, not a commitment. No new dependency is adopted by this document:
@@ -30,19 +30,6 @@ single-crate scope and defers transport, intelligence, and storage detail to
 [Code Intelligence Architecture](../agent/code-intelligence.md), and
 [Persistence and Evidence Architecture](../persistence/persistence-evidence.md). These are
 topic relationships, not accepted authority.
-
-## Source provenance
-
-Distilled from research note `030` (read 2026-09-15, 678 lines).
-
-The source is written in Chinese
-and is preserved untranslated under its existing name; this document is an
-English critical distillation, not a translation. The source is shared with
-the terminal-docs track and was intentionally not renamed. Source section
-numbers below refer to that record. Point-in-time crate versions named by the
-source are observations as of September 2026, never pins or approvals; each
-needs re-verification against current upstream before any future adoption
-decision.
 
 ## What this document does not duplicate
 
@@ -211,16 +198,10 @@ consent) with PP-2 (Typed redaction).
 
 ## Provider and transport separation
 
-This section distills only the `bitty-ai`/network-relevant tail of research
-note `029` (read 2026-09-15, lines 1574-2018 of 2018 lines). The source is
-written in Chinese and is preserved untranslated; this section is an English
-critical distillation, not a translation. The record is shared with the
-terminal-docs track. Lines 1-1573
-(`bitty-core` network-free shape, plugin-via-git) are `bitty`-side and are
-excluded here: the terminal-docs repository owns them. Within lines
-1574-2018, every `bitty`-side row (terminal core, Lua plugin gateway, weather
-plugin, Plugin Manager external git) is marked out of scope below; this
-section decides only the `bitty-ai` side. The tail names no crate versions;
+This section records only the `bitty-ai`/network-relevant half of the candidate
+direction. Every `bitty`-side row (terminal core, Lua plugin gateway, weather
+plugin, Plugin Manager external git) is marked out of scope below; this section
+decides only the `bitty-ai` side. The direction names no crate versions;
 every provider name, transport kind, and endpoint shape below is a
 point-in-time observation from September 2026, never a pin or approval.
 
@@ -491,8 +472,7 @@ reviewed contract in the owning repository.
 
 ## Point-in-time versions are observations only
 
-All versions below are second-hand observations from the source as of
-September 2026, with source-cited links left in the research record. None is
+All versions below are second-hand observations as of September 2026. None is
 a pin, approval, or recommendation; upstream state must be re-verified before
 any future decision.
 
@@ -624,7 +604,7 @@ questions. Version observations create no new OQ.
 
 ## Evidence and verification boundary
 
-This specification distills one workspace research record plus critical
+This specification records the candidate direction plus critical
 judgment. It is not implementation evidence. Acceptance requires independent
 review, and any future adapter adoption requires:
 

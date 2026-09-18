@@ -23,11 +23,10 @@ sidebar_order: 49
 
 ## Scope and sources
 
-The risks are transcribed from the workspace `research` review document
-`review/2026-09-15/07-bitty-ai.md`, section "Integration Risks with the bitty
-Main Repository" (eight bullets), with the "Test Gaps" section used as context.
-That document is untrusted, read-only research input; code cited below was
-inspected as evidence only and never executed from the research checkout.
+The risks were assembled from a read-only review of the integration surfaces
+between `bitty-ai` and the bitty main repository (eight integration risks, with
+test gaps used as context). Code cited below was inspected as evidence only and
+never executed.
 
 Evidence anchors name a revision and a file line at that revision. Two source
 revisions are used:
@@ -340,6 +339,3 @@ This register explicitly does not:
   Bus, and Rich streaming vocabulary.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): open register
   entries, unchanged by this register.
-
-Source provenance: the workspace `research` review document
-`review/2026-09-15/07-bitty-ai.md`, read-only and untrusted.

@@ -25,10 +25,9 @@ sidebar_order: 59
 ## Scope and inputs
 
 This design answers the AIQ-35 row recorded in
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and triaged in the [AIQ
-triage](../docs/sources/aiq-triage-2026-09-16.md): whether agent version-control
-access arrives as raw git primitives or as a structured, permission-scoped
-wrapper. This document proposes the wrapper side of that choice and sketches
+[AI Unresolved Questions](../product/ai-unresolved-questions.md): whether
+agent version-control access arrives as raw git primitives or as a structured,
+permission-scoped wrapper. This document proposes the wrapper side of that choice and sketches
 its API and audit shape. Selecting the wrapper over primitives, or rejecting
 both in favor of bounded authorized execution, stays with the owner under
 DEC-0006; nothing here pre-decides it.
@@ -41,7 +40,7 @@ denial), the draft [HostBoundary trait and lint-gate
 design](../architecture/host-boundary-trait-design.md) (seam inventory over `ToolBus`,
 provider selection, and disclosure primitives), and the draft
 [Prototype-to-Core promotion checklist](../architecture/prototype-promotion-checklist.md)
-(deterministic doubles and house-style gates distilled from AI-0076 through
+(deterministic doubles and house-style gates derived from AI-0076 through
 AI-0097).
 
 ## Demand survey (read-only evidence at `bitty-ai` `main` `97d3125`)
@@ -302,10 +301,6 @@ here describes that slice as the complete proposed runtime.
 
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft): AIQ-35
   and the AIQ-31 through AIQ-38 facets; no entry status changes here.
-- [AIQ triage (2026-09-16)](../docs/sources/aiq-triage-2026-09-16.md) (Draft):
-  the AIQ-35 `needs-evidence` verdict ("No git-primitive versus wrapper
-  selection is evidenced") and the missing "API-shape owner decision" this
-  document proposes DEC-0006 to cover.
 - [Command and Tool Architecture](../architecture/command-tool-architecture.md) (Draft):
   Core-mechanism versus Lua-policy placement the wrapper preserves.
 - [Tool transport R2](../architecture/tool-transport-r2.md) (Draft): unified authorization

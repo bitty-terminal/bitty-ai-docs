@@ -35,7 +35,8 @@ the repository root; this repository's own process documents live under
   from surviving pages by absolute cross-repository URL.
 - `bitty-ai/docs` is a pinned submodule of this repository. Pinned revisions
   move with integration needs; point-in-time inspection details live with the
-  research evidence (see [inspected scope](../specifications/research-distillation-013-017-018.md#current-bitty-ai-evidence)),
+  candidate design records (see
+  [AI runtime boundaries](../specifications/ai-runtime-boundaries-candidate.md)),
   not in this map.
 
 ## Content trees
@@ -44,18 +45,17 @@ Every canonical AI-core document lives in exactly one root topic tree. A tree's
 route-only index lists its documents; normative detail stays in the linked
 pages.
 
-| Tree              | Entry points                                                                                                                                                                  |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `architecture/`   | [Architecture diagrams](../architecture/README.md) plus the core [AI Architecture](../architecture/ai-architecture.md) specification and the R1-R6 draft dispositions.        |
-| `context/`        | [Context index](../context/README.md) — context management, prefix-cache context design, and prompt layering.                                                                 |
-| `providers/`      | [Providers index](../providers/README.md) — provider plugin boundary, multimodal inference boundary, and dependency strategy.                                                 |
-| `agent/`          | [Agent index](../agent/README.md) — agent coordination, code intelligence, caller attribution, git wrapper API, and fragment pre-split rule.                                  |
-| `persistence/`    | [Persistence index](../persistence/README.md) — persistence evidence, storage memory and export, and history consumption boundary.                                            |
-| `interfaces/`     | [Interfaces index](../interfaces/README.md) — panel environment awareness and browser/agent panel pre-study.                                                                  |
-| `integration/`    | [Integration index](../integration/README.md) — bitty-side integration input, delivery verification, integration risk register, and RFC-split readiness.                      |
-| `product/`        | [Product index](../product/README.md) — v0.1 implementation profile, vertical-slice pressure test, and unresolved-questions register.                                         |
-| `specifications/` | [Specification register](../specifications/README.md) — the accepted IPC and Agent RFC plus the [research distillations](../specifications/README.md#research-distillations). |
-| `docs/sources/`   | [Sources and provenance](sources/README.md) — research coverage ledger and AIQ triage registers.                                                                              |
+| Tree              | Entry points                                                                                                                                                           |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `architecture/`   | [Architecture diagrams](../architecture/README.md) plus the core [AI Architecture](../architecture/ai-architecture.md) specification and the R1-R6 draft dispositions. |
+| `context/`        | [Context index](../context/README.md) — context management, prefix-cache context design, and prompt layering.                                                          |
+| `providers/`      | [Providers index](../providers/README.md) — provider plugin boundary, multimodal inference boundary, and dependency strategy.                                          |
+| `agent/`          | [Agent index](../agent/README.md) — agent coordination, code intelligence, caller attribution, git wrapper API, and fragment pre-split rule.                           |
+| `persistence/`    | [Persistence index](../persistence/README.md) — persistence evidence, storage memory and export, and history consumption boundary.                                     |
+| `interfaces/`     | [Interfaces index](../interfaces/README.md) — panel environment awareness and browser/agent panel pre-study.                                                           |
+| `integration/`    | [Integration index](../integration/README.md) — bitty-side integration input, delivery verification, integration risk register, and RFC-split readiness.               |
+| `product/`        | [Product index](../product/README.md) — v0.1 implementation profile, vertical-slice pressure test, and unresolved-questions register.                                  |
+| `specifications/` | [Specification register](../specifications/README.md) — the accepted IPC and Agent RFC plus the candidate design records.                                              |
 
 New topic trees are created only as real content lands; empty placeholder pages
 are not added.
@@ -115,7 +115,7 @@ ai-architecture.md (Main specification)
 - `integration/integration-risk-register.md` records the draft review-07 cross-repo integration-risk register (eight bitty-ai and bitty contract questions with evidence anchors, decision owners, required contracts, and acceptance evidence) with bitty-side handoff without closing any Artificial Intelligence Question entry or proposing any new identifier.
 - `agent/fragment-pre-split-rule.md` transcribes the implemented AI-0066/AI-0070 slice-layer fragment pre-split and reassembly mapping rule (64 KiB runtime fragments to at most 16 KiB transport parts at code-point boundaries with a continuation marker, dense cursor-assigned `seq`, and a caller-bindable reassembly identity) with revision-pinned evidence and explicit non-claims (mapping layer only; no `rich.*` wire method registered) without closing any Artificial Intelligence Question entry or proposing any new identifier.
 
-**Unresolved choices**: `product/ai-unresolved-questions.md` preserves 53 research identifiers, including stable aliases, rather than claiming 53 independent questions. Its feature-prerequisite classifications and proposed owner routing are local draft analysis, not accepted global OQs or assigned milestones.
+**Unresolved choices**: `product/ai-unresolved-questions.md` preserves 53 unresolved-question identifiers, including stable aliases, rather than claiming 53 independent questions. Its feature-prerequisite classifications and proposed owner routing are local draft analysis, not accepted global OQs or assigned milestones.
 
 ## Process documents
 

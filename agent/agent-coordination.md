@@ -15,12 +15,6 @@ This specification defines agent coordination, workspace service supervision, mu
 
 **Draft relationship**: [AI Architecture](../architecture/ai-architecture.md) AG-4 (Least privilege at dispatch) constrains these coordination proposals; AG-5 distinguishes orchestration from execution. This document accepts no new mechanism.
 
-## Source provenance
-
-This distillation extracts agent coordination and service supervision from research note `021` (read 2026-09-14, 3,378 lines). Topic ranges below refer to that record, including service supervision at 41-772, coordination/context at 773-2400, and execution/panel lifecycles at 2402-3378. Critical additions are inherited from [the 021 synthesis](../specifications/research-distillation-021.md), not verbatim recording contracts. Its pinned upstream inspection is separate evidence.
-
-The source analyzes agent/process separation, shared workspace services, team delegation, and panel lifecycle with comparative references to existing systems. This specification separates observations of existing systems from proposed Bitty contracts.
-
 ## Identity and ownership
 
 Agent identity is distinct from OS process and model conversation (source lines 41-112). A logical agent can be driven by an async state machine. The executor choice does not itself isolate faults or memory: blocking analysis needs bounded workers, and untrusted tools require host-enforced process/sandbox boundaries.
@@ -198,7 +192,7 @@ Agent coordination separates logical agent identity from OS processes and model 
 
 ## Next steps
 
-1. Independent review of this distillation against source provenance and existing AI architecture.
+1. Independent review of this specification against existing AI architecture.
 2. Resolve unresolved questions through targeted RFCs or open-question register entries.
 3. Define service compatibility key schema and validation rules.
 4. Specify lease lifecycle, heartbeat, and fencing mechanisms.
@@ -214,7 +208,7 @@ Agent coordination separates logical agent identity from OS processes and model 
 
 ## Evidence and verification boundary
 
-This specification distills recording 021 through its critical synthesis and separately attributed comparative observations. It does **not** establish implementation of these coordination proposals. Verification requires:
+This specification records the candidate direction through its critical synthesis and separately attributed comparative observations. It does **not** establish implementation of these coordination proposals. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for agent/process separation and service supervision
 - `bitty-ai-core` Rust implementation of service supervisor, lease manager, team coordinator

@@ -57,7 +57,6 @@ topic trees; this repository's process documents stay under `docs/`.
 | -------------------------------- | ------------------------------------------------------------ |
 | `docs/README.md`                 | Documentation map and authority rules for this repository.   |
 | `docs/development/`              | Contributor workflow and the normative documentation policy. |
-| `docs/sources/`                  | Research coverage ledger and provenance registers.           |
 | `<topic>/`                       | Canonical AI-core documents in root topic trees.             |
 | `TODO.md`                        | Work register for this repository.                           |
 | `AGENTS.md`                      | Agent scope, CarryCtx workflow, and local gate rules.        |
