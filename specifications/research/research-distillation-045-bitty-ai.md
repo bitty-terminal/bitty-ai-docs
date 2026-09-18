@@ -153,7 +153,7 @@ boundary; the `bitty-ai` Agent, Task, Delegation, Budget, and Capability
 layer as the AI-semantics hard constraint; the Lua Harness workflow, strategy,
 scheduling-policy, and UX layer as freely composable policy that cannot widen
 authority; and the User and Project policy layer (`~/.config/bitty`,
-`.bitty`) as further tightening within the ranges the upper layers allow. The
+`.wheel`) as further tightening within the ranges the upper layers allow. The
 load-bearing sentence is kept as a principle: **Lua decides how work is done,
 not whether it is permitted.**
 

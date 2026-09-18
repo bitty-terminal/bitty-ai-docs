@@ -17,7 +17,7 @@ sidebar_order: 47
 > object store, an event-oriented session model, context recipes, memory tiers,
 > export semantics, a Core storage API with Lua frontends, a stable interchange
 > format direction, a hot/closed/archived lifecycle, mark-and-sweep collection
-> direction, and the `.bitty` project-identity link. It proposes no accepted
+> direction, and the `.wheel` project-identity link. It proposes no accepted
 > architecture, authorizes no shipped behavior, closes no Artificial
 > Intelligence Question entry, introduces no new identifier, and contains no
 > product code. Normative security and IPC obligations override any
@@ -33,7 +33,7 @@ This design covers only what `bitty-ai` Core owns as storage direction:
   [Shard design](#shard-design-catalog-per-session-store-and-objects) through
   the identity link in [Project identity link](#project-identity-link).
 - What `bitty-ai` Core does not own: XDG directory placement, panel segment
-  files, storage CLI verbs, and `.bitty/project.toml` ownership, which are
+  files, storage CLI verbs, and `.wheel/project.toml` ownership, which are
   `bitty`-side handoff items recorded in
   [Bitty-side handoff, not a decision](#bitty-side-handoff-not-a-decision).
 - What is explicitly out of scope here: exact SQL schemas, transaction
