@@ -46,16 +46,6 @@ Out of scope (owned elsewhere):
 
 This document introduces no new trust boundary. Every transition into a privileged host primitive stays behind the capability, scope, budget, and consent gates already normative in the security corpus.
 
-## Related specifications
-
-These draft elaborations accept no new mechanisms. “Extends” describes a topic relationship, not accepted authority. The historical post-1.0 scope of this terminal-facing architecture does not decide standalone AI release requirements (local AIQ-5C).
-
-- [Context Management Architecture](context-management.md) (Draft): Session journal model, context view projection, and multi-level compression pipeline. Extends CP-5, CP-6, CP-7.
-- [Command and Tool Architecture](command-tool-architecture.md) (Draft): Core versus Lua boundary, slash command registry, and tool runtime separation. Extends Tool Bus (TB-1..TB-3).
-- [Agent Coordination Architecture](agent-coordination.md) (Draft): Multi-agent workspace services, supervision, teams, delegation, and panel lifecycle under AG-4 (Least privilege at dispatch) and AG-5 (Orchestration versus execution).
-- [Code Intelligence Architecture](code-intelligence.md) (Draft): LSP sharing, stateful mediation, verification fingerprinting, and lint/build/test reuse. Extends agent-coordination service supervision.
-- [Persistence and Evidence Architecture](persistence-evidence.md) (Draft): Journal representation, execution evidence, projection, optional indexing and replay. Backend and standalone release scope remain unresolved.
-
 ## Normative sources this specification must not weaken
 
 - [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md): default posture that PTY, plugins, projects, IPC/MCP/Agent, packages, and reference repos are untrusted until a narrow grant, invariants 1 through 10, trust-boundary table, capability families, and the rule that deferral must not create a bypass.
@@ -88,6 +78,16 @@ Where this RFC picks a threshold or encoding, it refines those sources. It does 
 | bitty-ai           | Candidate independent AI sub-platform repository (Rust workspace plus Lua AI plugins) built only on generic Bitty primitives; not Core.                                                               |
 | Bridge             | Candidate scoped-IPC process boundary between the Bitty host and the bitty-ai runtime; never an in-process native load.                                                                               |
 | Pressure-test gate | Candidate architecture rule: bitty-ai must build on generic primitives, so a new Core AI-specific API demand signals a Plugin API abstraction gap.                                                    |
+
+## Related specifications
+
+These draft elaborations accept no new mechanisms. “Extends” describes a topic relationship, not accepted authority. The historical post-1.0 scope of this terminal-facing architecture does not decide standalone AI release requirements (local AIQ-5C).
+
+- [Context Management Architecture](context-management.md) (Draft): Session journal model, context view projection, and multi-level compression pipeline. Extends CP-5, CP-6, CP-7.
+- [Command and Tool Architecture](command-tool-architecture.md) (Draft): Core versus Lua boundary, slash command registry, and tool runtime separation. Extends Tool Bus (TB-1..TB-3).
+- [Agent Coordination Architecture](agent-coordination.md) (Draft): Multi-agent workspace services, supervision, teams, delegation, and panel lifecycle under AG-4 (Least privilege at dispatch) and AG-5 (Orchestration versus execution).
+- [Code Intelligence Architecture](code-intelligence.md) (Draft): LSP sharing, stateful mediation, verification fingerprinting, and lint/build/test reuse. Extends agent-coordination service supervision.
+- [Persistence and Evidence Architecture](persistence-evidence.md) (Draft): Journal representation, execution evidence, projection, optional indexing and replay. Backend and standalone release scope remain unresolved.
 
 ## ModelProvider
 
@@ -1176,58 +1176,6 @@ Numbered for reference; none is implemented by this RFC alone.
 - **FS-AI6 Safe-mode independence.** Every path above preserves `bitty --safe` startup with minimal built-in configuration, zero third-party providers, and zero pending agent state; verified after any AI-sensitive change (P0-AC-019 parity).
 - **FS-AI7 Fail-closed framing.** If any bounding, redaction, or consent machinery cannot start or is detected disabled, the service refuses to serve rather than serving unbounded or unredacted.
 
-## Security alignment and traceability
-
-| Draft element                                                      | Normative gate it refines                                     | Threat / Risk IDs             |
-| ------------------------------------------------------------------ | ------------------------------------------------------------- | ----------------------------- |
-| ModelProvider `ai.model` registry and scopes                       | P0-AC-024, P0-AC-026, invariant 6, private transport auth     | T-10, R-013, R-014            |
-| ContextProvider and Stable Id hierarchy                            | Dispatcher scoping, per-client attribution                    | T-09, R-011                   |
-| Context budget and request contract (CP-5/CP-6) and RC-10 chunking | Bounded inputs, invariant 7, RC-9/RC-10                       | T-01                          |
-| Semantic zones as provider boundary                                | Terminal Truth preservation, presentation-only rule           | T-02, R-008                   |
-| Agent four levels with per-level consent                           | Least privilege, no ambient authority, invariant 5/6          | T-09, T-10, R-011, R-013      |
-| AgentWorkspace ephemerality and scoping                            | Per-plugin isolation, containment FS-3, capability-checked FS | R-006, R-007                  |
-| Rich streaming via `bitty-rich` scene                              | Presentation never Terminal Truth, no hot-path execution      | invariant 3/4, T-05           |
-| Tool Bus MCP adapter and host-only execution                       | Confused-deputy defense, untrusted labeling, P0-AC-024        | T-10, R-013                   |
-| Privacy-first and No self-accept                                   | Necessity of independent review lifecycle                     | R-014, Documentation workflow |
-
-No draft element weakens a normative P0 gate. Any discovered conflict returns the conflicting clause to revision rather than downgrading the gate.
-
-## Verification
-
-All criteria are **proposed** and become acceptance gates only when the implementation phase implements them.
-
-### ModelProvider operations
-
-- Given any registry content and caller scopes, `list_models` reflects exactly the granted models, `complete` respects the Context Budget before I/O, and `stream` obeys RC-10 chunking and `seq`/`total` invariants. Cancellation before dispatch starts no effects; after dispatch it prevents new admission and reports completed or Unknown effects for reconciliation without a rollback claim. Verification: `unit` + `adversarial` with registry/scope matrix, budget-exceeded corpus, concurrent-stream sweep, and cancellation races on both sides of dispatch.
-
-### ContextProvider and Stable Ids
-
-- Given workspace/project/git/diagnostics/terminal fixtures across Instance/Window/Workspace/View/Terminal, context assembly at the CP-5 budget respects the Stable Id set, zone-scoped terminal requests return only the declared zone bytes, and attribution carries the full Stable Id path and generation. Forged Stable Ids without transport auth gain no authority. Verification: `integration` + `adversarial` (hierarchy enumeration, forged-id probes, cross-workspace grant matrix).
-
-### Context Budget and semantic zones
-
-- Given maximal provider outputs and overflow, truncation honors declared priority, emits counted `truncated_bytes` and `truncated_providers[]`, and never exceeds the resolved CP-5 budget delivered; zone-scoped terminal scrapes never silently expand to full scrollback. Verification: `unit` with budget-boundary sweep and zone-scoped snapshot matrix.
-
-### Agent levels
-
-- Given authenticated sessions at each level, every out-of-tier action (for example `inspect` attempting `workspace.write` or `self` attempting cross-workspace `all`) is denied server-side regardless of client-asserted level, replay, or batching. Verification: `adversarial` full level x action matrix plus mutated-level corpus.
-
-### AgentWorkspace ephemerality
-
-- Given sessions with and without `self` and above, `AgentWorkspace` is created only at `self` or above, scoped to `(AgentId, generation)` with traversal denied, and removed at `Completed`/`Failed`/`Canceled`/`dispose` with no sibling leakage. Verification: `integration` with filesystem-namespace assertions and lifecycle storm.
-
-### Rich streaming verification
-
-- Given streaming `Markdown`/`Diff`/`ToolCard` turns, each chunk is at most `256 KiB`, carries correct `seq`/`total`/`final`, posts exactly one dirty `RichBlock`, remains selectable/searchable/accessible after composition, and never blocks a hot path within the PB-4 tail budget. Verification: `unit` + `integration` + `adversarial` (chunk-size sweep, damage assertions, accessibility and search-index checks, latency probes during stream).
-
-### Tool Bus MCP verification
-
-- Given registered and unregistered tools, validation closes before dispatch, per-tool consent is required, silent tool expansion after update is blocked by the permission-diff flow, and rate/concurrency caps match RC-9. Verification: `unit` + `adversarial` (unknown-tool corpus, argument-schema violation suite, consent matrix, update-diff probe, rate and concurrency sweep).
-
-### Privacy-first verification
-
-- Given seeded secrets across provider credentials, clipboard, environment, and terminal text, typed `SecretField` redaction removes them before queueing, mode `0600` is asserted on files, and export preview equals actual export byte-for-byte, while elevation grants are per-client and revokable with immediate detachment and auditable receipt. Verification: `unit` + `manual-audit` with secret corpuses, permission and preview assertions, and revocation-lifecycle suite.
-
 ## Sub-platform staging (proposed)
 
 Status: **proposed contract**. How the AI stack is staged as an independent
@@ -1295,43 +1243,6 @@ Similarly TB-1's MCP transport proposal and the direct-spool rejection below do 
   Verification: `integration` with provider stubs plus a negative suite
   asserting no Core AI-specific API exists beyond the generic primitives.
 
-## Alternatives considered
-
-| Alternative                                              | Why rejected or deferred                                                                                                                                                                                                      |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Core-owned model client with ambient network authority   | Binds the terminal core to a vendor and widens the network attack surface beyond per-provider consent. The host-owned registry with per-provider `privacy_class` and `network.connect` consent preserves the plugin boundary. |
-| Implicit context gathering from working directory        | Would send unbounded files by default and bypass minimization and CP-5 budgeting. Explicit Stable Id addressing plus provider enumeration keeps collection intentional and auditable.                                         |
-| Bundled `all` level for agents                           | Violates least privilege by silently granting cross-workspace and cross-window authority when only local assistance was intended. Separate per-target grants keep elevation narrow and revokable.                             |
-| AgentWorkspace as persistent project subdirectory        | Creates durable ambient state and widens traversal risk. The ephemeral per-session directory disposed at session close limits the blast radius and keeps the project tree the system of record.                               |
-| Bypassing Rich Presentation for agent output             | Would fork the renderer and lose selection, search, accessibility, and damage guarantees. Rich streaming through `bitty-rich` `Scene` composition reuses the single scene path and its contracts.                             |
-| Widening Tool Bus to direct process or filesystem spools | Direct host spools bypass MCP's narrow, auditable tool schema. Keeping execution host-mediated while MCP carries the vocabulary maintains the capability and consent separation.                                              |
-| Publishing agent turns to disk without consent           | Contradicts minimization and invariant 9. Disk writes require explicit `debug.trace` or workspace consent, remain user-only `0600`, and stay previewable before export.                                                       |
-
-## Open questions that remain after this RFC
-
-These are out of this draft and remain tracked as follow-up work; they must not be silently chosen by implementation.
-
-- Whether the `ai.model` registry stores per-model token or cost accounting locally and how that accounting charges against PB-1/PB-2.
-- Whether `AgentWorkspace` receives an explicit size or time quota beyond the bounded default and how eviction interacts with long-running diff streams.
-- Whether semantic-zone context may include synthesized `RichBlock` text that was produced by another plugin or only raw terminal zone bytes.
-- Whether the Tool Bus gains a streaming tool-result subscription or remains strictly request-response with RC-10 chunking.
-- How instance/window/workspace/view/terminal Stable Ids surface across multi-session hosts when windows migrate between instances.
-- Whether the `all` level requires an OS-level authorization primitive on certain platforms beyond the Bitty consent ledger.
-- Retention and audit-log lifetime for agent turns, tool results, and elevated context (remains an open item; no normative retention period is set by this draft).
-- Whether `bitty-ai` repository creation, the BA-4 crate layout, and the BA-6 pressure-test gate enter acceptance with this RFC or as a separate `bitty-ai` staging decision.
-
-The 2026-09-13 docs `CTX-0169` direction additions are registered as cross-document questions: role capability mapping and enforcement ([OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), spatial panel topology and event routing ([OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), semantic output-compression rules and budget interaction ([OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and the CarryCtx durable-task integration boundary ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). The `CTX-0168` provider-credential direction is registered as [OQ-054 and OQ-055](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 docs `CTX-0171` consolidation of the AI-architecture research note adds the platform-stack picture and the CarryCtx-as-optional-backend caveat ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), agent identity separation and projection ([OQ-061](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), progressive code reading and repository index ([OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), language-service integration ([OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), transactional edit and workspace overlay ([OQ-064](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), evidence and provenance ([OQ-065](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and context budget profiles ([OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), together with the Warp comparison dimensions and the candidate build sequence. None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 docs `CTX-0172` consolidation of the follow-up AI-architecture research note adds the native agent-service and tool-projection direction ([OQ-067](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), role/model/capability orthogonality ([OQ-069](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the agent growth pipeline ([OQ-070](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and the `.wheel/` project-directory direction (renamed per owner decision; the 2026-09-13 record used the provisional name) ([OQ-068](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)) recorded with the configuration documentation. None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 docs `CTX-0173` consolidation of the batching research note adds the tool-call batching and round-trip economy direction ([OQ-071](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)) and extends the language-service direction with user-provisioned language tools and formatting/code-action fast feedback (still [OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 `014.md` review consolidation adds the token-first context request and artifact contract (extends [OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the Panel/Execution separation and core ontology ([OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the Lua-orchestration/host-execution boundary, the semantic command store, and the sandbox trust-level model ([OQ-085](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)); the provider-convention and opaque-capability refinements are recorded in [Plugin reuse and providers](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-reuse-and-providers.md) and the widget-level RichSurface refinement in the [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-These are not blockers for this draft; they will be decided in a follow-up Agent or Tool Bus amendment with independent review.
-
 ## Future RFC split direction (proposal, no acceptance)
 
 This umbrella document stays draft; [v0.1 Implementation Profile](implementation-profile-v0.1.md)
@@ -1350,17 +1261,6 @@ This list proposes split boundaries only. It accepts no mechanism, closes no
 open question, revises no R1-R6 draft disposition, and proposes no new
 identifier; each future RFC reuses existing open-question identifiers and needs
 its own contract, review, and implementation evidence.
-
-## Acceptance criteria and lifecycle
-
-This RFC is **draft**. It does not self-accept and does not close an open question beyond its linkage to [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). The lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`; only `Accepted` or `normative` documents authorize shipped, stable, or compatibility-guaranteed behavior. Draft text carries no compatibility promise and does not form public reference.
-
-Acceptance will require:
-
-1. Independent review by the security-reviewer, a category-owner for `architecture` or `agent`, and the docs-curator accepts the ModelProvider (`list_models`/`complete`/`stream`/`cancel`), ContextProvider providers and the token-first context-budget contract, Stable Id hierarchy, semantic-zone integration, four Agent levels with per-level consent, ephemeral AgentWorkspace, Rich streaming (Markdown/Diff/ToolCard), Tool Bus MCP, and privacy-first controls without weakening any normative P0 gate.
-2. The same change synchronizes the open-question register only if an open question for AI architecture exists; this draft does not move OQ-018 from `Accepted` and instead records its reuse of the OQ-018 contracts.
-3. The specifications index records this document as `Draft` until independent review moves its frontmatter to `accepted`.
-4. Verification criteria above have headless or integration evidence before any claim of shipped behavior.
 
 ## AI workspace composition (candidate)
 
@@ -1437,6 +1337,106 @@ agents share that environment state instead of relaying tokens.
   execution model and identifier relationships are tracked as
   [OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). No lease, description, roaming, or
   handoff mechanism is implemented today.
+
+## Security alignment and traceability
+
+| Draft element                                                      | Normative gate it refines                                     | Threat / Risk IDs             |
+| ------------------------------------------------------------------ | ------------------------------------------------------------- | ----------------------------- |
+| ModelProvider `ai.model` registry and scopes                       | P0-AC-024, P0-AC-026, invariant 6, private transport auth     | T-10, R-013, R-014            |
+| ContextProvider and Stable Id hierarchy                            | Dispatcher scoping, per-client attribution                    | T-09, R-011                   |
+| Context budget and request contract (CP-5/CP-6) and RC-10 chunking | Bounded inputs, invariant 7, RC-9/RC-10                       | T-01                          |
+| Semantic zones as provider boundary                                | Terminal Truth preservation, presentation-only rule           | T-02, R-008                   |
+| Agent four levels with per-level consent                           | Least privilege, no ambient authority, invariant 5/6          | T-09, T-10, R-011, R-013      |
+| AgentWorkspace ephemerality and scoping                            | Per-plugin isolation, containment FS-3, capability-checked FS | R-006, R-007                  |
+| Rich streaming via `bitty-rich` scene                              | Presentation never Terminal Truth, no hot-path execution      | invariant 3/4, T-05           |
+| Tool Bus MCP adapter and host-only execution                       | Confused-deputy defense, untrusted labeling, P0-AC-024        | T-10, R-013                   |
+| Privacy-first and No self-accept                                   | Necessity of independent review lifecycle                     | R-014, Documentation workflow |
+
+No draft element weakens a normative P0 gate. Any discovered conflict returns the conflicting clause to revision rather than downgrading the gate.
+
+## Verification plan
+
+All criteria are **proposed** and become acceptance gates only when the implementation phase implements them.
+
+### ModelProvider operations
+
+- Given any registry content and caller scopes, `list_models` reflects exactly the granted models, `complete` respects the Context Budget before I/O, and `stream` obeys RC-10 chunking and `seq`/`total` invariants. Cancellation before dispatch starts no effects; after dispatch it prevents new admission and reports completed or Unknown effects for reconciliation without a rollback claim. Verification: `unit` + `adversarial` with registry/scope matrix, budget-exceeded corpus, concurrent-stream sweep, and cancellation races on both sides of dispatch.
+
+### ContextProvider and Stable Ids
+
+- Given workspace/project/git/diagnostics/terminal fixtures across Instance/Window/Workspace/View/Terminal, context assembly at the CP-5 budget respects the Stable Id set, zone-scoped terminal requests return only the declared zone bytes, and attribution carries the full Stable Id path and generation. Forged Stable Ids without transport auth gain no authority. Verification: `integration` + `adversarial` (hierarchy enumeration, forged-id probes, cross-workspace grant matrix).
+
+### Context Budget and semantic zones
+
+- Given maximal provider outputs and overflow, truncation honors declared priority, emits counted `truncated_bytes` and `truncated_providers[]`, and never exceeds the resolved CP-5 budget delivered; zone-scoped terminal scrapes never silently expand to full scrollback. Verification: `unit` with budget-boundary sweep and zone-scoped snapshot matrix.
+
+### Agent levels
+
+- Given authenticated sessions at each level, every out-of-tier action (for example `inspect` attempting `workspace.write` or `self` attempting cross-workspace `all`) is denied server-side regardless of client-asserted level, replay, or batching. Verification: `adversarial` full level x action matrix plus mutated-level corpus.
+
+### AgentWorkspace ephemerality
+
+- Given sessions with and without `self` and above, `AgentWorkspace` is created only at `self` or above, scoped to `(AgentId, generation)` with traversal denied, and removed at `Completed`/`Failed`/`Canceled`/`dispose` with no sibling leakage. Verification: `integration` with filesystem-namespace assertions and lifecycle storm.
+
+### Rich streaming verification
+
+- Given streaming `Markdown`/`Diff`/`ToolCard` turns, each chunk is at most `256 KiB`, carries correct `seq`/`total`/`final`, posts exactly one dirty `RichBlock`, remains selectable/searchable/accessible after composition, and never blocks a hot path within the PB-4 tail budget. Verification: `unit` + `integration` + `adversarial` (chunk-size sweep, damage assertions, accessibility and search-index checks, latency probes during stream).
+
+### Tool Bus MCP verification
+
+- Given registered and unregistered tools, validation closes before dispatch, per-tool consent is required, silent tool expansion after update is blocked by the permission-diff flow, and rate/concurrency caps match RC-9. Verification: `unit` + `adversarial` (unknown-tool corpus, argument-schema violation suite, consent matrix, update-diff probe, rate and concurrency sweep).
+
+### Privacy-first verification
+
+- Given seeded secrets across provider credentials, clipboard, environment, and terminal text, typed `SecretField` redaction removes them before queueing, mode `0600` is asserted on files, and export preview equals actual export byte-for-byte, while elevation grants are per-client and revokable with immediate detachment and auditable receipt. Verification: `unit` + `manual-audit` with secret corpuses, permission and preview assertions, and revocation-lifecycle suite.
+
+## Alternatives considered
+
+| Alternative                                              | Why rejected or deferred                                                                                                                                                                                                      |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Core-owned model client with ambient network authority   | Binds the terminal core to a vendor and widens the network attack surface beyond per-provider consent. The host-owned registry with per-provider `privacy_class` and `network.connect` consent preserves the plugin boundary. |
+| Implicit context gathering from working directory        | Would send unbounded files by default and bypass minimization and CP-5 budgeting. Explicit Stable Id addressing plus provider enumeration keeps collection intentional and auditable.                                         |
+| Bundled `all` level for agents                           | Violates least privilege by silently granting cross-workspace and cross-window authority when only local assistance was intended. Separate per-target grants keep elevation narrow and revokable.                             |
+| AgentWorkspace as persistent project subdirectory        | Creates durable ambient state and widens traversal risk. The ephemeral per-session directory disposed at session close limits the blast radius and keeps the project tree the system of record.                               |
+| Bypassing Rich Presentation for agent output             | Would fork the renderer and lose selection, search, accessibility, and damage guarantees. Rich streaming through `bitty-rich` `Scene` composition reuses the single scene path and its contracts.                             |
+| Widening Tool Bus to direct process or filesystem spools | Direct host spools bypass MCP's narrow, auditable tool schema. Keeping execution host-mediated while MCP carries the vocabulary maintains the capability and consent separation.                                              |
+| Publishing agent turns to disk without consent           | Contradicts minimization and invariant 9. Disk writes require explicit `debug.trace` or workspace consent, remain user-only `0600`, and stay previewable before export.                                                       |
+
+## Open items
+
+These are out of this draft and remain tracked as follow-up work; they must not be silently chosen by implementation.
+
+- Whether the `ai.model` registry stores per-model token or cost accounting locally and how that accounting charges against PB-1/PB-2.
+- Whether `AgentWorkspace` receives an explicit size or time quota beyond the bounded default and how eviction interacts with long-running diff streams.
+- Whether semantic-zone context may include synthesized `RichBlock` text that was produced by another plugin or only raw terminal zone bytes.
+- Whether the Tool Bus gains a streaming tool-result subscription or remains strictly request-response with RC-10 chunking.
+- How instance/window/workspace/view/terminal Stable Ids surface across multi-session hosts when windows migrate between instances.
+- Whether the `all` level requires an OS-level authorization primitive on certain platforms beyond the Bitty consent ledger.
+- Retention and audit-log lifetime for agent turns, tool results, and elevated context (remains an open item; no normative retention period is set by this draft).
+- Whether `bitty-ai` repository creation, the BA-4 crate layout, and the BA-6 pressure-test gate enter acceptance with this RFC or as a separate `bitty-ai` staging decision.
+
+The 2026-09-13 docs `CTX-0169` direction additions are registered as cross-document questions: role capability mapping and enforcement ([OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), spatial panel topology and event routing ([OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), semantic output-compression rules and budget interaction ([OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and the CarryCtx durable-task integration boundary ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). The `CTX-0168` provider-credential direction is registered as [OQ-054 and OQ-055](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
+
+The 2026-09-13 docs `CTX-0171` consolidation of the AI-architecture research note adds the platform-stack picture and the CarryCtx-as-optional-backend caveat ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), agent identity separation and projection ([OQ-061](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), progressive code reading and repository index ([OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), language-service integration ([OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), transactional edit and workspace overlay ([OQ-064](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), evidence and provenance ([OQ-065](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and context budget profiles ([OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), together with the Warp comparison dimensions and the candidate build sequence. None of these additions changes the draft status of this document or the accepted contracts it cites.
+
+The 2026-09-13 docs `CTX-0172` consolidation of the follow-up AI-architecture research note adds the native agent-service and tool-projection direction ([OQ-067](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), role/model/capability orthogonality ([OQ-069](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the agent growth pipeline ([OQ-070](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and the `.wheel/` project-directory direction (renamed per owner decision; the 2026-09-13 record used the provisional name) ([OQ-068](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)) recorded with the configuration documentation. None of these additions changes the draft status of this document or the accepted contracts it cites.
+
+The 2026-09-13 docs `CTX-0173` consolidation of the batching research note adds the tool-call batching and round-trip economy direction ([OQ-071](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)) and extends the language-service direction with user-provisioned language tools and formatting/code-action fast feedback (still [OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). None of these additions changes the draft status of this document or the accepted contracts it cites.
+
+The 2026-09-13 `014.md` review consolidation adds the token-first context request and artifact contract (extends [OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the Panel/Execution separation and core ontology ([OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the Lua-orchestration/host-execution boundary, the semantic command store, and the sandbox trust-level model ([OQ-085](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)); the provider-convention and opaque-capability refinements are recorded in [Plugin reuse and providers](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-reuse-and-providers.md) and the widget-level RichSurface refinement in the [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
+
+These are not blockers for this draft; they will be decided in a follow-up Agent or Tool Bus amendment with independent review.
+
+## Acceptance criteria
+
+This RFC is **draft**. It does not self-accept and does not close an open question beyond its linkage to [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). The lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`; only `Accepted` or `normative` documents authorize shipped, stable, or compatibility-guaranteed behavior. Draft text carries no compatibility promise and does not form public reference.
+
+Acceptance will require:
+
+1. Independent review by the security-reviewer, a category-owner for `architecture` or `agent`, and the docs-curator accepts the ModelProvider (`list_models`/`complete`/`stream`/`cancel`), ContextProvider providers and the token-first context-budget contract, Stable Id hierarchy, semantic-zone integration, four Agent levels with per-level consent, ephemeral AgentWorkspace, Rich streaming (Markdown/Diff/ToolCard), Tool Bus MCP, and privacy-first controls without weakening any normative P0 gate.
+2. The same change synchronizes the open-question register only if an open question for AI architecture exists; this draft does not move OQ-018 from `Accepted` and instead records its reuse of the OQ-018 contracts.
+3. The specifications index records this document as `Draft` until independent review moves its frontmatter to `accepted`.
+4. Verification criteria above have headless or integration evidence before any claim of shipped behavior.
 
 ## References
 
