@@ -11,7 +11,7 @@ sidebar_order: 66
 
 # Wheel context storage and reasoning management (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -87,56 +87,14 @@ context storage, reasoning, or prompt assembly touches them, as design input
 rather than implementation. This document creates no AIQ or OQ identifier and
 closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the three-layer split, the `ContextCommit` shape, the
-Reasoning Record and rationale fields, the `Action`/`Intent`/`Outcome`
-protocol, the Episode shape, the Context Index, Context Graph, and Context
-Compiler pipeline names, the semantic-merge rules, the `ProviderState` object,
-the Git-operation mapping, and the philosophy sentence proposed in the direction
-are **not** accepted by this candidate design and must not be read as product,
-crate, package, protocol, file-schema, command, or release decisions.
-Context assembly, ordering, budget, retention, and compaction questions stay
-with [Context Management Architecture](../context/context-management.md),
-[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
-[Prompt Layering Design](../context/prompt-layering-design.md),
-[Context retention R3](../architecture/context-retention-r3.md), and the quality-and-context-compiler candidate design;
-execution and panel-lifetime questions stay with
-[Execution ownership R1](../architecture/execution-ownership-r1.md),
-[Panel environment awareness](../interfaces/panel-environment-awareness.md), and the event-sourced-agent-workspace
-companion; tool shape, intent fields, and transport placement stay with
-[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
-[Tool transport R2](../architecture/tool-transport-r2.md); coordination, supervision, and
-task questions stay with
-[Agent Coordination Architecture](../agent/agent-coordination.md) and
-[Task lifecycle R5](../architecture/task-lifecycle-r5.md); provider questions stay with
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); storage and export
-questions stay with the wheel-config-and-context-git-model candidate design, [Persistence profile R6](../architecture/persistence-profile-r6.md),
-and the storage dispositions; each is referenced, never duplicated or
-modified.
-
-The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
-accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
-candidate direction (object names, layer names, struct fields, tool-protocol fields,
-pipeline stage names, merge rules, and operation spellings) is a discussion
-sketch: this draft records it as input and proposes no file schema, API,
-command, tool, event, or wire format. Where the direction's sketches overlap
-RFC-owned ground (Agent lifecycle, Agent events, Agent semantics, scopes), the
-RFC wins without further argument.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed
-redaction, consented recording, secret minimization) override every
-discussion example below. Stored traces, reasoning records, artifacts, and
-provider-native state are untrusted data: committing them to long-term
-storage does not grant authority, and an opaque `ProviderState` blob must
-not become a trusted channel or a secret-bearing object. The semantic-merge
-sketch is conceptual vocabulary, not an adopted authorization or
-distribution contract. This draft creates or closes no AIQ or OQ identifier;
-open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Stored history versus compiled context
 
@@ -355,7 +313,7 @@ compile-context restates the quality-and-context-compiler compiler-as-view direc
 stable-prefix design, and the wheel-config-and-context-git-model history-versus-active-view inequality. The
 principle is recorded as candidate input only and authorizes no product code.
 
-## Owner-pending pointers for non-AI halves
+## Owner-pending pointers
 
 The rows below route conclusions this candidate design does not cover. They are
 pointers with inline summaries, not links and not decisions.
@@ -368,7 +326,58 @@ pointers with inline summaries, not links and not decisions.
 | Context Index and Context Compiler interaction with draft prefix-cache design and R2/R3/R6 dispositions        | Context, retention, and persistence owners; metrics definition and surfacing open |
 | Capture bookkeeping for the storage-layout split; split-owner capture stays partial                            | Storage and docs owners; no capture claim asserted beyond this draft              |
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the three-layer split, the `ContextCommit` shape, the
+Reasoning Record and rationale fields, the `Action`/`Intent`/`Outcome`
+protocol, the Episode shape, the Context Index, Context Graph, and Context
+Compiler pipeline names, the semantic-merge rules, the `ProviderState` object,
+the Git-operation mapping, and the philosophy sentence proposed in the direction
+are **not** accepted by this candidate design and must not be read as product,
+crate, package, protocol, file-schema, command, or release decisions.
+Context assembly, ordering, budget, retention, and compaction questions stay
+with [Context Management Architecture](../context/context-management.md),
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md),
+[Prompt Layering Design](../context/prompt-layering-design.md),
+[Context retention R3](../architecture/context-retention-r3.md), and the quality-and-context-compiler candidate design;
+execution and panel-lifetime questions stay with
+[Execution ownership R1](../architecture/execution-ownership-r1.md),
+[Panel environment awareness](../interfaces/panel-environment-awareness.md), and the event-sourced-agent-workspace
+companion; tool shape, intent fields, and transport placement stay with
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); coordination, supervision, and
+task questions stay with
+[Agent Coordination Architecture](../agent/agent-coordination.md) and
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); storage and export
+questions stay with the wheel-config-and-context-git-model candidate design, [Persistence profile R6](../architecture/persistence-profile-r6.md),
+and the storage dispositions; each is referenced, never duplicated or
+modified.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
+accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
+candidate direction (object names, layer names, struct fields, tool-protocol fields,
+pipeline stage names, merge rules, and operation spellings) is a discussion
+sketch: this draft records it as input and proposes no file schema, API,
+command, tool, event, or wire format. Where the direction's sketches overlap
+RFC-owned ground (Agent lifecycle, Agent events, Agent semantics, scopes), the
+RFC wins without further argument.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed
+redaction, consented recording, secret minimization) override every
+discussion example throughout this document. Stored traces, reasoning records, artifacts, and
+provider-native state are untrusted data: committing them to long-term
+storage does not grant authority, and an opaque `ProviderState` blob must
+not become a trusted channel or a secret-bearing object. The semantic-merge
+sketch is conceptual vocabulary, not an adopted authorization or
+distribution contract. This draft creates or closes no AIQ or OQ identifier;
+open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any context

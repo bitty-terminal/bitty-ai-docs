@@ -11,11 +11,22 @@ sidebar_order: 20
 
 # AI runtime boundaries (candidate)
 
+## Purpose and scope
+
 This draft records AI-relevant findings from the candidate direction. The
 sibling `bitty-ai` repository exists; its documentation gitlink and an
 experimental vertical-slice implementation are the only implementation facts.
 This is a discussion input, not an accepted contract. Historical assessments
 and proposals below are not current capability evidence.
+
+## Status vocabulary
+
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Stable boundary candidates
 
@@ -106,18 +117,6 @@ provider transport should be a small set of hand-written protocols or an adapter
 over a multi-provider library, and whether orchestration belongs in Rust or Lua.
 Preserve both options for an explicit decision; do not infer a decision from
 repetition.
-
-## Open questions for discussion
-
-1. Which contracts belong in `bitty-ai` versus a future shared platform crate?
-2. Is the initial provider substrate an adapter over an existing library or
-   narrowly owned protocol implementations?
-3. What is the minimum stable ACP/IPC surface and who owns transport?
-4. Which code-intelligence operations are safe read-only defaults, and what
-   approval model governs edits, formatting, tests, and remote execution?
-5. What event schema, retention/redaction policy, and replay guarantees are
-   required for v0.1?
-6. Which findings block the next milestone rather than remaining candidate notes?
 
 ## Additional candidate coverage
 
@@ -230,3 +229,15 @@ task/run/execution identity, workspace overlays and evidence provenance; and
 raises CarryCtx backend boundaries and agent growth. These remain distinct
 design topics in the existing architecture, not capabilities supplied by this
 candidate design's proposed event loop or by the experimental slice.
+
+## Open items
+
+1. Which contracts belong in `bitty-ai` versus a future shared platform crate?
+2. Is the initial provider substrate an adapter over an existing library or
+   narrowly owned protocol implementations?
+3. What is the minimum stable ACP/IPC surface and who owns transport?
+4. Which code-intelligence operations are safe read-only defaults, and what
+   approval model governs edits, formatting, tests, and remote execution?
+5. What event schema, retention/redaction policy, and replay guarantees are
+   required for v0.1?
+6. Which findings block the next milestone rather than remaining candidate notes?

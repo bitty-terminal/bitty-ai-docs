@@ -11,7 +11,7 @@ sidebar_order: 55
 
 # Execution supervisor (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -65,40 +65,14 @@ consistent with the unmerged-candidates comparison added under CTX-0047 in
 the AI Architecture; this draft references that comparison and re-decides
 nothing. This document creates no AIQ or OQ identifier and closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the Execution Supervisor, the three-phase rollout,
-and the proposed supervisor document are **not** accepted by this
-candidate design and must not be read as crate, package, protocol, or release
-decisions. Execution and environment questions stay with
-[Execution ownership R1](../architecture/execution-ownership-r1.md) and
-[Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
-authorization and transport placement stay with
-[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../providers/provider-plugin-boundary.md). Each is
-referenced, never duplicated or modified.
-
-The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
-accepted IPC wire, scope, and Agent vocabulary. Every method, event, struct,
-and enum name in the direction (`exec`, `job_spawn`, `job_get`, `job_read`,
-`execution.spawn`, `execution.exited`, `ExecutionResult`, `JobResult`,
-`ExecutionOutcome`, `Lifetime`, `JobKind`, `CancelMode`, and similar) is a
-discussion sketch: this draft records it as input and proposes no command,
-tool, event, or wire format, consistent with the v0.1 scope boundary below.
-Where the direction's sketches overlap RFC-owned ground (Agent lifecycle, Agent
-events, Agent semantics, scopes), the RFC wins without further argument.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed redaction,
-consented recording, secret minimization) override every discussion example
-below. The direction's permission names (`execution.observe`,
-`execution.read_output`, `execution.signal`, `execution.cancel`, and
-similar), operation lists, and console fields are conceptual vocabulary, not
-additions to any accepted registry, schema, or protocol. This draft creates
-or closes no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Core thesis: a supervisor, not a stronger spawn
 
@@ -509,7 +483,42 @@ and the IPC names are discussion vocabulary that proposes no wire method.
 The stable claims are the agnosticism rule (no agent or task ontology in
 the host) and the wrapper principle.
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the Execution Supervisor, the three-phase rollout,
+and the proposed supervisor document are **not** accepted by this
+candidate design and must not be read as crate, package, protocol, or release
+decisions. Execution and environment questions stay with
+[Execution ownership R1](../architecture/execution-ownership-r1.md) and
+[Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
+authorization and transport placement stay with
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md). Each is
+referenced, never duplicated or modified.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
+accepted IPC wire, scope, and Agent vocabulary. Every method, event, struct,
+and enum name in the direction (`exec`, `job_spawn`, `job_get`, `job_read`,
+`execution.spawn`, `execution.exited`, `ExecutionResult`, `JobResult`,
+`ExecutionOutcome`, `Lifetime`, `JobKind`, `CancelMode`, and similar) is a
+discussion sketch: this draft records it as input and proposes no command,
+tool, event, or wire format, consistent with the v0.1 scope boundary above.
+Where the direction's sketches overlap RFC-owned ground (Agent lifecycle, Agent
+events, Agent semantics, scopes), the RFC wins without further argument.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed redaction,
+consented recording, secret minimization) override every discussion example
+throughout this document. The direction's permission names (`execution.observe`,
+`execution.read_output`, `execution.signal`, `execution.cancel`, and
+similar), operation lists, and console fields are conceptual vocabulary, not
+additions to any accepted registry, schema, or protocol. This draft creates
+or closes no AIQ or OQ identifier; open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any supervisor

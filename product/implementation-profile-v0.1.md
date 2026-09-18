@@ -11,6 +11,8 @@ sidebar_order: 25
 
 # v0.1 Implementation Profile
 
+## Purpose and scope
+
 This profile selects a minimal experimental scope so implementation can start
 before the full architecture is decided. It accepts nothing: every mechanism
 below is adopted **experimentally** and stays revisable by implementation
@@ -54,7 +56,25 @@ service sharing, agent dashboard, task organization graph.
 | Replay reconstructs state only, never re-executes effects                 | persistence-evidence.md                                               | Required semantic                               |
 | Cached PASS is not independent approval                                   | code-intelligence.md                                                  | Required semantic                               |
 
-## Truly blocking questions for v0.1
+## Sequencing
+
+1. This draft profile reviewed; acceptance as the v0.1 scope gate remains pending.
+2. `bitty-ai-runtime` skeleton plus migration of stable slice primitives.
+3. L0+L1 context behaviors behind the slice acceptance suite.
+4. Cross-repository G-2/G-3 (`terminal.snapshot`, generic tool dispatch)
+   resolved on the `bitty` side and wired through the bridge.
+5. Local provider endpoint; remote providers only after interface stability.
+
+## Verification plan
+
+Experimental implementation evidence exists on the implementation track
+(runtime skeleton); this profile remains draft with acceptance pending.
+Promises above are scope selections, not implementation claims. Normative
+security and IPC obligations override any experimental adoption stated here.
+
+## Open points
+
+### Truly blocking questions for v0.1
 
 Only these block the first increment; every other register item is deferred,
 not deleted:
@@ -68,7 +88,13 @@ not deleted:
 - AIQ-24/AIQ-25: delegation and spending need atomic budgets and measured
   depth/fan-out bounds before the loop admits more than one hop.
 
-## Success criteria
+### What remains open
+
+Full R1–R6 decisions (CTX-0009..CTX-0014), the five-crate split, release
+numbering, and everything under non-goals. This profile narrows what gets
+built first; it does not settle the architecture.
+
+## Acceptance criteria
 
 - `bitty-ai-runtime` skeleton compiles under the repository gates
   (`just check`, clippy `-D warnings`, locked tests).
@@ -78,25 +104,3 @@ not deleted:
 - No network access in v0.1 code paths; `FakeProvider` covers all tests.
 - Every v0.1 behavior traces to a row in the table above or a listed
   blocking question.
-
-## Sequencing
-
-1. This draft profile reviewed; acceptance as the v0.1 scope gate remains pending.
-2. `bitty-ai-runtime` skeleton plus migration of stable slice primitives.
-3. L0+L1 context behaviors behind the slice acceptance suite.
-4. Cross-repository G-2/G-3 (`terminal.snapshot`, generic tool dispatch)
-   resolved on the `bitty` side and wired through the bridge.
-5. Local provider endpoint; remote providers only after interface stability.
-
-## What remains open
-
-Full R1–R6 decisions (CTX-0009..CTX-0014), the five-crate split, release
-numbering, and everything under non-goals. This profile narrows what gets
-built first; it does not settle the architecture.
-
-## Evidence and verification boundary
-
-Experimental implementation evidence exists on the implementation track
-(runtime skeleton); this profile remains draft with acceptance pending.
-Promises above are scope selections, not implementation claims. Normative
-security and IPC obligations override any experimental adoption stated here.

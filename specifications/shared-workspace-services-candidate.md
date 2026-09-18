@@ -11,7 +11,7 @@ sidebar_order: 21
 
 # Shared workspace services and agent coordination (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -34,37 +34,14 @@ transport and consent contract. The
 [pressure test](../product/ai-vertical-slice-pressure-test.md) is experimental evidence, and
 the [browser/agent pre-study](../interfaces/browser-agent-pre-study.md) remains a draft.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The architecture's
-[normative source map](../architecture/ai-architecture.md#normative-sources-this-specification-must-not-weaken)
-routes to the canonical security overview, threat model, risk register, and
-P0 acceptance criteria. Their requirements override every discussion example:
-
-- P0-AC-021/022: authenticated local IPC and per-action server-side scopes;
-  neither an object identifier nor a connection grants authority.
-- P0-AC-023/024: filtered child authority, read-only Agent/MCP defaults,
-  per-client elevation, and terminal output kept in observation channels.
-- P0-AC-026: secret minimization, redacted sensitive fields, opt-in input
-  recording, user-only storage, and export preview. Raw environments and
-  clipboard contents are absent by default.
-- Resource bounds, no hot-path extension work, contained failures, and safe
-  startup remain mandatory. Sharing does not create an exemption.
-
-These are existing obligations. The additional mechanisms proposed below need
-review; none closes R-011 through R-014 or supplies security test evidence.
-
-The direction's `agent.spawn`, `team.create`, `code.rename`, and `panel.*` names
-are conceptual vocabulary, not additions to the accepted method registry.
-Adapters must map operations to reviewed scopes; unsupported operations fail
-closed. Do not replace the accepted `AgentMessage` union with the direction's
-organization-message enumeration merely because both use the same name.
-
-The earlier claim that the shared register stopped at OQ-032 is stale.
-Reinspection on 2026-09-14 found later entries, including OQ-084 (ontology),
-OQ-085 (trust levels) and OQ-086 (sensitive input). Use the live canonical
-register for each entry's status; this draft creates or closes none. Local
-AIQ identifiers need admission and owner routing before promotion to global OQs.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Agents and shared workspace services
 
@@ -473,7 +450,39 @@ to fabricated precision. Kill/reassign/archive/message/focus UI actions pass
 the same authorization and generation checks as any other client. Keyboard
 bindings, official-plugin packaging, and distribution status are deferred.
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The architecture's
+[normative source map](../architecture/ai-architecture.md#normative-sources-this-specification-must-not-weaken)
+routes to the canonical security overview, threat model, risk register, and
+P0 acceptance criteria. Their requirements override every discussion example:
+
+- P0-AC-021/022: authenticated local IPC and per-action server-side scopes;
+  neither an object identifier nor a connection grants authority.
+- P0-AC-023/024: filtered child authority, read-only Agent/MCP defaults,
+  per-client elevation, and terminal output kept in observation channels.
+- P0-AC-026: secret minimization, redacted sensitive fields, opt-in input
+  recording, user-only storage, and export preview. Raw environments and
+  clipboard contents are absent by default.
+- Resource bounds, no hot-path extension work, contained failures, and safe
+  startup remain mandatory. Sharing does not create an exemption.
+
+These are existing obligations. The additional mechanisms proposed throughout
+this document need review; none closes R-011 through R-014 or supplies security test evidence.
+
+The direction's `agent.spawn`, `team.create`, `code.rename`, and `panel.*` names
+are conceptual vocabulary, not additions to the accepted method registry.
+Adapters must map operations to reviewed scopes; unsupported operations fail
+closed. Do not replace the accepted `AgentMessage` union with the direction's
+organization-message enumeration merely because both use the same name.
+
+The earlier claim that the shared register stopped at OQ-032 is stale.
+Reinspection on 2026-09-14 found later entries, including OQ-084 (ontology),
+OQ-085 (trust levels) and OQ-086 (sensitive input). Use the live canonical
+register for each entry's status; this draft creates or closes none. Local
+AIQ identifiers need admission and owner routing before promotion to global OQs.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this documentation
 task. They keep the design falsifiable before any implementation is authorized.

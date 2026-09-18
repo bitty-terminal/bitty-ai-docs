@@ -11,7 +11,7 @@ sidebar_order: 52
 
 # Plugin and extension model (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -50,30 +50,14 @@ This synthesis references, without duplicating or modifying, the draft
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the two-layer split, three-layer model, and four-level
-ladder proposed in the direction are **not** accepted by this candidate design and
-must not be read as crate, package, or release decisions. Provider contract
-and transport questions stay with the draft
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
-and [Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
-authorization and transport placement stay with
-[Tool transport R2](../architecture/tool-transport-r2.md). Each is referenced, never
-duplicated or modified.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed redaction,
-consented recording, secret minimization) override every discussion example
-below. The direction's registry names (`Tool Registry`, `Context Registry`,
-`Model Registry`, and similar), extension-point names, manifest fields, and
-version strings are conceptual vocabulary, not additions to any accepted
-registry or schema. This draft creates or closes no AIQ or OQ identifier;
-open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Boundary context: where AI sits in the discussed models
 
@@ -255,27 +239,6 @@ transport placement are decided on their own evidence. The neighboring
 four-level ladder and the native-versus-extension axis were read for exclusion
 accuracy and are not retained here.
 
-## Proposed validation and promotion path
-
-These are future evidence requirements, not tests executed by this
-documentation task. They keep the design falsifiable before any plugin-system
-proposal constrains `bitty-ai`.
-
-| Campaign               | Required observation                                                                                                                                      |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mediation direction    | An AI extension exercises capability only through its declared point; removing the host or the point disables it without touching Core                    |
-| Small core             | A minimal `bitty-ai` install carries no provider, memory, or workflow machinery; each arrives as a separately reviewable, removable extension             |
-| Commands as extensions | Review, plan, task, compact, and loop style commands install, update, and uninstall independently with per-command permission and no core change          |
-| Non-inheritance        | An extension declaring a dependency on a powerful host gains no capability; each sensitive effect needs its own explicit grant behind the unified backend |
-| Versioned surfaces     | Host-internal refactoring ships without breaking extensions pinned to a prior surface version; experimental surfaces stay unversioned until owner review  |
-| Layer-split evidence   | Any future native-versus-framework split names an owner, a packaging and compatibility contract, and a process boundary before code is authorized         |
-
-Promotion needs independent AI architecture, provider-boundary, terminal and
-plugin-owner, docs-curator, and security review. Route registry schemas,
-extension-point capability review, manifest format, versioning policy, and
-the layer-split ownership and compatibility contract to scoped owner tasks.
-This draft changes no normative contract and authorizes no product code.
-
 ## Addendum: comparable-programs round
 
 This addendum records ONLY the bitty-ai-relevant parts of the appended
@@ -356,3 +319,49 @@ with the small-core and contributed-surface direction but is a product
 fact about Zed, not a `bitty-ai` contract. The remainder of the Zed
 section (including the Zed-as-Bitty-plus-Bitter
 equation) is `bitty`-side editor comparison and stays out.
+
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the two-layer split, three-layer model, and four-level
+ladder proposed in the direction are **not** accepted by this candidate design and
+must not be read as crate, package, or release decisions. Provider contract
+and transport questions stay with the draft
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
+authorization and transport placement stay with
+[Tool transport R2](../architecture/tool-transport-r2.md). Each is referenced, never
+duplicated or modified.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed redaction,
+consented recording, secret minimization) override every discussion example
+throughout this document. The direction's registry names (`Tool Registry`, `Context Registry`,
+`Model Registry`, and similar), extension-point names, manifest fields, and
+version strings are conceptual vocabulary, not additions to any accepted
+registry or schema. This draft creates or closes no AIQ or OQ identifier;
+open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
+
+These are future evidence requirements, not tests executed by this
+documentation task. They keep the design falsifiable before any plugin-system
+proposal constrains `bitty-ai`.
+
+| Campaign               | Required observation                                                                                                                                      |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mediation direction    | An AI extension exercises capability only through its declared point; removing the host or the point disables it without touching Core                    |
+| Small core             | A minimal `bitty-ai` install carries no provider, memory, or workflow machinery; each arrives as a separately reviewable, removable extension             |
+| Commands as extensions | Review, plan, task, compact, and loop style commands install, update, and uninstall independently with per-command permission and no core change          |
+| Non-inheritance        | An extension declaring a dependency on a powerful host gains no capability; each sensitive effect needs its own explicit grant behind the unified backend |
+| Versioned surfaces     | Host-internal refactoring ships without breaking extensions pinned to a prior surface version; experimental surfaces stay unversioned until owner review  |
+| Layer-split evidence   | Any future native-versus-framework split names an owner, a packaging and compatibility contract, and a process boundary before code is authorized         |
+
+Promotion needs independent AI architecture, provider-boundary, terminal and
+plugin-owner, docs-curator, and security review. Route registry schemas,
+extension-point capability review, manifest format, versioning policy, and
+the layer-split ownership and compatibility contract to scoped owner tasks.
+This draft changes no normative contract and authorizes no product code.

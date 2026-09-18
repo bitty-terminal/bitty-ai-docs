@@ -11,7 +11,7 @@ sidebar_order: 53
 
 # IPC extension boundary (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -60,38 +60,14 @@ This synthesis references, without duplicating or modifying, the draft
 [IPC and Agent RFC](ipc-agent-rfc.md) is unaffected by this draft. This
 document creates no AIQ or OQ identifier and closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the three-layer model and the Capability Layer
-proposed in the direction are **not** accepted by this candidate design and must
-not be read as crate, package, protocol, or release decisions. Provider
-contract and transport questions stay with the draft
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
-and [Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
-authorization and transport placement stay with
-[Tool transport R2](../architecture/tool-transport-r2.md). Each is referenced, never
-duplicated or modified.
-
-The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
-accepted IPC wire, scope, and Agent vocabulary. Every `agent.*` and
-`panel.*` name in the direction (`agent.spawn`, `agent.send`, `agent.cancel`,
-`panel.create`, `agent.status.changed`, `agent.started`, `agent.finished`,
-and similar) is a discussion sketch: this draft records it as input and
-proposes no wire method, event name, or CLI surface. Where the direction's
-sketches overlap RFC-owned ground (Agent lifecycle, Agent events, Agent
-semantics, scopes, CLI control), the RFC wins without further argument.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed redaction,
-consented recording, secret minimization) override every discussion example
-below. The direction's method names, event names, manifest fields, permission
-display, and capability list are conceptual vocabulary, not additions to any
-accepted registry, schema, or protocol. This draft creates or closes no AIQ
-or OQ identifier; open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## IPC as the second extension boundary
 
@@ -267,7 +243,40 @@ its related dispositions. The capability list is discussion vocabulary, not
 an accepted scope catalog, and the downstream motivations are scheduling
 context, not a roadmap.
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the three-layer model and the Capability Layer
+proposed in the direction are **not** accepted by this candidate design and must
+not be read as crate, package, protocol, or release decisions. Provider
+contract and transport questions stay with the draft
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md); tool
+authorization and transport placement stay with
+[Tool transport R2](../architecture/tool-transport-r2.md). Each is referenced, never
+duplicated or modified.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
+accepted IPC wire, scope, and Agent vocabulary. Every `agent.*` and
+`panel.*` name in the direction (`agent.spawn`, `agent.send`, `agent.cancel`,
+`panel.create`, `agent.status.changed`, `agent.started`, `agent.finished`,
+and similar) is a discussion sketch: this draft records it as input and
+proposes no wire method, event name, or CLI surface. Where the direction's
+sketches overlap RFC-owned ground (Agent lifecycle, Agent events, Agent
+semantics, scopes, CLI control), the RFC wins without further argument.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed redaction,
+consented recording, secret minimization) override every discussion example
+throughout this document. The direction's method names, event names, manifest fields, permission
+display, and capability list are conceptual vocabulary, not additions to any
+accepted registry, schema, or protocol. This draft creates or closes no AIQ
+or OQ identifier; open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any IPC-value

@@ -11,7 +11,7 @@ sidebar_order: 63
 
 # Wheel core and plugin boundary (candidate)
 
-## Status and recommendation
+## Purpose and scope
 
 This is a **draft discussion synthesis**, not a runtime specification, accepted
 decision, dependency selection, release commitment, or implementation claim.
@@ -74,47 +74,14 @@ this draft links to both wherever decoupling touches configuration,
 compilation, or storage, as design input rather than implementation. This
 document creates no AIQ or OQ identifier and closes none.
 
-## Authority and reconciliation
+## Status vocabulary
 
-The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
-candidate inputs only; the boundary-table placement, the Lua call shapes,
-the plugin names, the `.wheel/` file sketch, the dependency declarations,
-the install spellings, and the distribution tree proposed in the direction are
-**not** accepted by this candidate design and must not be read as crate,
-package, protocol, file-schema, or release decisions. Context assembly,
-budget, and retention questions stay with
-[Context Management Architecture](../context/context-management.md) and
-[Context retention R3](../architecture/context-retention-r3.md); tool shape and transport
-placement stay with
-[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
-[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
-[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
-environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
-and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
-coordination and persistence questions stay with
-[Agent Coordination Architecture](../agent/agent-coordination.md) and
-[Task lifecycle R5](../architecture/task-lifecycle-r5.md). Configuration-class, trust,
-and storage questions stay with the companion
-[Wheel-config and Git-model candidate design](wheel-config-and-context-git-model-candidate.md);
-each is referenced, never duplicated or modified.
-
-The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
-accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
-candidate direction (Lua function spellings, service names, plugin names, file names,
-field names, command spellings, flavor names) is a discussion sketch: this
-draft records it as input and proposes no file schema, API, command, tool,
-event, or wire format. Where the direction's sketches overlap RFC-owned ground
-(Agent lifecycle, Agent events, Agent semantics, scopes), the RFC wins
-without further argument.
-
-Normative security obligations (least privilege, per-action scopes,
-capability-based and auditable permission that fails closed, typed redaction,
-consented recording, secret minimization) override every discussion example
-below. The plugin-composition sketches are conceptual vocabulary, not an
-adopted authorization or distribution contract. This draft creates or closes
-no AIQ or OQ identifier; open questions stay with
-[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
-governance.
+| Status            | Meaning in this document                                                             |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Accepted          | An accepted specification already requires the rule; this document only restates it. |
+| Candidate         | Proposed by the cited design direction only; no review has accepted it.              |
+| Owner-pending     | Belongs to another repository owner; recorded here as a pointer, never as content.   |
+| Illustrative-only | A sketch whose spelling, bounds, or defaults are explicitly undecided.               |
 
 ## Core-Plugin boundary and the mechanism rule
 
@@ -363,7 +330,49 @@ observability direction (statusline, context, cache, why, and trace views)
 carried in the companion
 [Quality-formula and Context-Compiler candidate design](quality-and-context-compiler-candidate.md#provider-observability-as-a-design-pointer).
 
-## Proposed validation and promotion path
+## Relation to existing systems
+
+The draft [AI Architecture](../architecture/ai-architecture.md) layered models are
+candidate inputs only; the boundary-table placement, the Lua call shapes,
+the plugin names, the `.wheel/` file sketch, the dependency declarations,
+the install spellings, and the distribution tree proposed in the direction are
+**not** accepted by this candidate design and must not be read as crate,
+package, protocol, file-schema, or release decisions. Context assembly,
+budget, and retention questions stay with
+[Context Management Architecture](../context/context-management.md) and
+[Context retention R3](../architecture/context-retention-r3.md); tool shape and transport
+placement stay with
+[Command and Tool Architecture](../architecture/command-tool-architecture.md) and
+[Tool transport R2](../architecture/tool-transport-r2.md); provider questions stay with
+[Provider plugin boundary](../providers/provider-plugin-boundary.md); execution and
+environment questions stay with [Execution ownership R1](../architecture/execution-ownership-r1.md)
+and [Panel environment awareness](../interfaces/panel-environment-awareness.md);
+coordination and persistence questions stay with
+[Agent Coordination Architecture](../agent/agent-coordination.md) and
+[Task lifecycle R5](../architecture/task-lifecycle-r5.md). Configuration-class, trust,
+and storage questions stay with the companion
+[Wheel-config and Git-model candidate design](wheel-config-and-context-git-model-candidate.md);
+each is referenced, never duplicated or modified.
+
+The accepted [IPC and Agent RFC](ipc-agent-rfc.md) defines the only
+accepted IPC wire, scope, and Agent vocabulary. Every sketch name in the
+candidate direction (Lua function spellings, service names, plugin names, file names,
+field names, command spellings, flavor names) is a discussion sketch: this
+draft records it as input and proposes no file schema, API, command, tool,
+event, or wire format. Where the direction's sketches overlap RFC-owned ground
+(Agent lifecycle, Agent events, Agent semantics, scopes), the RFC wins
+without further argument.
+
+Normative security obligations (least privilege, per-action scopes,
+capability-based and auditable permission that fails closed, typed redaction,
+consented recording, secret minimization) override every discussion example
+throughout this document. The plugin-composition sketches are conceptual vocabulary, not an
+adopted authorization or distribution contract. This draft creates or closes
+no AIQ or OQ identifier; open questions stay with
+[AI Unresolved Questions](../product/ai-unresolved-questions.md) and shared
+governance.
+
+## Open items
 
 These are future evidence requirements, not tests executed by this
 documentation task. They keep the design falsifiable before any decoupling
