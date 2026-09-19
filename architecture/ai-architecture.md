@@ -19,17 +19,20 @@ Candidacy in this document is declared per section: every candidate or direction
 
 Bitty is an agent-friendly, not agent-centric terminal. [Product vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/vision.md) and [Core and Plugin Boundaries](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/architecture/core-boundaries.md) keep AI and Agent experiences outside the terminal core as optional integrations, preferentially in plugins, while [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) already defines the accepted bounded IPC framing, wire, auth, scopes, and bounded `AgentMessage`/`AgentObservation`/`SideQueue`/`AgentSession` contracts that close [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md) at the design level.
 
-This specification extends that baseline for post-1.0 AI work. It answers how a model, context, tool, and agent layer compose without entering the terminal, render, or input hot paths, without binding the core to a model vendor or prompt system, and without weakening the privacy, capability, or budget controls already normative.
+This specification extends that baseline for post-1.0 AI work: how a model,
+context, tool, and agent layer compose without entering the terminal, render,
+or input hot paths, without binding the core to a model vendor or prompt
+system, and without weakening the privacy, capability, or budget controls
+already normative.
 
 In scope:
 
-- **ModelProvider** (`ai.model`): provider registry, model capability negotiation, `list_models`, `complete`, `stream`, and `cancel` operations, budgets, and privacy handling.
-- **ContextProvider**: discrete providers for workspace, project, git, diagnostics, and terminal snapshot sources, their Stable Id addressing, Context Budget, and semantic-zone awareness.
-- **Stable Id hierarchy**: `Instance` / `Window` / `Workspace` / `View` / `Terminal` identity model and its use for selection, attribution, and consent scoping.
-- **Context contract**: token-first context requests and artifacts per agent turn, with attribution, truncation, chunking, provenance, and drill-down rules. The `32 KiB` byte default stays a candidate profile (OQ-066), not a core bound.
+- **ModelProvider** (`ai.model`): host-owned provider registry, model capability negotiation, `list_models`/`complete`/`stream`/`cancel` operations, budgets, and privacy handling.
+- **ContextProvider**: workspace, project, git, diagnostics, and terminal snapshot sources, their Stable Id addressing, Context Budget, and semantic-zone awareness.
+- **Stable Id hierarchy**: `Instance` / `Window` / `Workspace` / `View` / `Terminal` identity model for selection, attribution, and consent scoping.
+- **Context contract**: token-first context requests and artifacts per agent turn, with attribution, truncation, chunking, provenance, and drill-down rules; the `32 KiB` byte default stays a candidate profile (OQ-066), not a core bound.
 - **Semantic zones** as context boundaries derived from shell-integration OSC 7/133.
-- **Agent**: four levels `inspect` / `self` / `workspace` / `all`, their capability implications, and generation-scoped ownership.
-- **AgentWorkspace**: ephemeral, capability-scoped working directory and its lifecycle.
+- **Agent**: four levels `inspect` / `self` / `workspace` / `all`, their capability implications, and generation-scoped ownership, plus the ephemeral capability-scoped `AgentWorkspace`.
 - **Rich streaming**: Markdown, Diff, and ToolCard rendering via the Rich Presentation scene, with incremental damage, selection, and accessibility.
 - **Tool Bus**: MCP adapter as the tool transport, registry, validation, and consent-bound dispatch.
 - **Privacy-first** posture: minimization, typed redaction, per-scope consent, and the prohibition of self-acceptance.
@@ -91,38 +94,40 @@ These draft elaborations accept no new mechanisms. “Extends” describes a top
 
 ## ModelProvider
 
-Status: **proposed contract**. Numbered for reference; none is implemented by this RFC alone.
+Status: **proposed contract**. Numbered for reference; none is implemented by this RFC alone. The provider boundary — Core-owned contract versus plugin-owned integrations, transport taxonomy, aliases and routing inputs, fallback, budget and usage-accounting semantics, streaming abstraction, provider-independent errors, and the secret invariant — is owned by [Provider plugin boundary](../providers/provider-plugin-boundary.md). The mandates below stay in force at the architecture level.
 
 ### Ownership and registry
 
-- **MP-1 Registry ownership.** `ai.model` registry is host-owned and host-validated. Provider plugins register via `services.provided: ai.model` declaring a versioned interface; the host validates `provider_id`, `privacy_class`, and `capabilities` before registration and rejects ambient or undeclared registration. Plugins and project configuration that do not provide `ai.model` may request models but may not mutate capability metadata or bypass the registry. The registry lives in Rust (`bitty-agent` or `bitty-runtime`, owning crate deferred) and is exposed to Lua via a narrow `ai.model` host API under the same capability discipline as other privileged services.
-- **MP-2 Provider descriptor.** Each provider entry records `provider_id` (bounded `owner.name`, `<= 64` bytes, `^[a-z][a-z0-9_-]*$`) — for example (non-normative) `bitty-openai`, `bitty-anthropic`, or `bitty-ollama` provider plugins — transport kind (`local`, `remote`), `models[]`, per-model `capabilities` (text, streaming, tool-use, vision), `context_window`, `cost_marks`, and `privacy_class` (`local-only`, `network-minimized`, `upload-notice`). Unrecognized fields fail closed.
-- **MP-3 Local-first default.** No network call exists until the user selects a provider whose `privacy_class` permits it and the corresponding network capability (`network.connect`) is granted. A provider marked `local-only` never performs network I/O. Example providers (non-normative) include `bitty-openai`, `bitty-anthropic`, and `bitty-ollama` as `services.provided: ai.model` plugins validated by the host.
+- **MP-1 Registry ownership.** `ai.model` registry is host-owned and host-validated. Provider plugins register via `services.provided: ai.model` declaring a versioned interface; the host validates `provider_id`, `privacy_class`, and `capabilities` before registration and rejects ambient or undeclared registration. Plugins and project configuration that do not provide `ai.model` may request models but may not mutate capability metadata or bypass the registry. Registry implementation and provider I/O belong in the independent AI helper, never in terminal Core, with Lua reaching them only through a narrow `ai.model` host API under the same capability discipline as other privileged services; the exact registry split and owning crates remain draft choices under the R1 disposition.
+- **MP-2 Provider descriptor.** Each provider entry records `provider_id` (bounded `owner.name`, `<= 64` bytes, `^[a-z][a-z0-9_-]*$`), transport kind (`local`, `remote`), `models[]`, per-model `capabilities` (text, streaming, tool-use, vision), `context_window`, `cost_marks`, and `privacy_class` (`local-only`, `network-minimized`, `upload-notice`). Unrecognized fields fail closed; descriptor entries are declared by provider plugins and validated by the host. The descriptor shape is owned by [Provider plugin boundary](../providers/provider-plugin-boundary.md#core-owned-surface).
+- **MP-3 Local-first default.** No network call exists until the user selects a provider whose `privacy_class` permits it and the corresponding network capability (`network.connect`) is granted. A provider marked `local-only` never performs network I/O.
 
 ### Operations
 
-- **MP-4 `list_models`.** `ai.model.list_models()` returns the registry snapshot filtered to models whose capability set is compatible with the caller's granted scopes. No secret material is returned; API keys, if any, are never inline in the list.
-- **MP-5 `complete`.** `ai.model.complete({ model, messages, context_refs, tools })` executes one synchronous turn. `model` must name a registry-known model, `messages` is bounded by the resolved CP-5 context budget (the `32 KiB` candidate default) combined, `context_refs` enumerates Stable Ids resolved server-side, and `tools` enumerates Tool Bus names validated against the caller's Tool Bus consent. A request that would exceed the Context Budget fails at the boundary with a typed `BudgetExceeded` before provider I/O.
-- **MP-6 `stream`.** `ai.model.stream({ model, messages, context_refs, tools })` returns a chunked `StreamHandle` where each chunk is a Rich streaming fragment (`Markdown`, `Diff`, or `ToolCard`) at most `256 KiB` decoded bytes, carrying `seq`/`total`/`final`, matching RC-10 chunking and the framing discipline from [IPC and Agent RFC](../specifications/ipc-agent-rfc.md). Backpressure sheds oldest buffered chunks with a countable metric; there is no silent loss for request/response acknowledgement.
-- **MP-7 `cancel`.** Proposed `ai.model.cancel(handle)` is idempotent: abandon the provider request, drop buffered chunks, count cancellation and prevent further dispatch. Before dispatch, incomplete streamed tool arguments and cancelled proposals cause no tool effect. After dispatch, request cancellation of owned execution, but report completed effects or `Unknown` and reconcile before retry; cancellation cannot roll back already-started effects. One waiter's cancellation does not stop shared work still needed by another authorized waiter. Cancellation may be requested at any chunk boundary.
-- **MP-8 Deterministic timeouts.** Every provider call carries `now_ms` from the caller and observes `DEFAULT_REQUEST_TIMEOUT_MS = 5 s`, `DEFAULT_MCP_TIMEOUT_MS = 10 s` for tool-mediated streaming, and hard ceiling `MAX_REQUEST_TIMEOUT_MS = 30 s`, checked deterministically, reusing the timeout discipline already accepted for IPC.
+Operation semantics are owned by [Provider plugin boundary](../providers/provider-plugin-boundary.md#core-owned-surface); the mandates below stay in force.
+
+- **MP-4 `list_models`.** `ai.model.list_models()` returns the registry snapshot filtered to models compatible with the caller's granted scopes; no secret material is returned and API keys are never inline.
+- **MP-5 `complete`.** `ai.model.complete({ model, messages, context_refs, tools })` executes one synchronous turn; `model` must name a registry-known model, `messages` is bounded by the resolved CP-5 context budget (the `32 KiB` candidate default), `context_refs` enumerates Stable Ids resolved server-side, and `tools` enumerates Tool Bus names validated against caller consent; a request that would exceed the budget fails at the boundary with a typed `BudgetExceeded` before provider I/O.
+- **MP-6 `stream`.** `ai.model.stream({ model, messages, context_refs, tools })` returns a chunked `StreamHandle` of Rich streaming fragments (`Markdown`, `Diff`, `ToolCard`) at most `256 KiB` decoded bytes under RC-10 chunking with `seq`/`total`/`final`; backpressure sheds oldest buffered chunks with a countable metric, and request/response acknowledgement has no silent loss.
+- **MP-7 `cancel`.** Proposed `ai.model.cancel(handle)` is idempotent: abandon the provider request, drop buffered chunks, count cancellation, and prevent further dispatch; cancellation may be requested at any chunk boundary. Pre-dispatch, incomplete streamed tool arguments and cancelled proposals cause no tool effect; post-dispatch, request cancellation of owned execution but report completed effects or `Unknown` and reconcile before retry — cancellation cannot roll back already-started effects, and one waiter's cancellation never stops shared work needed by another authorized waiter.
+- **MP-8 Deterministic timeouts.** Every provider call carries caller `now_ms` and observes `DEFAULT_REQUEST_TIMEOUT_MS = 5 s`, `DEFAULT_MCP_TIMEOUT_MS = 10 s` for tool-mediated streaming, and hard ceiling `MAX_REQUEST_TIMEOUT_MS = 30 s`.
 
 ### Budgets, cross-RFC sharing, and redaction
 
-- **MP-9 Budget sharing.** ModelProvider I/O is charged against the same per-client quotas as IPC/MCP: frame `256 KiB`, buffered bytes `512 KiB`, channel caps, concurrency `16`, and RC-9/RC-10. A separate model-specific ceiling is not introduced as a new RC; instead the RFC states the sharing rule so tests can assert it.
-- **MP-10 API-key handling.** Provider credentials are stored in user-only storage (mode `0600`), never in `BITTY_*` environment, discovery files, trace files, or `AgentWorkspace`, are redacted by typed `SecretField` before any diagnostic, trace, or snapshot, and require a dedicated `ai.provider` consent distinct from `ai.stream` and from Tool Bus scopes. Invariant 9 and P0-AC-026 apply whole.
+- **MP-9 Budget sharing.** ModelProvider I/O is charged against the same per-client quotas as IPC/MCP: frame `256 KiB`, buffered bytes `512 KiB`, channel caps, concurrency `16`, and RC-9/RC-10; no separate model-specific RC is introduced.
+- **MP-10 API-key handling.** Provider credentials are stored in user-only storage (mode `0600`), never in `BITTY_*` environment, discovery files, trace files, or `AgentWorkspace`; they are redacted by typed `SecretField` before any diagnostic, trace, or snapshot and require a dedicated `ai.provider` consent distinct from `ai.stream` and Tool Bus scopes. Invariant 9 and P0-AC-026 apply whole; the secret invariant is owned by [Provider plugin boundary](../providers/provider-plugin-boundary.md#secret-invariant).
 - **MP-11 Failure isolation.** A fault in one ModelProvider call affects only its owning session; sibling sessions, terminals, and plugin VMs remain responsive (FS-3 containment parity with [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) FS-IP3).
 
 ### Provider configuration and credential references (candidate)
 
-Status: **candidate, non-normative**. This subsection extends MP-10 without changing it; [OQ-054 and OQ-055](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md) track the unresolved parts, and the storage tiers are recorded in the [Plugin Roadmap](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/plugin-roadmap.md) secrets direction.
+Status: **candidate, non-normative**. This subsection extends MP-10 without changing it. The configuration shape and transport kinds are architecture-level candidate statements below; the secret invariant and transport taxonomy are owned by [Provider plugin boundary](../providers/provider-plugin-boundary.md), whose Model Manager and configuration surface remains an owner-pending `bitty`-side handoff item ([Bitty-side handoff](../providers/provider-plugin-boundary.md#bitty-side-handoff-not-a-decision)), not a settled owner. Unresolved parts stay tracked as [OQ-054, OQ-055](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md), and the storage tiers are recorded in the [Plugin Roadmap](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/plugin-roadmap.md) secrets direction. Mandates that stay in force:
 
-- **MPC-1 Provider entries.** Candidate configuration shape: `ai.providers.<id>.kind = openai_compatible | anthropic | ollama`, each with an optional `base_url`, `models[]`, and privacy class. `openai_compatible` covers self-hosted and local servers, `ollama` is the local-only default, and `anthropic` is a remote provider. Provider kinds are transport adapters, never capability grants: a remote kind still requires the accepted `network.connect` grant and `ai.provider` consent, and a `local-only` provider performs no network I/O (MP-3).
-- **MPC-2 Credential references, never inline keys.** A provider declares `api_key_env` (the name of a host-allowlisted environment variable) or `api_key_cmd` (argv whose stdout is the secret, for example a password-manager lookup), never an inline key; configuration containing a literal key value fails validation. Resolution happens on the Rust host side, and Lua, plugins, diagnostics, and traces never receive the value, reusing MP-10 and ADR 0006 redaction and audit rules.
-- **MPC-3 Resolution order and project overrides.** Explicit user or CLI selection wins over profile configuration, which wins over project-level selection. A project may select among already-granted providers and models but may not introduce a credential reference, raise a `privacy_class`, or enable a provider the user has not consented to; violations fail closed with a source-attributed diagnostic.
-- **MPC-4 No implementation claim.** No provider configuration, credential reference, keyring, or `secrets.env` path is implemented today; `bitty-agent` owns no LLM I/O and no API-key handling, and `bitty-config` has no provider schema. This subsection records direction only.
-- **MPC-5 Provider wire protocols, plugin ownership, and Lua provider presets (candidate; provider-ownership clause superseded).** The clause that Rust implements the three canonical wire-protocol adapters is **superseded** by [Provider plugin boundary](../providers/provider-plugin-boundary.md), which owns the current direction: vendor HTTP integrations, local-endpoint adapters, subscription and CLI adapters, aggregator/router adapters, model discovery, and OAuth implementation belong to provider plugins, while Core owns only the `ModelProvider` contract, model descriptors, the capabilities vocabulary, the registry protocol, selection and routing, fallback, budget and usage accounting, the streaming abstraction, and provider-independent errors. Kept from this entry: the candidate wire shapes `openai_compatible` (`POST /v1/chat/completions`, covering OpenAI, OpenRouter, DeepSeek, Groq, Ollama, vLLM, and compatible local gateways), `anthropic_messages` (`POST /v1/messages`), and `gemini_content` (`POST /v1beta/models/{model}:generateContent` and `:streamGenerateContent`) remain candidate protocols a provider adapter may implement, and Core must not accumulate vendor-specific branches at all. Core retains the hard gates stated here: streaming framing with SSE parsing, present-cadence backpressure and cancellation; connection pooling with retry semantics (ordered fallback policy in Core, request-level retry mechanics in the adapter); credential resolution behind opaque handles (host-controlled, MP-10/MPC-2); the CP-5 context budget; and MCP tool-bus schema and permission validation. Provider presets are declarative Lua data rather than compiled tables: a candidate official preset plugin (`bitty-ai-providers`) ships the common entries, and users may register their own (`ai.register_provider(id, entry)`) so model renames, base-URL changes, custom headers, and private gateways never require a Rust rebuild. Preset data cannot widen consent or capability (MPC-1 through MPC-3 still apply). Lua owns presets, Agent roles, prompt assembly, conversation trees, slash commands, and card UI. Tracked as [OQ-080](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
-- **MPC-6 `bitty-ai` distribution boundary (candidate).** `bitty-ai` is an independently installed and versioned plugin and repository (Rust workspace plus a Lua front end), not a bundled Core feature. Core keeps a neutral `bitty-agent` protocol skeleton and the `bitty-mcp` adapter so users who prefer external harnesses (for example Claude Code, Hermes Agent, or others) pay no AI weight or supply-chain surface and can still run `bitty-ai` standalone or headless (archival note 2026-09-14: `bitty-mcp` was archived and its MCP tool-surface functionality is covered by `bitty-ai`; the adapter boundary in this candidate needs re-evaluation under OQ-081). Installing the plugin yields the full experience through the same manifest, capability, and lazy-trigger path as any other plugin. Tracked as [OQ-081](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+- **MPC-1 Provider entries.** Candidate configuration shape: `ai.providers.<id>.kind = openai_compatible | anthropic | ollama`, each with an optional `base_url`, `models[]`, and privacy class; `openai_compatible` covers self-hosted and local servers, `ollama` is the local-only default, and `anthropic` is a remote provider. Provider kinds are transport adapters, never capability grants: a remote kind still requires the accepted `network.connect` grant and `ai.provider` consent, and a `local-only` provider performs no network I/O (MP-3).
+- **MPC-2 Credential references, never inline keys.** Providers declare `api_key_env` (host-allowlisted environment variable name) or `api_key_cmd` (argv whose stdout is the secret) rather than inline keys; a literal key value fails validation, resolution is host-side, and Lua, plugins, diagnostics, and traces never receive the value (MP-10, ADR 0006).
+- **MPC-3 Resolution order and project overrides.** Explicit user or CLI selection wins over profile configuration, which wins over project-level selection; a project may select among already-granted providers and models but may not introduce a credential reference, raise a `privacy_class`, or enable an unconsented provider, and violations fail closed with a source-attributed diagnostic.
+- **MPC-4 No implementation claim.** No provider configuration, credential reference, keyring, or `secrets.env` path is implemented today; `bitty-agent` owns no LLM I/O and no API-key handling, and `bitty-config` has no provider schema.
+- **MPC-5 Wire protocols and provider presets (candidate; provider-ownership clause superseded).** Vendor HTTP, local-endpoint, subscription/CLI, and aggregator/router adapters, model discovery, and OAuth belong to provider plugins; Core owns the contract, descriptors, capabilities vocabulary, registry protocol, selection and routing, fallback, budget accounting, streaming abstraction, and provider-independent errors (the Core-owned surface is itemized in [Provider plugin boundary](../providers/provider-plugin-boundary.md#core-owned-surface)). Architecture mandates retained here: transport, connection pooling, timeout, redirect, proxy, chunked bodies, and SSE framing belong to a provider adapter, never to the std-only runtime kernel ([Dependency Strategy](../providers/dependency-strategy.md#kernel-principle-std-only-runtime-with-dependency-inversion)); ordered fallback policy is Core-owned with request-level retry in the adapter; credential resolution happens behind opaque handles (MP-10/MPC-2); the CP-5 budget gates every request before provider I/O; and every tool effect, native or MCP, passes the unified authorization backend's caller/target/consent/schema validation ([Tool transport R2](tool-transport-r2.md#unified-authorization-backend)). Kept from this entry (no owning document yet): the candidate wire shapes `openai_compatible` (`POST /v1/chat/completions`, covering OpenAI, OpenRouter, DeepSeek, Groq, Ollama, vLLM, and compatible local gateways), `anthropic_messages` (`POST /v1/messages`), and `gemini_content` (`POST /v1beta/models/{model}:generateContent` and `:streamGenerateContent`) remain candidate protocols a provider adapter may implement, and Core must not accumulate vendor-specific branches. Provider presets are declarative Lua data (`ai.register_provider(id, entry)`), so renames, base-URL changes, custom headers, and private gateways never require a Rust rebuild; presets cannot widen consent or capability, and Lua owns presets, Agent roles, prompt assembly, conversation trees, slash commands, and card UI. Tracked as [OQ-080](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+- **MPC-6 `bitty-ai` distribution boundary (candidate).** `bitty-ai` is an independently installed and versioned plugin and repository (Rust workspace plus a Lua front end), not a bundled Core feature; Core keeps only the neutral `bitty-agent` protocol skeleton and the `bitty-mcp` adapter so users who prefer external harnesses (for example Claude Code, Hermes Agent, or others) pay no AI weight or supply-chain surface and can still run `bitty-ai` standalone or headless (archival note 2026-09-14: `bitty-mcp` was archived and its MCP tool-surface functionality is covered by `bitty-ai`; the adapter boundary needs re-evaluation under OQ-081), and installing the plugin yields the full experience through the same manifest, capability, and lazy-trigger path as any other plugin. The candidate official `bitty-ai-providers` preset plugin (MPC-5) ships the common provider entries without widening consent or capability. Tracked as [OQ-081](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ## ContextProvider
 
@@ -149,19 +154,28 @@ No other provider exists in v1. Adding a provider requires a reviewed amendment 
 
 ### Context budget and request contract
 
-- **CP-5 Budget.** Context is bounded token-first. The caller states `ContextRequest { max_tokens: Option<u32>, max_bytes: Option<u64>, current_generation: u64 }`; the host resolves it against the model context window, the per-turn token and cost budget, freshness, and each record's priority before any provider I/O leaves the machine. Byte counts alone are not a sound universal bound because equal byte budgets differ widely in tokens across scripts, code, JSON, and base64; the `32 KiB` default therefore remains a candidate profile under OQ-066 rather than a core contract. Excess truncates per provider in declared priority order (diagnostics and terminal semantic-zone text truncate first, project and git last), with counted `truncated_tokens`/`truncated_bytes` and `truncated_providers[]`. Assembly binds to `current_generation` (`AG-2`) and fails closed before any artifact-store mutation: duplicate turn-scoped record ids raise `ContextError::DuplicateRecordId` and any record generation other than `current_generation` raises `ContextError::StaleGeneration`, so rotated-out context never leaks into a new turn.
-- **CP-6 Artifacts.** Providers return `ContextArtifact { summary, structured metadata, references, chunks, provenance }`. A caller may drill down with `expand(context_id, section)` under the same consent, budget, attribution, and untrusted-surface rules rather than receiving an unbounded dump by default. Delivery stays RC-10 chunked (`256 KiB` ceiling) for forward compatibility as `seq`/`total`/`final`; a benign peer's context assembly is not blocked by a hostile peer's large request because quotas are per-client (RC-9 sharing).
-- **CP-7 Determinism and testability.** Context assembly is deterministic for a given `now_ms`, provider snapshot, and Stable Id set. Headless tests supply a seeded `now_ms` and in-memory provider snapshots; no wall-clock, filesystem, or network I/O enters the `bitty-agent` budget computation.
+The context subsystem — session journal, context view projection, multi-level
+compression pipeline, and retention policy — is owned by
+[Context management architecture](../context/context-management.md) and
+[Context retention R3](context-retention-r3.md); stable-prefix ordering and
+epoch boundaries are owned by
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md);
+the Context Request v1 split boundary, including the request shape and counted
+truncation fields, is owned by
+[RFC-split readiness](../integration/rfc-split-readiness.md#context-request-version-1).
 
-**CP-5 request-field disposition (after `AI-0061`).** The experimental `bitty-ai` slice at merge `f3223dd` narrowed `ContextRequest` to `max_tokens`, `max_bytes`, and `current_generation`, removing the former request fields `priority: ContextPriority` and `detail: DetailLevel`. Truncation order now reads each record's own `priority` on `ContextRecord` (untrusted records clamp to at most `ContextPriority::Normal`); `DetailLevel` is retained only as reserved CP-5 vocabulary for a planned retrieval-depth signal that has no assembly reader. This is review evidence for the draft contract, not acceptance: it accepts no mechanism, leaves the `32 KiB` candidate profile (OQ-066) unchanged, and whether the removed request fields return to the accepted shape remains a draft choice.
-
-**See also**: [Context Management Architecture](../context/context-management.md) for the multi-level compression pipeline and session journal model.
+- **CP-5 Budget.** Context is bounded token-first. The caller states `ContextRequest { max_tokens: Option<u32>, max_bytes: Option<u64>, current_generation: u64 }`; the host resolves it against the model context window, the per-turn token and cost budget, freshness, and each record's priority before any provider I/O leaves the machine. Byte counts alone are not a sound universal bound (equal byte budgets differ widely in tokens across scripts, code, JSON, and base64), so the `32 KiB` default remains a candidate profile under OQ-066 rather than a core contract. Excess truncates per provider in declared priority order (diagnostics and terminal semantic-zone text first, project and git last), with counted `truncated_tokens`/`truncated_bytes` and `truncated_providers[]`. Assembly binds to `current_generation` (`AG-2`) and fails closed before any artifact-store mutation: duplicate turn-scoped record ids raise `ContextError::DuplicateRecordId` and any record generation other than `current_generation` raises `ContextError::StaleGeneration`, so rotated-out context never leaks into a new turn.
+- **CP-6 Artifacts.** Providers return `ContextArtifact { summary, structured metadata, references, chunks, provenance }`; a caller may drill down with `expand(context_id, section)` under the same consent, budget, attribution, and untrusted-surface rules rather than receiving an unbounded dump by default. Delivery stays RC-10 chunked (`256 KiB` ceiling) as `seq`/`total`/`final`, and per-client quotas (RC-9 sharing) keep a hostile peer's large request from blocking a benign peer's assembly.
+- **CP-7 Determinism and testability.** Context assembly is deterministic for a given `now_ms`, provider snapshot, and Stable Id set; headless tests supply a seeded `now_ms` and in-memory provider snapshots, and no wall-clock, filesystem, or network I/O enters the `bitty-agent` budget computation.
+- **CP-5 request-field disposition (after `AI-0061`).** The experimental `bitty-ai` slice at merge `f3223dd` narrowed `ContextRequest` to `max_tokens`, `max_bytes`, and `current_generation`, removing the former request fields `priority: ContextPriority` and `detail: DetailLevel`; truncation order now reads each record's own `priority` on `ContextRecord` (untrusted records clamp to at most `ContextPriority::Normal`), and `DetailLevel` is retained only as reserved CP-5 vocabulary for a planned retrieval-depth signal that has no assembly reader. This is review evidence, not acceptance: it accepts no mechanism, leaves the `32 KiB` candidate profile (OQ-066) unchanged, and whether the removed request fields return to the accepted shape remains a draft choice. The split boundary and evidence bar for this shape are owned by [RFC-split readiness](../integration/rfc-split-readiness.md#context-request-version-1).
 
 ### Semantic zones
 
-- **CP-8 Zone source.** Semantic zones are the authoritative terminal-state boundaries already accepted in [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md) and produced by the terminal state machine under OQ-007, derived from OSC 7 (cwd) / OSC 133 (prompt/input/command/output) marks, each with `line_id` anchoring and ordering. The ContextProvider does not parse PTY bytes to invent zones; it consumes the core-owned `SemanticZone` records derived from OSC 7 (cwd) / OSC 133 (prompt/input/command/output) marks.
-- **CP-9 Zone-scoped context.** Terminal context may be requested as `zone: Prompt | Input | Command | Output` with optional `line_id` range. The provider returns only bytes within that zone, truncated at zone boundaries, so a model never receives unbounded scrollback as an implicit default. Full-scrollback or alternate-screen scraping is denied unless the caller holds an explicit `terminal.inspect` plus a per-generation `terminal.raw` elevation and an attributed consent record.
-- **CP-10 Rendering separation.** Zone-scoped text is delivered as bounded `TerminalSnapshot` or `TerminalOutput` with `is_untrusted_surface = true` per [IPC and Agent RFC](../specifications/ipc-agent-rfc.md), preserving the untrusted-observation labeling and T-10/R-013 defenses. The host policy enforces that this data never mixes into instruction or policy channels; string-sniffing inside the agent crate is not relied upon.
+Zone records (`SemanticZone`, `BlockAnchor`, `line_id` anchoring) are owned by the accepted [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md) under OQ-007; the architecture mandates below stay in force.
+
+- **CP-8 Zone source.** Semantic zones are the authoritative terminal-state boundaries produced by the terminal state machine, derived from OSC 7 (cwd) / OSC 133 (prompt/input/command/output) marks. The ContextProvider does not parse PTY bytes to invent zones; it consumes the core-owned `SemanticZone` records.
+- **CP-9 Zone-scoped context.** Terminal context may be requested as `zone: Prompt | Input | Command | Output` with an optional `line_id` range; the provider returns only bytes within that zone, truncated at zone boundaries, so a model never receives unbounded scrollback as an implicit default. Full-scrollback or alternate-screen scraping is denied unless the caller holds an explicit `terminal.inspect` plus a per-generation `terminal.raw` elevation and an attributed consent record.
+- **CP-10 Rendering separation.** Zone-scoped text is delivered as bounded `TerminalSnapshot` or `TerminalOutput` with `is_untrusted_surface = true` per [IPC and Agent RFC](../specifications/ipc-agent-rfc.md), preserving the untrusted-observation labeling and T-10/R-013 defenses; the host policy enforces that this data never mixes into instruction or policy channels, and string-sniffing inside the agent crate is not relied upon.
 - **CP-11 Command store, not render residency.** Command blocks, stdout/stderr text, OSC 133 metadata, timestamps, exit status, and zone records are core-owned semantic state held in CPU or persistent storage; the GPU holds only visible glyph caches, atlases, vertex buffers, and render surfaces and is never the state store. Terminal context is served from a bounded command-store API (`terminal.commands.list/get/output/summary/errors`) under the same consent and budgets, which is the intended agent surface instead of scraping a whole buffer or a render target.
 
 ## Agent
@@ -191,8 +205,8 @@ Rules:
 
 ### AgentWorkspace
 
-- **AW-1 Ephemerality.** Each `AgentSession` that holds `self` or above receives one `AgentWorkspace`, an ephemeral per-session directory that is created on demand, isolated to that `(AgentId, generation)`, and removed at session `Completed`/`Failed`/`Canceled` or on explicit `dispose`. No other session, plugin, or generation can address it.
-- **AW-2 Scoping.** The workspace is addressable only through narrowly scoped host APIs (`workspace.read`, `workspace.write`, `workspace.list`) that validate the target path stays within the ephemeral root. Absolute paths, directory traversal, and sibling-workspace access fail closed with `Denied/ScopeViolation`. The path never appears in `BITTY_*` environment, discovery files, or traces unless redacted.
+- **AW-1 Ephemerality.** Each `AgentSession` that holds `self` or above receives one `AgentWorkspace`, an ephemeral per-session directory created on demand, isolated to that `(AgentId, generation)`, and removed at session `Completed`/`Failed`/`Canceled` or on explicit `dispose`; no other session, plugin, or generation can address it.
+- **AW-2 Scoping.** The workspace is addressable only through narrowly scoped host APIs (`workspace.read`, `workspace.write`, `workspace.list`) that validate the target path stays within the ephemeral root; absolute paths, directory traversal, and sibling-workspace access fail closed with `Denied/ScopeViolation`, and the path never appears in `BITTY_*` environment, discovery files, or traces unless redacted.
 - **AW-3 Budget and isolation.** An `AgentWorkspace` obeys the same isolation philosophy as per-plugin isolation: bounded size (`256 KiB` default per workspace, evict oldest with attributed drop), no ambient filesystem authority, and FS-3 containment — a fault or exhaustion affects only the owning session.
 - **AW-4 Safe-mode.** `bitty --safe` starts with no `AgentWorkspace`, no third-party provider, and no tool dispatch, matching P0 invariant 10 and FS-IP6 parity.
 
@@ -200,14 +214,14 @@ Rules:
 
 Status: **proposed contract**.
 
-Streaming delivers incremental agent output into the presentation model without inventing a second rendering path. It reuses the scene contracts already accepted in [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md).
+Streaming delivers incremental agent output into the presentation model without inventing a second rendering path; it reuses the scene contracts already accepted in [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md), which owns fragment-to-scene composition, snapshot, damage, indexing, and accessibility semantics. The architecture mandates stay:
 
-- **RS-1 Fragment kinds.** Each streamed chunk carries one fragment kind: `Markdown` (versioned block, selectable, searchable via the Rich Presentation contracts), `Diff` (unified diff with bounded per-hunk text, anchored to a `BlockAnchor`), or `ToolCard` (typed tool-result card with bounded title, status, and key-value rows). `Markdown` is the default; `Diff` and `ToolCard` are used only when semantic anchoring is available.
-- **RS-2 Scene integration.** Every fragment maps to a `RichBlock` and `Scene` subtree owned by `bitty-rich` and consumed by `bitty-render`. Composition, snapshot, damage tracking, semantic indexing, and the accessibility tree remain exactly as accepted; this RFC introduces no fork of those contracts.
-- **RS-3 Incremental damage.** Streaming emits `Scene` damage per chunk, at most one `RichBlock` dirty per chunk, so the renderer work scales with changed content, not with total history. No chunk triggers a full scene recompute.
-- **RS-4 Selection, search, and a11y.** `Markdown`, `Diff`, and `ToolCard` fragments remain selectable, searchable (via the search index), and accessible (via the accessibility tree) once composited, matching the Rich Presentation guarantees for every `RichBlock`. Anchoring uses `SemanticZone` line ids where available.
-- **RS-5 Chunking and attribution.** Chunks obey RC-10 (`256 KiB` decoded bytes, `seq`/`total`/`final`). Each streamed logical turn is decomposed into these chunks; reordering or loss is detectable via `seq`. Budget accounting attributes every chunk to its `(AgentId, StreamHandle, generation)`.
-- **RS-6 No hot-path execution.** Rich streaming never runs inside the parser, render, or input hot paths synchronously. It is a cold-path composition that posts damage, preserving P0-AC-015 and invariant 4.
+- **RS-1 Fragment kinds.** Each streamed chunk carries one fragment kind: `Markdown` (versioned block, selectable, searchable), `Diff` (unified diff with bounded per-hunk text, anchored to a `BlockAnchor`), or `ToolCard` (typed tool-result card with bounded title, status, and key-value rows). `Markdown` is the default; `Diff` and `ToolCard` are used only when semantic anchoring is available.
+- **RS-2 Scene integration.** Every fragment maps to a `RichBlock` and `Scene` subtree owned by `bitty-rich` and consumed by `bitty-render`, with composition, snapshot, damage tracking, semantic indexing, and the accessibility tree exactly as accepted; no fork of those contracts.
+- **RS-3 Incremental damage.** Streaming emits `Scene` damage per chunk, at most one `RichBlock` dirty per chunk, so renderer work scales with changed content; no chunk triggers a full scene recompute.
+- **RS-4 Selection, search, and a11y.** Fragments remain selectable, searchable, and accessible once composited, matching the Rich Presentation guarantees for every `RichBlock`; anchoring uses `SemanticZone` line ids where available.
+- **RS-5 Chunking and attribution.** Chunks obey RC-10 (`256 KiB` decoded bytes, `seq`/`total`/`final`); reordering or loss is detectable via `seq`, and budget accounting attributes every chunk to its `(AgentId, StreamHandle, generation)`.
+- **RS-6 No hot-path execution.** Rich streaming never runs synchronously inside the parser, render, or input hot paths; it is a cold-path composition that posts damage, preserving P0-AC-015 and invariant 4.
 
 ## Comparative positioning versus existing agent harnesses (direction, non-normative)
 
@@ -228,30 +242,27 @@ Candidate Bitty differentiators, each needing its own evidence before any claim:
 - **Native tiling** — a working dwindle-style split baseline plus floating overlays, with scratchpad and ribbon directions tracked separately in the [UI and Compositor Gap Analysis](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ui-compositor-gap-analysis.md).
 - **Open provider and tool surfaces** — `ai.model` registry, open provider kinds, and MCP as an adapter rather than an internal protocol.
 
-The strategic framing from the same analysis is a candidate one-line identity:
-an existing terminal-hosted coding agent is a _coding agent inside a terminal_,
-while the Bitty direction is _a terminal that natively understands agents,
-tools, executions, tasks, and context_. The candidate attributes to validate
-are execution-aware, context-efficient, spatially observable,
+The strategic framing is a candidate one-line identity: an existing
+terminal-hosted coding agent is a _coding agent inside a terminal_, while the
+Bitty direction is _a terminal that natively understands agents, tools,
+executions, tasks, and context_. Candidate attributes to validate are
+execution-aware, context-efficient, spatially observable,
 capability-controlled, human-interruptible, multi-agent native, and
 evidence-preserving. No token-reduction percentage is an accepted target: the
 recorded `ctxctl` measurements are tool-level observations, and a full-pipeline
-claim needs a benchmark before any number is used.
-
-The unifying candidate principle behind the reading, compression, and evidence
-directions is stated here once and referenced below: **give the model the
-minimum sufficient context while preserving a path back to complete evidence**
-([OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md), [OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md),
+claim needs a benchmark before any number is used. The unifying candidate
+principle is **give the model the minimum sufficient context while preserving a
+path back to complete evidence** ([OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md), [OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md),
 [OQ-065](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)).
 
 ### Warp comparison dimensions (candidate)
 
 Status: **direction, non-normative**. The closed-cloud-terminal row above is
 expanded here into the dimensions that matter to this draft. The Warp
-description follows the external URL observation in the
-[Reference Project Register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/project/reference-projects.md) (public product
-behavior from [Warp documentation](https://docs.warp.dev/); no local snapshot,
-not audited) and makes no claim about its internals.
+description follows the public-product observation recorded in the
+[Reference Project Register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/project/reference-projects.md)
+(from [Warp documentation](https://docs.warp.dev/); no local snapshot, not
+audited) and makes no claim about its internals.
 
 | Dimension         | Warp (public product behavior)                                                  | Candidate Bitty direction                                                                                |
 | ----------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -298,55 +309,33 @@ without changing it:
 
 ### Native agent services and tool projection (candidate)
 
-Status: **direction, non-normative**. This extends the platform stack above
-with the design-reference relationship from the follow-up analysis: CarryCtx
-and `ctxctl` are references that validated useful abstractions (durable
-tasks, dependency gating, scoped worktrees, context slicing, evidence), not
-runtime dependencies Bitty should shell out to. The candidate relationship is:
+Status: **direction, non-normative**. This extends the platform stack above:
+CarryCtx and `ctxctl` are design references that validated useful abstractions
+(durable tasks, dependency gating, scoped worktrees, context slicing,
+evidence), not runtime dependencies Bitty should shell out to. A candidate
+decomposition keeps each concern an in-process service rather than a CLI
+wrapper — Task Service (create, assign, depend, block/unblock, complete, ready
+query), Agent Service (spawn, stop, delegate, message, inspect), Workspace
+Service (worktree, snapshot, overlay, isolation), Context Service (repository
+index, symbol index, memory, checkpoints), and Evidence Store (command
+execution, diff, diagnostics, agent artifacts). The agent-facing tools are
+projections of these services (`task.create`, `task.ready`, `agent.delegate`,
+`workspace.diff`, `context.symbol`, `exec.run`, and similar), and a CLI
+surface is a second projection over the same Rust service core; the AI must
+not call the CLI to reach a service, and the CLI does not own behavior the
+service lacks. Candidate rules:
 
-```text
-CarryCtx ─────┐
-              ├── design references ──> Bitty native subsystems
-ctxctl ───────┘
-```
-
-A candidate decomposition keeps each concern an in-process service rather
-than a CLI wrapper:
-
-```text
-bitty-ai-runtime
-├── Task Service        create, assign, depend, block/unblock, complete, ready query
-├── Agent Service       spawn, stop, delegate, message, inspect
-├── Workspace Service   worktree, snapshot, overlay, isolation
-├── Context Service     repository index, symbol index, memory, checkpoints
-└── Evidence Store      command execution, diff, diagnostics, agent artifacts
-```
-
-The agent-facing tools are projections of these services (`task.create`,
-`task.ready`, `agent.delegate`, `workspace.diff`, `context.symbol`,
-`exec.run`, and similar), and a CLI surface is a second projection over the
-same Rust service core (`bitty task list`, `bitty agent list`,
-`bitty workspace diff`); the AI must not call the CLI to reach a service, and
-the CLI does not own behavior the service lacks. Candidate rules:
-
-- **NAS-1 One service core, several projections.** Tool exposure and CLI
-  exposure are thin, capability-checked projections of the same services, so
-  behavior, attribution, and bounds cannot drift between them. A CLI-only
-  feature the tool surface cannot reach, or a tool-only path that bypasses the
-  CLI contract, is a design defect rather than a differentiator.
-- **NAS-2 Process boundaries exist for isolation, not for capability.** An
-  external helper process is chosen when a trust boundary or fault containment
-  requires it (per the bridge direction below), never merely to reuse a CLI;
-  the model-facing task surface remains in-process and typed.
-- **NAS-3 External managers remain integration targets.** A CarryCtx or
-  `ctxctl` adapter stays a candidate backend behind the store traits above
-  ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), so projects already using them
-  can project their state in, while the native services remain usable without
-  any external installation.
+- **NAS-1 One service core, several projections.** Tool exposure and CLI exposure are thin, capability-checked projections of the same services, so behavior, attribution, and bounds cannot drift between them. A CLI-only feature the tool surface cannot reach, or a tool-only path that bypasses the CLI contract, is a design defect rather than a differentiator.
+- **NAS-2 Process boundaries exist for isolation, not for capability.** An external helper process is chosen when a trust boundary or fault containment requires it (per the bridge direction below), never merely to reuse a CLI; the model-facing task surface remains in-process and typed.
+- **NAS-3 External managers remain integration targets.** A CarryCtx or `ctxctl` adapter stays a candidate backend behind the store traits above ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), so projects already using them can project their state in while the native services remain usable without any external installation.
 
 No native task, agent, workspace, context, or evidence service exists today;
 `bitty-agent` remains a bounded message and tool-description crate with no LLM
-I/O, and the `ctxctl` measurements remain tool-level observations. Tracked as
+I/O, and the `ctxctl` measurements remain tool-level observations. Task
+lifecycle authority is owned by [Task lifecycle R5](task-lifecycle-r5.md);
+cross-repository handoff scope is owned by
+[bitty-side integration input](../integration/bitty-side-integration-input.md).
+Tracked as
 [OQ-067](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ## Candidate runtime contracts (candidate)
@@ -360,39 +349,28 @@ must receive its own review and verification evidence.
 
 ### Extension-point layering and Capability Layer as unmerged candidates (candidate)
 
-Status: **candidate, non-normative**. This subsection compares two unmerged
-layering candidates — the plugin-extension-model extension-point layering and the IPC-extension-boundary Capability
-Layer — without merging them and without accepting either. Both stay candidate
-inputs; the merge decision is explicitly deferred.
-
-Common ground: both candidates stack native primitives at the bottom, a
-framework or host-plugin middle, and extension plugins on top, with
-capabilities and permissions mediated between layers rather than inherited
-across them. An extension attaches only through a declared, reviewable seam,
-and its relationship to a powerful host confers no capability by itself.
-
-Differences: the [plugin and extension model candidate](../specifications/plugin-extension-model-candidate.md)
-proposes typed extension points (`bitty-ai.model`, `bitty-ai.tool`,
-`bitty-ai.context`, `bitty-ai.memory`, `bitty-ai.compactor`, `bitty-ai.agent`,
-`bitty-ai.command`, `bitty-ai.ui`), manifest-declared host dependence resolved
-at install time, permission non-inheritance, and per-domain versioned service
-APIs, while its native-versus-framework split (`bitty-ai-runtime` versus
-`bitty-ai`; `Native Primitive -> Framework Plugin -> Extension Plugin`) stays
-its weakest claim. The [IPC extension boundary candidate](../specifications/ipc-extension-boundary-candidate.md)
-proposes `bitty-ai` as an out-of-process daemon on the IPC side of Core, a
-Capability Layer with Lua, IPC, and CLI frontends over one capability model
-(the Bitty Capability Protocol framing), IPC-native permission enforcement at
-the boundary, and Agent/Panel lifecycle separation carried over IPC. Method,
-event, manifest, and capability names in both candidate designs are discussion
+Status: **candidate, non-normative**. Two unmerged layering candidates stay
+candidate inputs with the merge decision explicitly deferred: the
+[plugin and extension model candidate](../specifications/plugin-extension-model-candidate.md)
+(typed extension points, manifest-declared host dependence resolved at install
+time, permission non-inheritance, per-domain versioned service APIs; its
+native-versus-framework split stays its weakest claim) and the
+[IPC extension boundary candidate](../specifications/ipc-extension-boundary-candidate.md)
+(`bitty-ai` as an out-of-process daemon on the IPC side of Core, a Capability
+Layer with Lua, IPC, and CLI frontends over one capability model, IPC-native
+permission enforcement, and Agent/Panel lifecycle separation over IPC). Both
+stack native primitives at the bottom, a framework or host-plugin middle, and
+extension plugins on top; capabilities are mediated between layers rather than
+inherited, an extension attaches only through a declared, reviewable seam, and
+its relationship to a powerful host confers no capability by itself. Method,
+event, manifest, and capability names in both designs are discussion
 vocabulary, not accepted schemas or protocols.
 
-Deferred decision: whether the two layerings merge, coexist, or one is dropped
-stays undecided. Settling the merge needs named evidence: an owner for each
-layer, a packaging contract, a versioning and compatibility policy, and IPC
-transport maturity sufficient to carry the Capability Layer enforcement claims.
-Until that evidence exists, neither candidate constrains the other.
-
-The accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and
+Settling whether the two layerings merge, coexist, or one is dropped needs
+named evidence: an owner for each layer, a packaging contract, a versioning
+and compatibility policy, and IPC transport maturity sufficient to carry the
+Capability Layer enforcement claims. The accepted
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and
 [provider plugin boundary](../providers/provider-plugin-boundary.md) are unaffected by this
 comparison.
 
@@ -419,8 +397,11 @@ would need separate `skill.propose` and `skill.write` consent.
 
 ### Context planes and memory temperature
 
-The existing `ContextProvider` candidate set can be classified into three
-separate planes:
+Status: **candidate, non-normative**. The `ContextProvider` candidate set
+classifies into three separate planes, whose retention, selection, and
+retrieval mechanics are owned by
+[Context management architecture](../context/context-management.md) and
+[storage, memory, and export design](../persistence/storage-memory-export-design.md):
 
 | Plane               | Candidate contents                                                                       | Owner distinction                                                          |
 | ------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -428,123 +409,125 @@ separate planes:
 | Knowledge Context   | skills, project instructions, `AGENTS.md`, documentation, and declared provider metadata | `SkillProvider`/instruction or documentation providers; selected knowledge |
 | Temporal Context    | current working memory, conversation history, and prior-session search                   | `MemoryProvider` and history provider; time-indexed state                  |
 
-`ContextProvider` is not `MemoryProvider`, and neither is `SkillProvider`.
-Their records, consent, freshness, redaction, and storage policies remain
-distinct even when a `ContextEngine` assembles them for one turn. A candidate
-memory model separates small, curated **hot memory** from **cold history**:
-hot memory is explicitly approved, bounded, and stable for a session; complete
-conversation history remains searchable in a durable store and is retrieved
-only when requested by the task and permitted by policy. History search is not
-an excuse to inject an unbounded transcript.
+`ContextProvider` is not `MemoryProvider`, and neither is `SkillProvider`;
+their records, consent, freshness, redaction, and storage policies remain
+distinct even when a `ContextEngine` assembles them for one turn. Small,
+curated **hot memory** is explicitly approved, bounded, and stable for a
+session, while complete conversation history remains searchable in a durable
+store and is retrieved only when requested by the task and permitted by
+policy; history search is not an excuse to inject an unbounded transcript.
 
 ### Frozen sessions and instruction epochs
 
-At session creation, a future `AgentSessionSnapshot` may freeze the selected
-`model`, `execution_profile`, instruction sources and hashes, approved memory,
-skill metadata, and workspace context. A session generation consumes that
-snapshot rather than silently rebuilding its system prefix after every write.
-Changes to memory, configuration, skills, or project instructions would take
-effect at a later generation by default. A candidate `InstructionEpoch`
-identifies the instruction snapshot used by each turn, including source hashes,
-so replay, audit, debugging, and evaluation can establish what rules were
-visible at that time. Explicit invalidation may begin a new generation, but
-must not mutate an already-started turn.
-
-This preserves prompt-cache stability observed in the Hermes snapshot while
-remaining subordinate to host policy, consent revocation, and emergency
-shutdown. A security revocation is not deferred merely to preserve a cache.
+Status: **candidate, non-normative**. At session creation, a future
+`AgentSessionSnapshot` may freeze the selected `model`, `execution_profile`,
+instruction sources and hashes, approved memory, skill metadata, and workspace
+context. A session generation consumes that snapshot rather than silently
+rebuilding its system prefix after every write; changes to memory,
+configuration, skills, or project instructions take effect at a later
+generation by default. A candidate `InstructionEpoch` identifies the
+instruction snapshot used by each turn, including source hashes, so replay,
+audit, debugging, and evaluation can establish what rules were visible at that
+time; explicit invalidation may begin a new generation but must not mutate an
+already-started turn. This preserves prompt-cache stability while remaining
+subordinate to host policy, consent revocation, and emergency shutdown: a
+security revocation is not deferred merely to preserve a cache. Epoch
+boundaries and stable-prefix ordering are owned by
+[Prefix-Cache-Friendly Context Design](../context/prefix-cache-context-design.md);
+prompt layer composition is owned by
+[Prompt Layering Design](../context/prompt-layering-design.md).
 
 ### Context engine and recovery
 
-The candidate `ContextEngine` owns model-context lifecycle rather than durable
-conversation storage. Its conceptual operations are `observe_usage`,
-`should_compact`, `compact`, and `recover`. Compaction is not deletion: it may
-produce a bounded summary and identifier-preserving digest while retaining
-paths, revisions, error strings, user messages, and a `RecoveryPointer` into
-the historical store. The pointer is a retrieval reference, not permission to
-read history.
-
-```text
-durable conversation store -> ContextEngine -> active model context
-                                      \-> RecoveryPointer -> bounded retrieval
-```
-
-Candidate engines may include summarization, provider-native compaction,
-lossless retrieval, RAG, or a CarryCtx adapter. Storage and active context
-must remain separate so a compaction strategy cannot rewrite the source of
-record, and a storage failure cannot produce unbounded model input. Provider
-native features are selected only after capability negotiation and host
-policy checks.
+Status: **candidate, non-normative**. The candidate `ContextEngine` owns
+model-context lifecycle rather than durable conversation storage, with
+conceptual operations `observe_usage`, `should_compact`, `compact`, and
+`recover`. Compaction is not deletion: it may produce a bounded summary and
+identifier-preserving digest while retaining paths, revisions, error strings,
+user messages, and a `RecoveryPointer` into the historical store, and the
+pointer is a retrieval reference, not permission to read history. Candidate
+engines may include summarization, provider-native compaction, lossless
+retrieval, RAG, or a CarryCtx adapter. Storage and active context must remain
+separate so compaction cannot rewrite the source of record and a storage
+failure cannot produce unbounded model input, and provider-native features are
+selected only after capability negotiation and host policy checks. The
+session/context separation, compression pipeline, and compaction boundaries
+are owned by
+[Context management architecture](../context/context-management.md); durable
+journal, replay, and backend selection by
+[Persistence and evidence architecture](../persistence/persistence-evidence.md)
+and [Persistence profile R6](persistence-profile-r6.md).
 
 The `CP-5` budget resolves token-first; the `32 KiB` byte default remains a
-candidate profile (OQ-066). A
-candidate refinement parameterizes the budget per model profile (small-context
-through future long-context models) while keeping that default, and attaches
-per-item metadata — source, freshness, priority, token cost, trust, and hash —
-so assembly, ranking, and truncation stay deterministic and attributable at
-any budget. Whether a model profile may select a different budget from the
-accepted default is undecided and tracked as
-[OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); nothing in this paragraph weakens
+candidate profile (OQ-066). A candidate refinement parameterizes the budget
+per model profile (small-context through future long-context models) while
+keeping that default, and attaches per-item metadata — source, freshness,
+priority, token cost, trust, and hash — so assembly, ranking, and truncation
+stay deterministic and attributable at any budget. Whether a model profile may
+select a different budget from the accepted default is undecided and tracked
+as [OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); nothing in this paragraph weakens
 `CP-5` until an amendment accepts it.
 
 ### Fresh child sessions and AgentTree
 
-Delegation may create a fresh child `AgentSession` with only an explicit goal,
-bounded context, selected project instructions, and a separately scoped
-workspace or terminal. The child trajectory does not enter the parent
-conversation implicitly; a bounded result summary is the explicit handoff.
-The candidate invariant is:
+Status: **candidate, non-normative**. Delegation may create a fresh child
+`AgentSession` with only an explicit goal, bounded context, selected project
+instructions, and a separately scoped workspace or terminal. The child
+trajectory does not enter the parent conversation implicitly; a bounded result
+summary is the explicit handoff. The candidate invariant is:
 
 ```text
 ChildAuthority ⊆ ParentAuthority
 ChildAuthority = ParentAuthority ∩ RequestedAuthority - DelegationForbidden
 ```
 
-Child sessions must not inherit authority merely because the parent has it.
-For example, memory writes, outbound messaging, scheduling, clarification,
-or further delegation may be forbidden by the child profile even when the
-parent can request them. Every child still receives server-side scope checks,
-bounded resources, independent cancellation, and the accepted isolation
-failure semantics.
-
-An `AgentTree` candidate attributes `AgentSession`, `parent_id`, `root_id`,
-generation, role, state, capabilities, workspace, terminal IDs, turns,
-actions, tool calls, and background processes. This supports a panel or CLI
-tree without making presentation authoritative. Attribution answers which
-agent and turn initiated an action; it does not grant that agent authority.
+Child sessions must not inherit authority merely because the parent has it:
+memory writes, outbound messaging, scheduling, clarification, or further
+delegation may be forbidden by the child profile even when the parent can
+request them, and every child still receives server-side scope checks, bounded
+resources, independent cancellation, and the accepted isolation failure
+semantics. An `AgentTree` candidate attributes `AgentSession`, `parent_id`,
+`root_id`, generation, role, state, capabilities, workspace, terminal IDs,
+turns, actions, tool calls, and background processes, supporting a panel or
+CLI tree without making presentation authoritative; attribution answers which
+agent and turn initiated an action and does not grant that agent authority.
+Delegation attenuation and review ownership are owned by
+[Agent coordination architecture](../agent/agent-coordination.md#teams-delegation-and-organization-graphs).
 
 ### Execution profiles, targets, and provider negotiation
 
-An `ExecutionProfile` may select model roles such as `planner`, `executor`,
-`reviewer`, `summarizer`, `router`, `vision`, or `approval-reviewer`, rather
-than assuming one model per Agent. Routing may consider quality, cost,
-latency, context length, availability, privacy, and local/remote policy.
+Status: **candidate, non-normative**. An `ExecutionProfile` may select model
+roles such as `planner`, `executor`, `reviewer`, `summarizer`, `router`,
+`vision`, or `approval-reviewer`, rather than assuming one model per Agent.
+Routing may consider quality, cost, latency, context length, availability,
+privacy, and local/remote policy; selection and routing inputs are owned by
+[Provider plugin boundary](../providers/provider-plugin-boundary.md#model-aliases-and-routing-inputs).
 
-Providers would advertise a typed `ModelCapabilities` descriptor, for example
+Providers advertise a typed `ModelCapabilities` descriptor, for example
 streaming, tool calls, reasoning state, native compaction, programmatic tools,
-child-agent delegation, and vision. The host selects a provider-native path when its
-capabilities and policy permit it, otherwise a reviewed host/plugin fallback,
-and otherwise returns unsupported. Model names must not be security or feature
-switches.
-
-An `ExecutionTarget` may eventually unify local, SSH, container, and sandbox
-backends behind one target identity shared by Terminal, Agent, file, Git, and
-process surfaces. The target does not grant access: filesystem, network,
+child-agent delegation, and vision. The host selects a provider-native path
+when its capabilities and policy permit it, otherwise a reviewed host/plugin
+fallback, and otherwise returns unsupported. Model names must not be security
+or feature switches. `ExecutionTarget` unifies local, SSH, container, and
+sandbox backends behind one target identity shared by Terminal, Agent, file,
+Git, and process surfaces; the target grants no access — filesystem, network,
 process, environment, credential, CPU, memory, disk, process-count, wall-time,
-PTY, and device dimensions remain separately bounded. SSH credentials and
-scope tokens follow the existing child-environment and P0-AC-023 rules. This
-is a target abstraction, not a headless-daemon or remote-UI commitment; the
-post-v1.0 deferral and trust-boundary gate in [ADR 0008](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md)
-remain authoritative.
+PTY, and device dimensions remain separately bounded, SSH credentials and
+scope tokens follow the existing child-environment and P0-AC-023 rules, and
+the post-v1.0 deferral and trust-boundary gate in [ADR 0008](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0008-headless.md)
+remain authoritative. Single-agent execution ownership (`ExecutionContext`
+primary, optional Panel projection) and its cancellation contract are owned by
+[Execution ownership R1](execution-ownership-r1.md).
 
 ### Tool Bus programmatic calls and availability
 
-The Tool Bus may expose bounded programmatic calls from an isolated
-`AgentWorkspace` or helper process. A small program could call several tools
-through IPC and return an aggregate, reducing transcript expansion, but the
-program receives no unrestricted filesystem or network authority. Each call
-still traverses the host Tool Bus, schema validation, authenticated IPC,
-capability and consent checks, quotas, and untrusted-observation labeling.
+Status: **candidate, non-normative**. The Tool Bus may expose bounded
+programmatic calls from an isolated `AgentWorkspace` or helper process. A
+small program could call several tools through IPC and return an aggregate,
+reducing transcript expansion, but the program receives no unrestricted
+filesystem or network authority: each call still traverses the host Tool Bus,
+schema validation, authenticated IPC, capability and consent checks, quotas,
+and untrusted-observation labeling.
 
 The candidate model-visible tool set is an intersection, not a registry dump:
 
@@ -561,7 +544,10 @@ backend or binary is absent. Capability and availability remain separate
 facts. Programmatic calls cannot add tools, enlarge a scope, or turn a failed
 availability check into a provider hint. Regex or command-pattern detection
 may provide risk signals, but never replaces structured capability, scope,
-consent, policy, and resource enforcement.
+consent, policy, and resource enforcement. Native-versus-MCP dispatch
+placement belongs to [Tool transport R2](tool-transport-r2.md); Core-versus-Lua
+tool ownership belongs to
+[Command and tool architecture](command-tool-architecture.md).
 
 ### Tool-call batching and round-trip economy (candidate)
 
@@ -571,45 +557,11 @@ trips are different units, and independent calls can share one assistant
 turn. It extends **Tool Bus programmatic calls and availability** above and
 does not change `TB-6` or any other accepted cap.
 
-- **BTR-1 One turn may carry a bounded batch.** A single assistant message may
-  carry several `ToolCall` values; the batch may execute concurrently, and
-  results are reinserted in call order so the transcript stays deterministic.
-  The result sequence (`Assistant(tool_calls)` -> `Tool` -> `Tool` -> ...) is
-  consumed by one follow-up model request. Batching reduces round trips, not
-  enforcement: every call still passes registry validation, capability,
-  consent, quota, and untrusted-observation labeling, and the batch remains
-  bounded by `TB-6` (`8` tool calls per assistant turn). Whether the `TB-6`
-  bound is the right batch bound is part of the tracked question.
-- **BTR-2 Some round trips are unavoidable.** Data-dependent calls (call B
-  consumes call A's result) are serial, and interactive or consent-bearing
-  tools (for example clarification) are forced serial. Provider and API-mode
-  parallel-tool-call support differs, and a model that emits one tool call per
-  turn degrades to serial. Even a fully independent batch still needs one
-  request to consume its results, so N files cost at least two round trips,
-  not one.
-- **BTR-3 Round-trip economy is a request-cost model, not a token model.**
-  Every model request re-sends the conversation, so input tokens accumulate
-  across turns; prompt caching mitigates but does not remove that cost, and
-  cache stability stays subordinate to host policy and revocation. Batching
-  lowers latency and request cost; it does not by itself lower the tokens a
-  result contributes to context, which remain governed by the context budget
-  (`CP-5`) and the semantic compression rules (`SOC-1`..`SOC-6`).
-- **BTR-4 Choose the mechanism by call shape.** Independent calls with no data
-  dependency belong in one turn. A mechanical loop over N files belongs in a
-  bounded programmatic call (the section above), so only the aggregate returns
-  to context. One logical edit spanning several files belongs in one
-  transactional multi-file edit (the `ChangeSet`/overlay direction below), not
-  N sequential writes. Exploration and judgment stay with direct calls or a
-  delegated fresh child session (`AgentTree`), where the parent receives a
-  bounded summary while the child's own calls still count in the total.
-- **BTR-5 Provenance is a single-harness observation.** The originating
-  analysis measured a local Hermes `state.db` snapshot: roughly 29,900 tool
-  calls across roughly 22,400 assistant messages, about one in five messages
-  carrying a parallel batch (largest observed batch: thirty reads), and
-  roughly 7,600 round trips avoided relative to strictly serial calls. This is
-  one harness's local observation, not a benchmark; parallel emission is
-  model- and provider-dependent, and one legacy session in the same snapshot
-  was entirely serial. No Bitty batching mechanism exists today.
+- **BTR-1 One turn may carry a bounded batch.** A single assistant message may carry several `ToolCall` values; the batch may execute concurrently, and results are reinserted in call order so the transcript stays deterministic, with the result sequence (`Assistant(tool_calls)` -> `Tool` -> `Tool` -> ...) consumed by one follow-up model request. Batching reduces round trips, not enforcement: every call still passes registry validation, capability, consent, quota, and untrusted-observation labeling, and the batch remains bounded by `TB-6` (`8` tool calls per assistant turn); whether that bound is the right batch bound is part of the tracked question.
+- **BTR-2 Some round trips are unavoidable.** Data-dependent calls are serial, interactive or consent-bearing tools (for example clarification) are forced serial, provider and API-mode parallel-tool-call support differs, and a model that emits one tool call per turn degrades to serial; even a fully independent batch still needs one request to consume its results, so N files cost at least two round trips.
+- **BTR-3 Round-trip economy is a request-cost model, not a token model.** Every model request re-sends the conversation, so input tokens accumulate across turns; prompt caching mitigates but does not remove that cost, and cache stability stays subordinate to host policy and revocation. Batching lowers latency and request cost, not the tokens a result contributes to context, which remain governed by `CP-5` and `SOC-1`..`SOC-6`.
+- **BTR-4 Choose the mechanism by call shape.** Independent calls with no data dependency belong in one turn; a mechanical loop over N files belongs in a bounded programmatic call (the section above) so only the aggregate returns to context; one logical edit spanning several files belongs in one transactional multi-file edit (the `ChangeSet`/overlay direction below), not N sequential writes; exploration and judgment stay with direct calls or a delegated fresh child session (`AgentTree`), where the parent receives a bounded summary while the child's calls still count in the total.
+- **BTR-5 Provenance is a single-harness observation.** The originating analysis measured a local Hermes `state.db` snapshot (roughly 29,900 tool calls across roughly 22,400 assistant messages, about one in five carrying a parallel batch, largest observed batch thirty reads, roughly 7,600 round trips avoided versus strictly serial calls). This is one harness's local observation, not a benchmark; parallel emission is model- and provider-dependent, one legacy session in the same snapshot was entirely serial, and no Bitty batching mechanism exists today.
 
 Tracked as [OQ-071](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
@@ -686,70 +638,48 @@ instructions”.
 
 ### Code context and verification services
 
-A candidate `CodeContextProvider` would expose semantic repository context
-such as symbols, references, imports, diagnostics, changed files, and a
-repository map instead of reading every source file. Its implementation may
-use a compiler, LSP, tree-sitter, language service, analyzer, or a future
-versioned capability-checked plugin service consumed by the provider. The
-`CodeContextProvider` itself remains host-owned: a plugin cannot implicitly
-register or replace it. The AI layer should consume one bounded, attributed
-contract. It remains read-only by default and does not make source text
-trusted.
+Status: **candidate, non-normative**. A candidate `CodeContextProvider` would
+expose semantic repository context such as symbols, references, imports,
+diagnostics, changed files, and a repository map instead of reading every
+source file; its implementation may use a compiler, LSP, tree-sitter, language
+service, analyzer, or a future versioned capability-checked plugin service
+consumed by the provider. The `CodeContextProvider` itself remains host-owned:
+a plugin cannot implicitly register or replace it. The AI layer consumes one
+bounded, attributed contract, read-only by default, and source text never
+becomes trusted.
 
 A candidate `ai.verifier` service could expose project-defined checks and
 bounded results, such as format, lint, test, or type-check commands. The
 project or plugin defines policy; the host still authorizes execution and
 applies target and isolation limits. A verification result is evidence, not an
 automatic approval or permission grant. Neither service claims implementation
-in Bitty today.
+in Bitty today. Language-service mediation, verification fingerprinting,
+result reuse, and bounded scheduling are owned by
+[Code intelligence architecture](../agent/code-intelligence.md); the
+progressive-reading and repository-index mandates below stay in force.
 
 ### Progressive code reading and repository index (candidate)
 
-Status: **candidate, non-normative**. This extends the `CodeContextProvider`
-candidate with the reading model from the originating analysis. Reading is a
-ladder, not a prohibition: the model starts with the smallest useful view and
-may always zoom out to the full file, which remains the escape hatch.
+Status: **candidate, non-normative**. Reading is a ladder, not a prohibition:
+the model starts with the smallest useful view and may always zoom out to the
+full file, which remains the escape hatch.
 
 ```text
 repo_overview -> search -> outline / project map -> symbol
               -> definition / references -> source slice -> full file
 ```
 
-- **Repository index layers.** A candidate repository index separates file,
-  syntax, symbol, import, semantic, and search layers. Syntax-derived records
-  (tree-sitter style) tolerate incomplete code and never claim semantic truth;
-  semantic records come from a language service. Where either source is
-  inferred, records carry an explicit origin and a confidence signal rather
-  than presenting every row as equally reliable.
-- **Project scope beyond source directories.** A `repo_overview`-style
-  projection should cover manifests, toolchain and build files, CI workflows,
-  tests and examples, migrations, and documentation layout — not only source
-  globs. It is a bounded map, not a filesystem dump.
-- **Plain search stays first-class.** Text search remains a primary tool;
-  AST/symbol navigation complements it instead of replacing it.
-- **Language-service integration is adapter-based.** Candidate discovery
-  order: explicit project configuration, then `PATH` and toolchain, then
-  editor-managed adapters (a Mason-style adapter is one implementation, not a
-  dependency), then Nix and custom adapters behind one
-  `LanguageServerDiscovery` contract. `bitty-ai` must not depend on a specific
-  editor.
-- **Language tools stay user-provisioned.** Bitty ships the discovery and
-  consumption interfaces, not the language servers or linters themselves:
-  installation, configuration, and version policy remain user- or
-  project-owned, as in an editor that consumes the user's existing setup. A
-  missing server degrades to plain search instead of blocking a project, and
-  nothing is silently provisioned.
-- **Diagnostics and formatting are fast feedback, not verification.** Read
-  tools built on the service (definition, references, publish-diagnostics,
-  formatting, and bounded code actions) remain bounded, attributed, and
-  read-only by default; any write routes through the transactional edit
-  direction below. None of them replaces accepted build or test verification;
-  presenting their results as first-class attributed UI (a diagnostics or
-  evidence view) is a candidate native advantage
-  ([OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)).
-- **Bounded and attributed.** Every read result is bounded, carries its
-  origin, and enters the context budget like any other provider; reading more
-  never bypasses capability or consent.
+Language-service mediation, the semantic tool surface, verification
+fingerprinting, and result reuse are owned by
+[Code intelligence architecture](../agent/code-intelligence.md); the
+repository-index layer separation and language-service discovery mandates
+below stay in force here:
+
+- Syntax-derived records (tree-sitter style) tolerate incomplete code and never claim semantic truth; semantic records come from a language service, and inferred records carry an explicit origin and confidence signal.
+- A `repo_overview`-style projection covers manifests, toolchain and build files, CI workflows, tests and examples, migrations, and documentation layout — a bounded map, not a filesystem dump.
+- Text search stays first-class; AST/symbol navigation complements it instead of replacing it.
+- Language-service integration is adapter-based (explicit project configuration, then `PATH`/toolchain, then editor-managed adapters such as a Mason-style adapter, then Nix and custom adapters) behind one `LanguageServerDiscovery` contract; `bitty-ai` must not depend on a specific editor, and language tools stay user-provisioned — a missing server degrades to plain search instead of blocking a project, and nothing is silently provisioned.
+- Read tools (definition, references, publish-diagnostics, formatting, bounded code actions) remain bounded, attributed, and read-only by default; any write routes through the transactional edit direction below, none replaces accepted build or test verification, presenting their results as first-class attributed UI (a diagnostics or evidence view) is a candidate native advantage, and every read result enters the context budget like any other provider — reading more never bypasses capability or consent.
 
 Tracked as [OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); language-service
 discovery and diagnostics are tracked as
@@ -759,90 +689,61 @@ discovery and diagnostics are tracked as
 
 Status: **candidate, non-normative**. A candidate topology maps durable roles
 to spatial panels instead of a single transcript: Commander, Implementer,
-Tester, and Reviewer panels, each backed by one `AgentSession` and presented
-as `ViewContent::Panel(PanelId)` through the Panel Runtime. The panel is a
-view of a session, never the session itself: closing or hiding a panel does
-not complete, cancel, or elevate its session unless an explicit lifecycle
-operation says so.
+Tester, and Reviewer panels, each backed by one `AgentSession` presented as
+`ViewContent::Panel(PanelId)`; the panel is a view of a session, never the
+session itself, and closing or hiding it does not complete, cancel, or
+elevate its session unless an explicit lifecycle operation says so.
+Panel/execution reconciliation, leases, supervision, delegation graphs,
+routing, and envelope delivery are owned by
+[Agent coordination architecture](../agent/agent-coordination.md); the
+architecture mandates stay:
 
-- **SMO-1 Event bus, not shared memory.** Panels exchange bounded typed events
-  over the IPC event bus; payloads reuse the accepted framing, per-queue
-  budgets, and `DropOldest` defaults rather than introducing a new channel.
-  Every event carries `(AgentId, generation, kind)` so a reload or disposal
-  invalidates stale events.
-- **SMO-2 Presentation is not authority.** Focus, z-order, and panel
-  visibility never grant capability; server-side scope checks evaluate the
-  authenticated identity as today (AG-3).
-- **SMO-3 Candidate routing rules.** Dispatch, result handoff, review
-  request, and checkpoint notice are candidates for named event kinds; routing
-  is declarative data, and a missing or stale route fails closed rather than
-  falling back to an ambient recipient.
-- **SMO-4 Existing substrate.** The candidate reuses `AgentTree` attribution
-  (parent/root/generation), `bitty-ipc` framing and scopes, and the Panel
-  Runtime identity/generation contract; it does not require a daemon or a
-  second registry. No implementation exists today.
-- **SMO-5 Panels as views over IPC endpoints.** The candidate end state treats
-  every runtime object — agent, task, workspace, tool, process, model, panel —
-  as an addressable IPC endpoint, with a panel as one possible visual
-  projection (`view(endpoint)`) that may be absent, temporary, backgrounded,
-  or one of several observers. An agent can therefore have UI, no UI, run
-  headless, or be watched by multiple panels without a panel becoming the
-  session identity.
-- **SMO-6 Human participation in the same model.** A human reviewing an agent
-  request is a first-class participant on the same bounded envelope surface
-  (`ApprovalRequest` toward a human-facing projection, Allow/Deny back), not a
-  private side channel; human decisions are attributed and audited like any
-  other principal, and approval remains an explicit consented action (CRE-1,
-  SMO-2).
+- **SMO-1 Event bus, not shared memory.** Bounded typed events ride the accepted IPC event bus (framing, per-queue budgets, `DropOldest`) and carry `(AgentId, generation, kind)` so a reload or disposal invalidates stale events.
+- **SMO-2 Presentation is not authority.** Focus, z-order, and panel visibility never grant capability; server-side scope checks evaluate the authenticated identity (AG-3).
+- **SMO-3 Routing fails closed.** Dispatch, result handoff, review request, and checkpoint notice are candidate event kinds; routing is declarative data, and a missing or stale route fails closed rather than falling back to an ambient recipient.
+- **SMO-4 Existing substrate.** The candidate reuses `AgentTree` attribution, `bitty-ipc` scopes, and the Panel Runtime identity/generation contract; no daemon or second registry, and no implementation exists today.
+- **SMO-5 Panels are views over IPC endpoints.** Every runtime object (agent, task, workspace, tool, process, model, panel) is a candidate addressable IPC endpoint with a panel as one possible projection (`view(endpoint)`); an agent can have UI, no UI, run headless, or be watched by several panels without a panel becoming the session identity.
+- **SMO-6 Humans join the same bounded surface.** A human reviewer is a first-class participant (`ApprovalRequest` toward a human-facing projection, Allow/Deny back), not a private side channel; decisions are attributed and audited, and approval remains an explicit consented action (CRE-1, SMO-2).
 - Tracked as [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### Agent identity separation and projection (candidate)
 
 Status: **candidate, non-normative**. A panel is a projection of agent runtime
-state, never the agent itself, and the identity domains stay separate:
-
-```text
-AgentId     runtime instance (a role embodiment; may own no UI at all)
-TaskId      durable task identity (for example a CarryCtx task)
-RunId       one logical run of an agent session
-ExecutionId one dispatch/execution inside a run
-PanelId     presentation container that may project any of the above
-WorkspaceId workspace/worktree identity the run is scoped to
-```
-
-An agent may have zero panels, one panel, or several views; it may run headless
-and be observed through a CLI; and one execution may be projected to a panel
-that did not start it. Presentation focus and visibility remain
-non-authoritative (SMO-2). Tracked as
-[OQ-061](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+state, never the agent itself. The identity domains stay separate:
+`AgentId` (runtime instance, may own no UI), `TaskId` (durable task identity),
+`RunId` (one logical run), `ExecutionId` (one dispatch inside a run),
+`PanelId` (presentation container), and `WorkspaceId` (worktree identity the
+run is scoped to). An agent may have zero panels, one panel, or several views;
+it may run headless and be observed through a CLI; one execution may be
+projected to a panel that did not start it; and presentation focus and
+visibility remain non-authoritative (SMO-2). Identity ownership, panel
+binding, and lifecycle outcomes are owned by
+[Agent coordination architecture](../agent/agent-coordination.md#identity-and-ownership).
+Tracked as [OQ-061](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### Multi-agent message envelope and delivery (candidate)
 
 Status: **candidate, non-normative**. The real multi-agent difficulty is
-delivery semantics, not adjacency: who sent what, whether a reply is required,
-whether the target is alive, and what happens to stale or duplicate messages.
-Candidate envelope fields extend the SMO-3 routing candidates:
-
-```text
-AgentMessage { message_id, sender, recipient, task_id, parent_run_id,
-               kind, payload, deadline, priority }
-```
-
-Candidate kinds include `DelegationRequest`, `DelegationResult`, `Observation`,
-`ApprovalRequest`, `ToolResult`, `Cancellation`, and `StatusUpdate`. Candidate
-delivery rules: bounded payloads under the accepted framing, `message_id`-based
-deduplication, deadline and expiry handling, cancellation, and fail-closed
-routing to a dead or unregistered recipient. Tracked within
-[OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+delivery semantics, not adjacency. Candidate envelope fields extend the SMO-3
+routing candidates — `AgentMessage { message_id, sender, recipient, task_id,
+parent_run_id, kind, payload, deadline, priority }` — with candidate kinds
+`DelegationRequest`, `DelegationResult`, `Observation`, `ApprovalRequest`,
+`ToolResult`, `Cancellation`, and `StatusUpdate`, and delivery rules of
+bounded payloads under the accepted framing, `message_id`-based deduplication,
+deadline and expiry handling, cancellation, and fail-closed routing to a dead
+or unregistered recipient. Envelope, mailbox, acknowledgement, and recovery
+mechanics are owned by
+[Agent coordination architecture](../agent/agent-coordination.md#messages-ipc-and-recovery).
+Tracked within [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### Capability-enforced roles and child-agent dispatch (candidate)
 
 Status: **candidate, non-normative**. Roles are candidate capability sets
-enforced at the IPC/capability layer and the Tool Bus, never by prompt text.
-Today `Role` in `bitty-agent` is only a chat-message role, and no role
+enforced at the IPC/capability layer and the Tool Bus, never by prompt text;
+today `Role` in `bitty-agent` is only a chat-message role, and no role
 capability map exists. This candidate keeps the Wheel vocabulary of Agents in
-role relations — Agent, AgentRole, AgentRelation, Delegation, Caller,
-Coordinator, Reviewer, Worker — and treats "subagent" as historical,
+role relations (Agent, AgentRole, AgentRelation, Delegation, Caller,
+Coordinator, Reviewer, Worker) and treats "subagent" as historical,
 external-harness terminology, not a distinct Wheel type or Core concept.
 
 | Candidate role | Candidate authority                                                            | Explicitly denied by default                            |
@@ -852,33 +753,11 @@ external-harness terminology, not a distinct Wheel type or Core concept.
 | Tester         | Run allowlisted test commands, read terminal and `git diff`                    | Source writes outside the test scope, dispatch          |
 | Reviewer       | `terminal.read` plus `git.diff_read` only                                      | Workspace writes, process spawns, dispatch, credentials |
 
-- **CRE-1 Tightest example.** The Reviewer is deliberately the narrowest
-  profile: it reads terminal observations and diffs and can produce a verdict,
-  but it cannot edit, spawn, or delegate. A verdict is data; approval remains a
-  separate, consented action.
-- **CRE-2 Per-role prompts are data.** A role's system prompt and instruction
-  sources are frozen in the session snapshot and identified by the
-  `InstructionEpoch` (see above). Editing or replacing a prompt never changes
-  the capability set; the two are resolved independently.
-- **CRE-3 Dispatch inherits downward.** Creating a child agent uses the `Fresh
-child sessions and AgentTree` invariant `ChildAuthority subset of
-ParentAuthority`, further limited by the role profile; a role can never
-  grant a child what the parent lacks.
-- **CRE-4 Enforcement points.** Candidate checks live in the IPC scope
-  evaluation, Tool Bus validation, capability grants, and resource budgets
-  already accepted; no new bypass or prompt-only gate is introduced.
-- **CRE-5 Tool capability versus execution sandbox capability (candidate).**
-  Tool-level grants are not sufficient by themselves: a role that never
-  receives `fs.write` can still rewrite files through an allowed
-  `process.spawn` (a shell one-liner, an in-place edit command, or an
-  interpreter), unless the execution sandbox constrains what spawned processes
-  may touch. The role contract therefore needs two coordinated layers — the
-  tool capability set and an execution sandbox profile (filesystem read-only
-  or deny, network deny, restricted process family, filtered environment). A
-  role is a policy template; an agent is a runtime instance of that template,
-  so several agents can share one role without sharing state. The sandbox
-  layer is part of the enforcement scope tracked as
-  [OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+- **CRE-1 Tightest example.** The Reviewer is deliberately the narrowest profile: it reads terminal observations and diffs and can produce a verdict, but it cannot edit, spawn, or delegate. A verdict is data; approval remains a separate, consented action.
+- **CRE-2 Per-role prompts are data.** A role's system prompt and instruction sources are frozen in the session snapshot and identified by the `InstructionEpoch` (see above); editing or replacing a prompt never changes the capability set, and the two are resolved independently.
+- **CRE-3 Dispatch inherits downward.** Creating a child agent uses the `Fresh child sessions and AgentTree` invariant `ChildAuthority subset of ParentAuthority`, further limited by the role profile; a role can never grant a child what the parent lacks. Budget reservation, attenuation, and review separation are owned by [Agent coordination architecture](../agent/agent-coordination.md#teams-delegation-and-organization-graphs).
+- **CRE-4 Enforcement points.** Candidate checks live in the IPC scope evaluation, Tool Bus validation, capability grants, and resource budgets already accepted; no new bypass or prompt-only gate is introduced.
+- **CRE-5 Tool capability versus execution sandbox capability (candidate).** Tool-level grants are not sufficient by themselves: a role that never receives `fs.write` can still rewrite files through an allowed `process.spawn` (a shell one-liner, an in-place edit command, or an interpreter) unless the execution sandbox constrains what spawned processes may touch. The role contract therefore needs two coordinated layers — the tool capability set and an execution sandbox profile (filesystem read-only or deny, network deny, restricted process family, filtered environment); a role is a policy template and an agent is a runtime instance, so several agents can share one role without sharing state. The sandbox layer is part of the enforcement scope tracked as [OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 - Tracked as [OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### Role, model, and capability orthogonality (candidate)
@@ -946,45 +825,31 @@ and which approval surface versions it, is undecided; tracked as
 ### Semantic output compression for agent context (candidate)
 
 Status: **candidate, non-normative**. Candidate rules for compressing command
-output into agent context using OSC 133 zones and exit codes:
+output into agent context using OSC 133 zones and exit codes; the command-record
+side is owned by
+[Agent coordination architecture](../agent/agent-coordination.md#context-compilation-and-progressive-disclosure).
 
-- **SOC-1 Zone addressing first.** A command contribution is addressed by its
-  semantic zone region (`Prompt`/`Input`/`Output`) plus the recorded exit code,
-  not by scraping arbitrary terminal text. This depends on the stable anchor
-  question [OQ-050](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ui-compositor-gap-analysis.md); until it is decided, no
-  row-level compression claim is possible.
-- **SOC-2 Success path is a summary.** Exit `0` contributes the command text,
-  exit code, line count, and a bounded summary (for example head/tail lines),
-  never the full build or test log by default. The full output stays
-  retrievable through an explicit resolve step.
-- **SOC-3 Failure path is error-first.** A non-zero exit contributes the exit
-  code, deterministically extracted error lines (the error pattern set is
-  policy data, not model inference), and a bounded window around each error;
-  unrelated output is omitted unless the caller resolves it.
-- **SOC-4 One budget.** Every compressed contribution counts against the
-  CP-5 context budget with per-block attribution and counted
-  truncation; error lines and exit codes are dropped last.
-- **SOC-5 Untrusted labeling is preserved.** Compressed text remains
-  `is_untrusted_surface = true` observation; compression may not launder
-  terminal output into instruction or policy channels (T-10/R-013).
-- **SOC-6 Off the hot path.** Compression runs in the cold path on committed
-  state snapshots and never in the parser or render path.
+- **SOC-1 Zone addressing first.** A command contribution is addressed by its semantic zone region (`Prompt`/`Input`/`Output`) plus the recorded exit code, not by scraping arbitrary terminal text; this depends on [OQ-050](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ui-compositor-gap-analysis.md), and until it is decided no row-level compression claim is possible.
+- **SOC-2 Success path is a summary.** Exit `0` contributes the command text, exit code, line count, and a bounded summary, never the full build or test log by default; the full output stays retrievable through an explicit resolve step.
+- **SOC-3 Failure path is error-first.** A non-zero exit contributes the exit code, deterministically extracted error lines (the error pattern set is policy data, not model inference), and a bounded window around each error; unrelated output is omitted unless the caller resolves it.
+- **SOC-4 One budget.** Every compressed contribution counts against the CP-5 context budget with per-block attribution and counted truncation; error lines and exit codes are dropped last.
+- **SOC-5 Untrusted labeling is preserved.** Compressed text remains `is_untrusted_surface = true` observation; compression may not launder terminal output into instruction or policy channels (T-10/R-013).
+- **SOC-6 Off the hot path.** Compression runs in the cold path on committed state snapshots and never in the parser or render path.
 - Tracked as [OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### Semantic execution results and progressive disclosure (candidate)
 
 Status: **candidate, non-normative**. This extends the SOC-1..SOC-6
-compression rules with the result shape and the retrieval path. It corrects
-one framing: the compression is **not lossless**. Exit `0` can still carry
+compression rules with the result shape and the retrieval path, correcting one
+framing: the compression is **not lossless** — exit `0` can still carry
 warnings, deprecated-API notices, ignored or skipped tests, flaky-test
-notices, resource warnings, and unexpected stderr, so those must survive at
-the diagnostics level rather than being discarded with the noisiest output.
-
-A candidate `ExecutionResult` record, produced off the hot path, would carry
-status, exit code, duration, a bounded summary, diagnostics, warnings,
-artifact references, stdout/stderr references, truncation state, and the
-parser or adapter that produced it. The agent sees a small disclosure ladder
-and can always resolve downward by reference:
+notices, resource warnings, and unexpected stderr, so those survive at the
+diagnostics level rather than being discarded with the noisiest output. A
+candidate `ExecutionResult` record, produced off the hot path, carries status,
+exit code, duration, a bounded summary, diagnostics, warnings, artifact
+references, stdout/stderr references, truncation state, and the parser or
+adapter that produced it; the agent sees a small disclosure ladder and can
+always resolve downward by reference:
 
 ```text
 L0  semantic summary (status, counts, duration, reference)
@@ -993,32 +858,29 @@ L2  selected raw output (bounded range over a stream reference)
 L3  complete raw log (explicit resolve, bounded, attributed)
 ```
 
-Two candidate rules make the ladder reliable:
-
-- **Structured first.** Prefer machine-readable output (compiler JSON
-  diagnostics, test-framework machine formats, linter JSON) over regex
-  scraping of human text, normalized by per-tool adapters (for example
-  `cargo`/`rustc`, `pytest`, `eslint`, `tsc`, and a generic shell adapter)
-  into typed `Diagnostic` records with severity, file, line, code, and
-  message. Regex remains a fallback, not the contract.
-- **Cheap before expensive.** Parser, formatter, and language-service
-  diagnostics are fast feedback; a real build or test run is verification.
-  The candidate pipeline escalates from edit, parser, formatter, and
-  language-service diagnostics through fast lint and targeted tests to a full
-  build or test run, and never treats a diagnostic as a passed verification
-  ([OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)).
-
-Retrieval by reference is a retrieval reference, not authority: it re-reads
-committed output under the same scoping and untrusted labeling as SOC-5.
-Tracked as [OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+Two candidate rules make the ladder reliable: **structured first** — prefer
+machine-readable output (compiler JSON diagnostics, test-framework machine
+formats, linter JSON) over regex scraping of human text, normalized by
+per-tool adapters (for example `cargo`/`rustc`, `pytest`, `eslint`, `tsc`, and
+a generic shell adapter) into typed `Diagnostic` records with severity, file, line, code, and message, with regex as a fallback rather than the contract; and **cheap before expensive** — parser,
+formatter, and language-service diagnostics are fast feedback while a real
+build or test run is verification, so the pipeline escalates from edit,
+parser, formatter, and language-service diagnostics through fast lint and
+targeted tests to a full build or test run and never treats a diagnostic as a
+passed verification ([OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)).
+Retrieval by reference re-reads committed output under the same scoping and
+untrusted labeling as SOC-5. Tracked as
+[OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### CarryCtx as the durable task layer (candidate)
 
 Status: **candidate, non-normative**. CarryCtx is a local-first durable
-task/worktree/checkpoint manager (SQLite state shared by linked worktrees;
-tasks, dependencies, scopes, sessions, progress, checkpoints, handoffs). The
-candidate integration treats it as the durable record for multi-agent work,
-not as an authority surface:
+task/worktree/checkpoint manager treated as the durable record for multi-agent
+work, not as an authority surface. Lifecycle authority — the product Task model
+versus the CarryCtx governance backend-or-handoff facet, including the
+independent-review and critical-message rules — is owned by
+[Task lifecycle R5](task-lifecycle-r5.md). The mandates below stay in force
+here:
 
 - **DCT-1 Bounded task context.** A role may read a bounded projection of its
   task (title, scope, dependencies, latest checkpoint) through a
@@ -1040,22 +902,18 @@ not as an authority surface:
 
 Status: **candidate, non-normative**. An agent claim should be traceable to
 the evidence that produced it: an execution handle plus stream and range plus
-exit code; a file revision or commit; or a language-service provider,
+exit code, a file revision or commit, or a language-service provider,
 workspace revision, and query. The recorded shape is a reference
 (`run -> tool execution -> stdout blob -> exit code -> commit`), consistent
-with the ContextEngine `RecoveryPointer` model: a reference is retrievable,
-not permission to read.
-
-- Verification results remain evidence, never approval; a reviewer approves
-  separately.
-- The UI direction is an evidence view that opens from an answer to the raw
-  command, source, or diff — an experience native terminals can offer better
-  than stream-only harnesses.
-- Evidence carries the same untrusted-observation labeling as its source and
-  enters any context budget as an attributed item.
-- Debug, audit, replay, and human review are the primary consumers of the
-  same reference graph.
-
+with the `RecoveryPointer` model: a reference is retrievable, not permission
+to read. Verification results remain evidence, never approval; a reviewer
+approves separately, and the UI direction is an evidence view that opens from
+an answer to the raw command,
+source, or diff; evidence carries the same untrusted-observation labeling as
+its source and enters any context budget as an attributed item; and debug,
+audit, replay, and human review are the primary consumers of the same
+reference graph. Evidence storage, projection, and replay are owned by
+[Persistence and evidence architecture](../persistence/persistence-evidence.md).
 Tracked as [OQ-065](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
 ### Candidate build sequence (candidate)
@@ -1074,17 +932,17 @@ commitment.
 
 Status: **proposed contract**.
 
-The Tool Bus is the host-owned dispatch surface where agent tool calls are validated, consented, and forwarded. The MCP adapter is the transport.
+The Tool Bus is the host-owned dispatch surface where agent tool calls are validated, consented, and forwarded. The MCP adapter is the transport; the exact `ToolSpec`/`ToolCall` bounds and the host-side dispatch separation are owned by the [IPC and Agent RFC](../specifications/ipc-agent-rfc.md#agent-bounded-messages), transport and authorization-backend selection by [Tool transport R2](tool-transport-r2.md), and Core-versus-Lua tool ownership by [Command and tool architecture](command-tool-architecture.md). The mandates below stay in force:
 
-- **TB-1 MCP as adapter.** MCP remains an adapter, not an internal protocol, per [Architecture Overview](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/architecture/overview.md) and [IPC and Agent RFC](../specifications/ipc-agent-rfc.md). The adapter translates `ToolCall` values into MCP operations and labels every terminal-content-bearing response as untrusted observation, preserving P0-AC-024 and T-10.
-- **TB-2 ToolSpec registry.** `ToolSpec` declares `name` (`<= 64` bytes, `^[a-z][a-z0-9_]*$` within the owner namespace), `description` (`<= 512` bytes), and JSON Schema (`<= 16 KiB`), bounded as already accepted for `bitty-agent` tool vocabulary. The registry is a bounded map of at most `32` specs per session.
-- **TB-3 Validation before dispatch.** Every `ToolCall` is validated against the registry before any host dispatch (unknown tool fails closed). `arguments` (`<= 16 KiB` JSON) are schema-validated; an arguments violation fails whole with a typed error and no partial state.
-- **TB-4 Capability and consent per tool.** Each tool declares a required capability (for example `workspace.write`, `git.read`, `diagnostics.read`, `terminal.inspect`) and an optional per-tool privacy gate. Possession of `ai.model.stream` does not imply any tool authority. Using a tool requires both the capability and a separate per-client tool consent grant, ledgered as `who, agent_id, tool_name, granted_at, expires_at, granted_by`.
-- **TB-5 No silent tool expansion.** When a plugin or model package updates and advertises a new tool, activation blocks and requires the permission-diff flow (R-016 parity). System and distribution policy pin maxima and cannot be weakened by user configuration.
-- **TB-6 Budgets and backpressure.** Tool Bus dispatch reuses RC-9/RC-10 sharing: at most `8` tool calls per assistant turn, each result `<= 16 KiB`, per-connection rate and concurrency caps apply, and observation streams drop oldest with counted metrics. Long tool outputs are chunked at RC-10.
-- **TB-7 Host execution only.** The `bitty-agent` crate never executes a tool. `ToolRegistry::stub_invoke` exists only for deterministic tests. Real execution happens in the host/runtime that mediates capability-checked dispatch, rate limits, per-client scopes, consent prompts, and audit — matching the separation already accepted for `bitty-agent`.
+- **TB-1 MCP as adapter.** MCP remains an adapter, not an internal protocol, per [Architecture Overview](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/architecture/overview.md) and [IPC and Agent RFC](../specifications/ipc-agent-rfc.md); it translates `ToolCall` values into MCP operations and labels every terminal-content-bearing response as untrusted observation (P0-AC-024, T-10).
+- **TB-2 ToolSpec registry.** `ToolSpec` declares `name`, `description`, and JSON Schema bounded exactly as accepted for `bitty-agent` tool vocabulary, with at most `32` specs per session.
+- **TB-3 Validation before dispatch.** Every `ToolCall` is validated against the registry before any host dispatch (unknown tool fails closed), and `arguments` are schema-validated at the accepted `16 KiB` bound with a whole-request typed failure and no partial state.
+- **TB-4 Capability and consent per tool.** Each tool declares a required capability (for example `workspace.write`, `git.read`, `diagnostics.read`, `terminal.inspect`) and an optional per-tool privacy gate. Using a tool requires both its declared capability and a separate per-client consent grant ledgered as `who, agent_id, tool_name, granted_at, expires_at, granted_by`; possession of `ai.model.stream` implies no tool authority.
+- **TB-5 No silent tool expansion.** A plugin or model package update that advertises a new tool blocks activation and requires the permission-diff flow (R-016 parity); system and distribution policy pin maxima and cannot be weakened by user configuration.
+- **TB-6 Budgets and backpressure.** Dispatch reuses RC-9/RC-10 sharing: at most `8` tool calls per assistant turn, each result `<= 16 KiB`, per-connection rate and concurrency caps, drop-oldest observation streams with counted metrics, and RC-10 chunking for long outputs.
+- **TB-7 Host execution only.** The `bitty-agent` crate never executes a tool (`ToolRegistry::stub_invoke` is test-only); real execution happens in the host/runtime that mediates capability-checked dispatch, rate limits, per-client scopes, consent prompts, and audit, with compile-time boundary enforcement as directed by [HostBoundary trait and lint-gate design](host-boundary-trait-design.md).
 
-**See also**: [Command and Tool Architecture](command-tool-architecture.md) for the Core versus Lua boundary, slash command registry, and tool runtime separation.
+**See also**: [Command and Tool Architecture](command-tool-architecture.md) for the Core versus Lua boundary, slash command registry, and tool runtime separation; [Tool transport R2](tool-transport-r2.md) for the unified authorization backend and transport selection; [HostBoundary trait and lint-gate design](host-boundary-trait-design.md) for compile-time boundary enforcement.
 
 ### Command risk classification and syntax-level audit (candidate)
 
@@ -1130,31 +988,20 @@ candidate sensitive-input interlock ([OQ-086](https://github.com/bitty-terminal/
 
 Status: **experimental review evidence only.** The milestone merged in `bitty`
 `a2d127b` (CTX-0216, PR #370, `crates/bitty-agent/src/tool.rs`); the full API
-record is in the
-[IPC and Agent RFC](../specifications/ipc-agent-rfc.md#credential-scrubbing-implementation-evidence-bitty-370).
-It does not promote this draft beyond `draft`, does not implement the runtime
-Tool Bus, and does not satisfy TB-4 or TB-7 (capability, consent, and audit
-remain deferred to the host).
-
-What it demonstrates for this architecture:
-
-1. **PP-2 redaction is implementable at the tool boundary.** Stored
-   `ToolCall::arguments` and `ToolResult::content` remain raw for dispatch, but
-   every log/IPC view passes through key- and pattern-based redaction
-   (`[redacted]` for sensitive keys; PEM/JWT/token-prefix scanning for
-   unstructured text), with `Debug` redacting by design. This is the
-   `bitty-agent` half of P0-AC-026 parity; the typed `SecretField` markers
-   required by PP-2 remain the accepted target.
-2. **TB-3/TB-6 bounds hold.** Scrubbed views respect the already-accepted
-   `16 KiB` argument/result caps, so redaction does not widen bounded
-   `AgentMessage` framing.
-3. **TB-7 separation is preserved.** Redaction lives in `bitty-agent`; the
-   crate still never executes a tool and performs no model, window, or GPU I/O.
-
-Explicit non-claims: redaction is a textual boundary, not a guarantee for
-unrecognized secret shapes; consent, capability checks, the audit ledger, and
-`SecretField` typing are not implemented by this milestone; no
-`Verified`/`Compatible` claim is made.
+record is owned by the
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md#credential-scrubbing-implementation-evidence-bitty-370)
+section of the same name. For this architecture it demonstrates that PP-2
+redaction is implementable at the tool boundary (the `bitty-agent` half of
+P0-AC-026 parity; `Debug` redacts by design, and the typed `SecretField`
+markers remain the accepted target), that scrubbed views respect the accepted
+TB-3/TB-6 `16 KiB` caps, and that TB-7 separation holds (redaction lives in
+`bitty-agent`, which still never executes a tool and performs no model,
+window, or GPU I/O). Explicit non-claims: redaction is a textual boundary, not
+a guarantee for unrecognized secret shapes; consent, capability checks, the
+audit ledger, and `SecretField` typing are not implemented by this milestone;
+no `Verified`/`Compatible` claim is made, it does not promote this draft
+beyond `draft`, and it does not satisfy TB-4 or TB-7 (capability, consent, and
+audit remain deferred to the host).
 
 ## Privacy-first
 
@@ -1183,68 +1030,43 @@ Numbered for reference; none is implemented by this RFC alone.
 
 Status: **proposed contract**. How the AI stack is staged as an independent
 sub-platform without becoming Core. Numbered for reference; none is
-implemented by this RFC alone.
+implemented by this RFC alone. Cross-repository handoff scope and verification
+are owned by [bitty-side integration input](../integration/bitty-side-integration-input.md)
+and [bitty-side delivery verification](../integration/bitty-side-delivery-verification.md);
+the registry split disposition is owned by
+[Execution ownership R1](execution-ownership-r1.md#mp-1-registry-ownership-versus-ba-2-agent-versus-ai-split-and-ba-3-bridge-process-model-disposition).
 
-- **BA-1 Independent repository.** `bitty-ai` is staged as an independent
-  repository under `github.com/bitty-terminal`, holding the AI runtime,
-  providers, streaming, context, tools, bridge, and Lua-facing AI services.
-  AI plugins (`ai-chat`, `ai-shell`, `ai-explain`, `ai-git`, `ai-context`)
-  are ordinary plugins that build on `bitty-ai` services through the
-  accepted manifest `dependencies` plus `services.provided` mechanics from
-  the [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md), never on private
-  channels.
-- **BA-2 Agent versus AI split.** `bitty-agent` (in Core) owns how Bitty
-  describes an agent, communicates with it, authorizes it, and passes
-  observations and tool calls; it never performs model selection, LLM I/O,
-  or API-key handling. `bitty-ai` owns provider abstraction, streaming,
-  context assembly, and the tool loop. The two meet only at IPC and service
-  boundaries.
-- **BA-3 Bridge process model.** The Bitty host never loads `bitty-ai` via
-  `dlopen` into the main process. A `bitty-ai-host` helper owns providers,
-  streaming, context, and tools behind scoped IPC, consistent with the
-  prohibition on native in-process plugins and the out-of-process helper
-  staging in the [Plugin Reuse RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-reuse-and-providers.md). Lua
-  plugins see only the composed AI services, never raw provider sockets.
-- **BA-4 Rust workspace layout (candidate).** `bitty-ai` is staged as a Rust
-  workspace with narrow crates — core data model (`ModelId`, `Message`,
-  `ToolCall`, `StreamEvent`), provider abstraction (`complete`/`stream`/
-  `capabilities`), runtime (streaming, cancellation, timeout, retry, rate
-  limiting, backpressure), context (collectors, filters, budgets,
-  snapshots), tools (schema, call, permission), bridge (IPC/service
-  mapping), and host composition — plus one directory per model provider
-  (OpenAI, Anthropic, Ollama, OpenAI-compatible). Crate names and trait
-  spellings are illustrative until a `bitty-ai` repository task pins them.
-- **BA-5 Lua composes, Rust enables.** Lua AI plugins orchestrate
-  (`ai.session`, `ai.context.collect` with explicit terminal/cwd/git
-  selection and token budget, `ai.tools.register`), while Rust owns
-  mechanism: HTTP/SSE streaming, retries, timeouts, resource bounds,
-  capability enforcement, terminal state, and provider protocols. Lua is
-  offered semantic primitives (`workspace.focus`, `terminal.snapshot`,
-  `service.require`, `ai.chat`), never Rust internals (raw IPC frames,
-  channels, grid cells, renderer calls), so Rust may refactor freely while
-  the Lua surface stays stable.
-- **BA-6 Pressure-test gate.** `bitty-ai` is the architecture pressure test
-  for the Plugin API: it must be realizable from generic primitives
-  (Plugin API, services, IPC, UI primitives, capabilities) without Core
-  changes. Each newly demanded Core AI-specific API is treated as evidence
-  of a Plugin API abstraction gap to fix at the primitive level, not as a
-  feature request to grant. This gate is a reviewer rule, not an automated
-  check.
+- **BA-1 Independent repository.** `bitty-ai` is staged as an independent repository under `github.com/bitty-terminal` holding the AI runtime, providers, streaming, context, tools, bridge, and Lua-facing AI services; AI plugins (`ai-chat`, `ai-shell`, `ai-explain`, `ai-git`, `ai-context`) are ordinary plugins on `bitty-ai` services through the accepted manifest `dependencies` and `services.provided` mechanics of the [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md), never private channels.
+- **BA-2 Agent versus AI split.** `bitty-agent` (in Core) owns how Bitty describes, communicates with, and authorizes an agent and passes observations and tool calls, but never model selection, LLM I/O, or API-key handling; `bitty-ai` owns provider abstraction, streaming, context assembly, and the tool loop, and the two meet only at IPC and service boundaries.
+- **BA-3 Bridge process model.** The Bitty host never loads `bitty-ai` via `dlopen`: a `bitty-ai-host` helper owns providers, streaming, context, and tools behind scoped IPC, consistent with the prohibition on native in-process plugins and the helper staging in the [Plugin Reuse RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-reuse-and-providers.md); Lua plugins see only composed AI services, never raw provider sockets.
+- **BA-4 Rust workspace layout (candidate).** `bitty-ai` is staged as a Rust workspace of narrow crates (core data model, provider abstraction, runtime, context, tools, bridge, host composition) plus one directory per model provider; crate names and trait spellings are illustrative until a `bitty-ai` repository task pins them, and the std-only runtime posture is owned by [Dependency Strategy](../providers/dependency-strategy.md).
+- **BA-5 Lua composes, Rust enables.** Lua AI plugins orchestrate (`ai.session`, `ai.context.collect` with explicit terminal/cwd/git selection and token budget, `ai.tools.register`), while Rust owns mechanism (HTTP/SSE streaming, retries, timeouts, resource bounds, capability enforcement, terminal state, provider protocols); Lua receives semantic primitives (`workspace.focus`, `terminal.snapshot`, `service.require`, `ai.chat`), never Rust internals, so the Lua surface stays stable across Rust refactors, and the Core-versus-Lua split is owned by [Command and tool architecture](command-tool-architecture.md).
+- **BA-6 Pressure-test gate.** `bitty-ai` must be realizable from generic primitives (Plugin API, services, IPC, UI primitives, capabilities) without Core changes; each newly demanded Core AI-specific API is evidence of a Plugin API abstraction gap to fix at the primitive level, not a feature request to grant. This gate is a reviewer rule, not an automated check.
 
 ### Draft registry and transport reconciliation
 
-MP-1's earlier `bitty-agent`/`bitty-runtime` registry-location alternatives conflict with BA-2/BA-3 if interpreted as placing provider implementation, model selection, LLM I/O or API keys in terminal Core. Preserve BA-2/BA-3: the terminal-side registry can validate generic service metadata and mediate authorized requests; provider registry implementation and I/O belong in the independent AI helper. Exact registry split and owning crates remain draft choices, not permission to implement either contradictory location.
+MP-1's earlier `bitty-agent`/`bitty-runtime` registry-location alternatives
+conflict with BA-2/BA-3 if interpreted as placing provider implementation,
+model selection, LLM I/O, or API keys in terminal Core. Preserve BA-2/BA-3:
+the terminal-side registry validates generic service metadata and mediates
+authorized requests, while provider registry implementation and I/O belong in
+the independent AI helper; the exact registry split and owning crates remain
+draft choices. [Execution ownership R1](execution-ownership-r1.md#mp-1-registry-ownership-versus-ba-2-agent-versus-ai-split-and-ba-3-bridge-process-model-disposition)
+owns this disposition.
 
-Similarly TB-1's MCP transport proposal and the direct-spool rejection below do not settle the later native-tool proposal. [Command/tool reconciliation](command-tool-architecture.md#tool-runtime-what-belongs-in-core) keeps native and MCP paths under the same schema, caller/target authorization, consent, budget, redaction and outcome rules. Bypass spools remain rejected. Transport selection and generic backend ownership require review (local AIQ-36/AIQ-38); native implementation is not authority for AI code in the terminal process. ExecutionContext may exist without a Panel or shell; a Panel is an optional projection.
+Similarly TB-1's MCP transport proposal and the direct-spool rejection do not
+settle the later native-tool proposal: [Command/tool reconciliation](command-tool-architecture.md#tool-runtime-what-belongs-in-core)
+keeps native and MCP paths under the same schema, caller/target
+authorization, consent, budget, redaction, and outcome rules, bypass spools
+remain rejected, and transport selection and generic backend ownership remain
+open (local AIQ-36/AIQ-38) with [Tool transport R2](tool-transport-r2.md)
+owning the unified authorization backend. Native implementation is not
+authority for AI code in the terminal process; `ExecutionContext` may exist
+without a Panel or shell, and a Panel is an optional projection.
 
 ### Sub-platform verification (proposed)
 
-- Given the staged `bitty-ai` services, an AI chat turn, a shell-error
-  explainer driven by `terminal.command-finished`, and a Git review flow
-  combining `ai.chat` with `vcs.diff` are all expressible through service
-  composition with no Core AI concept and no in-process native load.
-  Verification: `integration` with provider stubs plus a negative suite
-  asserting no Core AI-specific API exists beyond the generic primitives.
+- Given the staged `bitty-ai` services, an AI chat turn, a shell-error explainer driven by `terminal.command-finished`, and a Git review flow combining `ai.chat` with `vcs.diff` are all expressible through service composition with no Core AI concept and no in-process native load. Verification: `integration` with provider stubs plus a negative suite asserting no Core AI-specific API exists beyond the generic primitives.
 
 ## Future RFC split direction (proposal, no acceptance)
 
@@ -1270,34 +1092,15 @@ its own contract, review, and implementation evidence.
 Status: **candidate, non-normative**. This records the user's workspace-platform
 analysis: an AI workspace built on Bitty panels and the inter-panel event bus
 is a native workspace platform rather than a TUI redrawn inside one grid.
+Panel lifecycle, leases, and delivery semantics are owned by
+[Agent coordination architecture](../agent/agent-coordination.md#panels-executions-leases-and-human-control);
+terminal-side panel contracts stay in the terminal platform documentation.
+The mandates below stay in force:
 
-- **Composition.** A terminal panel, an agent panel, and a side inspector are
-  sibling Panels under the compositor (see
-  [Panel Vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/panel-vision.md)). The inspector presents MCP tools
-  and call counts, active skills and prompts, the TODO tree, and the context
-  budget meter (CP-5); the agent panel owns the conversation surface.
-- **Rich rendering.** Agent output streams as Scene nodes per the
-  [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md): headings, lists, and
-  quotes render as nodes; code blocks highlight with tree-sitter or `syntect`
-  using the active theme; diffs render as cards with apply and discard
-  actions; image artifacts render as GPU textures. Markdown is never
-  re-interpreted inside the terminal grid, preserving Terminal Truth.
-- **Inter-panel event bus.** Terminal `OSC 133` semantic zones drive
-  `terminal.command-finished` events carrying exit code and zone range; the
-  agent panel subscribes, pulls the bounded zone text through the existing
-  context-provider path, and emits task updates the inspector renders; file
-  changes notify terminal panels to re-run. Presentation stays
-  non-authoritative; delivery semantics remain the bounded panel-runtime
-  contract (see
-  [Panel Runtime Pre-Study](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-pre-study.md)).
-- **Harness strategy reuse.** Prompt architecture, context compaction, and
-  tool-call recovery loops from existing harnesses (for example opencode,
-  oh-my-pi, Claude Code) are inputs to the Lua policy layer; their TUI shells
-  are not reused.
-- **Boundaries.** Multi-agent routing remains
-  [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); window forms and the unified `Mod`
-  contract remain [OQ-052](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); plugin-supplied
-  presentation stays capability-gated per the Panel Runtime pre-study.
+- A terminal panel, an agent panel, and a side inspector compose as sibling Panels under the compositor (see [Panel Vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/panel-vision.md)); the inspector presents MCP tools and call counts, active skills and prompts, the TODO tree, and the context budget meter (CP-5), and agent output streams as Scene nodes per the [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md), with Markdown never re-interpreted inside the terminal grid (Terminal Truth preserved).
+- Terminal `OSC 133` semantic zones drive `terminal.command-finished` events carrying exit code and zone range; the agent panel subscribes and pulls bounded zone text through the existing context-provider path. Presentation stays non-authoritative; delivery semantics remain the bounded panel-runtime contract (see [Panel Runtime Pre-Study](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-pre-study.md)).
+- Prompt architecture, context compaction, and tool-call recovery loops from existing harnesses are inputs to the Lua policy layer; their TUI shells are not reused.
+- Multi-agent routing remains [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); window forms and the unified `Mod` contract remain [OQ-052](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); plugin-supplied presentation stays capability-gated per the Panel Runtime pre-study.
 
 ## Workspace-anchored multi-agent runtime: panels as leased workstations (candidate)
 
@@ -1308,38 +1111,16 @@ refines the spatial orchestration question in
 composition above. Technically this is a workspace-anchored (spatially
 anchored) multi-agent runtime: agent context is anchored in a persistent
 execution environment rather than only in conversation memory, and humans and
-agents share that environment state instead of relaying tokens.
+agents share that environment state instead of relaying tokens. Lease and
+access-mode mechanics, panel lifecycle outcomes, and human-control rules are
+owned by
+[Agent coordination architecture](../agent/agent-coordination.md#leases-and-access-modes);
+the mandates below stay in force:
 
-- **Mapping.** A running Bitty process is a workspace for a team; each
-  Workspace is a floor; each Panel is a workstation with a stable id, a
-  human-readable title or description, and a lease state (`Idle` or
-  `Occupied(agent-id)`). This reuses the accepted Stable Id hierarchy
-  (`Instance -> Window -> Workspace -> View -> Terminal`) instead of inventing
-  a parallel one.
-- **Roaming and leases.** An agent acquires a panel for a bounded period, runs
-  work there, and releases it; a second agent or the human can take over an
-  idle panel. Lease transitions are inter-panel event-bus events, and
-  presentation stays non-authoritative.
-- **Panel is a view, not the execution.** The underlying model is
-  `Agent --owns/observes--> ExecutionContext {TerminalExecution, BrowserExecution, TaskExecution, ToolExecution} <--presents/interacts-- Panel`.
-  One agent may hold many panels, one panel may present several executions,
-  and a background agent may hold no panel. The lease and roaming vocabulary
-  above remains a UX metaphor over that model, never the core agent ontology.
-- **Suspension preserves the scene.** When an agent or human steps away, the
-  panel's PTY and presentation generation state remain intact, so a later
-  participant resumes from the visible scene instead of re-deriving it.
-- **Token economy.** Collapsed or hidden output stays in the terminal; a
-  consuming agent requests only bounded semantic-zone summaries (OSC 133
-  zones, for example a diff zone) through the existing context-provider path
-  rather than copying full buffers into its own context.
-- **Humans are co-workers.** A human occupies a panel on the same canvas, can
-  take over or hand work back, and uses the same lease vocabulary.
-- **Boundary.** The panel lease, description, and handoff contract is tracked
-  as [OQ-083](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); role panels, event kinds, and
-  lifecycle coupling remain [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); the
-  execution model and identifier relationships are tracked as
-  [OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). No lease, description, roaming, or
-  handoff mechanism is implemented today.
+- A running Bitty process is a workspace for a team, each Workspace is a floor, and each Panel is a workstation with a stable id, a human-readable title or description, and a lease state (`Idle` or `Occupied(agent-id)`), reusing the accepted Stable Id hierarchy (`Instance -> Window -> Workspace -> View -> Terminal`) instead of inventing a parallel one. An agent acquires a panel for a bounded period and releases it; a second agent or the human can take over an idle panel, and presentation stays non-authoritative.
+- The underlying model is `Agent --owns/observes--> ExecutionContext {TerminalExecution, BrowserExecution, TaskExecution, ToolExecution} <--presents/interacts-- Panel`: one agent may hold many panels, one panel may present several executions, and a background agent may hold no panel; lease and roaming vocabulary stays a UX metaphor, never the core agent ontology.
+- Suspension preserves the panel's PTY and presentation generation state so a later participant resumes from the visible scene; collapsed or hidden output stays in the terminal, and a consuming agent requests only bounded semantic-zone summaries through the existing context-provider path rather than copying full buffers. A human on the same canvas can take over or hand work back under the same lease vocabulary.
+- The panel lease, description, and handoff contract is tracked as [OQ-083](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); role panels, event kinds, and lifecycle coupling remain [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); the execution model and identifier relationships are tracked as [OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). No lease, description, roaming, or handoff mechanism is implemented today.
 
 ## Security alignment and traceability
 
@@ -1409,6 +1190,18 @@ All criteria are **proposed** and become acceptance gates only when the implemen
 
 These are out of this draft and remain tracked as follow-up work; they must not be silently chosen by implementation.
 
+**Phase-2 extraction backlog (CTX-0090 phase 1).** This document was slimmed
+into an architecture spine by replacing copied mechanism detail with normative
+summaries and routes to owning topic documents. The sections below keep detail
+here only because no dedicated owning document exists yet; each is scheduled
+for a future phase-2 extraction and must not be deleted before its owner lands:
+
+- Candidate runtime contracts without an owner: progressive discovery, context planes and memory temperature, frozen sessions and instruction epochs, fresh child sessions and AgentTree, execution profiles/targets/provider negotiation, Tool Bus programmatic calls, tool-call batching, changes/outcomes/restore boundaries, transactional edit and workspace overlay, hook authority and observation labeling, agent growth pipeline, semantic output compression, semantic execution results, evidence and provenance, and the candidate build sequence.
+- AI workspace composition and the workspace-anchored multi-agent runtime candidates, which still mix panel/lease detail owned by [Agent coordination architecture](../agent/agent-coordination.md) with terminal-platform presentation contracts outside this repository.
+- Sub-platform staging (BA-1..BA-6), including the BA-4 crate layout and BA-6 pressure-test gate, pending the `bitty-ai` staging decision and the R1/R2 dispositions.
+- Tool Bus command risk classification (CRA-1..CRA-5) and the scrubbing evidence summary, pending a dedicated tool-transport or command-audit document.
+- Rich streaming, whose `bitty-rich` scene contracts live in the terminal-platform repository and may later move there entirely.
+
 - Whether the `ai.model` registry stores per-model token or cost accounting locally and how that accounting charges against PB-1/PB-2.
 - Whether `AgentWorkspace` receives an explicit size or time quota beyond the bounded default and how eviction interacts with long-running diff streams.
 - Whether semantic-zone context may include synthesized `RichBlock` text that was produced by another plugin or only raw terminal zone bytes.
@@ -1418,15 +1211,29 @@ These are out of this draft and remain tracked as follow-up work; they must not 
 - Retention and audit-log lifetime for agent turns, tool results, and elevated context (remains an open item; no normative retention period is set by this draft).
 - Whether `bitty-ai` repository creation, the BA-4 crate layout, and the BA-6 pressure-test gate enter acceptance with this RFC or as a separate `bitty-ai` staging decision.
 
-The 2026-09-13 docs `CTX-0169` direction additions are registered as cross-document questions: role capability mapping and enforcement ([OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), spatial panel topology and event routing ([OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), semantic output-compression rules and budget interaction ([OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and the CarryCtx durable-task integration boundary ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). The `CTX-0168` provider-credential direction is registered as [OQ-054 and OQ-055](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 docs `CTX-0171` consolidation adds the platform-stack picture and the CarryCtx-as-optional-backend caveat ([OQ-060](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), agent identity separation and projection ([OQ-061](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), progressive code reading and repository index ([OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), language-service integration ([OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), transactional edit and workspace overlay ([OQ-064](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), evidence and provenance ([OQ-065](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and context budget profiles ([OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), together with the Warp comparison dimensions and the candidate build sequence. None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 docs `CTX-0172` consolidation adds the native agent-service and tool-projection direction ([OQ-067](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), role/model/capability orthogonality ([OQ-069](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the agent growth pipeline ([OQ-070](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), and the `.wheel/` project-directory direction (renamed per owner decision; the 2026-09-13 record used the provisional name) ([OQ-068](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)) recorded with the configuration documentation. None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 docs `CTX-0173` consolidation adds the tool-call batching and round-trip economy direction ([OQ-071](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)) and extends the language-service direction with user-provisioned language tools and formatting/code-action fast feedback (still [OQ-063](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). None of these additions changes the draft status of this document or the accepted contracts it cites.
-
-The 2026-09-13 `CTX-0174` review consolidation adds the token-first context request and artifact contract (extends [OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the Panel/Execution separation and core ontology ([OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)), the Lua-orchestration/host-execution boundary, the semantic command store, and the sandbox trust-level model ([OQ-085](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)); the provider-convention and opaque-capability refinements are recorded in [Plugin reuse and providers](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-reuse-and-providers.md) and the widget-level RichSurface refinement in the [Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md). None of these additions changes the draft status of this document or the accepted contracts it cites.
+The 2026-09-13 consolidation records register these cross-document questions
+(all tracked in the [open-question register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)):
+OQ-054/OQ-055 (provider credentials), OQ-057 (role capability mapping and
+enforcement), OQ-058 (spatial panel topology and event routing), OQ-059
+(semantic output compression and budget interaction), OQ-060 (CarryCtx
+durable-task integration), OQ-061 (agent identity separation), OQ-062
+(progressive code reading and repository index) with OQ-063 (language-service
+integration extended with user-provisioned tools and fast-feedback
+diagnostics), OQ-064 (transactional edit and workspace overlay), OQ-065
+(evidence and provenance), OQ-066 (context budget profiles), OQ-067 (native
+agent services and tool projection), OQ-068 (the renamed `.wheel/` project
+directory), OQ-069 (role/model/capability orthogonality), OQ-070 (agent growth
+pipeline), OQ-071 (tool-call batching), OQ-084 (Panel/Execution separation and
+core ontology), and OQ-085 (sandbox trust-level model). They also add the
+platform-stack picture, the CarryCtx-as-optional-backend caveat, the Warp
+comparison dimensions, the build sequence, the token-first context contract
+extending OQ-066, and the Lua-orchestration boundary; provider-convention
+refinements live in
+[Plugin reuse and providers](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-reuse-and-providers.md)
+and the RichSurface refinement in the
+[Rich Presentation RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/rich-presentation-rfc.md).
+None of these additions changes the draft status of this document or the
+accepted contracts it cites.
 
 These are not blockers for this draft; they will be decided in a follow-up Agent or Tool Bus amendment with independent review.
 
