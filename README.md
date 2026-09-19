@@ -45,11 +45,12 @@ records every tree and entry point plus the one remaining planned tree
 
 ## Composition
 
-The repository is intended to be mounted at `bitty-ai/docs` as a Git submodule
-once the `bitty-ai` implementation repository exists, so documentation
-version-matches the implementation it describes. The standalone repository is
-fully self-contained and passes its own gates. AI-core content lives in root
-topic trees; this repository's process documents stay under `docs/`.
+The repository is mounted at `bitty-ai/docs` as a Git submodule so AI-core
+documentation version-matches the implementation it describes
+(`bitty-ai/.gitmodules`: `[submodule "docs"] path = docs`; the implementation
+pin trails `main` by design for reproducibility). The standalone repository
+remains fully self-contained and passes its own gates. AI-core content lives in
+root topic trees; this repository's process documents stay under `docs/`.
 
 ## Structure
 
