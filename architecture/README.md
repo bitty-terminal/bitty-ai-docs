@@ -1,92 +1,64 @@
 ---
-title: Architecture Diagrams
-description: Small glossary-driven AI architecture diagram set for overview agent graph and context compile
+title: Architecture
+description: Index of the AI-core architecture umbrella command tool host-boundary and R1-R6 disposition documents
 category: architecture
-audience: contributor
-document_type: overview
+audience: mixed
+document_type: index
 status: draft
 website_publish: false
 sidebar_order: 10
 ---
 
-# Architecture Diagrams
+# Architecture
 
-Small-scale AI architecture diagram set for `bitty-ai-docs`, mirroring the
-terminal-docs glossary-driven model: one canonical
-[glossary](glossary.yaml), D2 text sources, and vector SVG exports. Every
-node traces to accepted or draft code or RFC; no diagram invents nodes.
+Index of the AI-core architecture tree. The tree holds the umbrella
+[AI Architecture](ai-architecture.md) specification, the command/tool and
+Core-versus-Lua boundary designs, the R1-R6 decision dispositions, the
+prototype promotion checklist, and the glossary-driven
+[diagram suite](diagrams/README.md). Normative detail lives in the linked pages;
+this index carries no duplicate normative prose.
 
-## Status and authority
+## Admission criteria
 
-- **Accepted floor:** [IPC and Agent RFC](../specifications/ipc-agent-rfc.md)
-  defines the only accepted IPC wire, scope, and Agent vocabulary. Solid
-  edges to `IPC Channel` and `AgentMessage` rest on that contract.
-- **Draft dispositions:** R1 single-agent execution ownership
-  ([R1](execution-ownership-r1.md)), draft mailbox
-  directions ([Agent coordination](../agent/agent-coordination.md)),
-  draft single-authority Task model ([R5](task-lifecycle-r5.md)),
-  draft session-versus-context invariant
-  ([Context management](../context/context-management.md)), draft
-  stable-prefix ordering
-  ([Prefix-cache design](../context/prefix-cache-context-design.md)),
-  and draft structural compaction (same design, eight invariants).
-- **Candidate discussion input:** the [event-sourced agent workspace
-  candidate](../specifications/event-sourced-agent-workspace-candidate.md)
-  plus companions
-  [quality formula and context compiler](../specifications/quality-and-context-compiler-candidate.md),
-  [wheel configuration and context git model](../specifications/wheel-config-and-context-git-model-candidate.md),
-  [wheel core and plugin boundary](../specifications/wheel-core-plugin-boundary-candidate.md),
-  [execution supervisor](../specifications/execution-supervisor-candidate.md),
-  [wheel scope and framework](../specifications/wheel-scope-and-framework-candidate.md),
-  [panel and agent workspace](../specifications/panel-workspace-candidate.md),
-  [plugin and extension model](../specifications/plugin-extension-model-candidate.md),
-  [IPC extension boundary](../specifications/ipc-extension-boundary-candidate.md),
-  and [caller attribution](../agent/caller-attribution-design.md).
-  Dashed nodes and edges are vocabulary only: no schema, wire, command,
-  threshold, or release decision follows.
-- **Implemented anchors:** observed in `bitty-ai` at `3623c6b3`
-  (inspected 2026-09-14, experimental slice, not the complete runtime):
-  `crates/bitty-ai-runtime/src/{agent,context,session,tool,bridge,prompt}.rs`
-  and `crates/bitty-ai-slice/src/journal_prototype.rs`. Anchors mirror the
-  draft pipeline at small scale; the single-agent, L0-plus-L1, and
-  deny-by-default limits stay in force.
+A document belongs here when it defines or dispositions the AI-core
+architecture: the umbrella runtime model, the command/tool and Core-versus-Lua
+boundaries, one of the R1-R6 decision dispositions, or the promotion gate for
+prototype work entering the AI Core. It links the accepted contract or draft it
+elaborates and includes security review where capability or permission trust
+boundaries are involved.
 
-## Diagram inventory
+## Authority and status
 
-| ID                   | Title                                | Level | Sources                                              | Export                                                       |
-| -------------------- | ------------------------------------ | ----- | ---------------------------------------------------- | ------------------------------------------------------------ |
-| `00-overview`        | AI overview and six-object split     | L0    | [d2/00-overview.d2](d2/00-overview.d2)               | [final/00-overview.svg](final/00-overview.svg)               |
-| `01-agent-graph`     | Agent Graph vs Task DAG with mailbox | L1    | [d2/01-agent-graph.d2](d2/01-agent-graph.d2)         | [final/01-agent-graph.svg](final/01-agent-graph.svg)         |
-| `02-context-compile` | Context compile Cold Warm Hot        | L1-L2 | [d2/02-context-compile.d2](d2/02-context-compile.d2) | [final/02-context-compile.svg](final/02-context-compile.svg) |
+Every routed page is a draft specification or disposition; draft text does not
+authorize shipped, stable, normative, or compatibility-guaranteed behavior. The
+accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) is the
+overriding contract for IPC framing, wire, scopes, and agent messages and
+overrides any conflicting direction. Status meanings and the normative
+authoring policy live in the
+[documentation workflow](../docs/development/documentation-workflow.md);
+shared cross-project governance stays in
+[bitty-docs](https://github.com/bitty-terminal/bitty-docs) and is linked, never
+copied.
 
-## Single source of truth
+## Documents
 
-- Canonical inventory: [glossary.yaml](glossary.yaml) defines every node,
-  edge, status, and trace. No diagram may invent nodes not defined there.
-- Text sources: `d2/*.d2` are the editable graph definitions.
-- Static vectors: `final/*.svg` are D2 exports committed alongside the
-  sources; regenerate with `d2 architecture/d2/<id>.d2
-architecture/final/<id>.svg`, then run `just svg`.
+| Document                                                                  | Status | Purpose                                                                                                    |
+| ------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------- |
+| [AI Architecture](ai-architecture.md)                                     | Draft  | Umbrella architecture for ModelProvider, ContextProvider, Tool Bus, Agent levels, and Rich streaming.      |
+| [Command and tool architecture](command-tool-architecture.md)             | Draft  | Slash command registry, tool runtime separation, and the Core-versus-Lua boundary design.                  |
+| [Execution ownership R1](execution-ownership-r1.md)                       | Draft  | Single-agent execution ownership between `ExecutionContext` and optional Panel projection.                 |
+| [Tool transport R2](tool-transport-r2.md)                                 | Draft  | Unified authorization backend with native and MCP path selection and fail-closed denial.                   |
+| [Context retention R3](context-retention-r3.md)                           | Draft  | Consent-bounded retention, deletion propagation, and recovery limits.                                      |
+| [Code intelligence sharing R4](code-intelligence-sharing-r4.md)           | Draft  | Domain-keyed language-service sharing with lease and generation fencing and a reuse evidence bar.          |
+| [Task lifecycle R5](task-lifecycle-r5.md)                                 | Draft  | Product Task lifecycle authority versus CarryCtx backend-or-handoff.                                       |
+| [Persistence profile R6](persistence-profile-r6.md)                       | Draft  | Journal backend replay contract, projection and index as derived operations, and standalone release scope. |
+| [HostBoundary trait and lint-gate design](host-boundary-trait-design.md)  | Draft  | Core-versus-Lua enforcement through a `HostBoundary` trait sketch and a fail-closed lint gate.             |
+| [Prototype-to-Core promotion checklist](prototype-promotion-checklist.md) | Draft  | Hard-gate checklist for promoting workflow prototypes into the AI Core, derived from landed practice.      |
 
-## Directory layout
+## Diagrams
 
-```text
-architecture/
-├── README.md               # this file — small-scale diagram index
-├── glossary.yaml           # single node and edge data dictionary
-├── d2/                     # editable D2 text graph sources
-│   ├── 00-overview.d2
-│   ├── 01-agent-graph.d2
-│   └── 02-context-compile.d2
-└── final/                  # vector SVG exports
-    ├── 00-overview.svg
-    ├── 01-agent-graph.svg
-    └── 02-context-compile.svg
-```
-
-## Maintenance
-
-When a diagram changes, update its D2 source, its SVG export, and the
-glossary trace in the same change, then run `just svg` to confirm every
-committed SVG is well-formed XML. Promotion of any candidate node to draft
-or accepted status happens in the owning specification first, never here.
+The glossary-driven diagram suite lives in
+[diagrams/](diagrams/README.md): the canonical node and edge inventory
+(`glossary.yaml`), D2 text sources, and vector SVG exports. Each diagram node
+carries its own status from its owning document; diagram content authorizes no
+shipped behavior.

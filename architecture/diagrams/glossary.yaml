@@ -1,5 +1,5 @@
 # Architecture glossary — single source for nodes and edges (AI side, small scale)
-# Source of truth for architecture/d2/*.d2 exports in architecture/final/*.svg
+# Source of truth for architecture/diagrams/d2/*.d2 exports in architecture/diagrams/final/*.svg
 # Visual rules: rect=module/spec, rounded=object/capability, dashed=boundary/proposal, solid=call/depends, dotted event/async
 # Levels: L0 overview, L1 subsystem, L2 flow
 # Status model: accepted = IPC and Agent RFC contract; draft = R-series/spec dispositions;
