@@ -45,17 +45,17 @@ Every canonical AI-core document lives in exactly one root topic tree. A tree's
 route-only index lists its documents; normative detail stays in the linked
 pages.
 
-| Tree              | Entry points                                                                                                                                                           |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `architecture/`   | [Architecture diagrams](../architecture/README.md) plus the core [AI Architecture](../architecture/ai-architecture.md) specification and the R1-R6 draft dispositions. |
-| `context/`        | [Context index](../context/README.md) — context management, prefix-cache context design, and prompt layering.                                                          |
-| `providers/`      | [Providers index](../providers/README.md) — provider plugin boundary, multimodal inference boundary, and dependency strategy.                                          |
-| `agent/`          | [Agent index](../agent/README.md) — agent coordination, code intelligence, caller attribution, git wrapper API, and fragment pre-split rule.                           |
-| `persistence/`    | [Persistence index](../persistence/README.md) — persistence evidence, storage memory and export, and history consumption boundary.                                     |
-| `interfaces/`     | [Interfaces index](../interfaces/README.md) — panel environment awareness and browser/agent panel pre-study.                                                           |
-| `integration/`    | [Integration index](../integration/README.md) — bitty-side integration input, delivery verification, integration risk register, and RFC-split readiness.               |
-| `product/`        | [Product index](../product/README.md) — v0.1 implementation profile, vertical-slice pressure test, and unresolved-questions register.                                  |
-| `specifications/` | [Specification register](../specifications/README.md) — the accepted IPC and Agent RFC plus the candidate design records.                                              |
+| Tree              | Entry points                                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `architecture/`   | [Architecture index](../architecture/README.md) — the umbrella [AI Architecture](../architecture/ai-architecture.md) specification, the command/tool and host-boundary designs, the R1-R6 draft dispositions, and the diagram suite. |
+| `context/`        | [Context index](../context/README.md) — context management, prefix-cache context design, and prompt layering.                                                                                                                        |
+| `providers/`      | [Providers index](../providers/README.md) — provider plugin boundary, multimodal inference boundary, and dependency strategy.                                                                                                        |
+| `agent/`          | [Agent index](../agent/README.md) — agent coordination, code intelligence, caller attribution, git wrapper API, and fragment pre-split rule.                                                                                         |
+| `persistence/`    | [Persistence index](../persistence/README.md) — persistence evidence, storage memory and export, and history consumption boundary.                                                                                                   |
+| `interfaces/`     | [Interfaces index](../interfaces/README.md) — panel environment awareness and browser/agent panel pre-study.                                                                                                                         |
+| `integration/`    | [Integration index](../integration/README.md) — bitty-side integration input, delivery verification, integration risk register, and RFC-split readiness.                                                                             |
+| `product/`        | [Product index](../product/README.md) — v0.1 implementation profile, vertical-slice pressure test, and unresolved-questions register.                                                                                                |
+| `specifications/` | [Specification register](../specifications/README.md) — the accepted IPC and Agent RFC plus the candidate design records.                                                                                                            |
 
 New topic trees are created only as real content lands; empty placeholder pages
 are not added.

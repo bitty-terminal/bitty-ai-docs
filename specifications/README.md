@@ -44,16 +44,16 @@ copied. Implementation claims require evidence from the owning code repository.
 Draft technical contracts and dispositions were distributed from this tree into
 topic trees; each tree's index routes its documents and restates no status.
 
-| Tree            | Index                                                                                                                                                             |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `architecture/` | [Architecture diagrams](../architecture/README.md) plus the [AI Architecture](../architecture/ai-architecture.md) specification and the R1-R6 draft dispositions. |
-| `context/`      | [Context index](../context/README.md).                                                                                                                            |
-| `providers/`    | [Providers index](../providers/README.md).                                                                                                                        |
-| `agent/`        | [Agent index](../agent/README.md).                                                                                                                                |
-| `persistence/`  | [Persistence index](../persistence/README.md).                                                                                                                    |
-| `interfaces/`   | [Interfaces index](../interfaces/README.md).                                                                                                                      |
-| `integration/`  | [Integration index](../integration/README.md).                                                                                                                    |
-| `product/`      | [Product index](../product/README.md).                                                                                                                            |
+| Tree            | Index                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `architecture/` | [Architecture index](../architecture/README.md) — the [AI Architecture](../architecture/ai-architecture.md) specification, the R1-R6 draft dispositions, and the diagram suite. |
+| `context/`      | [Context index](../context/README.md).                                                                                                                                          |
+| `providers/`    | [Providers index](../providers/README.md).                                                                                                                                      |
+| `agent/`        | [Agent index](../agent/README.md).                                                                                                                                              |
+| `persistence/`  | [Persistence index](../persistence/README.md).                                                                                                                                  |
+| `interfaces/`   | [Interfaces index](../interfaces/README.md).                                                                                                                                    |
+| `integration/`  | [Integration index](../integration/README.md).                                                                                                                                  |
+| `product/`      | [Product index](../product/README.md).                                                                                                                                          |
 
 ## Candidate design records
 
