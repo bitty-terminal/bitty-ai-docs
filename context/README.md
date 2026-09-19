@@ -32,8 +32,9 @@ conflicting direction.
 
 ## Documents
 
-| Document                                                               | Status | Purpose                                                                          |
-| ---------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------- |
-| [Context management architecture](context-management.md)               | Draft  | Session journal, context view model, and multi-level compression pipeline.       |
-| [Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md) | Draft  | Stable-prefix layering and deterministic serialization for prefix-cache reuse.   |
-| [Prompt Layering Design](prompt-layering-design.md)                    | Draft  | Five-layer prompt contract with capability separation and stable assembly order. |
+| Document                                                                | Status | Purpose                                                                                        |
+| ----------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------- |
+| [Context management architecture](context-management.md)                | Draft  | Session journal, context view model, and multi-level compression pipeline.                     |
+| [Prefix-Cache-Friendly Context Design](prefix-cache-context-design.md)  | Draft  | Stable-prefix layering and deterministic serialization for prefix-cache reuse.                 |
+| [Prompt Layering Design](prompt-layering-design.md)                     | Draft  | Five-layer prompt contract with capability separation and stable assembly order.               |
+| [Wheel Context Runtime (Candidate)](wheel-context-runtime-candidate.md) | Draft  | Tiered evidence, knowledge DAG, working-set temperature, and refinement lifecycle (candidate). |
