@@ -146,7 +146,7 @@ output (a binding grants nothing), and generation checks apply to both sides
 ## Lifecycle outcomes
 
 The candidate outcomes table, phrased against the lifecycle events the
-coordination record already lists:
+coordination record lists and their panel-side refinements:
 
 | Event                                 | Binding outcome                                                                                                                                          |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -211,7 +211,7 @@ records only the routing target principle that a binding supplies.
 
 ## Relation to existing systems
 
-- **Execution ownership R1** (Draft): the disposition this page implements
+- **Execution ownership R1** (Draft): the disposition this page restates
   in vocabulary — optional projection without recreation. This page records
   no ownership change; a binding never becomes the execution's owner.
 - **Agent coordination architecture** (Draft): panel model reconciliation,
