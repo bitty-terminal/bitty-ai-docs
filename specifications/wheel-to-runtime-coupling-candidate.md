@@ -353,6 +353,37 @@ work through their authorized control surface even when execution is
 headless, and each control action (kill, reassign, archive, message, focus)
 passes the same authorization and generation checks as any other client.
 
+**Agent-side mapping (candidate).** The three recorded sources compose into
+one primitive. Blocked work is the input-needed event direction: "a job
+blocked on input surfaces an explicit event with a prompt hint rather than
+hanging". A consent need is the released-command direction: "Releasing a
+blocked command requires an explicit human decision recorded in the consent
+ledger". A completion is a Critical event — "completion, failure, input
+need, permission need, timeout, ownership change, cancellation" — which
+"require reliable delivery". The candidate mapping disciplines every such
+request:
+
+- **An evidence reference is required.** A request carries the execution or
+  task record that motivates it, so it reads as a reviewable reference, not
+  as an assertion that some work seems important.
+- **No re-raise before resolution.** While a request awaits the user, it is
+  not repeated; this composes with the bounded, never-escalating direction
+  already recorded for background surfaces.
+- **The decision returns.** A user decision (focus, approve, dismiss) flows
+  back as an observable event, composing with the recorded direction that a
+  human participant is first-class, not a private side channel.
+- **Attention is never consent.** Focusing or dismissing a request approves
+  nothing: the consent-ledger entry, the risk release, and every scope check
+  remain their own explicit acts.
+
+The routing target is the projection, not the execution: a request lands at
+the surface holding the active binding, or at the console or notification
+surface when none exists — never broadcast to every surface holding a
+binding ([Execution-projection binding (candidate)](execution-projection-binding-candidate.md)).
+Aggregation ownership — whether the counter behind these requests is a
+plugin-side facility or a host service — stays open with its corpora; this
+page records the Wheel-side mapping only.
+
 ### Projection never touches identity
 
 Two composition rules keep the projection safe: focus, z-order, and
@@ -367,7 +398,8 @@ is recorded in [Execution-projection binding (candidate)](execution-projection-b
 **Critical judgment:** the attention protocol ownership (plugin counter
 versus host service) is explicitly open in the UI corpus, as are the final
 state-axis set and persistence content. This page reads those as open and
-records only the request-never-preempt direction.
+records only the request-never-preempt direction and the agent-side mapping
+above.
 
 ## Cross-cutting invariants
 
@@ -456,16 +488,17 @@ These are future evidence requirements, not tests executed by this
 documentation task. They keep the coupling model falsifiable before it
 constrains `bitty-ai`.
 
-| Campaign               | Required observation                                                                                                                                                                |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lifecycle independence | An agent survives panel closure with an explicit recorded transition while its execution target stays fixed, in reviewable tests.                                                   |
-| Suspend return-to-zero | A suspended agent loses elevation, and resumption requires a fresh consent grant; a stale handle fails closed, in reviewable tests.                                                 |
-| Tier-C handback        | Human takeover revokes or pauses automated input, pending actions reconcile instead of interleaving, and automation resumes only through an explicit handback, in reviewable tests. |
-| One-shot dispatch      | An agent contribution to a user-interactive terminal completes as a dispatched execution with evidence and return, with no injected keystroke stream, in reviewable tests.          |
-| No-scrape observation  | Agent context resolves from execution records and semantic zones alone, with no rendered-cell dependency, in reviewable tests.                                                      |
-| Attention as request   | Blocked and consent-needing states surface as attention requests; no coupling path steals focus or opens a surface without a host decision, in reviewable tests.                    |
-| Invariant floor        | Each cross-cutting invariant fails closed under its own adversarial fixture, in reviewable security tests.                                                                          |
-| Headless parity        | Every coupling operation completes with no panel open, and the panel surface reproduces it as a projection, in reviewable tests.                                                    |
+| Campaign               | Required observation                                                                                                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lifecycle independence | An agent survives panel closure with an explicit recorded transition while its execution target stays fixed, in reviewable tests.                                                                                                                                               |
+| Suspend return-to-zero | A suspended agent loses elevation, and resumption requires a fresh consent grant; a stale handle fails closed, in reviewable tests.                                                                                                                                             |
+| Tier-C handback        | Human takeover revokes or pauses automated input, pending actions reconcile instead of interleaving, and automation resumes only through an explicit handback, in reviewable tests.                                                                                             |
+| One-shot dispatch      | An agent contribution to a user-interactive terminal completes as a dispatched execution with evidence and return, with no injected keystroke stream, in reviewable tests.                                                                                                      |
+| No-scrape observation  | Agent context resolves from execution records and semantic zones alone, with no rendered-cell dependency, in reviewable tests.                                                                                                                                                  |
+| Attention as request   | Blocked and consent-needing states surface as attention requests; no coupling path steals focus or opens a surface without a host decision, in reviewable tests.                                                                                                                |
+| Attention mapping      | Every agent-side source (blocked work, consent need, completion) surfaces through one bounded request carrying an evidence reference; no re-raise before resolution; the decision returns as an observable event; attention never substitutes for consent, in reviewable tests. |
+| Invariant floor        | Each cross-cutting invariant fails closed under its own adversarial fixture, in reviewable security tests.                                                                                                                                                                      |
+| Headless parity        | Every coupling operation completes with no panel open, and the panel surface reproduces it as a projection, in reviewable tests.                                                                                                                                                |
 
 Promotion needs independent AI architecture, coordination, context-management,
 persistence, terminal-owner, docs-curator, and security review. Route the
@@ -490,7 +523,7 @@ authorizes no product code.
 - [Event-sourced agent workspace (candidate)](event-sourced-agent-workspace-candidate.md)
   (Draft): six objects, task-as-issue; consumed for lifecycle survival.
 - [Execution supervisor (candidate)](execution-supervisor-candidate.md)
-  (Draft): lifetime scopes, outcome split, no-default retry; consumed for death disposition.
+  (Draft): lifetime scopes, outcome split, no-default retry; consumed for death disposition and the input-needed attention source.
 - [Session model (candidate)](session-model-candidate.md)
   (Draft): session container, recovery composition; extended with the coupling view.
 - [Wheel Context Runtime (Candidate)](../context/wheel-context-runtime-candidate.md)
