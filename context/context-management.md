@@ -517,14 +517,14 @@ Real workflows like `/review`, `/release`, `/debug`, `/refactor` are Skills (lin
 
 **Design consequence**: `bitty-ai-core` provides `SkillRegistry` primitive; Lua plugins or MCP servers supply skill implementations.
 
-**Candidate scope note (project continuity):** the registry shape above serves
-skills the user or a plugin supplies; the same shape carries a project's
-standing conventions when continuity artifacts are project-scoped. That
-project-scope reading, its derivation paths, and its bootstrap gates stay with
-[Project continuity (candidate)](project-continuity-candidate.md); this section
-keeps the registry primitive unchanged.
-
 **Unresolved**: What is the Skill format—Markdown with frontmatter, YAML, or structured JSON? How are Skills versioned and updated? Cross-reference OpenCode and Claude Code skill formats for compatibility.
+
+**Candidate scope note (project continuity):** the registry shape above serves
+skills that Lua plugins or MCP servers supply; the same shape carries a
+project's standing conventions when continuity artifacts are project-scoped.
+That project-scope reading, its derivation paths, and its bootstrap gates stay
+with [Project continuity (candidate)](project-continuity-candidate.md); this
+section keeps the registry primitive unchanged.
 
 ## Loop and orchestration
 

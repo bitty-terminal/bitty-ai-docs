@@ -169,7 +169,8 @@ the post-divergence decisions and artifacts, check each against the new base,
 replay what still holds, and mark what went stale. The git model already
 retains this procedure as an explicit design input (semantic rebase over
 extracted decisions and artifacts with stale-artifact marking where hashes
-moved), and the session model already reads it as a session-level operation.
+moved); the session model already reads those mechanisms as session-level
+operations.
 Applied to continuity, a rebase is how a project's artifact set tracks
 external change — a dependency bump, a schema decision, a style revision —
 without a rewrite: replay what survives, mark what does not, and let the
