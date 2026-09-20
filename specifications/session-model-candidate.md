@@ -294,8 +294,9 @@ checkpoints, messages, tasks, findings, evidences, artifacts) and typed edges
 (parent, mentions, derives-from, supersedes, contradicts, supports) live in
 few tables; a "tree over joins" objection applies to reconstructing
 hierarchies from scattered rows, not to storing edges directly. The physical
-substrate stays a draft candidate (SQLite with WAL is the R6 candidate; a
-single-writer-per-store rule holds), the bytes stay content-addressed outside
+substrate stays a draft candidate (SQLite is the R6 draft candidate, with a
+local single-process WAL profile as its candidate deployment shape per the
+dependency strategy; a single-writer-per-store rule holds), the bytes stay content-addressed outside
 the schema, and refs remain named query shortcuts over the same graph.
 
 The derived tier stays rebuildable and out of the backup set: embeddings and
@@ -470,8 +471,9 @@ coordination, supervision, and task lifecycle stay with
 stays with [Command and Tool Architecture](../architecture/command-tool-architecture.md);
 trust mechanics stay with the accepted configuration contract in the
 terminal documentation corpus. Each is referenced, never duplicated or
-modified. The `SessionId` type question stays with its existing tracker in
-the terminal documentation corpus; this draft introduces no identifier.
+modified. The `SessionId` type question stays with its
+[existing tracker](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/workspace-panel-invariants.md)
+in the terminal documentation corpus; this draft introduces no identifier.
 Related open questions stay open in the shared register: the session
 and directory identity ontology ([OQ-084](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)),
 panel and session lifecycle coupling ([OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)),

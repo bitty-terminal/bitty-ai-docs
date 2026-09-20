@@ -117,7 +117,9 @@ owner review. They propose no accepted registry entry:
 | agent control (pause/stop/resume) | thin built-in via CLI/IPC | supervisor primitives |
 | `/resume`                         | deliberately undesigned   | -                     |
 
-The direction records that `/session` switches the active session while
+The recording table above lists `/resume` as a session-store command;
+that earlier attribution is superseded by this direction. The direction
+records that `/session` switches the active session while
 previously running agents keep running, that `/resume` should not be defined
 as a synonym of `/session` (it stays undesigned until given a distinct
 meaning), and that interrupting or restarting agents belongs to its own
