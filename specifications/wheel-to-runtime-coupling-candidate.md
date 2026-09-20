@@ -360,6 +360,10 @@ visibility never grant capability ("presentation is not authority"), and
 hiding, moving, or rebinding an agent panel never moves its execution
 target, duplicates its session, or widens its authority.
 
+The binding relation itself — what it means for a surface to project an
+execution, how many may, and how the relation survives rebuilds and restarts —
+is recorded in [Execution-projection binding (candidate)](execution-projection-binding-candidate.md).
+
 **Critical judgment:** the attention protocol ownership (plugin counter
 versus host service) is explicitly open in the UI corpus, as are the final
 state-axis set and persistence content. This page reads those as open and
