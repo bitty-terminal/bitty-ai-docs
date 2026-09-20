@@ -407,6 +407,58 @@ The sensitive-input interlock in the IPC RFC remains a candidate, not an
 implemented defense. Observation or grant possession must never be used to
 claim that secret-input automation is already safe.
 
+### Interactive writer proposals (user-interactive terminal)
+
+A terminal the user is actively interacting with — the third terminal relation in
+the coupling view
+([Wheel-to-runtime coupling (candidate)](wheel-to-runtime-coupling-candidate.md)) —
+needs one flow the leases above leave open: how an agent's contribution is
+requested, decided, committed, and returned. The mechanism side is directed: the
+Core lease admits coexisting read leases and a single writer role identified by
+principal plus generation, fencing the old generation on handoff; the
+terminal-side contract owner is the panel lease and handoff question, tracked as
+[OQ-083](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+This subsection records the Wheel-side flow as candidate vocabulary; it proposes
+no new mechanism and no wire.
+
+| Phase    | Candidate rule                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proposal | An agent contribution is a proposal, never a write: it binds the target terminal and its execution generation, carries the exact text the agent intends to submit, a stated purpose, and that text's command-risk classification ([command risk classification](../architecture/ai-architecture.md#command-risk-classification-and-syntax-level-audit-candidate)). It surfaces as a bounded request to the host, never as an automatic action.                                                                                                                                                                                                           |
+| Decision | Only an explicit human decision admits a commit; silence, idle time, and focus state never count as approval. The decision surface shows the target and the exact text. Admitting the writer role and approving the content resolve as one decision over the same surface, while scope consent and any risk release remain separate underlying checks.                                                                                                                                                                                                                                                                                                   |
+| Commit   | On approval the writer role transfers under the fencing rules above, and the submission is one bounded commit: the text reaches the target as a single bracketed paste followed by a final Enter, matching the submit shape the terminal-side composer direction records ([Semantic Terminal RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/semantic-terminal-rfc.md)), never a stream of simulated keystrokes. The commit is gated on shell semantic state reporting an input phase; when that state is absent or reports otherwise, the commit fails closed with a typed denial instead of queueing or replaying. |
+| Return   | The role is bounded by the single commit, not by time: it returns when that commit completes, and the outcome surfaces as evidence. A human keystroke revokes or pauses a pending or in-flight automated commit; pending proposals reconcile as declined instead of replaying into a changed shell.                                                                                                                                                                                                                                                                                                                                                      |
+
+Two entry paths compose with the same flow. A user may invite the agent into a
+terminal's context — the invitation is the decision — or the agent may raise a
+proposal from its own observation, such as a failed command with a candidate
+fix; either way the human decision is the admission, and analysis never
+automatically reruns a command.
+
+- **Sustained input is not this case.** Driving an interactive program or any
+  flow that needs more than a single bounded submission belongs in the agent's
+  own execution target or an explicitly upgraded shared arrangement. The value
+  here is reuse of the user's live session context, not the ability to type.
+- **The sensitive-input interlock composes.** While the target is in a no-echo
+  state, input dispatch fails closed with a typed denial even for an approved
+  proposal, and no-echo input is not captured into agent observations; the
+  interlock's safe-prompt auto-reply class operates only under the agent's own
+  dispatch and does not extend to a terminal the user is working in.
+- **A rejected, revoked, or stale proposal never queues, replays, or retries.**
+  The outcome is a typed denial or an explicit decline.
+- **Every phase is attributed.** Proposal, decision, commit, and outcome each
+  carry an audit entry consistent with the consent-ledger direction
+  ([Privacy-first](../architecture/ai-architecture.md#privacy-first)); nothing
+  is silent.
+
+**Candidate judgment:** the four-phase flow, the two entry paths, and the four
+constraints above are this draft's vocabulary. The stable claims are narrower:
+the writer role never transfers without an explicit human decision; a human
+keystroke always wins; a committed contribution is one bounded submission,
+never an injected keystroke stream; and a rejected, revoked, or stale proposal
+is never queued, replayed, or retried. Writer-transfer races, restart behavior,
+and cross-process enforcement stay open with interactive writer fencing
+([AI Unresolved Questions](../product/ai-unresolved-questions.md)).
+
 ### Lifecycle outcomes
 
 | Event                            | Recommended outcome                                                                                                                    |
@@ -487,17 +539,18 @@ AIQ identifiers need admission and owner routing before promotion to global OQs.
 These are future evidence requirements, not tests executed by this documentation
 task. They keep the design falsifiable before any implementation is authorized.
 
-| Campaign                  | Required observation                                                                                                                                                                        |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sharing and startup races | Compatible concurrent consumers create one service; different worktree/overlay/access domains cannot share incompatible state; failed starts release all reservations                       |
-| Document ordering         | Conflicting buffers, late diagnostics, server restart, cancellation, and stale generations never yield silently current evidence or unauthorized edits                                      |
-| Process lifecycle         | Agent crash, supervisor crash, final waiter exit, timeout and pressure leave no unowned survivors; only recorded owned process families are stopped                                         |
-| Cache soundness           | Dirty/untracked/generated changes, toolchain/environment changes and external inputs invalidate reuse; Unknown/partial outcomes never become PASS                                           |
-| Shared authorization      | Narrow callers cannot acquire privileged indexed content, join unauthorized effects, or obtain revoked results through another waiter's grant                                               |
-| Delegation and recovery   | Concurrent child creation cannot overspend ancestor budgets; stale leaders cannot reassign/spawn; review cannot approve its own implementation                                              |
-| Context and messaging     | Seeded secrets/injection, graph cycles, expired references, dropped observations, duplicate/reordered messages and failed persistence remain bounded and attributed                         |
-| Panel and human takeover  | UI movement cannot change cwd/scope; stale input writer is fenced; close/archive cannot kill another owner's work; hidden work stays inspectable under user authority                       |
-| Performance               | Compare cold/warm memory, process count, idle reclaim, swap/pressure, queue latency, duplicate execution and total model tokens/cost against a fixed baseline; report platform and workload |
+| Campaign                  | Required observation                                                                                                                                                                                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sharing and startup races | Compatible concurrent consumers create one service; different worktree/overlay/access domains cannot share incompatible state; failed starts release all reservations                                                                                |
+| Document ordering         | Conflicting buffers, late diagnostics, server restart, cancellation, and stale generations never yield silently current evidence or unauthorized edits                                                                                               |
+| Process lifecycle         | Agent crash, supervisor crash, final waiter exit, timeout and pressure leave no unowned survivors; only recorded owned process families are stopped                                                                                                  |
+| Cache soundness           | Dirty/untracked/generated changes, toolchain/environment changes and external inputs invalidate reuse; Unknown/partial outcomes never become PASS                                                                                                    |
+| Shared authorization      | Narrow callers cannot acquire privileged indexed content, join unauthorized effects, or obtain revoked results through another waiter's grant                                                                                                        |
+| Delegation and recovery   | Concurrent child creation cannot overspend ancestor budgets; stale leaders cannot reassign/spawn; review cannot approve its own implementation                                                                                                       |
+| Context and messaging     | Seeded secrets/injection, graph cycles, expired references, dropped observations, duplicate/reordered messages and failed persistence remain bounded and attributed                                                                                  |
+| Panel and human takeover  | UI movement cannot change cwd/scope; stale input writer is fenced; close/archive cannot kill another owner's work; hidden work stays inspectable under user authority                                                                                |
+| Writer proposals          | A proposal never writes before an explicit human decision; an approved commit is one bounded submission with the old writer generation fenced; rejected, revoked, or stale proposals never queue, replay, or retry; a keystroke revoke wins any race |
+| Performance               | Compare cold/warm memory, process count, idle reclaim, swap/pressure, queue latency, duplicate execution and total model tokens/cost against a fixed baseline; report platform and workload                                                          |
 
 Recommended sequence: authorize and verify a narrow single-agent execution and
 evidence path; add one compatible tooling-service lease; prove isolation and
