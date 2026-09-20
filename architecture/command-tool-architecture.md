@@ -106,6 +106,27 @@ Source lines 116-141 classify existing harness commands by their underlying prim
 | `/undo` / `/rewind` | thin built-in                     | checkpoint/session   |
 | `/help`             | Lua                               | CommandRegistry      |
 
+**Owner-directed candidate additions (2026-09-20, unreviewed sketch):** the
+owner direction separates session switching from session resumption and adds
+an independent agent-control family, recorded here as candidate rows for
+owner review. They propose no accepted registry entry:
+
+| Command (illustrative-only)       | Recommended attribution   | Core primitive        |
+| --------------------------------- | ------------------------- | --------------------- |
+| `/session` (list, switch, new)    | thin built-in             | Session store         |
+| agent control (pause/stop/resume) | thin built-in via CLI/IPC | supervisor primitives |
+| `/resume`                         | deliberately undesigned   | -                     |
+
+The recording table above lists `/resume` as a session-store command;
+that earlier attribution is superseded by this direction. The direction
+records that `/session` switches the active session while
+previously running agents keep running, that `/resume` should not be defined
+as a synonym of `/session` (it stays undesigned until given a distinct
+meaning), and that interrupting or restarting agents belongs to its own
+command family rather than to session switching. Candidate semantics stay
+with [Session model (candidate)](../specifications/session-model-candidate.md);
+no command spelling, flag, or registry entry is proposed here.
+
 **Key insight** (lines 143-150): `/compact` is not a Lua algorithm; it is Lua calling a Rust Context primitive. But `/review` does not require Core to understand "Code Review"; it can be a Lua workflow (example lines 152-164) that spawns an agent with a skill, git diff, and workspace context.
 
 The source argues (lines 165-176) this enables community extension without touching Rust: `/review/security`, `/review/performance`, `/review/api`, `/review/rust` become Lua plugins. This justifies the `bitty-plugins` design mentioned in the broader Bitty workspace model.

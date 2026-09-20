@@ -129,6 +129,14 @@ adopts no layer schema, object type, or storage format, and the
 content-addressed model stays with the wheel-config-and-context-git-model candidate design. Hash choice, shard
 layout, and persistence backend stay with R6 and the storage dispositions.
 
+**Reading note (candidate, session-model alignment):** the `ContextCommit.tree`
+is read as a manifest of what the snapshot contains rather than as the
+literal topology of every carried dimension. Conversation, knowledge, and the
+agent graph keep their graph shape carried by parents and typed references;
+the tree does not force them into a folder hierarchy. The named-scope,
+manifest, and graph-over-tree readings stay with
+[Session model (candidate)](session-model-candidate.md).
+
 ## Conversation as a DAG, not a linear array
 
 The retained direction stores the whole conversation while refusing to force
