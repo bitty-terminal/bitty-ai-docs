@@ -197,7 +197,7 @@ This specification records the candidate direction through its critical synthesi
 
 8. **Message delivery guarantees**: Are durable delivery, exactly-once semantics, and outbox/inbox patterns required for all message types, or only for critical coordination (assignments, approvals, cancellation)?
 
-9. **Panel-execution binding lifetime**: When a panel projects an execution, how is the binding lifecycle managed across panel hide/show, workspace changes, and runtime restarts? Can one execution be projected by multiple panels simultaneously?
+9. **Panel-execution binding lifetime**: When a panel projects an execution, how is the binding lifecycle managed across panel hide/show, workspace changes, and runtime restarts? Can one execution be projected by multiple panels simultaneously? The candidate binding model — creation, cardinality, lifecycle outcomes, and the single-authority record — is recorded in [Execution-projection binding (candidate)](../specifications/execution-projection-binding-candidate.md); enforcement details stay open.
 
 10. **Headless execution scope**: What is the scope boundary for "no-UI agent execution"? Does it permit background build/test daemons, long-running servers, or persistent services, or is it limited to bounded task execution?
 
