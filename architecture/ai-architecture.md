@@ -255,6 +255,13 @@ principle is **give the model the minimum sufficient context while preserving a
 path back to complete evidence** ([OQ-059](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md), [OQ-062](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md),
 [OQ-065](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)).
 
+**Candidate coupling reading (scope note):** the differentiators above are read
+as a structural claim about how an agent couples to the runtime — lifecycle,
+observation, action, and presentation — in
+[Wheel-to-runtime coupling (candidate)](../specifications/wheel-to-runtime-coupling-candidate.md);
+that page gathers these directions into one coupling view and adds no
+differentiator here.
+
 ### Warp comparison dimensions (candidate)
 
 Status: **direction, non-normative**. The closed-cloud-terminal row above is
