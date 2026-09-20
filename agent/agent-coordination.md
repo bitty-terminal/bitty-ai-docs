@@ -203,7 +203,7 @@ This specification records the candidate direction through its critical synthesi
 
 11. **Service state recovery after supervisor crash**: How does the supervisor recover service state after its own crash? Can it adopt surviving child processes, or must it restart all services?
 
-12. **Lease writer fencing**: How is the "one fenced writer" for interactive input enforced across runtime restarts and concurrent takeover attempts? What prevents race conditions during writer transfer?
+12. **Lease writer fencing**: How is the "one fenced writer" for interactive input enforced across runtime restarts and concurrent takeover attempts? What prevents race conditions during writer transfer? The Wheel-side flow for requesting, deciding, committing, and returning the role in a user-interactive terminal is recorded in [Shared workspace services and agent coordination (candidate)](../specifications/shared-workspace-services-candidate.md#interactive-writer-proposals-user-interactive-terminal); the enforcement questions above stay open.
 
 ### Follow-up work
 

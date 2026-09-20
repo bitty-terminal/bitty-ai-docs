@@ -282,11 +282,11 @@ simulated input into a terminal view.
 The corpus supports three tiers of terminal relation, at three postures;
 the third is split across repositories:
 
-| Tier | Relation                                         | Posture                                                                                                                                          |
-| ---- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A    | The agent's own execution environment            | Recorded: authorized execution target plus supervised process; the standard path.                                                                |
-| B    | A shared terminal observed by several consumers  | Candidate: compatible read leases coexist; every acquisition is authorized against the current caller; leases bound by workspace/session policy. |
-| C    | A terminal the user is actively interacting with | Split: the terminal side records the single-fenced-writer direction; the Wheel side records no protocol for requesting that role.                |
+| Tier | Relation                                         | Posture                                                                                                                                                                                                                                                                    |
+| ---- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A    | The agent's own execution environment            | Recorded: authorized execution target plus supervised process; the standard path.                                                                                                                                                                                          |
+| B    | A shared terminal observed by several consumers  | Candidate: compatible read leases coexist; every acquisition is authorized against the current caller; leases bound by workspace/session policy.                                                                                                                           |
+| C    | A terminal the user is actively interacting with | Split: the terminal side records the single-fenced-writer direction; the Wheel side records the candidate request, decision, commit, and return flow ([shared workspace services candidate](shared-workspace-services-candidate.md)); writer-transfer mechanics stay open. |
 
 The tier-C direction that exists is precise about the failure modes to
 avoid: interactive input has one fenced writer, "transfer invalidates the old
@@ -303,8 +303,10 @@ contribution to a user-interactive terminal is a **one-shot dispatch with
 evidence and an explicit return**, not a stream of injected keystrokes.
 Alternation between human and agent input is explicitly rejected
 ("interleaving keystrokes"), and automation resumes only through an explicit
-handback after human takeover. The writer-transfer mechanics themselves stay
-with their open question (interactive writer fencing), and this page
+handback after human takeover. The request, decision, commit, and return flow is
+recorded in the [shared workspace
+services candidate](shared-workspace-services-candidate.md); the writer-transfer
+mechanics stay with their open question (interactive writer fencing), and this page
 proposes no wire.
 
 **Critical judgment:** the tier table, the one-shot reading, and the
@@ -477,6 +479,8 @@ authorizes no product code.
   (Draft): execution ownership, headless as presentation; consumed for the action layer.
 - [Agent Coordination Architecture](../agent/agent-coordination.md)
   (Draft): leases, the single fenced writer, panel-execution separation, control surface; consumed for actions and presentation.
+- [Shared workspace services and agent coordination (candidate)](shared-workspace-services-candidate.md)
+  (Draft): the Wheel-side writer-proposal flow for a user-interactive terminal; consumed for tier C.
 - [Panel and agent workspace boundary (candidate)](panel-workspace-candidate.md)
   (Draft): panel identity rules, host-mediated surfacing; consumed for presentation.
 - [Event-sourced agent workspace (candidate)](event-sourced-agent-workspace-candidate.md)
