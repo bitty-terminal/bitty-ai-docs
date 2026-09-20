@@ -62,6 +62,16 @@ This creates the invariant (lines 503-506):
 
 > **Session is fact; Context is only a projection of Session.**
 
+**Candidate clarification (session-model alignment):** the invariant reads
+"session" as the named scope of the record store, not as the storage format
+itself. The fact carrier is the append-ordered journal and record store,
+obedient to deletion and retention; a session is the named reachable scope
+over that store from which projections compile. This reading keeps the
+invariant compatible with the event-sourced candidate direction (the record
+log holds the facts) without reopening either. The named-scope reading,
+session identity, and directory relations stay with
+[Session model (candidate)](../specifications/session-model-candidate.md).
+
 The recording suggests retaining original logs and conversation (lines 508-518). **Improve, not adopt unconditionally:** completeness is relative only to authorized, redacted records still retained under policy. A bounded in-memory session does not authorize durable recording. Disk retention requires explicit applicable consent, pre-queue/pre-write typed redaction, minimization, user-only storage and export preview; input recording is off by default and separately opt-in, while clipboard and raw environment are absent by default (P0-AC-026). Context projection never widens the reader's authority.
 
 Deletion or expiry propagates to journal payloads, artifacts, derived summaries, indexes and caches; tombstones must not retain deleted sensitive payloads. References become typed unavailable rather than silently recovering deleted or never-recorded bytes. Replay and debugging are bounded by surviving authorized records, not a promise of full recovery. Append-only logical history is subordinate to these deletion obligations.

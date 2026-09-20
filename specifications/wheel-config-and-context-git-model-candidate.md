@@ -250,8 +250,9 @@ addressing is an explicit design input for context management.
 ### Checkpoint as commit
 
 The retained model makes a checkpoint the commit analogue: it binds a
-context tree, a parent, task state, decisions, evidence, and the acting
-agent, so a session reads as a checkpoint chain rather than a transcript.
+context tree, one or more parents (a merge checkpoint names several), task
+state, decisions, evidence, and the acting agent, so a session reads as a
+checkpoint chain rather than a transcript.
 HEAD names the current checkpoint, the Active Context compiles from HEAD,
 phase completion advances HEAD, and a log-like view recovers the session
 narrative without replaying raw history.
