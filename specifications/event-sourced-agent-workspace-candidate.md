@@ -114,13 +114,18 @@ recorded with the same restraint: content addressing is carried by the
 wheel-config-and-context-git-model candidate design and the storage dispositions, and no hash, path, or
 format is adopted here.
 
-## Agent Graph versus Task Dependency Graph
+## Agent Communication Graph versus Task Dependency Graph
 
-The retained direction keeps two graphs apart: the Agent Graph is the
+The retained direction keeps the communication topology apart from the
+goal-ordering topology: the Agent Communication Graph is the
 collaboration and communication topology (uniform Agents with per-task
 roles such as leader, worker, and reviewer, never agent classes; the team
 may be cyclic), while the Task Dependency Graph is the goal-ordering
-topology (which should stay acyclic to avoid deadlocks). Fork spawns
+topology (which should stay acyclic to avoid deadlocks). A third shape,
+the Agent Work Graph, records agent work history as an acyclic DAG
+(explore branches fanning out and rejoining through review into
+implementation, each node naming parents); it is the history shape, not
+the communication shape. Fork spawns
 parallel agents inheriting context without re-seeding background; the fork
 mechanics stay open with the owning task.
 
@@ -135,7 +140,46 @@ cut (Core knows only generic primitives, organization lives in Lua). The
 DAG discipline for task dependencies is retained as a candidate invariant
 with a deadlock rationale, consistent with the R5 lifecycle disposition and
 the execution-supervisor no-model-polling and subscription directions; no scheduler,
-resolver, or cycle-detection contract follows.
+resolver, or cycle-detection contract follows. The Agent Work Graph shape
+agrees with the parent-listed multi-agent history kept in the
+wheel-config-and-context-git-model candidate design; the
+history-versus-communication cut is what keeps a cyclic team compatible
+with an acyclic record.
+
+### Seven-graph roster (candidate)
+
+Status: **candidate, non-normative**. The roster fixes names, nodes,
+edges, and shape invariants only; it proposes no data structure, API, or
+scheduler.
+
+| Graph                     | Nodes                             | Edges                                 | Multi-parent                                      | Cycles                           |
+| ------------------------- | --------------------------------- | ------------------------------------- | ------------------------------------------------- | -------------------------------- |
+| Agent Communication Graph | agents                            | communication and collaboration links | yes (many peers; no parentage semantics)          | yes (team may be cyclic)         |
+| Agent Work Graph          | work-history nodes naming parents | parent links                          | yes (merge nodes name several parents)            | no (acyclic history)             |
+| Task Dependency Graph     | tasks and goals                   | depends-on links                      | yes (one goal may depend on several)              | no (acyclic; deadlock rationale) |
+| Delegation Graph          | agent sessions in a rooted forest | parent-to-child delegation links      | no (exactly one parent per child)                 | no (acyclic)                     |
+| Context Graph             | typed context objects             | content references                    | yes (many contexts share one object by reference) | no (content-addressed DAG)       |
+| Evidence Graph            | evidence and provenance records   | attribution links                     | yes (one record may support several claims)       | no (acyclic)                     |
+| Projection Graph          | materialized views                | derivation links to source nodes      | yes (one view may derive from several sources)    | no (acyclic)                     |
+
+### Shared graph primitives (candidate)
+
+Status: **candidate, non-normative**. The retained direction keeps a
+small shared primitive vocabulary across the seven rostered graphs:
+`NodeId`, `EdgeId`, Generation, Revision, ContentHash, and TypedRef, with
+operations reachability, cycle_detection, topological_sort, ancestry,
+merge_base, and generation fencing. Generation fencing retires a
+superseded lineage so a replaced leader or compacted branch cannot keep
+acting; the fence rule stays with the owning lifecycle disposition and no
+enforcement mechanism is adopted here.
+
+**Critical judgment:** shared primitives yes, one universal `Graph`
+struct no. The primitives give every graph the same identity,
+addressing, and traversal vocabulary; each domain model stays
+independent with its own node, edge, and invariant rules. A single
+universal graph type would blur the cyclic-versus-acyclic and
+single-parent-versus-multi-parent invariants the roster exists to keep
+apart, so no shared struct, registry, or module follows.
 
 ## Mailbox IPC and first-class context share
 
