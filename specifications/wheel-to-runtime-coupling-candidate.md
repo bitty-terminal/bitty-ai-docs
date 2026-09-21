@@ -401,6 +401,37 @@ state-axis set and persistence content. This page reads those as open and
 records only the request-never-preempt direction and the agent-side mapping
 above.
 
+### Remote frontend (candidate)
+
+The presentation layer extends over the remote direction without changing its
+rules: a device on the network is another surface that projects panels, never
+a second runtime. The terminal documentation corpus's candidate
+remote-infrastructure record owns that direction's transport, session,
+device-grant, and protocol content; this page records only the agent-facing
+consequence.
+
+- **The dashboard is a projection, not a runtime.** A Wheel dashboard on a
+  remote device renders agent state, task progress, and control affordances
+  as the remote projection of the same agent panels the local console
+  projects. The device runs no model and hosts no agent: a command sent from
+  it routes to the host and to its agents, composing with the recorded
+  positioning that the remote client is a frontend of the workspace, panel,
+  and agent architecture rather than a second terminal.
+- **Attention and consent keep their recorded shape.** An attention request
+  raised for a remote surface obeys the same discipline as any other
+  surface — evidence reference, no re-raise, decision returns — and a
+  decision made on the remote device is the same explicit act: focusing or
+  dismissing on a phone approves nothing, and the consent-ledger entry
+  remains its own act.
+- **Projection still touches no identity.** Reaching an agent panel through a
+  remote session neither moves an execution target nor widens authority, and
+  a device grant neither widens agent authority nor converts into one.
+
+Whether a remote device may hold an active binding for an agent panel or only
+mirror an existing one, and how remote attention requests interleave with
+local ones under the never-preempt rule, stay open with the remote record and
+the binding record.
+
 ## Cross-cutting invariants
 
 These compose the four layers; each is sourced and each is falsifiable:
@@ -499,6 +530,7 @@ constrains `bitty-ai`.
 | Attention mapping      | Every agent-side source (blocked work, consent need, completion) surfaces through one bounded request carrying an evidence reference; no re-raise before resolution; the decision returns as an observable event; attention never substitutes for consent, in reviewable tests. |
 | Invariant floor        | Each cross-cutting invariant fails closed under its own adversarial fixture, in reviewable security tests.                                                                                                                                                                      |
 | Headless parity        | Every coupling operation completes with no panel open, and the panel surface reproduces it as a projection, in reviewable tests.                                                                                                                                                |
+| Remote frontend        | A remote device projects agent panels through the same presentation rules: no device-hosted model or agent runtime, attention requests and decisions keep the recorded discipline, and the device grant widens no authority, in reviewable tests.                               |
 
 Promotion needs independent AI architecture, coordination, context-management,
 persistence, terminal-owner, docs-curator, and security review. Route the
