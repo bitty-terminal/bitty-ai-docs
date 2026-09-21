@@ -425,7 +425,7 @@ consequence.
   remains its own act.
 - **Projection still touches no identity.** Reaching an agent panel through a
   remote session neither moves an execution target nor widens authority, and
-  the device grant transfers no agent authority in either direction.
+  a device grant neither widens agent authority nor converts into one.
 
 Whether a remote device may hold an active binding for an agent panel or only
 mirror an existing one, and how remote attention requests interleave with
