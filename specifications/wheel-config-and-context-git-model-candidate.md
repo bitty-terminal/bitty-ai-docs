@@ -346,15 +346,26 @@ the companion candidate design.
 
 **Critical judgment:** no store schema or compiler control flow is adopted;
 the pass list here defers to the companion twelve-pass pipeline. The stable
-claims are the two-layer split (semantic store below, provider cache above)
-and the checkout metaphor (HEAD in, view out).
+claims are the two-layer split (semantic store below, provider cache above),
+the checkout metaphor (HEAD in, view out), and the no-graph-database
+position: the store stays an append-only journal plus a content-addressed
+object store plus refs plus indexes plus materialized projections, and a
+graph database is out of scope. Graph queries (reachability, ancestry,
+merge_base) run over the indexes and projections, never over a dedicated
+graph store; no journal schema, index format, or projection contract is
+adopted.
 
 ### Multi-agent DAG and the vocabulary decision
 
-The retained topology models agent work as a DAG (explore branches fanning
-out and rejoining through review into implementation, each node naming
-parents) rather than a strict manager tree, because real agent dependencies
-cross. The vocabulary decision is kept: user-facing terms stay
+The retained topology models agent work as a DAG — the Agent Work Graph,
+an acyclic work-history shape (explore branches fanning out and rejoining
+through review into implementation, each node naming parents) — rather
+than a strict manager tree, because real agent dependencies cross. It is
+not the communication topology: who talks to whom lives in the Agent
+Communication Graph, which may be cyclic. The two shapes, with five more,
+are rostered apart with their nodes, edges, and shape invariants in the
+[event-sourced agent workspace candidate design](event-sourced-agent-workspace-candidate.md#agent-communication-graph-versus-task-dependency-graph).
+The vocabulary decision is kept: user-facing terms stay
 domain-familiar (checkpoint, branch, merge, rebase, gc, ref, HEAD,
 worktree) while storage-level Git terms are not cargo-culted onto users
 (checkpoint not commit, artifact not blob, context not tree), with the

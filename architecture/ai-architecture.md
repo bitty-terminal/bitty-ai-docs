@@ -475,7 +475,7 @@ select a different budget from the accepted default is undecided and tracked
 as [OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md); nothing in this paragraph weakens
 `CP-5` until an amendment accepts it.
 
-### Fresh child sessions and AgentTree
+### Fresh child sessions and Delegation Graph
 
 Status: **candidate, non-normative**. Delegation may create a fresh child
 `AgentSession` with only an explicit goal, bounded context, selected project
@@ -493,13 +493,16 @@ memory writes, outbound messaging, scheduling, clarification, or further
 delegation may be forbidden by the child profile even when the parent can
 request them, and every child still receives server-side scope checks, bounded
 resources, independent cancellation, and the accepted isolation failure
-semantics. An `AgentTree` candidate attributes `AgentSession`, `parent_id`,
+semantics. A Delegation Graph candidate records `AgentSession`, `parent_id`,
 `root_id`, generation, role, state, capabilities, workspace, terminal IDs,
-turns, actions, tool calls, and background processes, supporting a panel or
-CLI tree without making presentation authoritative; attribution answers which
+turns, actions, tool calls, and background processes as a rooted forest:
+each child names exactly one parent, delegation edges are single-parent
+and acyclic, and a panel or CLI tree renders the forest without making
+presentation authoritative; attribution answers which
 agent and turn initiated an action and does not grant that agent authority.
 Delegation attenuation and review ownership are owned by
-[Agent coordination architecture](../agent/agent-coordination.md#teams-delegation-and-organization-graphs).
+[Agent coordination architecture](../agent/agent-coordination.md#teams-delegation-and-organization-graphs),
+whose single-parent acyclic delegation-lineage rule this candidate follows.
 
 ### Execution profiles, targets, and provider negotiation
 
@@ -567,7 +570,7 @@ does not change `TB-6` or any other accepted cap.
 - **BTR-1 One turn may carry a bounded batch.** A single assistant message may carry several `ToolCall` values; the batch may execute concurrently, and results are reinserted in call order so the transcript stays deterministic, with the result sequence (`Assistant(tool_calls)` -> `Tool` -> `Tool` -> ...) consumed by one follow-up model request. Batching reduces round trips, not enforcement: every call still passes registry validation, capability, consent, quota, and untrusted-observation labeling, and the batch remains bounded by `TB-6` (`8` tool calls per assistant turn); whether that bound is the right batch bound is part of the tracked question.
 - **BTR-2 Some round trips are unavoidable.** Data-dependent calls are serial, interactive or consent-bearing tools (for example clarification) are forced serial, provider and API-mode parallel-tool-call support differs, and a model that emits one tool call per turn degrades to serial; even a fully independent batch still needs one request to consume its results, so N files cost at least two round trips.
 - **BTR-3 Round-trip economy is a request-cost model, not a token model.** Every model request re-sends the conversation, so input tokens accumulate across turns; prompt caching mitigates but does not remove that cost, and cache stability stays subordinate to host policy and revocation. Batching lowers latency and request cost, not the tokens a result contributes to context, which remain governed by `CP-5` and `SOC-1`..`SOC-6`.
-- **BTR-4 Choose the mechanism by call shape.** Independent calls with no data dependency belong in one turn; a mechanical loop over N files belongs in a bounded programmatic call (the section above) so only the aggregate returns to context; one logical edit spanning several files belongs in one transactional multi-file edit (the `ChangeSet`/overlay direction below), not N sequential writes; exploration and judgment stay with direct calls or a delegated fresh child session (`AgentTree`), where the parent receives a bounded summary while the child's calls still count in the total.
+- **BTR-4 Choose the mechanism by call shape.** Independent calls with no data dependency belong in one turn; a mechanical loop over N files belongs in a bounded programmatic call (the section above) so only the aggregate returns to context; one logical edit spanning several files belongs in one transactional multi-file edit (the `ChangeSet`/overlay direction below), not N sequential writes; exploration and judgment stay with direct calls or a delegated fresh child session (Delegation Graph), where the parent receives a bounded summary while the child's calls still count in the total.
 - **BTR-5 Provenance is a single-harness observation.** The originating analysis measured a local Hermes `state.db` snapshot (roughly 29,900 tool calls across roughly 22,400 assistant messages, about one in five carrying a parallel batch, largest observed batch thirty reads, roughly 7,600 round trips avoided versus strictly serial calls). This is one harness's local observation, not a benchmark; parallel emission is model- and provider-dependent, one legacy session in the same snapshot was entirely serial, and no Bitty batching mechanism exists today.
 
 Tracked as [OQ-071](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
@@ -708,7 +711,7 @@ architecture mandates stay:
 - **SMO-1 Event bus, not shared memory.** Bounded typed events ride the accepted IPC event bus (framing, per-queue budgets, `DropOldest`) and carry `(AgentId, generation, kind)` so a reload or disposal invalidates stale events.
 - **SMO-2 Presentation is not authority.** Focus, z-order, and panel visibility never grant capability; server-side scope checks evaluate the authenticated identity (AG-3).
 - **SMO-3 Routing fails closed.** Dispatch, result handoff, review request, and checkpoint notice are candidate event kinds; routing is declarative data, and a missing or stale route fails closed rather than falling back to an ambient recipient.
-- **SMO-4 Existing substrate.** The candidate reuses `AgentTree` attribution, `bitty-ipc` scopes, and the Panel Runtime identity/generation contract; no daemon or second registry, and no implementation exists today.
+- **SMO-4 Existing substrate.** The candidate reuses Delegation Graph attribution, `bitty-ipc` scopes, and the Panel Runtime identity/generation contract; no daemon or second registry, and no implementation exists today.
 - **SMO-5 Panels are views over IPC endpoints.** Every runtime object (agent, task, workspace, tool, process, model, panel) is a candidate addressable IPC endpoint with a panel as one possible projection (`view(endpoint)`); an agent can have UI, no UI, run headless, or be watched by several panels without a panel becoming the session identity.
 - **SMO-6 Humans join the same bounded surface.** A human reviewer is a first-class participant (`ApprovalRequest` toward a human-facing projection, Allow/Deny back), not a private side channel; decisions are attributed and audited, and approval remains an explicit consented action (CRE-1, SMO-2).
 - Tracked as [OQ-058](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
@@ -762,7 +765,7 @@ external-harness terminology, not a distinct Wheel type or Core concept.
 
 - **CRE-1 Tightest example.** The Reviewer is deliberately the narrowest profile: it reads terminal observations and diffs and can produce a verdict, but it cannot edit, spawn, or delegate. A verdict is data; approval remains a separate, consented action.
 - **CRE-2 Per-role prompts are data.** A role's system prompt and instruction sources are frozen in the session snapshot and identified by the `InstructionEpoch` (see above); editing or replacing a prompt never changes the capability set, and the two are resolved independently.
-- **CRE-3 Dispatch inherits downward.** Creating a child agent uses the `Fresh child sessions and AgentTree` invariant `ChildAuthority subset of ParentAuthority`, further limited by the role profile; a role can never grant a child what the parent lacks. Budget reservation, attenuation, and review separation are owned by [Agent coordination architecture](../agent/agent-coordination.md#teams-delegation-and-organization-graphs).
+- **CRE-3 Dispatch inherits downward.** Creating a child agent uses the `Fresh child sessions and Delegation Graph` invariant `ChildAuthority subset of ParentAuthority`, further limited by the role profile; a role can never grant a child what the parent lacks. Budget reservation, attenuation, and review separation are owned by [Agent coordination architecture](../agent/agent-coordination.md#teams-delegation-and-organization-graphs).
 - **CRE-4 Enforcement points.** Candidate checks live in the IPC scope evaluation, Tool Bus validation, capability grants, and resource budgets already accepted; no new bypass or prompt-only gate is introduced.
 - **CRE-5 Tool capability versus execution sandbox capability (candidate).** Tool-level grants are not sufficient by themselves: a role that never receives `fs.write` can still rewrite files through an allowed `process.spawn` (a shell one-liner, an in-place edit command, or an interpreter) unless the execution sandbox constrains what spawned processes may touch. The role contract therefore needs two coordinated layers — the tool capability set and an execution sandbox profile (filesystem read-only or deny, network deny, restricted process family, filtered environment); a role is a policy template and an agent is a runtime instance, so several agents can share one role without sharing state. The sandbox layer is part of the enforcement scope tracked as [OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 - Tracked as [OQ-057](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
@@ -1203,7 +1206,7 @@ summaries and routes to owning topic documents. The sections below keep detail
 here only because no dedicated owning document exists yet; each is scheduled
 for a future phase-2 extraction and must not be deleted before its owner lands:
 
-- Candidate runtime contracts without an owner: progressive discovery, context planes and memory temperature, frozen sessions and instruction epochs, fresh child sessions and AgentTree, execution profiles/targets/provider negotiation, Tool Bus programmatic calls, tool-call batching, changes/outcomes/restore boundaries, transactional edit and workspace overlay, hook authority and observation labeling, agent growth pipeline, semantic output compression, semantic execution results, evidence and provenance, and the candidate build sequence.
+- Candidate runtime contracts without an owner: progressive discovery, context planes and memory temperature, frozen sessions and instruction epochs, fresh child sessions and Delegation Graph, execution profiles/targets/provider negotiation, Tool Bus programmatic calls, tool-call batching, changes/outcomes/restore boundaries, transactional edit and workspace overlay, hook authority and observation labeling, agent growth pipeline, semantic output compression, semantic execution results, evidence and provenance, and the candidate build sequence.
 - AI workspace composition and the workspace-anchored multi-agent runtime candidates, which still mix panel/lease detail owned by [Agent coordination architecture](../agent/agent-coordination.md) with terminal-platform presentation contracts outside this repository.
 - Sub-platform staging (BA-1..BA-6), including the BA-4 crate layout and BA-6 pressure-test gate, pending the `bitty-ai` staging decision and the R1/R2 dispositions.
 - Tool Bus command risk classification (CRA-1..CRA-5) and the scrubbing evidence summary, pending a dedicated tool-transport or command-audit document.
