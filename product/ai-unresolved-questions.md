@@ -18,8 +18,8 @@ questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
 AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
-store-propagation, and AIQ-59 runtime-bounded-reconcile facets (Closed(partial)); no accepted global
-decision is made here.
+store-propagation, AIQ-59 runtime-bounded-reconcile, and AIQ-37 runtime/slice-side outcome-vocabulary
+facets (Closed(partial)); no accepted global decision is made here.
 
 ## Disposition
 
@@ -281,16 +281,76 @@ as part of those inspections beyond this register.
 
 Details: [command/tool architecture](../architecture/command-tool-architecture.md).
 
-| ID     | Open choice                                                  | Blocking feature and rationale                                                | Proposed routing                   |
-| ------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------- |
-| AIQ-31 | Trait/lint/review enforcement of Core/Lua split              | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
-| AIQ-32 | Workflow-to-AI-Core promotion review                         | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
-| AIQ-33 | Unified authorization/isolation backend                      | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
-| AIQ-34 | Command registration API and versioning                      | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
-| AIQ-35 | Git primitives versus high-level wrappers                    | Design: structured API or bounded authorized execution                        | AI runtime                         |
-| AIQ-36 | Native versus MCP tool transport and bridge placement        | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
-| AIQ-37 | Structured exec result schema                                | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
-| AIQ-38 | Generic execution and registry ownership across repositories | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
+| ID     | Open choice                                                                                                        | Blocking feature and rationale                                                | Proposed routing                   |
+| ------ | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------- |
+| AIQ-31 | Trait/lint/review enforcement of Core/Lua split                                                                    | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
+| AIQ-32 | Workflow-to-AI-Core promotion review                                                                               | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
+| AIQ-33 | Unified authorization/isolation backend                                                                            | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
+| AIQ-34 | Command registration API and versioning                                                                            | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
+| AIQ-35 | Git primitives versus high-level wrappers                                                                          | Design: structured API or bounded authorized execution                        | AI runtime                         |
+| AIQ-36 | Native versus MCP tool transport and bridge placement                                                              | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
+| AIQ-37 | Structured exec result schema — Closed(partial): runtime/slice-side outcome-vocabulary facet only; see disposition | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
+| AIQ-38 | Generic execution and registry ownership across repositories                                                       | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
+
+### AIQ-37 disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-37 — Closed(partial): runtime/slice-side outcome-vocabulary facet
+  closed; wire/IPC schema facet stays open.** Closed choice: structured
+  exec-outcome vocabulary with typed fail-closed disclosure — every dispatch
+  leaves an attributed terminal `ToolExecution`, failures render typed
+  single-line errors, truncation surfaces counted flags, and `Unknown`
+  discloses its reason with dispatched counts instead of silent substitution.
+  Evidence: code `bitty-ai/crates/bitty-ai-runtime/src/tool.rs`
+  (`ToolExecution` L0 structured result shape, `ToolStatus::{Success,
+Failed, Denied, Refused, Unknown}`, `Refused { cause: ToolError }`
+  admission-only (`is_admission_refusal`, executor never contacted) versus
+  `Denied { reason }` executor-after-contact, `ResultDisposition::{Accepted,
+Rejected}` keeping an acknowledged `Success` while a rejected payload
+  carries the typed bound failure, `ToolError::normalized` and
+  `ToolStatus::normalized` bounded diagnostic policy, `MAX_TOOL_RESULT_BYTES`
+  and `MAX_SUMMARY_BYTES` acceptance bounds), `agent.rs`
+  (`ExecOutcome::{Completed, Failed, Canceled, Unknown}`,
+  `execution_message` provider-visible mapping, `ExecutionRecord::{status,
+result_disposition}`); 14 `result_schema_disclosure.rs` tests
+  (`completed_discloses_final_text_and_records`,
+  `failed_typed_error_display_is_single_line`,
+  `failed_unknown_tool_renders_typed_error`,
+  `failed_unknown_model_renders_typed_error_without_io`,
+  `canceled_counts_scale_with_dispatches`,
+  `unknown_discloses_reason_and_dispatched`,
+  `success_maps_to_ok_word_and_message`,
+  `denial_maps_to_denied_word_and_record`,
+  `unknown_maps_to_unknown_word_and_record`,
+  `rejected_result_keeps_success_and_emits_no_card`,
+  `s2_store_full_fails_turn_with_typed_disclosure`,
+  `truncation_accounting_surfaces_counted_bytes`,
+  `truncation_never_leaks_dropped_records_to_provider`,
+  `unknown_record_reason_stays_bounded`); runtime truncation accounting
+  (`truncated_bytes`, `truncated_tokens_estimate`, `truncated_providers`) plus
+  slice `ExecutionResult` (`ExecutionStatus::{Completed, Failed, Canceled,
+Unknown}`, `EffectState::{Completed, Failed, Canceled, Unknown}`,
+  `truncated` flag with budget-bounded `stdout_summary`/`stderr_summary`,
+  `ExecutionResult::new`/`validate` with `validate_unknown_agreement`,
+  `needs_reconciliation`, `is_untrusted_surface`); slice
+  `host_conformance.rs` execution semantics (`execution_success_is_shared`,
+  `execution_unknown_agreement_is_shared` fail-closed on mismatched `Unknown`,
+  `execution_unknown_roundtrip_is_shared`: unknown stores, same-id
+  re-execution refused, resolve closes the unknown,
+  `execution_truncation_is_shared`: `truncated` flag with budget-bounded
+  summaries on both hosts); merged in `bitty-ai` `3f364db` (AI-0077, disclosure
+  proof), `201cfe9` (AI-0109, AI-RUN-004 effect/result/admission separation),
+  `01919b8` (AI-0112, AI-RUN-008 reason normalization), `c44ee7b` (AI-0035,
+  shared host conformance). Stay-open facets with reasons: wire/IPC schema
+  with the terminal side (the terminal/IPC half of the outcome contract stays
+  a host and upstream decision; overlapping terminal/IPC routing, which stays
+  open).
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
 
 ## Agent coordination
 
