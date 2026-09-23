@@ -79,6 +79,8 @@ Structured design reviews should contain proposal, evidence, dissent, verdict, a
 
 Defer automatic promotion from a small task into an "AI Organization Runtime." First compare a single agent and a coordinator with a small bounded worker set against a hierarchical design on completion quality, coordination latency, duplicate work, cost, and recovery.
 
+**Single-hop whole-batch admission evidence (experimental, single-hop budget facet only):** the sibling `bitty-ai` runtime admits each provider round's tool calls as one batch against the remaining logical-turn allowance (`ToolBus::precheck` against `min(configured_limit, MAX_TOOL_CALLS_PER_TURN) - calls_this_turn` with FS-AI1 transactional denial: over-allowance batches refused whole, nothing dispatched); merged in `bitty-ai` `d71fc30` (AI-0108). Atomic multi-party reservation and measured depth/fan-out bounds stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md). This describes sibling behavior only as read.
+
 ## Context compilation and progressive disclosure
 
 Context is a selected working set plus references, state, memory, and artifacts, distinct from the complete transcript (source lines 1436-1805, 2155-2400). The proposed six layers are selection categories, not six competing stores:
