@@ -297,17 +297,29 @@ Consistent with [v0.1 Implementation Profile](../product/implementation-profile-
 - In scope for v0.1 discussion: stable-before-dynamic ordering discipline,
   deterministic assembly for a given snapshot, structured tool results with
   artifact externalization, lossless dedup and supersede handling.
+- Slice-harness evidence (experimental, not shipped runtime): the sibling
+  `bitty-ai` pressure-test harness (`bitty-ai-slice`, AI-0121..AI-0130, merged
+  as PRs #237..#254) demonstrates the snapshot-to-cache chain end to end —
+  host-side `ProjectSnapshot` ingestion with digest verification, monotonic
+  refresh ledger, generation-scoped artifact expiry plus explicit
+  invalidation with deletion propagation, digest-pinned PROJECT prompt layer,
+  multi-turn session-key hits on tail-only change with miss on refresh, and a
+  composed session script. The runtime crate itself is unchanged (std-only);
+  all new machinery lives host-side. Planner, epoch, and content-addressed
+  proposals below remain beyond-v0.1.
 - Beyond-v0.1 proposals (not commitments): Context Planner, `ContextEpoch`
-  types, versioned registry and skill snapshots, project snapshots with
-  deltas, content-addressed blocks, Level 2 and above compression, provider
-  routing and affinity, multi-agent shared prefixes, and cache-observability
-  UI. Each needs its own reviewed contract and evidence before any
-  implementation claim.
+  types, versioned registry and skill snapshots, content-addressed blocks,
+  Level 2 and above compression, provider routing and affinity, multi-agent
+  shared prefixes, and cache-observability UI. Project snapshots with deltas
+  move from proposal to slice-harness evidence (see above); a shipped-runtime
+  contract still needs its own review. Each remaining item needs its own
+  reviewed contract and evidence before any implementation claim.
 
 ## Runtime evidence
 
 Read-only inspection of the sibling `bitty-ai` runtime skeleton found no
-implementation of this proposal. Specifically, as inspected:
+implementation of this proposal in the runtime crate itself. Specifically, as
+inspected:
 
 - `crates/bitty-ai-runtime/src/context.rs` implements L0 structured output
   and L1 lossless pruning (dedup, supersede, externalization) with
@@ -321,10 +333,23 @@ implementation of this proposal. Specifically, as inspected:
   with caller-scope filtering deferred to the host; it defines no
   prefix-cache key scope and no routing or affinity behavior.
 
-Conclusion: the prefix-cache design in this document is not implemented. The
-skeleton's deterministic assembly is a compatible starting point, not
-evidence for the proposal. This repository was not modified as part of that
-inspection, and no claim here describes sibling behavior beyond what was
+Slice-harness evidence (experimental, host-side only): the sibling
+`bitty-ai-slice` pressure-test harness (not a shipped component) composes the
+snapshot-to-cache chain end to end across AI-0121..AI-0130 (merged as sibling
+PRs #237..#254): standalone `psnap` analyzer output ingested with SHA-256
+verification, monotonic `RefreshLedger` issuance, generation-scoped artifact
+expiry plus explicit invalidation with derived-record propagation,
+digest-pinned PROJECT prompt layer feeding `CacheKey`, scripted multi-turn
+hit/miss evidence, and one composed session script (666 sibling tests green
+at merge). This is evidence for the host-side pattern, not an adoption of the
+planner, epoch, or content-addressed proposals above, and it describes sibling
+behavior only as read — this repository was not modified as part of those
+inspections beyond this section.
+
+Conclusion: the prefix-cache design in this document is not implemented in
+the shipped runtime. The skeleton's deterministic assembly plus the
+slice-harness chain are compatible starting points, not evidence for the
+remaining proposals. No claim here describes sibling behavior beyond what was
 read.
 
 ## Security review
