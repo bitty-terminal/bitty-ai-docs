@@ -99,6 +99,15 @@ direction before retry. Cancellation before dispatch prevents effects from
 starting; cancellation after dispatch cannot promise reversal. State replay and
 effect re-execution are separate operations, and effects require current grants.
 
+**Runtime-bounded reconcile evidence (experimental, reconcile facet only):**
+the sibling `bitty-ai` `UnknownReconciler` answers bounded status queries
+without re-executing (`ReconcileConfig` default 3 queries, 100 ms base,
+5000 ms ceiling, hard caps 16 queries and 30000 ms; exhaustion escalates to
+typed `UnknownEscalation` / `AgentError::UnknownUnresolved`); merged in
+`bitty-ai` `13ce4c6` (AI-0047). Exactly-once effects and cross-boundary safe
+retry stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
 ## Verification plan
 
 The inspected `bitty-ai` revision

@@ -17,8 +17,9 @@ This local draft preserves 53 identifiers, including aliases, not 53 independent
 questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
-AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, and AIQ-55
-store-propagation facets (Closed(partial)); no accepted global decision is made here.
+AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
+store-propagation, and AIQ-59 runtime-bounded-reconcile facets (Closed(partial)); no accepted global
+decision is made here.
 
 ## Disposition
 
@@ -217,6 +218,65 @@ store enforces removal and expiry, the host decides what to delete and when.
 These describe sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
+### AIQ-59 disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-59 — Closed(partial): runtime-bounded-reconcile facet closed;
+  exactly-once and cross-boundary safe-retry facets stay open.** Closed
+  choice: bounded status-query reconcile for `Unknown` tool effects with
+  deterministic backoff ceilings and typed fail-closed escalation — queries
+  inspect stored outcomes and never re-execute, the reconcile budget counts
+  queries separately from tool dispatches, and an unresolvable `Unknown`
+  escalates to a typed report that fails the session closed. Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/src/reconcile.rs` (`ReconcileConfig`
+  with `max_unknown_retries` default 3 (`DEFAULT_MAX_UNKNOWN_RETRIES`),
+  `base_delay_ms` 100 (`DEFAULT_RECONCILE_BASE_DELAY_MS`), `max_delay_ms`
+  5000 (`DEFAULT_RECONCILE_MAX_DELAY_MS`), hard caps
+  `MAX_RECONCILE_ATTEMPTS` 16 and `MAX_RECONCILE_DELAY_MS` 30000 via
+  `effective_retries` and `effective_max_delay_ms`;
+  `ReconcileStatus::{Resolved, Pending}` with `Resolved(Unknown)` treated
+  as still pending; `UnknownReconciler::reconcile` query-only seam keyed by
+  `ExecutionId`; `UnknownEscalation` carrying `tool`, bounded `reason`,
+  `attempts`, `dispatched`, and `delays_ms`; `ReconcileOutcome::{Resolved,
+NoUnknown, Escalated}`; `reconcile_delay_ms` pure exponential backoff
+  with saturating arithmetic), `agent.rs`
+  (`AgentConfig::{max_unknown_retries, unknown_reconcile_base_delay_ms,
+unknown_reconcile_max_delay_ms}` mirrored through `reconcile_config()`;
+  `Agent::reconcile_unknown` leaving `MAX_TOOL_CALLS_PER_TURN` and the
+  per-turn counter untouched, and converting budget exhaustion to
+  `AgentError::UnknownUnresolved`); 9 `unknown_reconcile.rs` tests
+  (`unknown_resolves_without_effect_reexecution`,
+  `unknown_escalates_after_bounded_retries_with_typed_report`,
+  `retry_budget_is_separate_from_tool_call_budget`,
+  `backoff_schedule_is_deterministic`,
+  `caller_clock_advance_by_reported_delays_enables_resolution`,
+  `resolved_unknown_answer_is_treated_as_pending`,
+  `reconcile_without_recorded_unknown_runs_no_query`,
+  `zero_retry_budget_escalates_without_query`,
+  `dispatch_identity_propagation_and_reconciler_inspection`) plus 5
+  `reconcile.rs` unit tests (`backoff_doubles_and_holds_at_ceiling`,
+  `backoff_clamps_to_hard_ceiling_and_saturates`,
+  `config_bounds_hostile_budgets`,
+  `reason_is_bounded_and_scrubbed_to_printable_ascii`,
+  `fake_reconciler_replays_fifo_and_records_queries`); slice
+  `host_conformance.rs` `Unknown` semantics
+  (`execution_unknown_agreement_is_shared` fail-closed on mismatched
+  `Unknown`, `execution_unknown_roundtrip_is_shared`: unknown stores,
+  same-id re-execution refused, resolve closes the unknown); merged in
+  `bitty-ai` `13ce4c6` (AI-0047, reconcile protocol), `f1adc2e` (AI-0063,
+  clock contract), `01919b8` (AI-0112, reason normalization). Stay-open
+  facets with reasons: exactly-once effects (reconcile only queries stored
+  outcomes and reports uncertainty; no execution or delivery guarantee is
+  evidenced) and cross-boundary safe retry (same-id re-dispatch is refused
+  by design and retry across the terminal/IPC boundary stays a host and
+  upstream decision; overlapping terminal/IPC routing, which stays open).
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
 ## Commands and tools
 
 Details: [command/tool architecture](../architecture/command-tool-architecture.md).
@@ -270,20 +330,20 @@ Details: [code intelligence](../agent/code-intelligence.md).
 
 Details: [persistence/evidence](../persistence/persistence-evidence.md).
 
-| ID     | Open choice                                                                                                      | Blocking feature and rationale                                                              | Proposed routing                            |
-| ------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| AIQ-51 | Schema and transaction boundaries                                                                                | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
-| AIQ-52 | State reconstruction versus effect re-execution contract                                                         | Prerequisite: replay must not silently rerun effects                                        | AI runtime, security                        |
-| AIQ-53 | Backend and optional search index                                                                                | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
-| AIQ-54 | Cross-store retention policy authority                                                                           | Prerequisite: host limits constrain user/tool preferences                                   | AI runtime, security                        |
-| AIQ-55 | Deletion/expiry and derived-record invalidation — Closed(partial): store-propagation facet only; see disposition | Prerequisite: remove payloads, summaries, caches and indexes consistently                   | AI runtime, security                        |
-| AIQ-56 | Alias of AIQ-10: CarryCtx persistence integration                                                                | Same design classification as AIQ-10; backend/handoff facet, not separate lifecycle owner   | AI runtime, CarryCtx/lifecycle              |
-| AIQ-57 | Reconstruction after deletion, expiry or destructive journal reduction                                           | Prerequisite: disclose missing evidence; projection-only compaction need not lose originals | AI runtime, security                        |
-| AIQ-58 | Per-reader evidence sharing enforcement                                                                          | Prerequisite: cache references cannot leak broader authority                                | AI runtime, security                        |
-| AIQ-59 | Unknown effect reconciliation and retry eligibility                                                              | Prerequisite: event log alone grants neither exactly-once nor safe retry                    | AI runtime, terminal/IPC, security          |
-| AIQ-5A | Typed redaction markers and invalidation mechanism                                                               | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
-| AIQ-5B | Bounded authorized observability queries                                                                         | Design: query needs and performance evidence; optional FTS                                  | AI runtime                                  |
-| AIQ-5C | Standalone AI persistence/release profile                                                                        | Scope: neither ephemeral v0.1 nor post-1.0 deferral is decided                              | standalone AI product, AI runtime, security |
+| ID     | Open choice                                                                                                                  | Blocking feature and rationale                                                              | Proposed routing                            |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| AIQ-51 | Schema and transaction boundaries                                                                                            | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
+| AIQ-52 | State reconstruction versus effect re-execution contract                                                                     | Prerequisite: replay must not silently rerun effects                                        | AI runtime, security                        |
+| AIQ-53 | Backend and optional search index                                                                                            | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
+| AIQ-54 | Cross-store retention policy authority                                                                                       | Prerequisite: host limits constrain user/tool preferences                                   | AI runtime, security                        |
+| AIQ-55 | Deletion/expiry and derived-record invalidation — Closed(partial): store-propagation facet only; see disposition             | Prerequisite: remove payloads, summaries, caches and indexes consistently                   | AI runtime, security                        |
+| AIQ-56 | Alias of AIQ-10: CarryCtx persistence integration                                                                            | Same design classification as AIQ-10; backend/handoff facet, not separate lifecycle owner   | AI runtime, CarryCtx/lifecycle              |
+| AIQ-57 | Reconstruction after deletion, expiry or destructive journal reduction                                                       | Prerequisite: disclose missing evidence; projection-only compaction need not lose originals | AI runtime, security                        |
+| AIQ-58 | Per-reader evidence sharing enforcement                                                                                      | Prerequisite: cache references cannot leak broader authority                                | AI runtime, security                        |
+| AIQ-59 | Unknown effect reconciliation and retry eligibility — Closed(partial): runtime-bounded-reconcile facet only; see disposition | Prerequisite: event log alone grants neither exactly-once nor safe retry                    | AI runtime, terminal/IPC, security          |
+| AIQ-5A | Typed redaction markers and invalidation mechanism                                                                           | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
+| AIQ-5B | Bounded authorized observability queries                                                                                     | Design: query needs and performance evidence; optional FTS                                  | AI runtime                                  |
+| AIQ-5C | Standalone AI persistence/release profile                                                                                    | Scope: neither ephemeral v0.1 nor post-1.0 deferral is decided                              | standalone AI product, AI runtime, security |
 
 AIQ-10/56 and AIQ-22/42 are stable aliases, not removed or renumbered IDs.
 Any promotion must reconcile all references and retain the alias mapping.
