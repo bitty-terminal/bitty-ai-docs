@@ -413,6 +413,8 @@ context.compress(task)
 
 **Proposed consequence**: Context items carry selection priorities. `pinned` and protection markers cannot override consent, redaction, expiry, deletion or resource ceilings. Durable retention policy is distinct from context-window priority and remains host-enforced even when Lua proposes selection policy.
 
+**Slice-harness evidence (experimental, store facet only):** the sibling `bitty-ai` `ArtifactStore` enforces generation-exact expiry (`store(bytes, generation)`, `resolve(reference, current_generation)`, typed `ArtifactExpired` for out-of-generation and `ArtifactUnavailable` for dangling or invalidated references) plus explicit `invalidate` with derived-record fail-closed propagation and inert inline summaries; merged in `bitty-ai` `e4ad1d5` (AI-0124) and `543e7d2` (AI-0125). Durable retention authority, host deletion timing, and cross-store cache and index propagation stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md). This describes sibling behavior only as read.
+
 **Unresolved**: Who assigns retention levels—tool implementations, Core heuristics, or agent instructions? Can the model influence retention through tool calls, or is it strictly managed by Core policy?
 
 ## MCP schema lazy loading
