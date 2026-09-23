@@ -99,6 +99,67 @@ matches the accepted dependency direction in
 [Dependency Strategy](dependency-strategy.md), where provider, tool-bus, MCP,
 code, and store adapters sit outside the std-only runtime.
 
+## v0.1 interface freeze (AI-0135)
+
+The sibling `bitty-ai` runtime froze the `ModelProvider` v0.1 interface
+contract in `5213efb` (AI-0135, Issue #261), recorded in the
+`ModelCapability`, `ModelDescriptor`, and `ModelProvider` doc-comments in
+`crates/bitty-ai-runtime/src/provider.rs`. This section mirrors that freeze
+identically in substance; the fuller candidate surface elsewhere in this
+document (notably [Core-owned surface](#core-owned-surface)) stays proposal,
+not v0.1 contract. Where the two differ, this section governs v0.1 and the
+candidate surface governs beyond v0.1.
+
+**Frozen v0.1 trait surface.** The trait surface is exactly `provider_id`
+(identity accessor, validated at construction) plus `list_models` /
+`complete` (registry snapshot / one synchronous turn) plus the
+test-observability pair `scripted_turns_remaining` / `complete_calls`.
+
+**Deferred as trait operations.** `capabilities` (capability matching lives
+in selection over descriptor snapshots, never by name alone), `stream`
+(chunked `seq`/`total`/`final` streaming lives in the runtime streaming
+layer, observed at chunk boundaries), and `cancel` (cancellation lives on the
+agent session, idempotent and terminal-state preserving per MP-7) are
+explicitly deferred past v0.1 as trait operations.
+
+**Frozen v0.1 descriptor shape.** The descriptor is exactly `name` (as
+referenced by the turn-request model field) plus `capabilities`. Deferred
+past v0.1 is the full MP-2 shape: `provider_id` (bounded `owner.name`),
+transport kind, `context_window`, `cost_marks`, `privacy_class`
+(`local-only` / `network-minimized` / `upload-notice`), and unknown-field
+fail-closed. Routing metadata that exists today (`provider_id`,
+`context_window_tokens`, cost weights) lives on the selection-layer model
+registration, not on this descriptor, and bridging stays host-side.
+
+**Deferred closed-vocabulary enforcement.** The spec vocabulary is
+text/streaming/tool-use/vision; the code enum additionally carries
+`ImageInput` / `AudioInput` / `AudioOutput` / `VideoInput` (routing
+vocabulary only, never advertised, selection fails closed when required) and
+`Reasoning` (MP-2 routing bit only). No host-side closed-vocabulary rejection
+is pinned for v0.1.
+
+**Spec-to-code capability mapping.** `Text` covers `text`, `Streaming` covers
+`streaming`, `ToolUse` covers `tool-use`, `ImageInput` narrows `vision` to
+image input; audio/video/reasoning have no spec counterpart.
+
+**Deferred sampling-matrix pinning.** The turn request carries the full
+validated MP-5 sampling contract while the slice `LocalProvider` maps only
+`temperature` / `top_p` / `frequency_penalty` / `presence_penalty` / `seed` /
+`max_tokens` / `stop` and refuses `top_k` / `repetition_penalty` / `min_p` /
+`response_format` / `reasoning` with `UnsupportedSampling` before I/O.
+
+**LocalProvider promotion bar.** Out of slice; all required before any
+promotion: the trait gains `capabilities` / `stream` (`StreamHandle`
+`seq`/`total`/`final` framing) / `cancel` (MP-7 idempotent) as trait
+operations; the descriptor gains `provider_id` (bounded `owner.name`),
+transport kind, `context_window`, `cost_marks`, `privacy_class`
+(`local-only`) with unknown-field fail-closed; the sampling matrix is pinned
+to mapped (`temperature`, `top_p`, `frequency_penalty`, `presence_penalty`,
+`seed`, `max_tokens`, `stop`) versus refused (`top_k`,
+`repetition_penalty`, `min_p`, `response_format`, `reasoning`) with no silent
+defaulting; advertised capabilities match the backend (no `Streaming` /
+`ToolUse` claim without support).
+
 ## Transport taxonomy proposal
 
 The candidate direction proposes distinguishing API providers from
