@@ -85,6 +85,14 @@ experimental adoption row already recorded in
 - The supervising execution backend owns process and PTY handles, generations,
   and cleanup. A Panel may later project the same execution without recreating
   it, and many-to-many observation keeps independent lifetimes.
+- PTY carries human-compatible terminal semantics only: stdout and stderr
+  merge into a single byte stream at the PTY/kernel layer, so a terminal
+  emulator cannot reliably attribute spans to streams. Structured command
+  results (stdout, stderr, exit code, artifacts, task outcome) must therefore
+  travel via the Execution Service, Process Supervisor, Shell Integration,
+  typed outcome, or IPC — never be derived from PTY output. This is why
+  execution, agent task/job state, and PTY stay separate: the PTY shows, the
+  supervisor knows.
 - Presentation movement (hide, show, move, detach) changes attachment only. It
   never moves the execution target, broadens context access, or manufactures
   consent.
@@ -184,6 +192,12 @@ A future implementation claiming this disposition must show, at minimum:
   still required by another authorized waiter.
 - Structured exec results disclosing failures, truncation, and `Unknown`
   outcomes with bounded redacted evidence.
+- Negative evidence that no structured result is derived from PTY output:
+  exit codes, stream separation, and artifacts arrive via the supervised
+  backend's typed outcome path, consistent with the single-stream limit
+  above (a sibling conformance point: `bitty-agent`'s `AgentObservation`
+  queue carries `ProcessExited { code }` without stream bytes and never
+  places PTY descriptors in the queue).
 - Negative evidence that `bitty-agent` performs no model selection, model I/O,
   or API-key handling, and that no Core AI-specific API exists beyond generic
   primitives.
