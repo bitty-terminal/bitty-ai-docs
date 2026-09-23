@@ -17,7 +17,7 @@ This local draft preserves 53 identifiers, including aliases, not 53 independent
 questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
-AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, and AIQ-55
+AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, and AIQ-55
 store-propagation facets (Closed(partial)); no accepted global decision is made here.
 
 ## Disposition
@@ -44,7 +44,7 @@ Details: [context management](../context/context-management.md),
 
 | ID     | Open choice                                                                                                         | Blocking feature and rationale                                                                                                                   | Proposed routing               |
 | ------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
-| AIQ-01 | Per-request versus incremental context generation                                                                   | Design: view cadence and invalidation                                                                                                            | AI runtime                     |
+| AIQ-01 | Per-request versus incremental context generation — Closed(partial): snapshot-stream facet only; see disposition    | Design: view cadence and invalidation                                                                                                            | AI runtime                     |
 | AIQ-02 | Compression backend selection                                                                                       | Design: routing within provider consent and budget                                                                                               | AI runtime, security           |
 | AIQ-03 | Artifact expiry and reference invalidation — Closed(partial): store-expiry facet only; see disposition              | Prerequisite: retained artifacts must honor deletion and bounds                                                                                  | AI runtime, security           |
 | AIQ-04 | Selection priority versus durable retention authority — Closed(partial): generation-pin facet only; see disposition | Prerequisite: pinning cannot override consent or expiry                                                                                          | AI runtime, security           |
@@ -113,6 +113,48 @@ Adopted-draft wording only.
   boundary plus alias-proof test). Follow-up pointer, not an open facet: the
   implicit-versus-explicit routing half narrows to a pure policy choice
   operating inside non-leaking keys.
+
+### AIQ-01 disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-01 — Closed(partial): snapshot-stream facet closed; full
+  incrementality and background-maintenance facets stay open.** Closed choice:
+  session-pinned snapshot plus per-turn deltas with explicit host-authorized
+  refresh rotating the generation pin — the stable snapshot head warms the
+  `Session` prefix-cache key while only the turn tail varies, and a refresh
+  misses the retired key by construction. Evidence: code
+  `bitty-ai-slice/src/snapshot_ingest.rs` (`ingest_snapshot` digest-verified
+  ingestion, `RefreshAuthorization::authorize` per-call token,
+  `RefreshLedger::issue` strictly increasing issuance with `retired()` audit
+  chain and `RefreshError::NotAdvancing` fail-closed replay denial,
+  `project_layer_text` marker-prefixed PROJECT rendering embedding the full
+  digest, `prompt_snapshot_with_project` binding the record summary to the
+  digest); tests `snapshot_delta.rs`
+  (`session_pinned_snapshot_with_per_turn_delta`: gen-1 pin, gen-1 delta
+  alongside, gen-2 refresh with `StaleGeneration` denial of the stale pin),
+  `session_wiring.rs` (`full_session_lifecycle_composes`: ledger issuance,
+  tail-only key warmth, refresh miss, retired-generation re-issue denial,
+  invalidation fail-closed), `cache_affinity.rs` (`same_digest_warms_same_key`,
+  `changed_digest_misses_key`, `project_text_is_stable_prefixed_and_bounded`),
+  `hit_rate.rs` (`stable_head_with_varying_tail_hits_consecutively`,
+  `refreshed_snapshot_misses_then_rewarms`); runtime `StaleGeneration` (AG-2)
+  fail-closed assembly gate underpinning rotation; merged in `bitty-ai`
+  `e3bcfe2` (AI-0123, delta cycle), `8427008` (AI-0126, ledger), `f70d3ac`
+  (AI-0127, affinity), `7de59d9` (AI-0128, project-layer builder), `a809896`
+  (AI-0129, hit-rate), `3858700` (AI-0130, session wiring). Stay-open facets
+  with reasons: full incremental view update (each turn reassembles from the
+  pinned snapshot plus a recollected delta; no cached view is mutated in
+  place and no diff-application mechanism is evidenced) and background
+  maintenance scheduling and consistency (ingest keeps no cache and schedules
+  no background refresh; the ledger is pure generation arithmetic with no
+  bytes, clock, or I/O; refresh timing stays a host decision — overlapping
+  AIQ-05, which stays open).
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
 
 ### AIQ-03, AIQ-04, and AIQ-55 dispositions (local draft only)
 

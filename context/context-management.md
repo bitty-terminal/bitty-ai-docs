@@ -725,6 +725,8 @@ Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109
 
 1. **Context view generation cadence**: Is the context view generated once per LLM request, or cached and incrementally updated?
 
+   **Slice-harness evidence (experimental, snapshot-stream facet only):** the sibling `bitty-ai` snapshot stream pins one digest-verified snapshot per session, re-collects per-turn deltas at the current generation, and rotates the pin on explicit host-authorized refresh (`RefreshLedger` monotonic issuance with retired chain, `StaleGeneration` fail-closed on stale pins); the stable snapshot head warms the `Session` prefix-cache key while only the turn tail varies, and a refresh misses the retired key. Merged in `bitty-ai` `e3bcfe2` (AI-0123), `8427008` (AI-0126), `f70d3ac` (AI-0127), `7de59d9` (AI-0128), `a809896` (AI-0129), `3858700` (AI-0130). Full incrementality and background maintenance stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md). This describes sibling behavior only as read.
+
 2. **Compression backend selection**: Who chooses the compression backend—user configuration, agent instruction, or Core heuristics based on provider capabilities?
 
 3. **Artifact garbage collection**: When do `panel://`, `artifact://`, `file://` references expire? Is there a reference-counting GC, time-based expiry, or manual cleanup?
