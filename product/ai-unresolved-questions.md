@@ -18,8 +18,8 @@ questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
 AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
-store-propagation, AIQ-59 runtime-bounded-reconcile, and AIQ-37 runtime/slice-side outcome-vocabulary
-facets (Closed(partial)); no accepted global decision is made here.
+store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-37 runtime/slice-side outcome-vocabulary,
+and AIQ-24/AIQ-25 single-hop whole-batch admission facets (Closed(partial)); no accepted global decision is made here.
 
 ## Disposition
 
@@ -356,20 +356,67 @@ as part of those inspections beyond this register.
 
 Details: [agent coordination](../agent/agent-coordination.md).
 
-| ID     | Open choice                                       | Blocking feature and rationale                                                        | Proposed routing                                |
-| ------ | ------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| AIQ-21 | Service compatibility-key validation/invalidation | Prerequisite: incompatible targets/overlays must not share state                      | AI runtime, code intelligence                   |
-| AIQ-22 | Cross-scope service non-disclosure mechanism      | Prerequisite: prove isolation or exclude sharing; filtering alone is not proof        | code intelligence, security                     |
-| AIQ-23 | Lease heartbeat and crash reconciliation          | Prerequisite: bounded supervised ownership cannot rely on destructors                 | AI runtime, terminal/IPC                        |
-| AIQ-24 | Atomic ancestor/global budget reservation         | Prerequisite: concurrent delegation cannot overspend or double-spend                  | AI runtime, security                            |
-| AIQ-25 | Measured depth/fan-out limits                     | Prerequisite: bounded delegation admission                                            | AI runtime, security                            |
-| AIQ-26 | Independent review evidence criteria              | Prerequisite: acceptance cannot derive from self-review/shared PASS                   | AI runtime, CarryCtx/lifecycle                  |
-| AIQ-27 | Context graph traversal/cycle mechanism           | Prerequisite: bounded retrieval under adversarial references                          | AI runtime, security                            |
-| AIQ-28 | Critical-message acknowledgement and recovery     | Prerequisite: assignment/approval/cancel cannot silently drop or imply effect success | AI runtime, CarryCtx/lifecycle                  |
-| AIQ-29 | Optional Panel/execution projection bindings      | Design: presentation movement cannot move execution targets                           | AI runtime, terminal/panel                      |
-| AIQ-2A | No-UI execution feature profile                   | Scope: bounded work versus persistent services needs explicit selection               | AI runtime, terminal/IPC, standalone AI product |
-| AIQ-2B | Supervisor crash recovery/adoption                | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
-| AIQ-2C | Interactive writer fencing                        | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
+| ID     | Open choice                                                                                                               | Blocking feature and rationale                                                        | Proposed routing                                |
+| ------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| AIQ-21 | Service compatibility-key validation/invalidation                                                                         | Prerequisite: incompatible targets/overlays must not share state                      | AI runtime, code intelligence                   |
+| AIQ-22 | Cross-scope service non-disclosure mechanism                                                                              | Prerequisite: prove isolation or exclude sharing; filtering alone is not proof        | code intelligence, security                     |
+| AIQ-23 | Lease heartbeat and crash reconciliation                                                                                  | Prerequisite: bounded supervised ownership cannot rely on destructors                 | AI runtime, terminal/IPC                        |
+| AIQ-24 | Atomic ancestor/global budget reservation — Closed(partial): single-hop whole-batch admission facet only; see disposition | Prerequisite: concurrent delegation cannot overspend or double-spend                  | AI runtime, security                            |
+| AIQ-25 | Measured depth/fan-out limits — Closed(partial): single-hop whole-batch admission facet only; see disposition             | Prerequisite: bounded delegation admission                                            | AI runtime, security                            |
+| AIQ-26 | Independent review evidence criteria                                                                                      | Prerequisite: acceptance cannot derive from self-review/shared PASS                   | AI runtime, CarryCtx/lifecycle                  |
+| AIQ-27 | Context graph traversal/cycle mechanism                                                                                   | Prerequisite: bounded retrieval under adversarial references                          | AI runtime, security                            |
+| AIQ-28 | Critical-message acknowledgement and recovery                                                                             | Prerequisite: assignment/approval/cancel cannot silently drop or imply effect success | AI runtime, CarryCtx/lifecycle                  |
+| AIQ-29 | Optional Panel/execution projection bindings                                                                              | Design: presentation movement cannot move execution targets                           | AI runtime, terminal/panel                      |
+| AIQ-2A | No-UI execution feature profile                                                                                           | Scope: bounded work versus persistent services needs explicit selection               | AI runtime, terminal/IPC, standalone AI product |
+| AIQ-2B | Supervisor crash recovery/adoption                                                                                        | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
+| AIQ-2C | Interactive writer fencing                                                                                                | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
+
+### AIQ-24 and AIQ-25 disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-24 and AIQ-25 — Closed(partial): single-hop whole-batch admission
+  facet closed; atomic multi-party reservation and measured depth/fan-out
+  facets stay open.** Closed choice: single-hop whole-batch admission against
+  the remaining logical-turn tool-call allowance — every provider round's
+  calls are authorized and admitted as one batch against `remaining =
+min(configured_limit, MAX_TOOL_CALLS_PER_TURN) - calls_this_turn`, and an
+  over-allowance batch is refused whole with `CallLimitExceeded` carrying the
+  effective limit, nothing dispatched and the counter unchanged (FS-AI1
+  transactional denial; rejection is admission-only, never rollback of earlier
+  rounds). Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/src/tool.rs` (`ToolBus::begin_turn`
+  per-turn counter reset, `ToolBus::calls_this_turn` cumulative scope across
+  the turn's provider rounds, `ToolBus::precheck` whole-batch gate with
+  `effective_limit = configured_limit.min(MAX_TOOL_CALLS_PER_TURN)`,
+  `MAX_TOOL_CALLS_PER_TURN` 8, `ToolError::CallLimitExceeded`), `agent.rs`
+  per-round transactional gate (`precheck(&calls, &precheck_base,
+self.config.max_tool_calls_per_turn)` before any dispatch, FS-AI1
+  whole-batch comment); unit test
+  `precheck_rejects_a_batch_exceeding_remaining_allowance` (7 dispatches, then
+  a 2-call batch refused whole with `CallLimitExceeded { limit: 4 }`, counter
+  staying 7 with 7 executor calls) plus
+  `precheck_rejects_a_later_batch_beyond_remaining_hard_allowance` (6
+  dispatches, then a 3-call batch refused whole at the hard ceiling) and the
+  `batch_evidence.rs` logical-turn budget coverage
+  (`tight_configured_cap_is_cumulative_across_provider_rounds`,
+  `later_batch_beyond_remaining_hard_allowance_is_rejected_whole`,
+  `bus_whole_batch_admission_is_cumulative_and_rejects_whole_batches`); merged
+  in `bitty-ai` `d71fc30` (AI-0108, AI-RUN-003). Cross-check: the [v0.1
+  Implementation Profile](implementation-profile-v0.1.md) runs a single-agent
+  loop only and keeps AIQ-24/AIQ-25 blocking "before the loop admits more than
+  one hop", so this evidence covers the single-hop budget gate and nothing
+  beyond it. Stay-open facets with reasons: atomic multi-party (global and
+  ancestor) budget reservation across concurrent delegation (no concurrent
+  reservation mechanism evidenced; the counter is a single-agent per-turn
+  scope) and measured depth/fan-out bounds (no delegation-depth or
+  direct-report measurement or enforcement evidenced); both are v0.1 non-goals
+  (multi-agent budgets, hierarchical delegation).
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
 
 ## Code intelligence
 
