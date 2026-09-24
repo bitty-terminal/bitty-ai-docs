@@ -512,7 +512,11 @@ self.config.max_tool_calls_per_turn)` before any dispatch, FS-AI1
   Implementation Profile](implementation-profile-v0.1.md) runs a single-agent
   loop only and keeps AIQ-24/AIQ-25 blocking "before the loop admits more than
   one hop", so this evidence covers the single-hop budget gate and nothing
-  beyond it. Stay-open facets with reasons: atomic multi-party (global and
+  beyond it. Facet pointer: the closed single-hop whole-batch admission facet
+  now resolves against the model window via
+  `AgentConfig::effective_budget_bytes` (AI-0139, `bitty-ai` `8fd8f6e`);
+  full evidence is recorded in the AIQ-01 disposition above, so none is
+  duplicated here. Stay-open facets with reasons: atomic multi-party (global and
   ancestor) budget reservation across concurrent delegation (no concurrent
   reservation mechanism evidenced; the counter is a single-agent per-turn
   scope) and measured depth/fan-out bounds (no delegation-depth or
