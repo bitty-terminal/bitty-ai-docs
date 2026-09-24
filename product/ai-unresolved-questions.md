@@ -19,7 +19,7 @@ Promotion requires the canonical [OQ admission rule](https://github.com/bitty-te
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
 AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
 store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-37 runtime/slice-side outcome-vocabulary,
-and AIQ-24/AIQ-25 single-hop whole-batch admission facets (Closed(partial)); no accepted global decision is made here.
+and AIQ-24/AIQ-25 single-hop whole-batch admission, and AIQ-5A container-level redaction facets (Closed(partial)); no accepted global decision is made here.
 
 ## Disposition
 
@@ -344,7 +344,17 @@ Unknown}`, `EffectState::{Completed, Failed, Canceled, Unknown}`,
   summaries on both hosts); merged in `bitty-ai` `3f364db` (AI-0077, disclosure
   proof), `201cfe9` (AI-0109, AI-RUN-004 effect/result/admission separation),
   `01919b8` (AI-0112, AI-RUN-008 reason normalization), `c44ee7b` (AI-0035,
-  shared host conformance). Stay-open facets with reasons: wire/IPC schema
+  shared host conformance). Secret-free disclosure facet: AI-0138 adds a typed
+  `SecretField` container that keeps secret values out of every diagnostic,
+  trace, and snapshot surface — `Debug`/`Display` emit the fixed
+  `[redacted secret]` marker unconditionally (no value, length, or prefix),
+  `SecretError` Displays carry bounds not values, `is_absent_from` gates
+  pre-queue/pre-write absence, `scrub_from` replaces every occurrence with the
+  fixed marker, and seeded-secret negative tests prove absence across provider,
+  consent/bridge, and turn-request snapshot surfaces (including the merged-commit
+  review fix that stopped echoing the candidate surface into the test log);
+  merged in `bitty-ai`
+  `386952c` (AI-0138). Stay-open facets with reasons: wire/IPC schema
   with the terminal side (the terminal/IPC half of the outcome contract stays
   a host and upstream decision; overlapping terminal/IPC routing, which stays
   open).
@@ -448,7 +458,7 @@ Details: [persistence/evidence](../persistence/persistence-evidence.md).
 | AIQ-57 | Reconstruction after deletion, expiry or destructive journal reduction                                                       | Prerequisite: disclose missing evidence; projection-only compaction need not lose originals | AI runtime, security                        |
 | AIQ-58 | Per-reader evidence sharing enforcement                                                                                      | Prerequisite: cache references cannot leak broader authority                                | AI runtime, security                        |
 | AIQ-59 | Unknown effect reconciliation and retry eligibility — Closed(partial): runtime-bounded-reconcile facet only; see disposition | Prerequisite: event log alone grants neither exactly-once nor safe retry                    | AI runtime, terminal/IPC, security          |
-| AIQ-5A | Typed redaction markers and invalidation mechanism                                                                           | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
+| AIQ-5A | Typed redaction markers and invalidation mechanism — Closed(partial): container-level redaction facet only; see disposition  | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
 | AIQ-5B | Bounded authorized observability queries                                                                                     | Design: query needs and performance evidence; optional FTS                                  | AI runtime                                  |
 | AIQ-5C | Standalone AI persistence/release profile                                                                                    | Scope: neither ephemeral v0.1 nor post-1.0 deferral is decided                              | standalone AI product, AI runtime, security |
 
@@ -456,3 +466,46 @@ AIQ-10/56 and AIQ-22/42 are stable aliases, not removed or renumbered IDs.
 Any promotion must reconcile all references and retain the alias mapping.
 Other overlapping topics (for example context priority and cross-store retention)
 retain their distinct facets; this register claims no count of independent OQs.
+
+### AIQ-5A disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-5A — Closed(partial): container-level redaction facet closed;
+  mandatory pre-queue/pre-write TIMING and marker/invalidation facets stay open.**
+  Closed choice: a typed `SecretField` container with unconditional redaction —
+  `Debug`/`Display` emit the fixed `[redacted secret]` marker (no value,
+  length, or prefix), construction fails closed on empty or over-bound
+  (`SecretError::{Empty, TooLong}` with value-free error Displays),
+  `expose_for_adapter` is the single intentionally-named raw-value path pinned
+  to the host adapter edge, and `is_absent_from`/`scrub_from` gate or scrub
+  diagnostics before they reach a queue or file. Consent separation is pinned
+  alongside: an `ai.provider` grant satisfies its exact triple only and never
+  cross-fills streaming or Tool Bus scopes (and vice versa). Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/src/secret.rs` (`SecretField`,
+  `SecretError`, `MAX_SECRET_LEN` 4 KiB, `SECRET_REDACTED`,
+  `is_absent_from`/`scrub_from` pre-queue/pre-write helpers, `PROVIDER_SCOPE`
+  `ai.provider`); 10 unit tests
+  (`secret_field_debug_and_display_redact_unconditionally`,
+  `secret_field_construction_fails_closed`,
+  `expose_for_adapter_is_the_only_raw_value_path`,
+  `is_absent_from_proves_absence_before_queue_or_write`,
+  `scrub_from_replaces_every_occurrence_pre_write`,
+  `scrub_from_handles_non_utf8_secret_bytes`,
+  `provider_grant_does_not_satisfy_other_scopes_and_vice_versa`,
+  `seeded_secret_appears_nowhere_in_provider_diagnostics`,
+  `seeded_secret_appears_nowhere_in_consent_and_bridge_surfaces`,
+  `seeded_secret_appears_nowhere_in_turn_request_snapshot`) with the
+  `assert_secret_absent` helper naming the label only (the review fix in the
+  merged commit stopped echoing the candidate surface into the test log);
+  merged in `bitty-ai` `386952c` (AI-0138). Stay-open facets with reasons:
+  mandatory pre-queue/pre-write redaction TIMING (helpers exist but no queue
+  or write path is shown calling them; enforcement stays a host and upstream
+  decision), and typed marker representation plus invalidation mechanics
+  (fixed `[redacted secret]` container marker only; no marker/invalidation
+  protocol or derived-record invalidation beyond it is evidenced).
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
