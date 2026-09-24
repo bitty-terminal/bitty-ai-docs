@@ -17,7 +17,7 @@ This local draft preserves 53 identifiers, including aliases, not 53 independent
 questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
-AIQ-01 snapshot-stream, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
+AIQ-01 snapshot-stream, window-budget, and compiled-ingest, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
 store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-37 runtime/slice-side outcome-vocabulary,
 and AIQ-24/AIQ-25 single-hop whole-batch admission, and AIQ-5A container-level redaction facets (Closed(partial)); no accepted global decision is made here.
 
@@ -43,21 +43,21 @@ consented recording; open mechanisms cannot defer those controls.
 Details: [context management](../context/context-management.md),
 [prefix-cache context design](../context/prefix-cache-context-design.md).
 
-| ID     | Open choice                                                                                                                       | Blocking feature and rationale                                                                                                                   | Proposed routing               |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
-| AIQ-01 | Per-request versus incremental context generation — Closed(partial): snapshot-stream facet only; see disposition                  | Design: view cadence and invalidation                                                                                                            | AI runtime                     |
-| AIQ-02 | Compression backend selection                                                                                                     | Design: routing within provider consent and budget                                                                                               | AI runtime, security           |
-| AIQ-03 | Artifact expiry and reference invalidation — Closed(partial): store-expiry facet only; see disposition                            | Prerequisite: retained artifacts must honor deletion and bounds                                                                                  | AI runtime, security           |
-| AIQ-04 | Selection priority versus durable retention authority — Closed(partial): generation-pin facet only; see disposition               | Prerequisite: pinning cannot override consent or expiry                                                                                          | AI runtime, security           |
-| AIQ-05 | Background maintenance scheduling/consistency — stays open; cancel-observability evidence recorded with no facet closed, see note | Design: preserve bounded responsive admission                                                                                                    | AI runtime                     |
-| AIQ-06 | Re-expansion after projection compaction                                                                                          | Design: only surviving authorized originals are recoverable; see AIQ-57                                                                          | AI runtime                     |
-| AIQ-07 | Cross-session memory retrieval mechanism                                                                                          | Prerequisite: consent, freshness and deletion propagation                                                                                        | AI runtime, security           |
-| AIQ-08 | MCP schema cache invalidation                                                                                                     | Prerequisite: stale schemas cannot authorize changed effects                                                                                     | AI runtime, security           |
-| AIQ-09 | Skill format/versioning and ecosystem compatibility                                                                               | Design: loading declarations grants no execution authority                                                                                       | AI runtime, plugin API         |
-| AIQ-10 | Task lifecycle authority and CarryCtx backend/handoff                                                                             | Design: one lifecycle authority for integration; AIQ-56 is its persistence alias                                                                 | AI runtime, CarryCtx/lifecycle |
-| AIQ-11 | Context injection-defense enforcement evidence — Closed(partial): L0/L1 facet only; see disposition                               | Prerequisite: untrusted observations cannot control maintenance policy; L2+ compression and retention facets stay open                           | AI runtime, security           |
-| AIQ-12 | Canonical serialization and stable-prefix ordering — Closed (adopted-draft); see disposition                                      | Design: deterministic prompt/1 encoding adopted for the prefix-cache prerequisite                                                                | AI runtime                     |
-| AIQ-13 | Provider-scoped prefix-cache key and routing scope — Closed (adopted-draft); see disposition                                      | Design: provider-scoped CacheKey/CacheScope keying plus measured hit-rate evidence; implicit-vs-explicit routing stays a follow-up policy choice | AI runtime, security           |
+| ID     | Open choice                                                                                                                                           | Blocking feature and rationale                                                                                                                   | Proposed routing               |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
+| AIQ-01 | Per-request versus incremental context generation — Closed(partial): snapshot-stream, window-budget, and compiled-ingest facets only; see disposition | Design: view cadence and invalidation                                                                                                            | AI runtime                     |
+| AIQ-02 | Compression backend selection                                                                                                                         | Design: routing within provider consent and budget                                                                                               | AI runtime, security           |
+| AIQ-03 | Artifact expiry and reference invalidation — Closed(partial): store-expiry facet only; see disposition                                                | Prerequisite: retained artifacts must honor deletion and bounds                                                                                  | AI runtime, security           |
+| AIQ-04 | Selection priority versus durable retention authority — Closed(partial): generation-pin facet only; see disposition                                   | Prerequisite: pinning cannot override consent or expiry                                                                                          | AI runtime, security           |
+| AIQ-05 | Background maintenance scheduling/consistency — stays open; cancel-observability evidence recorded with no facet closed, see note                     | Design: preserve bounded responsive admission                                                                                                    | AI runtime                     |
+| AIQ-06 | Re-expansion after projection compaction                                                                                                              | Design: only surviving authorized originals are recoverable; see AIQ-57                                                                          | AI runtime                     |
+| AIQ-07 | Cross-session memory retrieval mechanism                                                                                                              | Prerequisite: consent, freshness and deletion propagation                                                                                        | AI runtime, security           |
+| AIQ-08 | MCP schema cache invalidation                                                                                                                         | Prerequisite: stale schemas cannot authorize changed effects                                                                                     | AI runtime, security           |
+| AIQ-09 | Skill format/versioning and ecosystem compatibility                                                                                                   | Design: loading declarations grants no execution authority                                                                                       | AI runtime, plugin API         |
+| AIQ-10 | Task lifecycle authority and CarryCtx backend/handoff                                                                                                 | Design: one lifecycle authority for integration; AIQ-56 is its persistence alias                                                                 | AI runtime, CarryCtx/lifecycle |
+| AIQ-11 | Context injection-defense enforcement evidence — Closed(partial): L0/L1 facet only; see disposition                                                   | Prerequisite: untrusted observations cannot control maintenance policy; L2+ compression and retention facets stay open                           | AI runtime, security           |
+| AIQ-12 | Canonical serialization and stable-prefix ordering — Closed (adopted-draft); see disposition                                                          | Design: deterministic prompt/1 encoding adopted for the prefix-cache prerequisite                                                                | AI runtime                     |
+| AIQ-13 | Provider-scoped prefix-cache key and routing scope — Closed (adopted-draft); see disposition                                                          | Design: provider-scoped CacheKey/CacheScope keying plus measured hit-rate evidence; implicit-vs-explicit routing stays a follow-up policy choice | AI runtime, security           |
 
 ### AIQ-11, AIQ-12, and AIQ-13 dispositions (local draft only)
 
@@ -121,8 +121,9 @@ This disposition closes a register facet with implementation evidence. It sets
 no owners or milestones, grants no global promotion, and uses Closed(partial)
 wording only.
 
-- **AIQ-01 — Closed(partial): snapshot-stream facet closed; full
-  incrementality and background-maintenance facets stay open.** Closed choice:
+- **AIQ-01 — Closed(partial): snapshot-stream, window-budget, and
+  compiled-ingest facets closed; full incrementality and
+  background-maintenance facets stay open.** Closed choice:
   session-pinned snapshot plus per-turn deltas with explicit host-authorized
   refresh rotating the generation pin — the stable snapshot head warms the
   `Session` prefix-cache key while only the turn tail varies, and a refresh
@@ -145,7 +146,59 @@ wording only.
   fail-closed assembly gate underpinning rotation; merged in `bitty-ai`
   `e3bcfe2` (AI-0123, delta cycle), `8427008` (AI-0126, ledger), `f70d3ac`
   (AI-0127, affinity), `7de59d9` (AI-0128, project-layer builder), `a809896`
-  (AI-0129, hit-rate), `3858700` (AI-0130, session wiring). Stay-open facets
+  (AI-0129, hit-rate), `3858700` (AI-0130, session wiring). Window-budget
+  facet: AI-0139 resolves the per-turn byte budget against the model window
+  before provider I/O — `AgentConfig::effective_budget_bytes` computes
+  `min(context_budget_bytes, window_tokens * 4)` under the documented
+  `BYTES_PER_TOKEN_ESTIMATE` skeleton heuristic with saturating arithmetic,
+  and an unknown window (`None` or `0`) keeps the configured ceiling
+  unchanged (unknown-passthrough, never a fabricated default); the one
+  effective value drives both context assembly (`ContextRequest.max_bytes`)
+  and the provider pre-I/O check (`TurnRequest.budget_bytes`), so
+  `BudgetExceeded` carries the effective limit. The agent holds no model
+  registry: the host copies the selected registration's window into
+  `context_window_tokens` at wiring time, and a stale copy only changes the
+  byte bound the run enforces locally. Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/src/agent.rs`
+  (`AgentConfig::{context_window_tokens, effective_budget_bytes}`,
+  `run_turn` resolving the effective budget for assembly and the turn
+  request), `provider.rs` (`TurnRequest.budget_bytes` carrying the effective
+  bound, not the raw configured ceiling); 5 `window_budget.rs` tests
+  (`effective_budget_is_unit_min_with_unknown_passthrough`,
+  `smaller_window_wins_at_the_provider_boundary`,
+  `unknown_window_keeps_current_behavior_exactly`,
+  `boundary_window_equal_to_budget_behaves_like_unknown`,
+  `narrower_window_stops_before_tool_dispatch`); merged in `bitty-ai`
+  `8fd8f6e` (AI-0139). Compiled-ingest facet: AI-0141 ingests
+  compiler-produced PROJECT/DELTA layer texts as runtime records through
+  `ingest_compiled_turn` — pure bytes-in/records-out (no process spawning,
+  filesystem, network, or caching); the PROJECT text is verified by marker
+  (`project-snapshot/1` exactly once, at the front) plus digest-prefix
+  binding (the text must end with `full-digest <digest>` carrying the
+  supplied digest verbatim while the remainder contains the
+  `digest <prefix12>` summary prefix, so appending a stolen digest without
+  the matching summary still fails — review probe PX-0554), and every DELTA
+  text is verified by marker (`delta/1` prefix) plus generation pin (a stale
+  layer fails the whole turn closed with `StaleLayer`; every failure leaves
+  the store unchanged, no partial records). Trust follows the established
+  pattern: the PROJECT record is the snapshot-backed project observation
+  (provider `"project"`, untrusted surface, AIQ-11 clamp applies at assembly)
+  and DELTA records are host-collected observations (provider `"diagnostics"`,
+  trusted, like the AI-0123 delta pattern); the host owns all byte assembly
+  (running the context-compiler out of process, assigning record identity,
+  authorizing the refresh) and every layer text is verified, never
+  interpreted. Evidence: code
+  `bitty-ai/crates/bitty-ai-slice/src/snapshot_ingest.rs`
+  (`CompiledTurnIngestRequest`, `CompiledTurnIngestError`,
+  `ingest_compiled_turn`, `COMPILED_DELTA_MARKER`,
+  `COMPILED_DELTA_PROVIDER`); 7 `compiled_turn.rs` tests over recorded
+  compiler-output fixtures (`recorded_fixture_markers_are_exact`,
+  `compiled_turn_ingests_project_plus_deltas`,
+  `stale_delta_fails_the_whole_turn_closed`, `bad_markers_fail_closed`,
+  `forged_digest_appendage_without_summary_prefix_fails`,
+  `truncation_marker_tail_compiles_as_inert_delta`,
+  `compiled_ingest_is_deterministic`); merged in `bitty-ai` `29005c7`
+  (AI-0141). Stay-open facets
   with reasons: full incremental view update (each turn reassembles from the
   pinned snapshot plus a recollected delta; no cached view is mutated in
   place and no diff-application mechanism is evidenced) and background
