@@ -262,7 +262,14 @@ This invariant is the non-negotiable security core of the boundary:
   from streaming and Tool Bus scopes, are redacted by typed `SecretField`
   before any diagnostic, trace, or snapshot, and never appear in environment
   passthrough, discovery files, trace files, or agent workspaces (MP-10,
-  Invariant 9, P0-AC-026).
+  Invariant 9, P0-AC-026). The sibling `bitty-ai` runtime evidences the
+  container half in `386952c` (AI-0138): `SecretField` Debug/Display emit the
+  fixed `[redacted secret]` marker unconditionally, `is_absent_from` gates
+  and `scrub_from` scrubs before queue or write, and the `ai.provider` grant
+  satisfies its exact triple only — see
+  [AI Unresolved Questions](../product/ai-unresolved-questions.md) AIQ-5A.
+  Mandatory pre-queue/pre-write enforcement timing and the marker/invalidation
+  mechanism stay open there. This describes sibling behavior only as read.
 - Typed redaction applies pre-queue and pre-write (PP-2, P0-AC-026, AIQ-5A),
   and no secret-bearing record persists without explicit applicable consent
   (PP-4).
