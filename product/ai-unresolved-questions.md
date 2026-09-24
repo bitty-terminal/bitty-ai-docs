@@ -309,6 +309,19 @@ store enforces removal and expiry, the host decides what to delete and when.
   and consistent cross-store removal of caches and indexes (no cross-store
   mechanism evidenced).
 
+Evaluation AI-0144: the promoted context-store retention contract (owner
+cs-commander-oc) was evaluated analysis-first for ArtifactStore alignment
+and closed docs-only in `bitty-ai#279` (review probes PX-0563/PX-0564):
+fundamental model gap between a content-addressed object graph with
+ref-table and explicit sweep versus the shipped generation-keyed flat
+buffer with exact-pin and single `invalidate`; candidate verdicts were
+generation-pin already shipped (AI-0124/AI-0125),
+invalidate-versus-unlink not alignable without breaking frozen tests,
+closure rule a fundamental gap, pin set polarity-opposed (keep-alive
+versus retire), counted report cosmetic without a sweep, and derived-key
+index a new feature out of scope; AIQ-55 stays Closed(partial) with no
+facet change.
+
 These describe sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
