@@ -33,6 +33,49 @@ single-crate scope and defers transport, intelligence, and storage detail to
 [Persistence and Evidence Architecture](../persistence/persistence-evidence.md). These are
 topic relationships, not accepted authority.
 
+## Normative sources this specification must not weaken
+
+- [AI Architecture](../architecture/ai-architecture.md): MP-3, MP-10, TB-1,
+  TB-3, TB-4, AG-4, AG-5, CP-5, PP-1, PP-2, and PP-4, plus the
+  architecture-level rule that AI and Agent effects stay outside terminal Core.
+- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): bounded
+  framing, scope families, authentication, consent, and streaming constraints
+  that every native or MCP adapter must preserve.
+- [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md):
+  external effects remain untrusted until a narrow grant, and dependency
+  convenience must not create ambient authority or a bypass.
+- [P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md):
+  P0-AC-021 through P0-AC-026, including mandatory typed redaction before queue
+  and before write.
+- [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md): the
+  single-runtime, `FakeProvider`, and zero-new-dependency scope gate that this
+  proposal may elaborate but cannot override.
+- [Tool transport R2](../architecture/tool-transport-r2.md): the unified
+  authorization backend that native and MCP effects must continue to share.
+
+Where this document refines a dependency, threshold, or ownership edge, it
+refines those sources. If a candidate crate or mechanism weakens a normative
+control, the normative text wins and this document must be corrected.
+
+## Terminology
+
+| Term                 | Meaning here                                                                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kernel               | `bitty-ai-runtime` as the deterministic agent state machine over traits and domain types, without an I/O framework or third-party transport stack.                            |
+| Dependency inversion | Kernel-owned domain traits and values with external protocols and I/O implemented behind adapters, so the dependency direction points from concrete adapters into the kernel. |
+| Adapter              | A boundary component that owns one external protocol or service concern, including its maintenance crates, validation, redaction, and fail-closed behavior.                   |
+| Candidate crate      | A named implementation observation in this draft. It is neither a version pin nor an adopted dependency.                                                                      |
+| v0.1 scope gate      | The draft review boundary under the implementation profile: one runtime crate, `FakeProvider`, and zero new dependencies.                                                     |
+| MSRV                 | Minimum supported Rust version. Every version comparison in this document is an open observation until re-verified for a specific adoption.                                   |
+| Test transport       | A proposed deterministic transport boundary for unit tests, distinct from a production network backend.                                                                       |
+
+The authoritative definitions of provider, Tool Bus, context budget,
+authorization, execution ownership, and the v0.1 implementation scope stay
+with [AI Architecture](../architecture/ai-architecture.md), the
+[v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), and
+their owning specifications. This document links those definitions and adopts
+no second contract.
+
 ## What this document does not duplicate
 
 Each item below stays owned by its existing document; this proposal references
@@ -538,6 +581,56 @@ review, and any future adapter adoption requires:
 - Runtime code and tests in the owning implementation repository; no promise
   here implies that code exists.
 
+## Alternatives considered
+
+- **Keep HTTP and transport dependencies in the runtime kernel.** Rejected:
+  every dependent would inherit the async, HTTP, and TLS tree, and the kernel
+  would cease to be a deterministic std-only state machine.
+- **Hand-implement commodity protocols.** Rejected as the candidate direction:
+  maintained protocol, parser, schema, and transport crates stay behind
+  adapters, while Bitty-owned design remains focused on agent lifecycle,
+  context, authorization, execution, and evidence semantics.
+- **Split one crate per vendor immediately.** Rejected: premature splits create
+  speculative layouts. Consolidate providers first and split only when
+  lifecycles, release cadences, or feature sets genuinely diverge.
+- **Share transport code by also sharing permission.** Rejected: a common
+  implementation can serve separate policy domains, but transport kind or
+  provider identity never supplies consent, capability, isolation, or budget.
+- **Adopt async provider and streaming traits now.** Deferred: the sketches
+  remain post-v0.1 direction and require their own contract, question
+  resolution, implementation evidence, and security review.
+- **Choose a local store backend now.** Deferred: representation, durability,
+  schema, retention, replay, and MSRV remain with the persistence decisions.
+  Dependency observations do not select a backend.
+
+## Affected contracts
+
+- [AI Architecture](../architecture/ai-architecture.md) (Draft): MP-3, MP-10,
+  TB-1, TB-3, TB-4, AG-4, AG-5, CP-5, PP-1, PP-2, and PP-4 are elaborated but
+  not changed.
+- [Provider transport adapter contract](transport-adapter-contract.md)
+  (Draft): the std-only kernel and adapter/network division remain consistent;
+  no request field, transport mechanism, or numeric policy is adopted here.
+- [Provider plugin boundary](provider-plugin-boundary.md) (Draft): Core keeps
+  provider policy while adapters own external integrations and opaque host
+  credential consumption.
+- [Command and Tool Architecture](../architecture/command-tool-architecture.md)
+  and [Tool transport R2](../architecture/tool-transport-r2.md) (Draft): Tool
+  Bus validation, native/MCP selection, and unified authorization remain
+  authoritative for their surfaces.
+- [Agent Coordination Architecture](../agent/agent-coordination.md) and
+  [Code Intelligence Architecture](../agent/code-intelligence.md) (Draft):
+  execution ownership, LSP, parsing, fingerprinting, and reuse boundaries are
+  unchanged.
+- [Persistence and Evidence Architecture](../persistence/persistence-evidence.md)
+  (Draft): representation, backend, retention, and replay choices remain open.
+- [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
+  (Draft): the single-runtime, `FakeProvider`, and zero-new-dependency gate
+  remains in force.
+- [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft):
+  every cited AIQ retains its current entry; this document creates no new
+  identifier.
+
 ## Open points
 
 All choices below reuse existing identifiers; no new identifier is proposed.
@@ -569,6 +662,44 @@ Version observations create no new OQ.
    Mitigation: split only on a real dependency boundary, prefer the smallest
    maintained surface that covers the protocol, and record each adoption with
    its own review and lockfile evidence.
+
+## Acceptance criteria
+
+This draft passes document-level review only when all of the following are
+true:
+
+- The v0.1 single-runtime, `FakeProvider`, and zero-new-dependency gate remains
+  explicit and no candidate crate, version, feature, or backend is described as
+  adopted.
+- The kernel-principle, adapter-boundary, provider/transport, split, identity,
+  MSRV, version, and closing-principle statements retain their proposal-only
+  standing and introduce no bypass or ambient authority.
+- Version, MSRV, and protocol observations are labeled for re-verification and
+  are not used as implementation evidence.
+- Security review preserves pre-queue and pre-write redaction, consented
+  recording, minimization, validation, authorization, and fail-closed
+  behavior.
+- AIQ-08, AIQ-12, AIQ-13, AIQ-33, AIQ-36, AIQ-38, AIQ-41 through AIQ-48, and
+  AIQ-51 through AIQ-5C retain their register entries; this document
+  introduces no identifier, owner assignment, milestone, or implementation
+  authorization.
+- Every changed canonical file is self-contained and contains no archive
+  label, implementation line range, revision fingerprint, or
+  implementation-location reference.
+- `just check`, `just fmt`, `just links`, `just metadata`, and `just language`
+  pass, and independent architecture, security, and documentation review
+  records no blocking finding.
+
+## P0 Review Sign-off
+
+No P0 sign-off is claimed by this draft. Before any reliance, the security
+reviewer must verify that no adapter dependency adds ambient authority or
+weakens validation, consent, budget, redaction, minimization, or fail-closed
+behavior. The architecture reviewer must verify the dependency direction,
+crate-split boundary, and consistency with provider and Tool Bus contracts. The
+documentation reviewer must verify proposal labels, self-containment,
+cross-references, version framing, and links. Passing repository gates does not
+constitute those sign-offs.
 
 ## References
 

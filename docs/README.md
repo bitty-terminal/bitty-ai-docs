@@ -16,7 +16,26 @@ the independent AI-core sub-platform of Bitty. Canonical content lives in topic
 trees at the repository root; this repository's own process documents live under
 `docs/`.
 
-## Authority and composition
+## Admission criteria
+
+A canonical page is admitted to an active route only when:
+
+- Real, reviewed content exists; an empty placeholder page is not created.
+- The page has the required metadata, an H1 matching its title, an explicit
+  status, and the document-type spine defined by the
+  [documentation workflow](development/documentation-workflow.md).
+- The page belongs to exactly one root topic tree and is reachable from that
+  tree's route-only index without copying normative detail into the index.
+- Cross-repository links name the owning document, and dependent pages link to
+  one authoritative definition instead of restating a divergent contract.
+- The page is self-contained, passes the repository quality gates, and keeps
+  unresolved questions, risks, and implementation status explicit.
+
+A planned tree remains a plan until its first qualifying page lands. Admission
+to this map establishes routing and corpus ownership, not acceptance,
+normative status, ownership assignment, or implementation authorization.
+
+## Authority and status
 
 - This repository owns AI-core architecture, runtime, provider, context,
   specification, and reference documents.
