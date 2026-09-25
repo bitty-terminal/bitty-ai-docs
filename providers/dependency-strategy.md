@@ -11,9 +11,9 @@ sidebar_order: 29
 
 # Dependency Strategy
 
-> Status: **draft**. This document records a single-author candidate
-> direction as a reviewable proposal. It accepts nothing, describes no shipped
-> behavior, adopts no dependency, and authorizes no compatibility promise.
+> Status: **draft**. This document records a dependency direction as a
+> reviewable proposal. It accepts nothing, describes no shipped behavior, adopts
+> no dependency, and authorizes no compatibility promise.
 > Every adapter, crate sketch, and version number below is a post-v0.1
 > proposal, not a commitment. No new dependency is adopted by this document:
 > v0.1 adds zero dependencies per the
@@ -75,25 +75,22 @@ it and adds only the dependency-boundary facet:
 
 ## Kernel principle: std-only runtime with dependency inversion
 
-The source proposes (lines 1-6, 29-88) that the deterministic agent runtime
-stay dependency-free and network-free, with third-party crates confined to
-boundary adapters.
+The deterministic agent runtime should stay dependency-free and network-free,
+with third-party crates confined to boundary adapters.
 
 **Draft disposition: adopt:**
 
 - `bitty-ai-runtime` keeps its current shape: an agent kernel and state
-  machine over traits and domain types (`agent`, `context`, `provider`,
-  `session`, `stream`, `tool` in the source sketch), not an I/O framework.
-  It stays without an async runtime, HTTP client, TLS stack, MCP SDK,
-  parser, or database in v0.1 and, as a working hypothesis, stays without
-  network dependencies permanently.
-- Dependency inversion at the provider boundary: the runtime knows a
-  `ModelProvider` trait and domain tool/context/session types, but does not
-  know HTTP, vendor APIs, `reqwest`, `tokio`, or TLS. The source sketch
-  (lines 65-82) lists exactly what the runtime must not name: HTTP, vendor
-  identities, request libraries, async runtimes, and TLS. Transport,
-  pooling, timeout, redirect, proxy, chunked bodies, and SSE framing belong
-  to a provider adapter, never to the kernel.
+  machine over traits and domain types for agents, context, providers,
+  sessions, streams, and tools, not an I/O framework. It stays without an
+  async runtime, HTTP client, TLS stack, MCP SDK, parser, or database in
+  v0.1 and, as a working hypothesis, stays without network dependencies
+  permanently.
+- Dependency inversion at the provider boundary means the runtime knows a
+  `ModelProvider` trait and domain tool, context, and session types, but not
+  HTTP, vendor APIs, `reqwest`, `tokio`, or TLS. Transport, pooling, timeout,
+  redirect, proxy, chunked-body, and SSE-framing behavior belongs to a
+  provider adapter, never to the kernel.
 - The same inversion applies outward: the Tool Bus knows `ToolSpec`,
   `ToolCall`, `ToolResult`, schema, authorization, and dispatch; it does not
   own MCP framing, LSP lifecycle, file walking, parsing, or storage. Each of
@@ -135,16 +132,16 @@ evidence.
 
 ### Provider adapter
 
-When real providers arrive, the source advises (lines 92-148) against
-hand-implementing TCP, HTTP, HTTP/2, TLS, chunked bodies, SSE, proxying,
-pooling, timeouts, and redirects. A provider adapter owns `tokio` plus
-`reqwest` (with `futures-core` / `futures-util` for streaming and `tracing`
-for spans) behind the `ModelProvider` trait, starting as one consolidated
-provider crate with per-protocol modules and splitting per vendor only if
-lifecycles and release cadences genuinely diverge. Provider kinds remain
-transport adapters, never capability grants: remote kinds still require the
-accepted network grant and provider consent, and a `local-only` provider
-performs no network I/O (MP-3 (Local-first default); MP-10 (API-key
+When real providers arrive, their adapter should use maintained transport and
+protocol crates instead of hand-implementing TCP, HTTP, HTTP/2, TLS, chunked
+bodies, SSE, proxying, pooling, timeouts, and redirects. A candidate provider
+adapter owns `tokio` plus `reqwest` (with `futures-core` / `futures-util` for
+streaming and `tracing` for spans) behind the `ModelProvider` trait, starting
+as one consolidated provider crate with per-protocol modules and splitting per
+vendor only if lifecycles and release cadences genuinely diverge. Provider
+kinds remain transport adapters, never capability grants: remote kinds still
+require the accepted network grant and provider consent, and a `local-only`
+provider performs no network I/O (MP-3 (Local-first default); MP-10 (API-key
 handling)). The consumer-side contract an adapter owes Core, and the split
 between adapter-owned protocol concerns and network-owned transport policy, are
 specified in
@@ -152,82 +149,74 @@ specified in
 
 ### Tool Bus adapter
 
-The source proposes (lines 218-308) deriving tool argument types into JSON
-Schema with `schemars` and validating model-produced JSON arguments with
-`jsonschema`, so hand-written field checks do not become the validation
-story. **Draft disposition: adopt with the existing order preserved:** size bound,
-then schema validation per TB-3 (Validation before dispatch), then typed
-deserialization, then permission and effect classification per TB-4
-(Capability and consent per tool), then dispatch. Validation never widens
-authority, and dispatch stays under AG-4 (Least privilege at dispatch) with
-the unified backend from AIQ-33.
+The proposed Tool Bus adapter derives tool argument types into JSON Schema
+with `schemars` and validates model-produced JSON arguments with `jsonschema`,
+so hand-written field checks do not become the validation story. **Draft
+disposition: adopt with the existing order preserved:** size bound, then schema
+validation per TB-3 (Validation before dispatch), then typed deserialization,
+then permission and effect classification per TB-4 (Capability and consent per
+tool), then dispatch. Validation never widens authority, and dispatch stays under
+AG-4 (Least privilege at dispatch) with the unified backend from AIQ-33.
 
 ### MCP adapter
 
-The source proposes (lines 152-215) against re-implementing initialize,
-capability negotiation, tools, resources, prompts, notifications, tasks,
-subscriptions, transports, JSON-RPC correlation, and version negotiation, and
-points at the official Rust MCP SDK as the future client behind an
-`McpToolAdapter` beside a `NativeToolAdapter` under the Tool Bus. MCP stays
-an adapter, not an internal protocol, per TB-1 (MCP as adapter); every
-MCP-mediated effect still passes the same schema, caller and target
-authorization, consent, budget, redaction, and outcome rules as native tools.
-Transport selection and backend ownership stay open under AIQ-36 with generic
-execution ownership under AIQ-38.
+The proposed MCP adapter avoids re-implementing initialization, capability
+negotiation, tools, resources, prompts, notifications, tasks, subscriptions,
+transports, JSON-RPC correlation, and version negotiation. It points at the
+official Rust MCP SDK as the future client behind an `McpToolAdapter` beside a
+`NativeToolAdapter` under the Tool Bus. MCP stays an adapter, not an internal
+protocol, per TB-1 (MCP as adapter); every MCP-mediated effect still passes the
+same schema, caller and target authorization, consent, budget, redaction, and
+outcome rules as native tools. Transport selection and backend ownership stay
+open under AIQ-36 with generic execution ownership under AIQ-38.
 
 ### Code intelligence adapter
 
-The source proposes (lines 311-462) against re-implementing recursive
-directory walking with ignore semantics, syntax parsing, and the LSP
-lifecycle, pointing at `ignore` for workspace scanning, `tree-sitter` plus
-grammars for outline and symbols feeding progressive disclosure, `async-lsp`
-plus `lsp-types` for protocol types and framing if a broker is built, and
-`blake3` for fingerprints and cache keys. Bitty-owned work stays at the
-broker, authorization, sharing, snapshot, and progressive-disclosure layer;
-protocol, parsing, and traversal stay with maintained crates. LSP detail
-(initialize through shutdown, overlays, restarts, generations) and reuse
-eligibility stay with [Code Intelligence Architecture](../agent/code-intelligence.md)
-and AIQ-41 through AIQ-48.
+The proposed code-intelligence adapter avoids re-implementing recursive directory
+walking with ignore semantics, syntax parsing, and the LSP lifecycle. It points
+at `ignore` for workspace scanning, `tree-sitter` plus grammars for outlines
+and symbols feeding progressive disclosure, `async-lsp` plus `lsp-types` for
+protocol types and framing if a broker is built, and `blake3` for fingerprints
+and cache keys. Bitty-owned work stays at the broker, authorization, sharing,
+snapshot, and progressive-disclosure layer; protocol, parsing, and traversal
+stay with maintained crates. LSP detail (initialize through shutdown, overlays,
+restarts, generations) and reuse eligibility stay with [Code Intelligence
+Architecture](../agent/code-intelligence.md) and AIQ-41 through AIQ-48.
 
 ### Store adapter
 
-The source advises restraint (lines 464-514): with representation, backend,
-and durable-recovery scope still undecided, no `sqlx`, `rusqlite`,
-`sled`/`redb`, or `RocksDB` enters now. If a local single-process SQLite
-profile with WAL is ever selected, `rusqlite` is evaluated before a full
-async SQL framework, because the shape is an embedded database with a
-controlled schema, not a database abstraction layer. Backend, schema,
-retention, and replay-contract choices stay with AIQ-51 through AIQ-5C, and
-any durable recording stays under PP-4 (No on-disk persistence without
-consent) with PP-2 (Typed redaction).
+The store direction requires restraint while representation, backend, and
+durable-recovery scope remain undecided: no `sqlx`, `rusqlite`, `sled`/`redb`,
+or `RocksDB` enters now. If a local single-process SQLite profile with WAL is
+selected, `rusqlite` is evaluated before a full async SQL framework because the
+shape is an embedded database with a controlled schema, not a database
+abstraction layer. Backend, schema, retention, and replay-contract choices stay
+with AIQ-51 through AIQ-5C, and any durable recording stays under PP-4 (No
+on-disk persistence without consent) with PP-2 (Typed redaction).
 
 ## Provider and transport separation
 
-This section records only the `bitty-ai`/network-relevant half of the candidate
-direction. Every `bitty`-side row (terminal core, Lua plugin gateway, weather
-plugin, Plugin Manager external git) is marked out of scope below; this section
-decides only the `bitty-ai` side. The direction names no crate versions;
-every provider name, transport kind, and endpoint shape below is a
-point-in-time observation from September 2026, never a pin or approval.
+This section records only the `bitty-ai` and network-relevant half of the
+proposal. Every `bitty`-side row (terminal core, Lua plugin gateway, weather
+plugin, and Plugin Manager external git) remains out of scope; this section
+decides only the `bitty-ai` side. The direction names no crate versions, and
+its provider names, transport kinds, and endpoint shapes are illustrative, never
+pins or approvals.
 
-Duplicate-check outcome: the kernel-no-network rule (Kernel principle), the
-consolidated provider adapter map (Provider adapter), and the MSRV decision
-points above already cover this document's prior surface. This section adds
-only the delta: four-layer provider/transport layering with an `HttpTransport`
-sketch and test transports, a feature-flag isolation sketch, shared-transport
-with separate permission models, a unified internal model protocol as future
-direction, and draft dispositions for the tail's three no-network rules. It
-fits here because each item is a dependency-boundary facet of the same
-std-only kernel proposal; no new specification is created and no navigation
-change is needed. Everything below is a post-v0.1 proposal, not a
-commitment. The v0.1 posture is restated, not weakened: v0.1 runs behind a
-`FakeProvider` with no network access in v0.1 code paths per the
+The kernel-no-network rule, the consolidated provider-adapter map, and the
+MSRV decision points above establish the dependency boundary. This section
+adds four-layer provider/transport layering with an `HttpTransport` sketch and
+test transports, a feature-flag isolation sketch, shared transport with separate
+permission models, a unified internal model protocol as future direction, and
+draft dispositions for three no-network rules. Everything below is a post-v0.1
+proposal, not a commitment. The v0.1 posture is restated, not weakened: v0.1
+runs behind a `FakeProvider` with no network access in v0.1 code paths per the
 [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 
 ### Agent to transport layering as direction
 
-The tail proposes (lines 1574-1674) a four-layer shape rather than letting
-the agent call an HTTP client directly:
+The proposed four-layer shape keeps the agent from calling an HTTP client
+directly:
 
 ```text
 Agent
@@ -239,41 +228,35 @@ Provider
 Transport
 ```
 
-The rationale (lines 1637-1652) is that not every provider needs the public
-internet. Observed transport kinds from the source, unverified here: OpenAI,
-Anthropic, Gemini, and OpenRouter over HTTPS; Ollama, LM Studio, and
-`llama.cpp` over localhost HTTP or a local process; embedded and mock
-providers with no network at all. No endpoint URL, port, or protocol version
-is adopted by this section.
+Not every provider needs the public internet. Illustrative transport kinds
+include hosted APIs over HTTPS, local HTTP or process endpoints, and embedded
+or mock providers with no network at all. No endpoint URL, port, or protocol
+version is adopted by this section.
 
-The tail sketches two async provider traits (lines 1613-1631), `Provider`
-with `complete` and `LanguageModel` with `stream`. Judgment: both sketches
-are future direction only. The current runtime keeps its sync provider-turn
-shape (`ProviderTurn`/`Fragment` lineage in the experimental slice,
-`FakeProvider` with no network in v0.1); no async runtime, HTTP client, or
-TLS stack enters `bitty-ai-runtime` now. Any async adoption needs its own
-reviewed contract, OQ resolution, and implementation evidence, consistent
-with the split-only-on-real-boundary sequencing.
+The proposal sketches two async provider traits, `Provider` with `complete` and
+`LanguageModel` with `stream`. Both sketches are future direction only. The
+current runtime keeps its synchronous provider-turn shape (`ProviderTurn` and
+`Fragment` in the experimental slice, with `FakeProvider` and no network in
+v0.1); no async runtime, HTTP client, or TLS stack enters `bitty-ai-runtime`
+now. Any async adoption needs its own reviewed contract, OQ resolution, and
+implementation evidence, consistent with the split-only-on-real-boundary
+sequencing.
 
-The tail's crate-boundary sketch (lines 1777-1822: `bitty-ai-core`,
-`bitty-ai-agent`, `bitty-ai-tools`, `bitty-ai-context`,
-`bitty-ai-provider-api`, per-vendor provider crates,
-`bitty-ai-transport-http`) is illustrative future shape, not a plan. Stale
-`bitty-ai-core` crate naming below is translated to the current
-`bitty-ai-runtime` single-crate scope; the former core crate name is deleted
-on the implementation track per AI-0011 (not verified here). The
-anti-pattern stays: no `bitty-ai-runtime` depending on `reqwest`, directly
-or transitively, because every dependent would then inherit the HTTP/TLS
-tree. Per-vendor splits happen only on genuinely divergent lifecycles,
-release cadences, or feature sets.
+The illustrative crate-boundary shape names a core runtime, agent, tools,
+context, provider API, per-vendor provider crates, and an HTTP transport
+crate. It is future direction, not a plan. The current single-crate scope is
+`bitty-ai-runtime`; the anti-pattern remains a direct or transitive
+`bitty-ai-runtime` dependency on `reqwest`, because every dependent would then
+inherit the HTTP/TLS tree. Per-vendor splits happen only on genuinely divergent
+lifecycles, release cadences, or feature sets.
 
 ### HttpTransport split and test transports
 
-The tail proposes (lines 1678-1733) separating vendor logic from HTTP
-mechanics so `OpenAiProvider` owns protocol mapping while an `HttpTransport`
-abstraction owns bytes on the wire, with `ReqwestTransport`,
-`CurlTransport`, `MockTransport`, `ProxyTransport`, and `RecordedTransport`
-as future backends. **Draft disposition: adopt as test-value direction, post-v0.1 only:**
+The proposed split separates vendor logic from HTTP mechanics so an
+`OpenAiProvider` owns protocol mapping while an `HttpTransport` abstraction owns
+bytes on the wire, with `ReqwestTransport`, `CurlTransport`, `MockTransport`,
+`ProxyTransport`, and `RecordedTransport` as future backends. **Draft
+disposition: adopt as test-value direction, post-v0.1 only:**
 
 ```rust
 trait HttpTransport {
@@ -298,52 +281,48 @@ at dispatch).
 
 ### Feature-flag isolation sketch as direction
 
-The tail sketches (lines 1737-1773) Cargo features such as
+The proposed feature-flag layout could use names such as
 `provider-openai`, `provider-anthropic`, and `http-native`, so a local-only
-build like `cargo build --no-default-features --features provider-ollama`
-yields agent, tools, context, and Ollama with no public-internet client, and
-a future Unix-socket or subprocess Ollama path could drop the HTTP client
-entirely. Recorded as direction only: no feature names, crate names, or
-default-feature choices are adopted, and the sketch does not authorize
+build can include agent, tools, context, and a local provider without a
+public-internet client. A future Unix-socket or subprocess path could omit the
+HTTP client entirely. This is direction only: no feature names, crate names,
+or default-feature choices are adopted, and the sketch does not authorize
 removing or adding any dependency. Any future flag layout must preserve the
 v0.1 zero-new-dependency gate until its own increment explicitly adopts an
 adapter.
 
 ### Shared transport implementation, separate permission models
 
-The tail proposes (lines 1826-1894) sharing the transport implementation
-between plugin HTTP and AI providers while keeping their permission models
-separate: a plugin HTTP gateway with a permission layer (permission check,
-host allowlist, sandbox, rate limit, user consent) beside a trusted provider
-path for Bitty's own provider component. Judgment: only the `bitty-ai` half
-is in scope here. The `bitty`-side rows — weather plugin over `bitty.http`,
-the Lua plugin HTTP gateway, the `bitty-http-core` naming, and Plugin
-Manager external git — belong to the terminal-docs and plugins-docs tracks
-and are marked out of scope; nothing here decides them.
+The proposal considers sharing the transport implementation between plugin HTTP
+and AI providers while keeping their permission models separate: a plugin HTTP
+gateway with a permission layer (permission check, host allowlist, sandbox,
+rate limit, user consent) beside a provider path for Bitty's own component.
+Only the `bitty-ai` half is in scope here. The `bitty`-side rows — weather
+plugin over `bitty.http`, the Lua plugin HTTP gateway, the `bitty-http-core`
+naming, and Plugin Manager external git — belong to the terminal-docs and
+plugins-docs tracks and remain out of scope; nothing here decides them.
 
-On the `bitty-ai` side, "trusted" in the source means the provider does not
-pass through the plugin sandbox, not that it carries ambient authority. A
-post-v0.1 provider path still requires the accepted gates unchanged:
-MP-3 (Local-first default) for the network grant, MP-10 (API-key handling)
-for credential references with typed redaction, TB-3 (Validation before
-dispatch) and TB-4 (Capability and consent per tool) at the Tool Bus, AG-4
-(Least privilege at dispatch) at dispatch, and PP-2 (Typed redaction) with
-PP-4 (No on-disk persistence without consent) for any diagnostic, trace, or
-recorded transport payload. Sharing a transport implementation must never
-share or widen consent scope.
+On the `bitty-ai` side, a provider path labeled "trusted" receives no ambient
+authority and no automatic sandbox, isolation, or capability exemption. It
+still requires the applicable gates: MP-3 (Local-first default) for the network
+grant, MP-10 (API-key handling) for credential references with typed
+redaction, TB-3 (Validation before dispatch) and TB-4 (Capability and consent
+per tool) at the Tool Bus, AG-4 (Least privilege at dispatch) at dispatch, and
+PP-2 (Typed redaction) with PP-4 (No on-disk persistence without consent) for
+any diagnostic, trace, or recorded transport payload. Until AIQ-33 and AIQ-38
+resolve placement and enforcement, a network-capable adapter remains inside the
+selected isolation domain and explicit capability envelope. Sharing a transport
+implementation must never share or widen consent scope.
 
 ### Unified internal model protocol as future direction
 
-The tail proposes (lines 1898-1983) a Bitty-internal protocol so the agent
-never handles vendor framing: providers differ in authentication, streaming
-protocol, tool-calling format, reasoning fields, usage accounting, and cache
-metadata, with future candidates named as observations (Claude Messages API,
-Gemini API, Responses API, OpenAI-compatible, local `llama.cpp`, Ollama, AWS
-Bedrock, Azure OpenAI, Vertex AI, custom enterprise endpoints). Each vendor
-stream (SSE, HTTP chunks, Anthropic events, OpenAI events, Gemini
-candidates) would be consumed inside the provider adapter and re-emitted as
-a uniform event stream over a uniform request shape, sketched in the source
-as:
+The proposed Bitty-internal protocol keeps vendor framing inside the adapter:
+providers differ in authentication, streaming protocol, tool-calling format,
+reasoning fields, usage accounting, and cache metadata. Illustrative provider
+families include hosted APIs, local `llama.cpp` and Ollama endpoints, and
+enterprise gateways. Each vendor stream (SSE, HTTP chunks, or vendor-specific
+events) would be consumed inside the provider adapter and re-emitted as a
+uniform event stream over a uniform request shape, such as:
 
 ```rust
 struct ModelRequest {
@@ -375,15 +354,14 @@ transport and bridge placement stay with AIQ-36 with generic execution
 ownership under AIQ-38; per-action authorization stays with AIQ-33. No new
 identifier is proposed: each facet reuses its existing OQ.
 
-### Draft dispositions for the tail's three no-network rules
+### Draft dispositions for three no-network rules
 
-The tail closes (lines 1985-2018) with three rules and an expanded matrix.
-Recorded here as draft dispositions, translating stale naming and marking
-`bitty`-side rows out of scope. The source text, with `bitty-ai-core`
-translated in brackets:
+These three dependency rules are recorded as draft dispositions. The
+`bitty`-side row remains out of scope; only the `bitty-ai` row is a
+dependency-boundary statement:
 
 > 1. `bitty-core` has no network dependency.
-> 2. `bitty-ai-runtime` [`bitty-ai-core` in the source] has no network dependency.
+> 2. `bitty-ai-runtime` has no network dependency.
 > 3. Network exists only behind explicit transport/provider boundaries.
 
 Dispositions:
@@ -393,10 +371,9 @@ Dispositions:
    layering, not decided.
 2. `bitty-ai-runtime` has no network dependency: proposal rationale
    consistent with the Kernel principle and the v0.1 `FakeProvider`
-   no-network posture, not a new normative requirement. The stale
-   `bitty-ai-core` crate name maps to the current `bitty-ai-runtime`
-   single crate, whose former core-crate name is deleted on the
-   implementation track per AI-0011 (not verified here).
+   no-network posture, not a new normative requirement. The runtime remains a
+   single crate until a real dependency boundary requires a separately reviewed
+   split.
 3. Network exists only behind explicit transport/provider boundaries:
    proposal rationale consistent with dependency inversion and the adapter
    boundary map, not a new normative requirement. Enforcement still flows
@@ -406,46 +383,44 @@ Dispositions:
    PP-2 (Typed redaction), and PP-4 (No on-disk persistence without
    consent), which this section does not weaken.
 
-The expanded matrix (lines 1998-2014: terminal core without HTTP/TLS, AI
-runtime without HTTP/TLS, AI provider with optional HTTP, Lua plugin with
-optional network capability, Plugin Manager with external git) is treated
-the same way: the AI-runtime row restates the v0.1 posture as proposal
-rationale, the AI-provider row is a post-v0.1 proposal, and the
-terminal/plugin/manager rows are out of scope here.
+The expanded matrix distinguishes terminal core without HTTP/TLS, the AI runtime
+without HTTP/TLS, an AI provider with optional HTTP, a Lua plugin with optional
+network capability, and Plugin Manager with external git. The AI-runtime row
+restates the v0.1 posture as proposal rationale, the AI-provider row is a
+post-v0.1 proposal, and the terminal, plugin, and manager rows are out of scope
+here.
 
 ## MSRV decision points are open, not actions
 
-The workspace baseline in the source is Rust `1.85` for both `bitty` and
-`bitty-ai`. Point-in-time observations from September 2026 need decisions
-before any adoption; this document bumps nothing and pins nothing.
+The workspace baseline is Rust `1.85` for both `bitty` and `bitty-ai`. The
+following version observations are illustrative and require verification before
+any adoption; this document bumps nothing and pins nothing.
 
-| Observation (September 2026, unverified) | Fit against workspace `1.85` | Open decision, not an action                                                                                                                                                  |
-| ---------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `reqwest 0.13.5` declares MSRV `1.85`    | Fits the current baseline    | No MSRV decision needed for the provider path on this point alone; adoption still needs its own contract and OQ resolution                                                    |
-| `rmcp 3.x` needs Rust `1.88`             | Above the current baseline   | Keep `1.85` and pin a compatible SDK, raise the project MSRV at the MCP stage, or isolate the MCP adapter at a higher MSRV; source leans against pinning an old SDK long-term |
-| `tree-sitter 0.27.0` declares `1.90`     | Above the current baseline   | Do not raise the whole workspace for one parser now; revisit as an MSRV decision when code intelligence lands, or when the toolchain has moved naturally                      |
+| Crate         | Observed version | Fit against workspace `1.85` | Open decision, not an action                                                                                                                             |
+| ------------- | ---------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reqwest`     | `0.13.5`         | Fits the current baseline    | No MSRV decision needed for the provider path on this point alone; adoption still needs its own contract and OQ resolution                               |
+| `rmcp`        | `3.x`            | Above the current baseline   | Keep `1.85` and pin a compatible SDK, raise the project MSRV at the MCP stage, or isolate the MCP adapter at a higher MSRV                               |
+| `tree-sitter` | `0.27.0`         | Above the current baseline   | Do not raise the whole workspace for one parser now; revisit as an MSRV decision when code intelligence lands, or when the toolchain has moved naturally |
 
 The three-way MCP framing (stay on `1.85`, raise the project, or isolate the
-adapter) and the tree-sitter deferral come directly from the source
-(lines 191-215, 384-410). Each is recorded here as an open choice faceted to
-existing transport and intelligence questions (see below), not as a new
-crate, version pin, or toolchain decision.
+adapter) and the tree-sitter deferral remain open choices faceted to existing
+transport and intelligence questions (see below), not a new crate, version pin,
+or toolchain decision.
 
 ## Split only on a real dependency boundary
 
-The source closes (lines 636-657) with an explicit sequencing rule: the v0.1
-single-`bitty-ai-runtime` shape exists to stabilize interfaces first; crates
-split along dependency boundaries only when a real external dependency
-arrives. The six-crate sketch in the source (runtime, provider, tool-bus,
-MCP, code, store) is an illustrative future shape, not an implementation
-plan. Premature vendor-per-crate splits and speculative workspace layouts
-are rejected: consolidate providers first, then split only on genuinely
-divergent lifecycles, release cadences, or feature sets.
+The v0.1 single-`bitty-ai-runtime` shape exists to stabilize interfaces first;
+crates split along dependency boundaries only when a real external dependency
+arrives. An illustrative six-crate shape covering runtime, provider, tool-bus,
+MCP, code, and store concerns is a future direction, not an implementation plan.
+Premature vendor-per-crate splits and speculative workspace layouts are
+rejected: consolidate providers first, then split only on genuinely divergent
+lifecycles, release cadences, or feature sets.
 
 ## The three closing principles
 
-The source states three principles (lines 659-668), adopted here as proposal
-rationale only, not as normative requirements:
+These three dependency principles are recorded as proposal rationale only, not
+as normative requirements:
 
 > `bitty-ai-runtime` stays free of network dependencies for as long as
 > possible, ideally long-term near std-only.
@@ -460,40 +435,38 @@ rationale only, not as normative requirements:
 
 ## Identity naming is bridge input, not a docs decision
 
-The source observes (lines 516-587) that `bitty-agent::AgentId` as
-`owner.name` protocol principal and `bitty-ai-runtime` numeric `AgentId`
-alongside `RunId`, `SessionId`, and `ExecutionId` share a name with different
-meanings: external protocol identity versus runtime-local logical handle. It
-sketches explicit renames (`AgentPrincipalId` versus `AgentInstanceId`, or
-`ProtocolAgentId` versus `RuntimeAgentId`) and a bridge mapping from protocol
-identity through authorization into runtime identity and its run, session,
-and execution handles.
+The naming issue is that `bitty-agent::AgentId` as an `owner.name` protocol
+principal and `bitty-ai-runtime` numeric `AgentId` alongside `RunId`,
+`SessionId`, and `ExecutionId` share a name with different meanings: external
+protocol identity versus runtime-local logical handle. Possible future names
+include `AgentPrincipalId` versus `AgentInstanceId`, or `ProtocolAgentId`
+versus `RuntimeAgentId`, together with a bridge mapping from protocol identity
+through authorization into runtime identity and its run, session, and execution
+handles.
 
-Judgment: record the options and the bridge sketch as input to the in-flight
-code task AI-0013. This document adopts no rename, assigns no identifier, and
-decides no mapping. The `bitty-agent` protocol-identity side belongs to the
-`bitty` repository and is out of scope here; any change there needs its own
-reviewed contract in the owning repository.
+Judgment: record the options and the bridge sketch as an implementation input.
+This document adopts no rename, assigns no identifier, and decides no mapping.
+The `bitty-agent` protocol-identity side belongs to the `bitty` repository and
+is out of scope here; any change there needs its own reviewed contract in the
+owning repository.
 
-## Point-in-time versions are observations only
+## Illustrative version observations
 
-All versions below are second-hand observations as of September 2026. None is
-a pin, approval, or recommendation; upstream state must be re-verified before
-any future decision.
+The versions below are observations for discussion, not pins, approvals, or
+recommendations. They must be re-verified before any future decision.
 
-| Crate         | Observed version in source | Observation date | Status here                                         |
-| ------------- | -------------------------- | ---------------- | --------------------------------------------------- |
-| `reqwest`     | `0.13.5`                   | September 2026   | Fits `1.85` per source; not adopted                 |
-| `rmcp`        | `3.x`                      | September 2026   | Needs `1.88` per source; decision open, not adopted |
-| `schemars`    | `1.2.2`                    | September 2026   | Derive direction noted; not adopted                 |
-| `ignore`      | `0.4.33`                   | September 2026   | Walker direction noted; not adopted                 |
-| `tree-sitter` | `0.27.0`                   | September 2026   | Needs `1.90` per source; decision open, not adopted |
-| MCP protocol  | `2026-07-28`               | September 2026   | SDK support claim from source; not verified here    |
+| Crate         | Observed version | Status here                              |
+| ------------- | ---------------- | ---------------------------------------- |
+| `reqwest`     | `0.13.5`         | Fits `1.85`; not adopted                 |
+| `rmcp`        | `3.x`            | Needs `1.88`; decision open, not adopted |
+| `schemars`    | `1.2.2`          | Derive direction noted; not adopted      |
+| `ignore`      | `0.4.33`         | Walker direction noted; not adopted      |
+| `tree-sitter` | `0.27.0`         | Needs `1.90`; decision open, not adopted |
+| MCP protocol  | `2026-07-28`     | SDK support claim; not verified here     |
 
 `jsonschema`, `tokio`, `tokio-util`, `futures-core`, `futures-util`,
 `tracing`, `async-lsp`, `lsp-types`, `blake3`, `similar`, `rusqlite`, and
-`tempfile` are named without versions in the source and carry no version
-observation at all.
+`tempfile` are named without versions and carry no version observation here.
 
 ## v0.1 scope boundary
 
@@ -503,7 +476,7 @@ Consistent with the [v0.1 Implementation Profile](../product/implementation-prof
 - In scope for v0.1 discussion: the std-only kernel direction, the
   dependency-inversion rule, the adapter boundary map as a planning aid, the
   split-only-on-real-boundary sequencing, and the identity-naming bridge
-  input to AI-0013.
+  input.
 - Beyond-v0.1 proposals (not commitments): every adapter crate named above,
   including provider networking, MCP client support, schema validation
   crates, file traversal, parsers and grammars, LSP broker dependencies,
@@ -517,14 +490,12 @@ posture stays until a later increment explicitly adopts an adapter.
 
 ## Runtime evidence
 
-No implementation of this proposal is claimed. The source cites upstream
-documentation and repository pages for version and protocol observations;
-none was independently verified here. The sibling `bitty-ai` repository was
-not inspected for this task (out of scope: this task must not touch the
-`bitty-ai` repository), so no statement here describes sibling behavior. Any
-future implementation requires the v0.1 authorization backend (AIQ-33),
-redaction evidence under P0-AC-026, and code with tests in the owning
-implementation repository; no sentence here implies that code exists.
+No implementation of this proposal is claimed. The version and protocol
+observations in this document are not implementation evidence and must be
+re-verified before adoption. Any future implementation requires the v0.1
+authorization backend (AIQ-33), redaction evidence under P0-AC-026, and code
+with tests in the owning implementation repository; no sentence here implies
+that code exists.
 
 ## Security review
 
@@ -560,8 +531,8 @@ review, and any future adapter adoption requires:
 - A reviewed contract showing the adapter sits outside the kernel, passes
   validation, authorization, budget, and redaction at the boundary, and adds
   no ambient authority, with fail-closed tests.
-- Re-verified upstream version, MSRV, and protocol observations with
-  lockfile evidence, not reliance on September 2026 notes.
+- Re-verified version, MSRV, and protocol observations with lockfile evidence,
+  not reliance on the illustrative table above.
 - Privacy evidence that redaction-before-queue, minimization, and
   consent-gated recording hold with the adapter enabled.
 - Runtime code and tests in the owning implementation repository; no promise
@@ -570,10 +541,9 @@ review, and any future adapter adoption requires:
 ## Open points
 
 All choices below reuse existing identifiers; no new identifier is proposed.
-Duplicate-check outcome against [AI Unresolved Questions](../product/ai-unresolved-questions.md):
-MSRV and adapter-timing questions are facets of existing transport,
-intelligence, persistence, and serialization items, not independent
-questions. Version observations create no new OQ.
+The MSRV and adapter-timing questions are facets of existing transport,
+intelligence, persistence, and serialization items, not independent questions.
+Version observations create no new OQ.
 
 1. Which MSRV path covers MCP adoption: project-wide bump, adapter
    isolation, or a compatible SDK generation? (Facet of AIQ-36.)

@@ -25,16 +25,19 @@ sidebar_order: 46
 
 ## Purpose and scope
 
-A provider transport adapter is the only place in the AI-core sub-platform
-where network I/O may occur. This document fixes the contract that adapter
-owes in both directions, so that integration is mechanical once the network
-layer it depends on exists:
+In the proposed post-v0.1 architecture, a provider transport adapter is the
+only AI-core component that may initiate network I/O, and the network layer is
+the only component that may execute that I/O. This document states the frozen
+v0.1 `ModelProvider` surface, keeps a separate proposal for any later adapter
+envelope, and defines the obligations that apply once the network layer exists:
 
-- The input envelope Core hands to an adapter, including the opaque
-  credential handle that replaces any raw secret (MP-10, MPC-2).
-- The guarantees an adapter owes Core: deterministic timeouts (MP-8),
-  provider-independent errors, the CP-5 budget gate enforced before any
-  provider I/O, and no vendor-specific branching inside Core.
+- The frozen v0.1 provider request and descriptor fields, including the fields
+  that are absent from the current surface.
+- A separately labeled post-v0.1 envelope proposal, including host-resolved
+  credential handling that does not widen secret authority (MP-10, MPC-2).
+- The guarantees a future adapter owes Core: deterministic timeouts (MP-8),
+  provider-independent error kinds, no future provider I/O before the applicable
+  CP-5 context-budget check, and no vendor-specific branching inside Core.
 - The delegation boundary with the network layer, so that redirect
   re-authorization, proxy precedence, TLS policy, and transfer budgets are
   consumed rather than reimplemented.
@@ -94,14 +97,15 @@ the normative text wins and this document must be corrected.
 
 ## Terminology
 
-| Term                   | Meaning here                                                                                                                                                                                                                              |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Adapter input envelope | The single bounded value Core hands to an adapter for one turn: identity inputs, a budget-resolved request, and a credential handle. Nothing else crosses the edge.                                                                       |
-| Credential handle      | The opaque reference an adapter receives instead of a secret value, defined by the secret invariant in [Provider plugin boundary](provider-plugin-boundary.md#secret-invariant).                                                          |
-| Transport kind         | The Core-owned descriptor-declared class of access (`HttpApi`, `LocalEndpoint`, `CliHarness`, `ManagedAccount`, `Router`) whose taxonomy is owned by [Provider plugin boundary](provider-plugin-boundary.md#transport-taxonomy-proposal). |
-| Network layer          | The `bitty-network` extension: a light contract layer for request/response types, capability definitions, and service traits, plus a default-off implementation behind it.                                                                |
-| Delegated behavior     | A network behavior the adapter consumes from the network layer and must never implement, reimplement, or bypass locally.                                                                                                                  |
-| Adapter concern        | A behavior that stays with the adapter because it is per-provider protocol semantics, not transport policy.                                                                                                                               |
+| Term                                | Meaning here                                                                                                                                                                                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frozen v0.1 provider request        | The exact `TurnRequest` passed to `ModelProvider::complete` today: `model`, `messages`, `context_refs`, `tools`, `budget_bytes`, `timeout_ms`, `now_ms`, and optional `sampling`. No credential or transport field crosses this call.                                    |
+| Post-v0.1 adapter-envelope proposal | A separately proposed, versioned extension for a network-capable adapter. It is not the frozen Rust surface and adopts no field or type by implication.                                                                                                                  |
+| Credential handle                   | A proposed opaque reference across configuration, Core, plugin, and agent surfaces under the secret invariant in [Provider plugin boundary](provider-plugin-boundary.md#secret-invariant). The frozen provider request contains no such value.                           |
+| Transport kind                      | The proposed Core-owned descriptor-declared class of access (`HttpApi`, `LocalEndpoint`, `CliHarness`, `ManagedAccount`, `Router`) in [Provider plugin boundary](provider-plugin-boundary.md#transport-taxonomy-proposal). The frozen descriptor has no transport field. |
+| Network layer                       | The `bitty-network` extension: a light contract layer for request/response types, capability definitions, and service traits, plus a default-off implementation behind it. The adapter initiates I/O through this layer; the layer executes it.                          |
+| Delegated behavior                  | A network behavior the adapter initiates through the network layer and must never implement, reimplement, or bypass locally.                                                                                                                                             |
+| Adapter concern                     | A behavior that stays with the adapter because it is per-provider protocol semantics, not transport policy.                                                                                                                                                              |
 
 The authoritative definitions of `ModelProvider`, `ModelDescriptor`, privacy
 class, the capabilities vocabulary, the context budget, and the error kinds
@@ -109,71 +113,99 @@ stay with [AI Architecture](../architecture/ai-architecture.md) and
 [Provider plugin boundary](provider-plugin-boundary.md). This document links
 them and adds no second definition.
 
-## Input envelope: what Core passes to an adapter
+## Frozen v0.1 request and post-v0.1 envelope proposal
 
-An adapter is entered only through the Core-owned `ModelProvider` surface
-(MP-1, MP-4 through MP-7). The envelope below is the complete set of inputs;
-an adapter that needs anything else is requesting an authority the boundary
-does not grant.
+The v0.1 runtime is offline and has no provider transport adapter. Its
+`ModelProvider` implementation is `FakeProvider`, so the frozen request and the
+post-v0.1 proposal must not be described as the same envelope.
 
-### Identity and routing inputs
+### Exact frozen v0.1 surface
 
-- `provider_id`: the bounded `owner.name` descriptor identity, validated at
-  registration and bounded to at most 64 bytes matching
-  `^[a-z][a-z0-9_-]*$` (MP-2). A descriptor entry that fails validation never
-  reaches an adapter (FS-AI7).
-- `model_id`: a registry-known model name, never a free-form string
-  (MP-5). An unknown model fails closed before adapter entry.
-- Transport kind: the descriptor-declared class of access, not a vendor
-  product name. Core branches on transport kind and on declared capabilities;
-  it does not branch on vendor identity (see
-  [No vendor branching inside Core](#no-vendor-branching-inside-core)).
-- Descriptor facts the adapter needs and cannot invent: the declared
-  capabilities subset, the context window, and the privacy class. A
-  `local-only` entry never performs network I/O (MP-3).
+`ModelProvider` exposes a `provider_id` identity accessor, `list_models`, and
+`complete`. `ModelDescriptor` contains exactly `name` and `capabilities`.
+`complete` receives one `TurnRequest` with these fields:
 
-### Bounded request
+| Field          | Frozen v0.1 meaning                                                                                             |
+| -------------- | --------------------------------------------------------------------------------------------------------------- |
+| `model`        | The requested model name. The field is `model`, not `model_id`.                                                 |
+| `messages`     | Bounded conversation messages assembled by the agent.                                                           |
+| `context_refs` | Stable Id references already selected by the context layer.                                                     |
+| `tools`        | Tool Bus names supplied for the turn.                                                                           |
+| `budget_bytes` | The effective per-turn byte bound, not a reservation, reservation proof, or cross-delegation accounting object. |
+| `timeout_ms`   | The caller-supplied duration bound for the provider call.                                                       |
+| `now_ms`       | The caller-supplied timestamp used instead of reading a wall clock.                                             |
+| `sampling`     | An optional declared sampling contract; `None` means undeclared.                                                |
 
-- Messages, context references, and tool names as resolved by Core under the
-  CP-5 request contract. The adapter does not collect context, re-truncate, or
-  widen the set; truncation counts and provenance stay with the context layer.
-- The MP-5 sampling contract in its validated form. A field the backend does
-  not support is refused with a typed outcome before I/O, never silently
-  defaulted (the deferred sampling-matrix disposition in
+The request has no `provider_id` or `model_id` field, transport kind,
+descriptor context window, cost mark, privacy class, authorization-grant
+evidence, credential reference, credential handle, `SecretField`, or budget
+reservation. The provider's own `provider_id()` accessor and host-side model
+registration metadata are not fields on `TurnRequest`.
+
+`FakeProvider::complete` checks the hard timeout ceiling, validates sampling,
+checks whether `request.model` exists in its descriptor list, and then compares
+`request.total_message_bytes()` with `request.budget_bytes`. The unknown-model
+and budget checks therefore happen after entry into the provider method. The
+method performs no network I/O, so the current placement is compatible with the
+zero-network v0.1 posture but is not evidence of a pre-entry gate.
+
+### Post-v0.1 proposal, not a frozen interface
+
+A future network-capable adapter may require additional routing facts, an
+opaque credential reference at the host boundary, or new descriptor fields.
+Those changes require a separately reviewed, versioned interface change; this
+draft does not add them to the frozen Rust surface.
+
+- Provider identity remains a property of the provider or host registration,
+  not a proposed `TurnRequest` field named `provider_id`.
+- The model request field remains `model`; this document does not rename it to
+  `model_id`.
+- Transport kind, context window, cost marks, privacy class, and the full
+  `local-only` rule are proposed descriptor or registration facts, not frozen
+  `ModelDescriptor` fields.
+- A future secret-store integration may resolve a configuration reference on
+  the Rust host side and present an opaque handle at the adapter boundary. The
+  frozen provider request carries no credential value or handle. The current
+  `SecretField` is a raw-value container, and its sole named
+  `expose_for_adapter` path is reserved for the authorized host adapter edge.
+- `budget_bytes` carries a context-budget bound only. It is not evidence for
+  AIQ-24's open atomic ancestor/global delegation-reservation facets, and this
+  document proposes no reservation mechanism.
+- A future adapter must reject an unknown model and an over-budget request
+  before initiating provider I/O. Whether those checks run in Core before
+  method entry or at the start of a provider method is an implementation choice
+  for the future interface; the frozen `FakeProvider` places both checks inside
+  `complete`.
+
+### Bounded request and credential obligations
+
+- Messages, context references, and tool names remain the bounded request
+  selected by the current agent and context layers. A future adapter does not
+  collect context, re-truncate it, or widen the set; truncation counts and
+  selection records stay with the context layer.
+- A future network-capable provider validates the optional sampling contract
+  before its first I/O. A field the backend does not support is refused with a
+  typed outcome, never silently defaulted (the deferred sampling-matrix
+  disposition in
   [Provider plugin boundary](provider-plugin-boundary.md#v01-interface-freeze-ai-0135)).
-- The caller's `now_ms` and the resolved deadline for the whole turn
-  (MP-8), plus the effective transfer bound for the response.
-- A budget reservation proving the CP-5 gate already admitted this request.
-  The reservation is the adapter's authorization to begin I/O; its absence is
-  a fail-closed condition, not a default.
+- `now_ms` and `timeout_ms` are the current timing inputs. A future adapter
+  derives the whole-call deadline from those values without reading a wall
+  clock in the kernel.
+- Credential substitution is permitted only at the explicitly authorized host
+  adapter edge. That edge may call `expose_for_adapter` solely to construct
+  outgoing authentication material and must not retain the returned bytes in
+  pool keys, errors, diagnostics, traces, journals, snapshots, caches, child
+  environments, `BITTY_*` variables, discovery files, or agent-visible context.
+- The network layer never reads the host secret store, resolves a credential
+  reference, chooses a credential, or retains secret material. It may execute
+  the already-authorized request after the adapter initiates it, subject to its
+  own bounded, redacted transport contract. Network execution is not credential
+  resolution.
 
-### Opaque credential handle
+### What no future envelope may carry
 
-- Configuration declares a credential reference, never a value
-  (MPC-2). The envelope carries the resulting opaque handle plus the evidence
-  that the dedicated `ai.provider` grant was evaluated; a raw secret value
-  never crosses into the envelope (MP-10).
-- The handle's lifetime inside the adapter is bounded to request signing. The
-  adapter must not copy the resolved value into any structure it retains,
-  including connection pool keys, error values, diagnostics, traces, journals,
-  snapshots, or cache entries, and must not expose it to a child process
-  environment, a `BITTY_*` variable, a discovery file, or agent-visible
-  context (PP-2, PP-5, FS-AI5, R-012).
-- Where the value is injected into the outgoing request is not decided here.
-  The register's AIQ-5A disposition already pins one raw-value path,
-  `expose_for_adapter`, at the host adapter edge, and the secret invariant
-  fixes host-side resolution; whether the substitution itself is performed by
-  the adapter, by a host-side signer, or by the network layer is a
-  secret-store and network-layer question owned elsewhere and tracked by the
-  handoff item in
-  [Provider plugin boundary](provider-plugin-boundary.md#bitty-side-handoff-not-a-decision).
-  This document fixes the obligation — handles in, values out of reach — and
-  not the mechanism.
-
-### What the envelope never carries
-
-- A raw secret value, a decrypted token, or a credential file path that
-  authorizes a read.
+- A raw secret value or decrypted token outside the authorized host adapter
+  edge, or a credential file path whose read would grant provider authority.
 - Ambient filesystem, process, or network authority. A provider adapter is not
   a second authorization path; it does not widen caller, target, capability,
   consent, or budget scope (R2, AG-4).
@@ -186,61 +218,100 @@ does not grant.
 
 ### Deterministic timeouts
 
-- The deadline Core supplies governs the entire adapter call, covering
-  connection, negotiation, redirects, and body reading, not only the first
-  response byte.
-- The observed bound is the MP-8 profile: `DEFAULT_REQUEST_TIMEOUT_MS = 5 s`
-  by default, `DEFAULT_MCP_TIMEOUT_MS = 10 s` for tool-mediated streaming,
-  and `MAX_REQUEST_TIMEOUT_MS = 30 s` as the hard ceiling an adapter may never
-  exceed. The kernel remains wall-clock-free, so every deadline decision is
-  made from the caller `now_ms` (CP-7).
-- Request-level retry inside the adapter stays inside the same deadline; a
+- For a future network-capable adapter, the deadline derived by Core governs
+  the entire adapter call, covering connection, negotiation, redirects, and
+  body reading, not only the first response byte.
+- The frozen v0.1 implementation exports `DEFAULT_REQUEST_TIMEOUT_MS = 5 s`,
+  `DEFAULT_TOOL_STREAM_TIMEOUT_MS = 10 s`, and
+  `MAX_REQUEST_TIMEOUT_MS = 30 s`. These are implementation names and values,
+  not new limits adopted here. The current `FakeProvider` checks the hard
+  ceiling and scripted latency; it has no socket operation to bound.
+- The kernel remains wall-clock-free, so a future deadline decision uses
+  `now_ms` and `timeout_ms` from `TurnRequest` (CP-7).
+- Request-level retry inside a future adapter stays inside the same deadline; a
   retry may not extend it, and a retry count is never unbounded.
-- Deadline expiry is reported as a Core-owned typed outcome with the elapsed
-  budget attributed, never as a vendor code or a transport-specific string
-  (FS-AI4).
+- Deadline expiry maps to `Timeout` or `TimeoutTooLarge` with numeric
+  attribution, never to a vendor code or transport-specific string (FS-AI4).
 - Any additional per-stream or per-chunk idle bound is required by this
   contract but is not pinned here; a numeric value requires the same review as
   the MP-8 profile and no new number is adopted by this document.
 
 ### Provider-independent errors
 
-- Vendor status codes, transport failures, and vendor message text are mapped
-  at the adapter edge into the Core-owned, transport-neutral error kinds
-  (`BudgetExceeded`, authorization denial, cancellation, `Unknown`). No raw
-  vendor code, header, or body text crosses the adapter into agents, panels,
-  journals, or traces.
-- Retryable versus terminal classification is a Core-owned vocabulary
-  decision, because Core owns ordered fallback semantics. An adapter reports
-  the classification it is given and never invents a local taxonomy or silently
-  substitutes a different model.
-- A failure that is indeterminate after the request left the machine is
-  reported as `Unknown` and reconciled before any retry (MP-7); an adapter
-  never reports success it did not observe and never claims rollback of an
-  effect that already happened.
-- Containment holds: a fault in one adapter call affects only its owning
-  session or stream (MP-11, FS-AI3). Sibling sessions, terminals, and plugin
-  virtual machines stay responsive.
-- Streaming outcomes keep the MP-6 framing: `seq`/`total`/`final` chunks under
-  the `256 KiB` decoded-byte ceiling, backpressure that sheds oldest buffered
-  chunks with a countable metric, and no silent loss.
+The frozen v0.1 `ProviderError` surface has the following variants and has no
+`Cancelled` variant:
 
-### CP-5 budget gate before provider I/O
+| Variant               | Frozen payload                                 | Provider independence today                                                        |
+| --------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `UnknownModel`        | `name`                                         | Typed kind; the requested model name remains data.                                 |
+| `BudgetExceeded`      | `limit`, `actual`                              | Structured numeric outcome.                                                        |
+| `Timeout`             | `timeout_ms`, `latency_ms`                     | Structured numeric outcome.                                                        |
+| `TimeoutTooLarge`     | `max`, `actual`                                | Structured numeric outcome.                                                        |
+| `InvalidProviderId`   | `id`                                           | Typed kind; the rejected identifier remains data.                                  |
+| `Transport`           | `provider`, free-form `reason`                 | Partially independent: the kind is typed, but the reason can remain vendor-shaped. |
+| `Auth`                | `provider`, free-form `reason`                 | Partially independent: the kind is typed, but the reason can remain vendor-shaped. |
+| `RateLimited`         | `provider`, optional `retry_after_ms`          | Typed and transport-neutral apart from provider identity.                          |
+| `CapabilityMismatch`  | `provider`, `model`, `missing` capability list | Typed and transport-neutral apart from provider and model identity.                |
+| `ModelUnavailable`    | `provider`, `model`                            | Typed and transport-neutral apart from provider and model identity.                |
+| `Unknown`             | `provider`, free-form `reason`                 | Partially independent: the kind is typed, but the reason can remain vendor-shaped. |
+| `InvalidSampling`     | No value                                       | Static, provider-independent outcome.                                              |
+| `UnsupportedSampling` | Static backend field label                     | Typed and provider-independent; the label must never echo caller input.            |
 
-- The gate is ordered in Core before adapter entry: caller and target
-  authorization, then consent, then budget resolution, then adapter entry,
-  then provider I/O. A request that would exceed the resolved CP-5 budget
-  fails with a typed `BudgetExceeded` at the boundary and no I/O occurs
-  (MP-5, CP-5).
-- The adapter treats a missing or already-exhausted reservation as fail-closed:
-  it starts no I/O and reports the typed denial rather than truncating,
-  downgrading, or retrying.
-- Consumption is charged against the same per-client quotas as IPC and MCP
-  traffic, with no separate model-specific budget (MP-9). The adapter reports
-  usage; Core owns the ledger semantics.
-- An adapter-declared limit may only tighten an effective bound. It may never
-  raise a caller, transport, or network limit, and the effective bound is the
-  tighter of the two.
+`AgentError::from(ProviderError)` bounds the `provider` and `reason` strings in
+`Transport`, `Auth`, and `Unknown` to at most 512 printable ASCII bytes, and it
+also bounds the provider string in `RateLimited`. That conversion removes
+control characters and bounds length, but it neither canonicalizes vendor
+meaning nor performs secret redaction. Those three reason-bearing variants are
+therefore only partially provider-independent today. A future adapter must map
+vendor statuses and messages to the existing typed variants and use bounded,
+non-secret reason categories; this document proposes no additional error
+variant.
+
+Cancellation is not a `ProviderError`. The frozen agent checks session
+cancellation before dispatch and between rounds and returns its cancellation
+outcome outside the provider error surface. The frozen `ModelProvider` trait
+has no `cancel` operation, so this document does not claim an in-flight
+cancellation mapping that the code does not define.
+
+- Retryable versus terminal classification remains a Core-owned vocabulary
+  decision because Core owns ordered fallback semantics. An adapter never
+  invents a local taxonomy or silently substitutes a different model.
+- `Unknown` means the effect may have happened but was not confirmed. It is
+  reconciled before retry (MP-7); an adapter never reports unobserved success
+  or claims rollback of an effect that already occurred.
+- A fault in one future adapter call affects only its owning session or stream
+  (MP-11, FS-AI3). Sibling sessions, terminals, and plugin virtual machines
+  stay responsive.
+- The frozen streaming module has two distinct bounds:
+  `MAX_STREAM_CHUNK_BYTES = 256 KiB` is the aggregate transport ceiling, while
+  `MAX_FRAGMENT_BYTES = 64 KiB` is the tighter runtime fragment ceiling and
+  fires first. The `ModelProvider::stream` operation remains deferred. When a
+  future adapter streams, it preserves `seq`/`total`/`final`, both ceilings, and
+  countable drop-oldest backpressure without silent loss; it does not treat the
+  256 KiB aggregate ceiling as permission to emit a fragment larger than 64 KiB.
+
+### Context-budget check before provider I/O
+
+- In frozen v0.1, the agent resolves one effective byte bound, uses it for
+  context assembly, and copies it into `TurnRequest.budget_bytes`.
+  `FakeProvider::complete` then compares the request's message bytes with that
+  bound and returns `BudgetExceeded` when they exceed it. This check is inside
+  the provider method, not before method entry, and the offline provider starts
+  no I/O.
+- A future network-capable adapter must complete the applicable authorization,
+  consent, and context-budget checks before it initiates provider I/O. This is
+  an ordering obligation for the first network operation, not a requirement for
+  a generic reservation object or for checks to occur before method entry.
+- `budget_bytes` is a CP-5 context bound. AIQ-24 concerns atomic ancestor and
+  global reservation across concurrent delegation; its open facets are a
+  separate question, and this document neither closes nor selects a mechanism
+  for them.
+- Provider I/O consumption is charged against the same per-client quotas as IPC
+  and MCP traffic, with no separate model-specific budget (MP-9). A future
+  adapter reports usage; Core owns ledger semantics.
+- A future adapter-declared limit may only tighten an effective bound. It may
+  never raise a caller, transport, or network limit, and the effective bound is
+  the tighter value.
 
 ### No vendor branching inside Core
 
@@ -248,8 +319,8 @@ does not grant.
   is a new adapter plus declarative preset data; a base-URL change, a rename, a
   custom header, or a private gateway stays data (MPC-5).
 - A Core condition that matches a provider name, an endpoint shape, or a
-  vendor wire format is a conformance defect, not a feature. Core may branch
-  on Core-owned vocabulary only: transport kind, declared capabilities,
+  vendor wire format is a conformance defect, not a feature. A future Core may
+  branch on Core-owned vocabulary only: transport kind, declared capabilities,
   privacy class, and the error and outcome kinds.
 - Core never accumulates per-vendor defaults, status-code tables, or
   retry tables. Those are adapter data, and the shared policy that constrains
@@ -257,12 +328,13 @@ does not grant.
 
 ## Network behavior delegated to the network layer
 
-The adapter is a client of the network layer, not a second network stack. It
-consumes the network layer's contract surface — request and response types,
-capability definitions, and service traits — and never depends on the network
-implementation crate directly. The kernel depends on neither. The network
-runtime is default-off, so a network-capable adapter must never be part of a
-default build.
+The adapter is a client of the network layer, not a second network stack. A
+future adapter initiates network I/O by issuing an authorized request through
+the network layer's contract surface; the network layer executes destination
+resolution, socket, TLS, HTTP, and WebSocket operations. The adapter never
+depends on the network implementation crate directly, and the kernel depends on
+neither. The network runtime is default-off, so a network-capable adapter must
+never be part of a default build.
 
 Nothing below is decided here; each row records that the behavior is owned by
 the network layer and consumed by the adapter, so that integration is a
@@ -271,21 +343,24 @@ issue tag on each row names the network-layer delivery it depends on, as
 recorded in
 [Precondition: network-layer delivery](#precondition-network-layer-delivery).
 
-| Behavior                                                                                                                      | Owner   | Adapter obligation                                                                                                              | Not in the adapter                                                             | Precondition |
-| ----------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------ |
-| Redirect following, per-hop re-authorization against the capability, hop limit, cross-origin sensitive-header strip or denial | Network | Declare the destination once and pass the request through; treat any surfaced redirect as a policy outcome, not a hint to retry | No redirect follower, no hop counting, no header-preservation rule             | #37          |
-| Proxy resolution precedence and proxy authentication, including refusing to dial an HTTPS proxy as plaintext                  | Network | Express its proxy requirement; accept the resolved policy                                                                       | No proxy stack, no environment reading of proxy secrets, no plaintext fallback | #38          |
-| TLS policy: verification, protocol and cipher posture, and the authorized override path                                       | Network | Consume the enforced posture                                                                                                    | No TLS bypass, no verification override, no custom trust store                 | #37, #38     |
-| Transfer budgets for declared and chunked bodies, aggregate limits, and WebSocket frame and message limits                    | Network | Request its bound and honor the enforced ceiling                                                                                | No unbounded buffering, no self-selected larger limit                          | #37, #38     |
-| Connection deadline preservation across receive, send, and close                                                              | Network | Rely on the enforced per-connection deadlines when pacing reads, writes, and close                                              | No deadline extension, no idle-hold of a connection                            | #38          |
-| Destination resolution: DNS, resolution deadline, and resolver cancellation                                                   | Network | Consume the resolved destination and its failure                                                                                | No resolver, no address cache, no deadline re-implementation                   | #39          |
-| Tunnel and protocol framing details: CONNECT leftover handling and bounded subprotocol offers                                 | Network | Use only the offered, bounded surface                                                                                           | No hand-rolled tunnel, no unbounded protocol offer                             | #39          |
-| Diagnostic hygiene: redaction of headers, bodies, userinfo, and control-bearing hosts, with safe correlation data retained    | Network | Add typed `SecretField` redaction to its own records (PP-2)                                                                     | No raw request or response dump in an error string                             | #39          |
+| Behavior                                                                                                                      | Owner                        | Adapter obligation                                                                                                              | Not in the adapter                                                             | Precondition                                                                 |
+| ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Redirect following, per-hop re-authorization against the capability, hop limit, cross-origin sensitive-header strip or denial | Network                      | Declare the destination once and pass the request through; treat any surfaced redirect as a policy outcome, not a hint to retry | No redirect follower, no hop counting, no header-preservation rule             | #37                                                                          |
+| Proxy resolution precedence and proxy authentication, including refusing to dial an HTTPS proxy as plaintext                  | Network                      | Express its proxy requirement; accept the resolved policy                                                                       | No proxy stack, no environment reading of proxy secrets, no plaintext fallback | #38                                                                          |
+| TLS verification, supported protocol and cipher posture, certificate handling, and typed failure behavior                     | `bitty-network` TLS contract | Initiate requests only through the enforced posture                                                                             | No TLS bypass, no verification override, no adapter-selected trust store       | A reviewed `bitty-network` TLS policy contract; #37 and #38 do not define it |
+| Transfer budgets for declared and chunked bodies, aggregate limits, and WebSocket frame and message limits                    | Network                      | Request its bound and honor the enforced ceiling                                                                                | No unbounded buffering, no self-selected larger limit                          | #37, #38                                                                     |
+| Connection deadline preservation across receive, send, and close                                                              | Network                      | Rely on the enforced per-connection deadlines when pacing reads, writes, and close                                              | No deadline extension, no idle-hold of a connection                            | #38                                                                          |
+| Destination resolution: DNS, resolution deadline, and resolver cancellation                                                   | Network                      | Consume the resolved destination and its failure                                                                                | No resolver, no address cache, no deadline re-implementation                   | #39                                                                          |
+| Tunnel and protocol framing details: CONNECT leftover handling and bounded subprotocol offers                                 | Network                      | Use only the offered, bounded surface                                                                                           | No hand-rolled tunnel, no unbounded protocol offer                             | #39                                                                          |
+| Diagnostic hygiene: redaction of headers, bodies, userinfo, and control-bearing hosts, with safe correlation data retained    | Network                      | Add typed `SecretField` redaction to its own records (PP-2)                                                                     | No raw request or response dump in an error string                             | #39                                                                          |
 
-Issue numbers in the last column refer to the `bitty-network` repository. TLS
-policy and destination resolution are not introduced by those issues; they are
-listed here because the same precondition establishes that the adapter has a
-single enforced posture to consume rather than a second one of its own.
+Issue numbers in the last column refer only to the work named by those issues
+in the `bitty-network` repository. Issues #37 and #38 do not define general TLS
+verification, protocol, cipher, or certificate policy; the network repository's
+TLS contract owns that policy. The current sealed TLS marker exposes no policy
+type for an adapter to consume. A network-capable provider therefore has an
+additional TLS-policy precondition beyond those issues, and no adapter-selected
+verification override is proposed.
 
 ### Anti-growth rule
 
@@ -340,9 +415,10 @@ turn.
 Parsing server-sent event framing — event and data field lines, comment
 lines, vendor stop sentinels, and per-event payload limits — and translating
 vendor event types into the Core-owned stream shape is an adapter concern.
-The adapter enforces the Core-owned fragment ceilings and framing
-(`seq`/`total`/`final`, byte ceiling, countable shed) on what it emits; it
-does not set the transport's buffering limits.
+The adapter preserves `seq`/`total`/`final`, the 64 KiB runtime-fragment
+ceiling, and countable shedding on what it emits. The network transport
+enforces the separate 256 KiB aggregate transport ceiling; the adapter does not
+set or bypass that transport limit.
 
 ### The line between the two layers
 
@@ -357,8 +433,9 @@ and the transport taxonomy recorded there.
 
 ## Precondition: network-layer delivery
 
-No real adapter is written until the following issues in the `bitty-network`
-repository have merged:
+No real network-capable adapter is written until the following issues in the
+`bitty-network` repository have merged and the separate TLS-policy precondition
+is satisfied:
 
 | Issue                             | Title                                                       | Bears on this document                                                         |
 | --------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
@@ -366,29 +443,26 @@ repository have merged:
 | `bitty-terminal/bitty-network#38` | Bound WebSocket messages and preserve proxy/deadline safety | Proxy precedence, proxy authentication, and message bounds                     |
 | `bitty-terminal/bitty-network#39` | Harden CONNECT, DNS, subprotocol, and diagnostic boundaries | Destination resolution, tunnel and subprotocol framing, and diagnostic hygiene |
 
-This is a stated precondition, not a schedule. It carries no date, no
-milestone, and no owner assignment here; the milestone and sequencing those
-issues carry are that repository's own planning and are not adopted by this
-document. The precondition exists so that when the network layer lands, the
-adapter's network-facing obligations are wired to a published contract rather
-than designed a second time. It does not authorize implementation, does not
-resolve AIQ-33 or AIQ-36, and does not settle the numeric limits or the
-redirect policy — those belong to the network contract, which is also where
-the issues above state that those values must be decided first.
+Those issues are necessary but not sufficient for TLS. The owning contract is
+in the `bitty-network` repository, and it must publish and enforce a reviewed
+TLS policy that defines peer verification, supported protocol and cipher
+posture, certificate handling, and typed failure behavior. Issue #38 mentions
+TLS only for rejecting a TLS endpoint as a plaintext proxy; it does not define
+that policy. No bypass or adapter-selected override is a substitute.
 
-Evidence basis, read 2026-09-25: the three issues' own titles, labels, and
-stated problems in the `bitty-network` repository, and the public layout of
-that repository, which separates a contract layer (request and response types,
-capability definitions, service traits, no implementation dependencies) from a
-default-off implementation (async runtime, transport, HTTP and WebSocket, TLS,
-DNS, proxy, policy). No code from that repository was executed, imported, or
-modified, and no claim here describes its internal behavior beyond that public
-description.
+This is a stated precondition, not a schedule. It carries no date, milestone,
+owner assignment, or implementation authorization here; milestone and
+sequencing metadata on the cited issues remain that repository's own planning.
+The precondition ensures that a future adapter's network-facing obligations
+are wired to published contracts rather than designed a second time. It does
+not resolve AIQ-33 or AIQ-36 and does not settle numeric transport limits,
+redirect policy, or TLS policy.
 
 ## Explicit non-claims
 
-- No implementation exists. No adapter, transport, network client, or vendor
-  integration described here is built, and no sentence here implies otherwise.
+- No provider transport adapter or vendor integration described here exists in
+  `bitty-ai`. The separate network repository's transport work does not make an
+  AI provider adapter implemented, and no sentence here implies otherwise.
 - No dependency, crate, trait, feature name, or version is adopted. The
   `HttpTransport` and provider-trait sketches in
   [Dependency Strategy](dependency-strategy.md#httptransport-split-and-test-transports)
@@ -406,11 +480,14 @@ description.
 
 ## Security review
 
-- **Credentials.** The handle-not-value rule (MP-10, MPC-2) is the load-bearing
-  control. A raw value crossing the envelope, reaching a child environment, a
-  `BITTY_*` variable, a discovery file, a trace, a journal, or an agent
-  workspace is a release-blocking defect (PP-2, PP-5, FS-AI5, Invariant 9,
-  P0-AC-026).
+- **Credentials.** Credential material remains opaque across configuration,
+  Core, plugins, models, agents, diagnostics, and storage under MP-10 and
+  MPC-2. The frozen `SecretField` may reveal raw bytes only through
+  `expose_for_adapter` at the authorized host adapter edge. The network layer
+  never performs host-side resolution or substitution. A raw value outside
+  that edge, or any value reaching a child environment, a `BITTY_*` variable,
+  a discovery file, a trace, a journal, or an agent workspace, is a
+  release-blocking defect (PP-2, PP-5, FS-AI5, Invariant 9, P0-AC-026).
 - **Redaction timing.** Typed `SecretField` redaction applies before queue and
   before write, in the adapter as much as in the kernel. The container-level
   redaction facet is `Closed(partial)` in the register under AIQ-5A, whose
@@ -420,10 +497,14 @@ description.
   process, or network authority to the kernel or to any plugin virtual machine.
   A network-capable adapter stays behind the same caller, target, capability,
   consent, and budget gates as any other effect (AG-4, R2).
-- **Minimization.** The adapter sends only the budget-resolved request. Adding
-  a dependency never justifies sending more context than the task needs
-  (PP-1), and no adapter widens a consent scope by being "trusted" — trusted
-  means the provider path is not sandboxed, not that it carries authority.
+- **Minimization and isolation.** A future adapter sends only the
+  budget-resolved request. Adding a dependency never justifies sending more
+  context than the task needs (PP-1). First-party or "trusted" provider status
+  grants no ambient authority and no sandbox, isolation, or capability
+  exemption. Until AIQ-33 and AIQ-38 resolve the unified enforcement and
+  placement choices, a network-capable adapter must remain inside the
+  isolation domain and explicit capability envelope selected by those
+  decisions.
 - **Untrusted output.** Provider output is observation data, never an
   instruction (T-10, R-013). A prompt fragment arriving over the adapter is
   labeled by the existing pipeline, not by adapter-local string inspection.
@@ -436,43 +517,54 @@ description.
 
 ## Verification plan
 
-Acceptance of this contract requires reviewed evidence in the owning
-implementation repository. No code exists yet, so the plan below is the bar a
-future adapter must meet, not evidence of passing tests.
+Review verifies the frozen v0.1 statements against the owning implementation
+and treats the future-adapter items as acceptance bars, not as evidence that a
+network adapter exists.
 
-- Envelope evidence: seeded fixtures showing an adapter receives exactly the
-  enumerated inputs, that an unvalidated descriptor, unknown model, or missing
-  budget reservation is refused before I/O, and that no request begins without
-  a reservation.
-- Handle evidence: negative tests with a seeded sentinel secret proving it
-  never appears in adapter errors, diagnostics, traces, journals, pool keys,
-  snapshots, or child environments, and that a handle is unusable after its
-  grant is revoked.
-- Deadline evidence: connect, negotiation, redirect, and body-read phases each
-  bounded by the caller deadline, a retry that cannot extend it, and the hard
-  ceiling never exceeded.
-- Error-mapping evidence: a table of vendor statuses, transport failures, and
-  indeterminacy cases, each mapping to a Core-owned kind with attribution
-  recorded, and no vendor text or status code in any agent-visible surface.
-- Budget evidence: gate-order traces showing authorization, consent, then
-  budget, then I/O, with `BudgetExceeded` before any socket is opened, usage
-  charged to the shared per-client quotas, and a truncated body reported as a
-  typed failure.
-- Delegation evidence: static review showing no redirect follower, proxy
-  stack, TLS override, resolver, or unbounded buffer in the adapter, plus
-  integration fixtures proving a refused destination or an enforced ceiling is
-  surfaced as a typed outcome rather than routed around.
-- Kernel evidence: a dependency graph in which the kernel crate reaches
-  neither the network contract nor its implementation, directly or
-  transitively, and a default build that contains no network backend.
-- No-branching evidence: a test asserting that registering and calling a second
-  provider shape requires no Core change, plus a grep-level check that Core
-  contains no provider-name or vendor-shape condition.
-- Containment evidence: a failing adapter call leaves sibling sessions,
-  terminals, and plugin virtual machines responsive (MP-11, FS-AI3), and safe
-  startup still works with no provider configured (FS-AI6).
+- Frozen-surface evidence: tests or generated API documentation show
+  `ModelDescriptor` contains only `name` and `capabilities`, and `TurnRequest`
+  contains exactly the eight fields listed above. Tests show `FakeProvider`
+  checks timeout, sampling, model membership, and message bytes inside
+  `complete` without network I/O.
+- Future-envelope evidence: a versioned interface review shows every added
+  field and its authority, with no silent `model_id`, transport, descriptor,
+  grant, credential, or reservation field added to the frozen request.
+- Credential evidence: seeded sentinel tests prove raw bytes are exposed only
+  at the host adapter edge, never retained in errors, diagnostics, traces,
+  journals, pool keys, snapshots, or child environments, and that the network
+  layer performs no secret-store lookup or credential substitution.
+- Deadline evidence: connect, negotiation, redirect, and body-read phases are
+  each bounded by the caller deadline, retries cannot extend it, and the frozen
+  hard ceiling is never exceeded.
+- Error-mapping evidence: a table covers every frozen `ProviderError` variant,
+  records that cancellation has no provider variant, and demonstrates bounded
+  non-secret reasons for `Transport`, `Auth`, and `Unknown` without changing
+  their current free-form type.
+- Budget evidence: traces show the agent derives one effective
+  `budget_bytes`, the offline provider checks it inside `complete`, and a
+  future network adapter produces `BudgetExceeded` before its first socket. No
+  trace depends on a reservation object or decides AIQ-24.
+- Delegation evidence: static review shows the adapter initiates requests but
+  implements no redirect follower, proxy stack, TLS policy, resolver, or
+  unbounded buffer. Fixtures show the network layer executes or refuses the
+  request and the adapter cannot route around a refusal.
+- TLS evidence: the `bitty-network` contract publishes peer verification,
+  protocol and cipher posture, certificate handling, and typed failures.
+  Issues #37 and #38 alone do not satisfy this precondition.
+- Isolation evidence: a network-capable test path cannot obtain filesystem,
+  process, or network capability merely from first-party or "trusted" status,
+  and remains inside the isolation domain selected through AIQ-33 and AIQ-38.
+- Kernel evidence: a dependency graph shows the kernel reaches neither the
+  network contract nor its implementation, directly or transitively, and a
+  default build contains no network backend.
+- No-branching evidence: registering and calling a second provider shape
+  requires no vendor branch in Core, and static search finds no provider-name
+  or vendor-wire-format condition there.
+- Containment evidence: a failing future adapter call leaves sibling sessions,
+  terminals, and plugin virtual machines responsive (MP-11, FS-AI3), while
+  safe startup still works with no provider configured (FS-AI6).
 - Determinism evidence: seeded `now_ms`, in-memory descriptor snapshots, and a
-  mock or recorded network client driving the full turn with no wall-clock,
+  mock or recorded network client drive a future turn with no wall-clock,
   filesystem, or network I/O in the kernel (CP-7).
 
 ## Alternatives considered
@@ -535,49 +627,70 @@ This document closes no register entry and proposes no new identifier:
   open.** This document governs the provider transport path only and decides
   nothing about tool-transport placement or bridge placement.
 - AIQ-5A (typed redaction markers and invalidation mechanism) keeps its
-  existing `Closed(partial)` disposition: the handle-not-value obligation is
-  fixed here, the timing and marker/invalidation facets stay where the register
-  put them, and nothing is reopened or extended.
+  existing `Closed(partial)` disposition. Credential opacity across
+  non-adapter surfaces and the named host-edge exposure path are stated here;
+  the timing and marker/invalidation facets stay where the register put them.
 - AIQ-38 (generic execution and registry ownership across repositories) stays
-  open: the registry split that decides where the adapter's registration lives
-  is undecided.
-- AIQ-02 (routing within provider consent and budget), AIQ-13
-  (provider-scoped cache key and routing scope), and AIQ-24 (budget
-  reservation) keep their register entries; this document consumes their
-  outcomes and decides none of them.
-- The numeric transfer limits, hop policy, proxy precedence, and TLS override
-  path are owned by the network contract, not here.
-- The mechanism that substitutes a credential value into an outgoing request
-  is owned by the secret-store and network owners, not here.
-- Open risk: an adapter that quietly becomes a second HTTP stack. Mitigation:
-  the anti-growth rule, static review evidence, and the delegation evidence in
-  the verification plan.
-- Open risk: a network-capable adapter widens consent scope by being exempt
-  from the plugin sandbox. Mitigation: "trusted" means unsandboxed, not
-  authorized; the gate order is unchanged.
+  open: the registry split and placement that decide where an adapter is
+  registered and isolated remain undecided.
+- AIQ-02 (routing within provider consent and budget) and AIQ-13
+  (provider-scoped cache key and routing scope) keep their register entries.
+  AIQ-24's open atomic ancestor/global delegation-reservation facets also stay
+  open and are distinct from the CP-5 context bound in `budget_bytes`. This
+  document selects no cross-delegation reservation mechanism.
+- Numeric transfer limits, redirect policy, and proxy precedence remain owned
+  by the `bitty-network` contract. Its TLS contract must also define
+  verification, protocol, cipher, certificate, and failure policy; this
+  document proposes no override path.
+- Host secret-store representation and revocation remain outside this
+  document. Credential substitution is fixed at the authorized host adapter
+  edge; the network layer is excluded from resolution and substitution.
+- Open risk: an adapter quietly becomes a second HTTP stack. Mitigation: the
+  anti-growth rule, static review, and delegation evidence in the verification
+  plan.
+- Open risk: first-party provider status is mistaken for an isolation
+  exemption. Mitigation: explicit capability and isolation evidence while
+  AIQ-33 and AIQ-38 remain open.
 
 ## Acceptance criteria
 
-- Draft author: CTX-0116 (`ai-docs-commander`).
-- Acceptance requires independent review by the architecture category owner,
-  the docs curator, and a security reviewer, plus the repository's own gates
-  (`just check`) green on the branch.
-- This document is complete as a contract statement while the feature remains
-  unimplemented. It says so in [Explicit non-claims](#explicit-non-claims) and
-  in the status block.
-- Suggested follow-ups, each as a separately scoped and separately authorized
-  task: the network-layer integration plan once the precondition issues
-  merge; the credential-substitution mechanism with the secret-store and
-  network owners; and the first adapter contract instantiation.
+This draft passes document-level review only when all of the following are
+true:
+
+- The exact frozen `ModelDescriptor` and `TurnRequest` fields match the v0.1
+  implementation, every absent field is named, and no post-v0.1 proposal is
+  described as frozen.
+- The document states that `FakeProvider::complete` checks unknown model and
+  message-byte budget inside the provider method, while the no-I/O obligation
+  applies before a future network adapter initiates I/O.
+- The error section covers every frozen `ProviderError` variant, states that no
+  cancellation variant exists, and identifies the still-free-form reasons in
+  `Transport`, `Auth`, and `Unknown` without claiming they are normalized.
+- Credential resolution and substitution are limited to the authorized host
+  adapter edge; the network layer cannot resolve or retain credentials.
+- No first-party or "trusted" label grants an isolation, sandbox, filesystem,
+  process, or network capability exemption while AIQ-33 and AIQ-38 remain open.
+- TLS policy is named as a separate `bitty-network` precondition, issues #37
+  and #38 are not cited as its definition, and no bypass or override is
+  proposed.
+- AIQ-5A is spelled canonically; AIQ-24 is kept distinct from CP-5; AIQ-33,
+  AIQ-36, and AIQ-38 remain open; no identifier, owner assignment, milestone,
+  or implementation authorization is introduced.
+- Every changed canonical file is self-contained: it contains no implementation
+  line range, revision fingerprint, or historical navigation label.
+- `just check`, `just fmt`, `just links`, `just metadata`, and `just language`
+  pass, and independent architecture, docs-curator, and security review records
+  no blocking finding.
 
 ## P0 Review Sign-off
 
-No P0 sign-off is claimed by this document. It is a draft contract for a trust
-boundary — provider network access and credential handling — so a security
-reviewer is required before it is relied on, together with the architecture
-category owner for the delegation boundary and the docs curator for taxonomy,
-metadata, and links. Sign-off is recorded here only when it exists; this
-section records none.
+No P0 sign-off is claimed by this document. Before any reliance, the security
+reviewer must verify the frozen-versus-proposed boundary, the host-only
+credential edge, the absence of an isolation exemption, the actual error
+surface, and the separate TLS-policy precondition. The architecture category
+owner must verify the adapter/network initiation-and-execution boundary, and the
+docs curator must verify self-containment, taxonomy, metadata, and links.
+Repository gate success and this draft do not constitute those sign-offs.
 
 ## References
 
@@ -594,7 +707,7 @@ section records none.
   authorization backend and path-selection contract as the adapter's
   precondition.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft):
-  AIQ-02, AIQ-05A, AIQ-13, AIQ-24, AIQ-33, AIQ-36, and AIQ-38, each keeping its
+  AIQ-02, AIQ-5A, AIQ-13, AIQ-24, AIQ-33, AIQ-36, and AIQ-38, each keeping its
   existing register disposition.
 - [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
   (Draft): single-crate scope and the no-network v0.1 posture.
