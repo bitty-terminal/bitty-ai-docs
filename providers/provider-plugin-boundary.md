@@ -190,10 +190,12 @@ The proposed transport kinds are `HttpApi`, `LocalEndpoint`, `CliHarness`,
 
 Core sees only `provider_id`, `model_id`, transport kind, and declared
 capabilities (MP-2); it never knows how an adapter builds an endpoint, signs
-a request, or resolves an account. Whether the user authenticates with an API
-key, OAuth flow, subscription, or CLI login is an adapter-internal matter
-behind the registry protocol, subject to the secret invariant in
-[Secret invariant](#secret-invariant).
+a request, or resolves an account. The input envelope such an adapter receives
+and the guarantees it owes back are specified in
+[Provider transport adapter contract](transport-adapter-contract.md). Whether
+the user authenticates with an API key, OAuth flow, subscription, or CLI login
+is an adapter-internal matter behind the registry protocol, subject to the
+secret invariant in [Secret invariant](#secret-invariant).
 
 ## Two-level plugin model
 

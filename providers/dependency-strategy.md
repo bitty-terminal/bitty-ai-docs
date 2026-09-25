@@ -145,7 +145,10 @@ lifecycles and release cadences genuinely diverge. Provider kinds remain
 transport adapters, never capability grants: remote kinds still require the
 accepted network grant and provider consent, and a `local-only` provider
 performs no network I/O (MP-3 (Local-first default); MP-10 (API-key
-handling)).
+handling)). The consumer-side contract an adapter owes Core, and the split
+between adapter-owned protocol concerns and network-owned transport policy, are
+specified in
+[Provider transport adapter contract](transport-adapter-contract.md).
 
 ### Tool Bus adapter
 
