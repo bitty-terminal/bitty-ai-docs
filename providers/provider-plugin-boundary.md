@@ -37,17 +37,63 @@ This boundary covers the provider and model-management surface only:
   plugin-ecosystem handoff items recorded in
   [Bitty-side handoff](#bitty-side-handoff-not-a-decision).
 
-Inputs are the candidate direction, MP-1 through MP-11 and
-the MPC-1/MPC-2 candidate extension in [AI Architecture](../architecture/ai-architecture.md),
-the R1 disposition in [Execution ownership R1](../architecture/execution-ownership-r1.md), the
-R2 disposition in [Tool transport R2](../architecture/tool-transport-r2.md), the register in
-[AI Unresolved Questions](../product/ai-unresolved-questions.md), the narrow scope gate in
-[v0.1 Implementation Profile](../product/implementation-profile-v0.1.md), the dependency
-posture in [Dependency Strategy](dependency-strategy.md), and the accepted
-[IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding authority. This document is the English-language candidate summary and
-stands alone.
+Inputs are the candidate direction, MP-1 through MP-11 and the MPC-1/MPC-2
+candidate extension in [AI Architecture](../architecture/ai-architecture.md), the
+R1 disposition in [Execution ownership R1](../architecture/execution-ownership-r1.md),
+the R2 disposition in [Tool transport R2](../architecture/tool-transport-r2.md),
+the register in [AI Unresolved Questions](../product/ai-unresolved-questions.md),
+the narrow scope gate in [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md),
+the dependency posture in [Dependency Strategy](dependency-strategy.md), and the
+accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) as overriding
+authority. This document is self-contained.
 
 No product code is introduced or described as implemented.
+
+## Normative sources this specification must not weaken
+
+- [AI Architecture](../architecture/ai-architecture.md): MP-1 through MP-11,
+  MPC-1, MPC-2, and the architecture-level privacy, budget, consent, and
+  dependency mandates elaborated here.
+- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): bounded
+  framing, scope families, consent ledger, peer authentication, and streaming
+  chunking that any provider integration must not weaken.
+- [Security Overview](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/overview.md):
+  external providers remain untrusted until a narrow grant, and deferral must
+  not create a bypass.
+- [Threat Model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md):
+  T-10 and R-013 for treating provider output as untrusted observation data.
+- [Security Risk Register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/risk-register.md):
+  R-012 for child credential leakage and R-014 for secret exposure through
+  traces.
+- [P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md):
+  P0-AC-021 through P0-AC-026, including mandatory typed redaction before queue
+  and before write.
+- [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md): the
+  narrow v0.1 scope and no-network posture that candidate post-v0.1 surfaces
+  cannot override.
+
+Where this document refines a threshold, encoding, or ownership edge, it
+refines those sources. If a mechanism stated here weakens a normative control,
+the normative text wins and this document must be corrected.
+
+## Terminology
+
+| Term                        | Meaning here                                                                                                                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Core                        | The `bitty-ai` component that owns provider abstraction, registration, selection, fallback, budget, accounting, streaming, and provider-independent error policy.                                 |
+| Provider plugin             | An adapter that implements one provider or transport family behind the Core-owned boundary and registers through the host-validated registry protocol.                                            |
+| Frozen v0.1 surface         | The exact `ModelProvider`, `ModelDescriptor`, turn-request, and error surface described in [v0.1 interface freeze](#v01-interface-freeze-ai-0135); candidate fields are not part of this surface. |
+| Candidate post-v0.1 surface | The proposed descriptor, registry, taxonomy, routing, streaming, and adapter extensions in this draft. It adopts no field, type, mechanism, owner, or implementation authorization.               |
+| Provider-independent error  | A typed `ProviderError` outcome whose meaning does not expose a vendor status or message. Free-form reason fields remain only partially provider-independent until mapped.                        |
+| Credential handle           | An opaque host-controlled reference consumed by an adapter. Raw credential bytes cross only the authorized host adapter edge and never reach models, agents, plugins, diagnostics, or storage.    |
+| Privacy class               | The Core-owned `local-only`, `network-minimized`, or `upload-notice` classification used as a hard routing constraint.                                                                            |
+| Transport kind              | A proposed Core-declared adapter class: `HttpApi`, `LocalEndpoint`, `CliHarness`, `ManagedAccount`, or `Router`. It grants no capability by itself.                                               |
+
+Authoritative definitions for the frozen provider surface, privacy class,
+capability vocabulary, context budget, and network delegation remain with
+[AI Architecture](../architecture/ai-architecture.md) and
+[Provider transport adapter contract](transport-adapter-contract.md). This
+document links those definitions and adds no second implementation authority.
 
 ## Core-owned surface
 
@@ -83,9 +129,17 @@ against its existing contract anchor; nothing here widens Core authority.
 - Streaming abstraction (MP-6). Core defines chunked `StreamHandle` framing
   (`seq`/`total`/`final`, byte ceilings, backpressure with countable shed);
   adapters produce fragments in that shape.
-- Provider-independent errors. Error kinds (`BudgetExceeded`, `Unknown`,
-  authorization denial, cancellation) are Core-owned and transport-neutral;
-  vendor status codes are mapped at the adapter edge and never propagate raw
+- Provider-independent errors. The current `ProviderError` variants are
+  Core-owned and transport-neutral where their payloads are structured.
+  `Transport`, `Auth`, and `Unknown` carry unbounded free-form `String`
+  reasons in `ProviderError`; `AgentError::from(ProviderError)` bounds the
+  provider and reason strings to at most 512 printable ASCII bytes during
+  conversion. That conversion removes control characters and bounds length,
+  but it does not canonicalize vendor meaning or redact secrets. An adapter
+  must map vendor status and message data into the existing typed variants
+  and bounded, non-secret reason categories. The frozen surface has no
+  `Cancelled` variant, and cancellation remains an agent-session outcome.
+  Vendor status codes are mapped at the adapter edge and never propagate raw
   to agents or journals.
 - Provider registry protocol (MP-1). The host validates `provider_id`,
   `privacy_class`, and `capabilities` before registration and rejects ambient
@@ -101,14 +155,12 @@ code, and store adapters sit outside the std-only runtime.
 
 ## v0.1 interface freeze (AI-0135)
 
-The sibling `bitty-ai` runtime froze the `ModelProvider` v0.1 interface
-contract in `5213efb` (AI-0135, Issue #261), recorded in the
-`ModelCapability`, `ModelDescriptor`, and `ModelProvider` doc-comments in
-`crates/bitty-ai-runtime/src/provider.rs`. This section mirrors that freeze
-identically in substance; the fuller candidate surface elsewhere in this
-document (notably [Core-owned surface](#core-owned-surface)) stays proposal,
-not v0.1 contract. Where the two differ, this section governs v0.1 and the
-candidate surface governs beyond v0.1.
+The sibling `bitty-ai` runtime defines the `ModelProvider` v0.1 interface
+contract. This section mirrors that freeze identically in substance; the fuller
+candidate surface elsewhere in this document (notably [Core-owned
+surface](#core-owned-surface)) stays proposal, not v0.1 contract. Where the two
+differ, this section governs v0.1 and the candidate surface governs beyond
+v0.1.
 
 **Frozen v0.1 trait surface.** The trait surface is exactly `provider_id`
 (identity accessor, validated at construction) plus `list_models` /
@@ -188,12 +240,16 @@ The proposed transport kinds are `HttpApi`, `LocalEndpoint`, `CliHarness`,
   aggregators), which are one provider entry with their own descriptor,
   capabilities, and accounting, not a bypass around routing policy.
 
-Core sees only `provider_id`, `model_id`, transport kind, and declared
-capabilities (MP-2); it never knows how an adapter builds an endpoint, signs
-a request, or resolves an account. Whether the user authenticates with an API
-key, OAuth flow, subscription, or CLI login is an adapter-internal matter
-behind the registry protocol, subject to the secret invariant in
-[Secret invariant](#secret-invariant).
+For the candidate post-v0.1 registry and descriptor surface, Core sees provider
+identity, a model name, transport kind, and declared capabilities (MP-2); it
+never knows how an adapter builds an endpoint, signs a request, or resolves an
+account. The frozen v0.1 `TurnRequest` instead carries the field `model` and
+does not carry transport kind or `model_id`. The input envelope such an adapter
+receives and the guarantees it owes back are specified in
+[Provider transport adapter contract](transport-adapter-contract.md). Whether
+the user authenticates with an API key, OAuth flow, subscription, or CLI login
+is an adapter-internal matter behind the registry protocol, subject to the
+secret invariant in [Secret invariant](#secret-invariant).
 
 ## Two-level plugin model
 
@@ -262,14 +318,13 @@ This invariant is the non-negotiable security core of the boundary:
   from streaming and Tool Bus scopes, are redacted by typed `SecretField`
   before any diagnostic, trace, or snapshot, and never appear in environment
   passthrough, discovery files, trace files, or agent workspaces (MP-10,
-  Invariant 9, P0-AC-026). The sibling `bitty-ai` runtime evidences the
-  container half in `386952c` (AI-0138): `SecretField` Debug/Display emit the
-  fixed `[redacted secret]` marker unconditionally, `is_absent_from` gates
-  and `scrub_from` scrubs before queue or write, and the `ai.provider` grant
+  Invariant 9, P0-AC-026). The runtime's `SecretField` emits the fixed
+  `[redacted secret]` marker unconditionally, `is_absent_from` gates and
+  `scrub_from` scrubs before queue or write, and the `ai.provider` grant
   satisfies its exact triple only — see
   [AI Unresolved Questions](../product/ai-unresolved-questions.md) AIQ-5A.
   Mandatory pre-queue/pre-write enforcement timing and the marker/invalidation
-  mechanism stay open there. This describes sibling behavior only as read.
+  mechanism stay open there.
 - Typed redaction applies pre-queue and pre-write (PP-2, P0-AC-026, AIQ-5A),
   and no secret-bearing record persists without explicit applicable consent
   (PP-4).
@@ -362,6 +417,122 @@ handoff timing.
   capability grants; reviewers must keep alias resolution behind consent and
   budget gates.
 
+## Security review
+
+- **Credential authority.** A model can use credentials; a model must never
+  see credentials. Configuration carries references, the host secret store
+  holds values, and only the authorized host adapter edge may resolve a value
+  for adapter use. A raw value crossing any model, agent, plugin, diagnostic,
+  trace, snapshot, journal, discovery file, child environment, or
+  `BITTY_*` variable is a release-blocking defect.
+- **Redaction timing.** Typed `SecretField` redaction applies before queue and
+  before write. The fixed marker, absence checks, and scrub behavior do not
+  waive that timing, and AIQ-5A keeps its existing partial disposition. No
+  secret-bearing record persists without explicit applicable consent.
+- **Provider output and errors.** Provider output is untrusted observation
+  data, never an instruction. Vendor statuses and messages are mapped at the
+  adapter edge into the existing provider-independent error surface; raw vendor
+  text does not propagate to agents or journals. The current free-form reasons
+  remain subject to the conversion bound stated in
+  [Core-owned surface](#core-owned-surface).
+- **Capability and isolation.** A provider, transport kind, first-party label,
+  or "trusted" label grants no ambient filesystem, process, or network
+  authority and no automatic sandbox, isolation, or capability exemption. The
+  applicable validation, caller, target, consent, budget, and redaction gates
+  remain in their established order while AIQ-33 and AIQ-38 stay open.
+- **Registry and routing.** Registration remains host-validated, unknown fields
+  fail closed, aliases are configuration rather than grants, and capability
+  and privacy class remain hard routing constraints. An adapter cannot extend
+  the capability vocabulary or widen consent through registration metadata.
+- **Handoff is not authority.** Host secret storage, Model Manager presentation,
+  and plugin-registry mechanics remain with their owning repositories. Their
+  unresolved implementation does not authorize this document or a provider
+  adapter to bypass a security control.
+
+No clause in this candidate boundary weakens the normative security corpus.
+Any conflict returns the document to `NEEDS-FIX` until the normative source or
+the conflicting mechanism is corrected.
+
+## Verification plan
+
+Review verifies the frozen-versus-candidate boundary and treats every
+post-v0.1 mechanism as an acceptance bar, not as evidence that it exists.
+
+- Frozen-interface evidence identifies the exact v0.1 trait operations,
+  descriptor fields, turn-request model field, sampling behavior, and
+  `ProviderError` variants, including the absence of a cancellation variant.
+- Error-mapping evidence starts with the unbounded `String` payloads in the
+  current `ProviderError`, exercises the 512-byte printable-ASCII conversion
+  bound, and shows vendor statuses and messages mapped into existing typed
+  variants without raw propagation to agents or journals.
+- Credential evidence uses sentinel values to prove that configuration,
+  models, agents, plugins, diagnostics, traces, snapshots, journals, discovery
+  files, and child environments never receive raw credential bytes.
+- Redaction evidence exercises both pre-queue and pre-write paths and verifies
+  that the fixed marker, absence checks, and scrub behavior cannot be disabled
+  by an adapter.
+- Registration evidence rejects undeclared providers, unknown descriptor
+  fields, out-of-vocabulary capabilities, and ambient grants before an adapter
+  can serve a model.
+- Routing evidence proves capability match and privacy class remain hard
+  constraints, while cost, latency, context-window, and quota inputs remain
+  preferences inside consent and budget.
+- Isolation evidence proves provider identity, transport kind, and first-party
+  status grant no filesystem, process, or network capability exemption while
+  AIQ-33 and AIQ-38 remain open.
+- Handoff evidence records owner-side review for host secret storage, Model
+  Manager presentation, and plugin-registry mechanics without treating this
+  document as acceptance by any owning repository.
+
+## Alternatives considered
+
+- **Put vendor integrations in Core.** Rejected: it couples the kernel to
+  vendor protocols, credentials, and transport dependencies and gives every
+  dependent the resulting dependency tree. Core owns the contract and policy;
+  adapters own concrete integrations.
+- **Use one monolithic model manager for every provider function.** Rejected
+  as the candidate direction: administration and concrete provider adapters
+  have different authority and lifecycle boundaries. The two-level plugin model
+  remains a draft, and its owning repositories still decide acceptance.
+- **Represent a consumer subscription as API keys.** Rejected: extracting or
+  impersonating a client session is unstable and creates terms-of-service and
+  security exposure. Subscription or CLI access uses only a supported surface.
+- **Pass raw provider messages toward the edge.** Rejected: vendor status and
+  message data would become an accidental protocol and could leak secrets.
+  Adapters map into the existing typed variants and bounded, non-secret
+  categories.
+- **Treat alias configuration as capability policy.** Rejected: aliases select
+  among candidates but never grant consent, network access, or capabilities.
+  Core still applies the hard constraints and the authorized preference order.
+- **Choose host secret-store, panel, or registry mechanics here.** Rejected:
+  those choices belong to their owning repositories. This document records
+  constraints and handoff input without granting authority.
+
+## Affected contracts
+
+- [AI Architecture](../architecture/ai-architecture.md) (Draft): MP-1 through
+  MP-11, MPC-1, MPC-2, and the cited privacy, budget, consent, streaming, and
+  dependency mandates are elaborated but not changed.
+- [Provider transport adapter contract](transport-adapter-contract.md)
+  (Draft): the frozen provider surface, host-only credential edge,
+  provider-independent error mapping, and adapter/network responsibilities are
+  synchronized with this boundary.
+- [Dependency Strategy](dependency-strategy.md) (Draft): the std-only kernel,
+  dependency inversion, and provider-adapter placement remain unchanged; no
+  crate or version is adopted.
+- [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
+  (Draft): the exact frozen interface and zero-network v0.1 posture remain in
+  force.
+- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): bounded
+  framing, authentication, scopes, consent, and streaming constraints remain
+  controlling.
+- [Execution ownership R1](../architecture/execution-ownership-r1.md) and
+  [Tool transport R2](../architecture/tool-transport-r2.md) (Draft): the
+  no-model-I/O rule and unified authorization backend remain unchanged.
+- [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft):
+  AIQ-02, AIQ-13, AIQ-24, AIQ-33, AIQ-36, AIQ-38, and AIQ-5A retain their
+  current entries and dispositions.
+
 ## Open points
 
 Duplicate-check against
@@ -387,3 +558,59 @@ no new global open-question identifier:
 Credential-storage tiers remain with their existing trackers referenced by
 [AI Architecture](../architecture/ai-architecture.md); management-UI design and plugin-registry
 mechanics belong to the owning repositories and are not AIQ entries.
+
+## Acceptance criteria
+
+This draft passes document-level review only when all of the following are
+true:
+
+- The exact frozen v0.1 surface remains separate from every candidate post-v0.1
+  field, operation, taxonomy, and registry mechanism.
+- The error statement says that `Transport`, `Auth`, and `Unknown` hold
+  unbounded free-form strings in `ProviderError`, that conversion to
+  `AgentError` applies the 512-byte printable-ASCII bound, and that conversion
+  does not canonicalize vendor meaning or redact secrets.
+- The Core-versus-plugin table, secret invariant, transport taxonomy, alias
+  constraints, and handoff list retain their existing force without granting
+  implementation or ownership authority.
+- AIQ-02, AIQ-13, AIQ-24, AIQ-33, AIQ-36, AIQ-38, and AIQ-5A retain their
+  register entries; this document introduces no identifier, owner assignment,
+  milestone, or implementation authorization.
+- Every changed canonical file is self-contained and contains no archive
+  label, implementation line range, revision fingerprint, or
+  implementation-location reference.
+- `just check`, `just fmt`, `just links`, `just metadata`, and `just language`
+  pass, and independent architecture, security, and documentation review
+  records no blocking finding.
+
+## P0 Review Sign-off
+
+No P0 sign-off is claimed by this draft. Before any reliance, the security
+reviewer must verify the credential edge, pre-queue and pre-write redaction,
+provider-output handling, error conversion, and absence of an isolation or
+capability exemption. The architecture reviewer must verify the frozen versus
+candidate surface, Core/plugin ownership split, and adapter handoff boundary.
+The documentation reviewer must verify self-containment, metadata, AIQ
+cross-references, and links. Passing repository gates does not constitute those
+sign-offs.
+
+## References
+
+- [AI Architecture](../architecture/ai-architecture.md) (Draft): MP-1 through
+  MP-11, MPC-1, MPC-2, and the architecture-level mandates cited by this
+  boundary.
+- [Provider transport adapter contract](transport-adapter-contract.md)
+  (Draft): exact frozen provider fields, bounded error-conversion behavior,
+  credential handling, adapter guarantees, and network delegation.
+- [Dependency Strategy](dependency-strategy.md) (Draft): std-only kernel,
+  dependency inversion, and provider-adapter placement.
+- [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
+  (Draft): frozen implementation scope and no-network posture.
+- [Execution ownership R1](../architecture/execution-ownership-r1.md) and
+  [Tool transport R2](../architecture/tool-transport-r2.md) (Draft):
+  cross-repository execution ownership and unified authorization constraints.
+- [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): bounded
+  IPC, authentication, scope, consent, and streaming controls.
+- [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft):
+  AIQ-02, AIQ-13, AIQ-24, AIQ-33, AIQ-36, AIQ-38, and AIQ-5A with their
+  existing dispositions.

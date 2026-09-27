@@ -17,7 +17,8 @@ the linked pages; this index carries no duplicate normative prose.
 ## Admission criteria
 
 A document belongs here when it defines the model-provider or tool-provider
-boundary, provider plugin shape, multimodal inference surface, or the runtime
+boundary, provider plugin shape, multimodal inference surface, the contract a
+provider transport adapter owes Core and the network layer, or the runtime
 dependency posture that constrains provider adapters. It links the architecture
 dispositions it elaborates and includes security review where credential or
 transport trust boundaries are involved.
@@ -33,8 +34,9 @@ conflicting direction.
 
 ## Documents
 
-| Document                                                          | Status | Purpose                                                                      |
-| ----------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------- |
-| [Provider plugin boundary](provider-plugin-boundary.md)           | Draft  | Core versus provider-plugin boundary for ModelProvider contract and secrets. |
-| [Multimodal inference boundary](multimodal-inference-boundary.md) | Draft  | Core multimodal extension for capability vocabulary, task envelope, assets.  |
-| [Dependency Strategy](dependency-strategy.md)                     | Draft  | Std-only runtime kernel with post-v0.1 adapter dependency boundaries.        |
+| Document                                                             | Status | Purpose                                                                      |
+| -------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------- |
+| [Provider plugin boundary](provider-plugin-boundary.md)              | Draft  | Core versus provider-plugin boundary for ModelProvider contract and secrets. |
+| [Multimodal inference boundary](multimodal-inference-boundary.md)    | Draft  | Core multimodal extension for capability vocabulary, task envelope, assets.  |
+| [Dependency Strategy](dependency-strategy.md)                        | Draft  | Std-only runtime kernel with post-v0.1 adapter dependency boundaries.        |
+| [Provider transport adapter contract](transport-adapter-contract.md) | Draft  | Adapter input envelope, guarantees, and network delegation boundary.         |
