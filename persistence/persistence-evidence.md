@@ -108,6 +108,26 @@ typed `UnknownEscalation` / `AgentError::UnknownUnresolved`); merged in
 retry stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 This describes sibling behavior only as read.
 
+**Content-addressed store evidence (experimental, schema and backend facets
+only):** the sibling `bitty-ai` `ContentStore` implements a SQLite-backed
+content-addressed persistence layer with three tables (`blobs`, `checkpoints`,
+`refs`). Blobs are deduplicated by SHA-256 `ContentHash`, bounded by 16 MiB,
+and verified on read. Checkpoints are DAG commit nodes with structured
+`Rationale` records (bounded cognitive metadata: `why`, `what`, `where_focus`,
+`how`, `expected`, `observed`), parent existence verification, tree blob
+reference verification, and versioned length-prefixed canonical hashing
+(`checkpoint:v2\0`) preventing delimiter-collision attacks. Refs provide
+mutable HEAD and branch pointers with existence-verified targets. DAG
+operations include backward log traversal and merge-base (lowest common
+ancestor) calculation. `INSERT OR IGNORE` provides conflict tolerance for
+concurrent writers, and `get_checkpoint` verifies integrity by recomputing the
+canonical hash on read (`CorruptCheckpoint` error on mismatch). Facade access
+through `AiEngine::open_content_store` and `open_in_memory_content_store`;
+merged in `bitty-ai` `9b83315` (AI-0162). Transaction isolation (WAL,
+multi-writer), schema migration, event log, effect ledger, and retention
+metadata stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
 ## Verification plan
 
 The inspected `bitty-ai` revision

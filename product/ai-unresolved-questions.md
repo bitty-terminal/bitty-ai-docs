@@ -19,7 +19,8 @@ Promotion requires the canonical [OQ admission rule](https://github.com/bitty-te
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
 AIQ-01 snapshot-stream, window-budget, and compiled-ingest, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
 store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-37 runtime/slice-side outcome-vocabulary,
-and AIQ-24/AIQ-25 single-hop whole-batch admission, and AIQ-5A container-level redaction facets (Closed(partial)); no accepted global decision is made here.
+and AIQ-24/AIQ-25 single-hop whole-batch admission, AIQ-5A container-level redaction,
+AIQ-51 content-addressed store, and AIQ-53 SQLite backend facets (Closed(partial)); no accepted global decision is made here.
 
 ## Disposition
 
@@ -748,9 +749,9 @@ Details: [persistence/evidence](../persistence/persistence-evidence.md).
 
 | ID     | Open choice                                                                                                                  | Blocking feature and rationale                                                              | Proposed routing                            |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| AIQ-51 | Schema and transaction boundaries                                                                                            | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
+| AIQ-51 | Schema and transaction boundaries — Closed(partial): content-addressed store facet only; see disposition                     | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
 | AIQ-52 | State reconstruction versus effect re-execution contract                                                                     | Prerequisite: replay must not silently rerun effects                                        | AI runtime, security                        |
-| AIQ-53 | Backend and optional search index                                                                                            | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
+| AIQ-53 | Backend and optional search index — Closed(partial): SQLite content-addressed backend facet only; see disposition            | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
 | AIQ-54 | Cross-store retention policy authority                                                                                       | Prerequisite: host limits constrain user/tool preferences                                   | AI runtime, security                        |
 | AIQ-55 | Deletion/expiry and derived-record invalidation — Closed(partial): store-propagation facet only; see disposition             | Prerequisite: remove payloads, summaries, caches and indexes consistently                   | AI runtime, security                        |
 | AIQ-56 | Alias of AIQ-10: CarryCtx persistence integration                                                                            | Same design classification as AIQ-10; backend/handoff facet, not separate lifecycle owner   | AI runtime, CarryCtx/lifecycle              |
@@ -805,6 +806,64 @@ wording only.
   decision), and typed marker representation plus invalidation mechanics
   (fixed `[redacted secret]` container marker only; no marker/invalidation
   protocol or derived-record invalidation beyond it is evidenced).
+
+### AIQ-51 / AIQ-53 disposition (local draft only)
+
+This disposition closes register facets with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-51 — Closed(partial): content-addressed store schema facet closed;
+  transaction isolation, migration, and full feature-profile schema facets
+  stay open.**
+  Closed choice: a content-addressed store with three SQLite tables (`blobs`,
+  `checkpoints`, `refs`) and supporting indexes. `blobs` stores deduplicated
+  immutable byte payloads keyed by SHA-256 `ContentHash` (32-byte typed
+  wrapper, strict lowercase 64-hex validation), bounded by `MAX_BLOB_BYTES`
+  (16 MiB), with cryptographic integrity verification on read.
+  `checkpoints` stores DAG commit nodes with `task_id`, `agent_id`,
+  `summary`, `timestamp_ms`, serialized `Rationale` (structured cognitive
+  record: `why`, `what`, `where_focus`, `how`, `expected`, `observed`, each
+  bounded by `MAX_RATIONALE_FIELD_BYTES` 4096, total bounded by
+  `MAX_RATIONALE_TOTAL_BYTES` 16384), serialized parent list (bounded by
+  `MAX_CHECKPOINT_PARENTS` 16), and `tree` blob reference (existence-verified).
+  Checkpoint identity uses versioned length-prefixed canonical hashing
+  (`checkpoint:v2\0` with `u64` big-endian length prefix per field) to
+  prevent delimiter-collision attacks. `refs` stores mutable HEAD and
+  branch pointers with existence-verified targets. `INSERT OR IGNORE`
+  provides conflict tolerance for concurrent writers. DAG operations
+  include backward `log` traversal and `merge_base` (lowest common
+  ancestor) calculation. Evidence: code
+  `bitty-ai/crates/bitty-ai-slice/src/content_store.rs` (`ContentHash`,
+  `BlobStore`, `Rationale`, `CheckpointDraft`, `Checkpoint`, `ContentStore`,
+  `ContentStoreError` including `CorruptCheckpoint`); 8 integration tests
+  (`blob_dedup_and_integrity`, `rationale_field_limit`,
+  `checkpoint_chaining_and_refs`, `log_and_merge_base`, `facade_content_store`,
+  `content_hash_format_validation`,
+  `unambiguous_canonical_hashing_prevents_field_injection`,
+  `corrupt_checkpoint_detection_on_sqlite_tamper`); merged in `bitty-ai`
+  `9b83315` (AI-0162). Stay-open facets with reasons: transaction isolation
+  (single-connection serialized access only; no WAL or multi-writer policy),
+  schema migration (no versioned migration path), and full feature-profile
+  schema (event log, effect ledger, and retention metadata tables are not
+  yet represented).
+
+- **AIQ-53 — Closed(partial): SQLite content-addressed backend facet closed;
+  optional FTS5 search index and alternative backend facets stay open.**
+  Closed choice: SQLite (via `rusqlite` 0.40.2 with `bundled` feature) as
+  the content-addressed store backend, supporting both persistent (file-backed)
+  and in-memory modes via `AiEngine::open_content_store` and
+  `AiEngine::open_in_memory_content_store`. The backend provides: content
+  addressing with SHA-256, deduplication via `INSERT OR IGNORE`, bounded
+  blob storage (16 MiB per blob), checkpoint integrity verification on read
+  (recomputing canonical hash and returning `CorruptCheckpoint` on mismatch),
+  DAG traversal (log, merge_base), and reference management. Evidence: same
+  implementation and tests as AIQ-51 above; merged in `bitty-ai` `9b83315`
+  (AI-0162). Stay-open facets with reasons: optional FTS5 full-text search
+  index (not implemented; AIQ-5B bounded observability queries must inform
+  whether FTS is warranted), and alternative backend evaluation (embedded
+  key-value stores, remote-capable backends, or hybrid configurations are
+  not explored).
 
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
