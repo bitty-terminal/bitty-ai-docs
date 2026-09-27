@@ -128,6 +128,74 @@ multi-writer), schema migration, event log, effect ledger, and retention
 metadata stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 This describes sibling behavior only as read.
 
+**Task DAG and control-plane evidence (experimental, lifecycle and graph scheduling facets only):**
+the sibling `bitty-ai` `TaskEngine` implements a graph-theoretic task scheduling and control layer
+with pure Rust graph algorithms and SQLite persistence (`tasks` and `task_dependencies` tables).
+Tasks carry typed `TaskId` (sanitized alphanumeric identifiers with validated deserialization),
+`TaskStatus` lifecycle states (`Pending`, `Ready`, `Running`, `Blocked`, `Succeeded`, `Failed`,
+`Cancelled`), and monotonic `generation` fencing tokens. Cycle detection using BFS fails closed
+with typed `CycleDetected` errors prior to insertion, preventing deadlock configurations.
+Topological sorting using Kahn's algorithm guarantees deterministic task ordering with priority
+tie-breaking. Dynamic execution fencing validates generation tokens on worker completion attempts,
+failing closed with `StaleGeneration` when an obsolete or timed-out worker attempts state mutation.
+Cascade readiness automatically promotes downstream tasks to `Ready` when all prerequisites succeed,
+while cascade blocking propagates `Blocked` status across the entire transitive dependency subgraph
+upon task failure or cancellation. Facade access through `AiEngine::open_task_engine` and
+`open_in_memory_task_engine`; 10 integration tests in `crates/bitty-ai-slice/tests/task_dag.rs`;
+merged in `bitty-ai` `5c3a3dc` (AI-0164). Distributed task scheduling, cross-session worker leases,
+and dynamic priority re-evaluation stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
+**Three-zone context compiler and Merkle tree evidence (experimental, compilation and prefix-cache facets only):**
+the sibling `bitty-ai` `ContextCompiler` and `ContextTree` implement a Three-Zone context compilation
+pipeline with deterministic Merkle tree state management. `ContextTree` maps named slot entries
+(`TreeEntry`, `EntryKind::Blob`, `EntryKind::Tree`) to immutable content hashes with versioned
+length-prefixed canonical encoding (`tree:v1\0`), tree diffing (`diff`), binary reconstruction
+(`from_canonical_bytes`), and 3-way semantic slot merging (`merge_3way`) with typed `SlotConflict`
+detection. `ContextCompiler` separates the compiled context into three distinct zones: Zone 1
+(Stable Prefix) preserves byte-identical system prompts and schemas for LLM vendor prefix-cache hits
+and fails closed on budget violation (`Zone1BudgetExceeded`); Zone 2 (Structured State) encodes
+the active task, cognitive checkpoints, and context tree slots; Zone 3 (Dynamic Tail) retains the
+turn prompt and recent observations. A multi-tier budget reduction pipeline enforces hard ceilings:
+Tier 1 prunes unpinned scratchpad slots (`scratch/*`, `temp/*`), Tier 2 compresses older checkpoint
+rationales into 1-line digests while retaining recent checkpoints, and Tier 3 cleanly truncates
+dynamic tail observations while preserving Zone 1 and the active task. Facade access through
+`AiEngine::compile_context`; 8 integration tests in `crates/bitty-ai-slice/tests/context_compiler.rs`;
+merged in `bitty-ai` `acfb4a1` (AI-0165). Dynamic vendor-specific cache breakpoint negotiation and
+cross-turn cache hit telemetry stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
+**Action protocol and auto-spillover evidence (experimental, execution plane and observation formatting facets only):**
+the sibling `bitty-ai` `ActionEngine` implements a standardized action protocol separating action
+requests from tool execution outcomes. Actions carry structured `ActionIntent` (`Inspect`, `Modify`,
+`Execute`, `Verify`, `Custom`) with target validation and bounded parameters. When tool execution
+produces stdout or stderr exceeding the inline threshold (`max_inline_bytes`, default 4 KiB),
+`ActionEngine` automatically spills the full raw payload into a content-addressed `BlobSink`
+(`ContentStore`), generating bounded head/tail UTF-8 previews with explicit truncation indicators.
+Structured observation formatting (`format_for_context`) outputs clean Markdown blocks containing
+blob content addresses, exit codes, and execution durations optimized for Zone 3 context compilation.
+Facade access through `AiEngine::process_action_outcome`; 6 integration tests in
+`crates/bitty-ai-slice/tests/action_protocol.rs`; merged in `bitty-ai` `045aa7f` (AI-0166). Interactive
+streaming tool input, capability-mediated sandbox revocation, and concurrent tool effect arbitration
+stay open — see [AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
+**Unified WheelKernel facade and zero-unsafe bridge evidence (experimental, boundary plane and Lua FFI facets only):**
+the sibling `bitty-ai` `WheelKernel` converges storage (`ContentStore`), task control (`TaskEngine`),
+cognitive state (`ContextTree`), and execution spillover (`ActionEngine`) into a cohesive runtime
+orchestrator. Cognitive checkpoints commit Merkle tree canonical blobs and update branch and HEAD
+pointers atomically within a single SQLite transaction (`update_refs_atomic`). Persistent kernels
+reopen by decoding the active context tree from the HEAD checkpoint's tree blob (`ContextTree::from_canonical_bytes`).
+`WheelBridge` provides a safe, zero-unsafe JSON-RPC command dispatch boundary (`kernel.status`, `task.*`,
+`slot.*`, `checkpoint.*`, `action.*`, `context.compile`) operating over byte buffers and typed
+`BridgeResponse` envelopes with checked integer conversions. An idiomatic Lua client wrapper
+(`crates/bitty-ai-slice/lua/wheel/kernel.lua`) provides synchronous host and plugin integration. Facade
+access through `AiEngine::open_wheel_kernel` and `open_wheel_bridge`; 14 integration tests across
+`tests/wheel_kernel.rs` and `tests/wheel_bridge.rs`; merged in `bitty-ai` `42309b3` (AI-0167). C-ABI
+shared-library dynamic loading and asynchronous IPC event multiplexing stay open — see
+[AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
 ## Verification plan
 
 The inspected `bitty-ai` revision

@@ -17,8 +17,9 @@ This local draft preserves 53 identifiers, including aliases, not 53 independent
 questions. It assigns no owners, release milestones or accepted global OQs.
 Promotion requires the canonical [OQ admission rule](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md#use).
 All non-alias choices remain open except AIQ-12 and AIQ-13 (Closed, adopted-draft) and the
-AIQ-01 snapshot-stream, window-budget, and compiled-ingest, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
-store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-37 runtime/slice-side outcome-vocabulary,
+AIQ-01 snapshot-stream, window-budget, compiled-ingest, and three-zone context compilation, AIQ-11 L0/L1 enforcement, AIQ-03 store-expiry, AIQ-04 generation-pin, AIQ-55
+store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-10/AIQ-56 task-dag and lifecycle engine, AIQ-27 cycle-detection and topological ordering,
+AIQ-37 runtime/slice-side outcome-vocabulary, action protocol, and auto-spillover,
 and AIQ-24/AIQ-25 single-hop whole-batch admission, AIQ-5A container-level redaction,
 AIQ-51 content-addressed store, and AIQ-53 SQLite backend facets (Closed(partial)); no accepted global decision is made here.
 
@@ -44,21 +45,21 @@ consented recording; open mechanisms cannot defer those controls.
 Details: [context management](../context/context-management.md),
 [prefix-cache context design](../context/prefix-cache-context-design.md).
 
-| ID     | Open choice                                                                                                                                                        | Blocking feature and rationale                                                                                                                   | Proposed routing               |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
-| AIQ-01 | Per-request versus incremental context generation — Closed(partial): snapshot-stream, window-budget, and compiled-ingest facets only; see disposition              | Design: view cadence and invalidation                                                                                                            | AI runtime                     |
-| AIQ-02 | Compression backend selection — Closed (adopted-draft); see disposition                                                                                            | Design: routing within provider consent and budget                                                                                               | AI runtime, security           |
-| AIQ-03 | Artifact expiry and reference invalidation — Closed(partial): store-expiry facet only; see disposition                                                             | Prerequisite: retained artifacts must honor deletion and bounds                                                                                  | AI runtime, security           |
-| AIQ-04 | Selection priority versus durable retention authority — Closed(partial): generation-pin facet only; see disposition                                                | Prerequisite: pinning cannot override consent or expiry                                                                                          | AI runtime, security           |
-| AIQ-05 | Background maintenance scheduling/consistency — stays open; cancel-observability evidence recorded with no facet closed, see note                                  | Design: preserve bounded responsive admission                                                                                                    | AI runtime                     |
-| AIQ-06 | Re-expansion after projection compaction                                                                                                                           | Design: only surviving authorized originals are recoverable; see AIQ-57                                                                          | AI runtime                     |
-| AIQ-07 | Cross-session memory retrieval mechanism                                                                                                                           | Prerequisite: consent, freshness and deletion propagation                                                                                        | AI runtime, security           |
-| AIQ-08 | MCP schema cache invalidation — Closed(partial): fail-closed missing/unversioned schema facet only; see disposition                                                | Prerequisite: stale schemas cannot authorize changed effects                                                                                     | AI runtime, security           |
-| AIQ-09 | Skill format/versioning and ecosystem compatibility — Closed(partial): cache-stable version hashing and loading declaration isolation facets only; see disposition | Design: loading declarations grants no execution authority                                                                                       | AI runtime, plugin API         |
-| AIQ-10 | Task lifecycle authority and CarryCtx backend/handoff                                                                                                              | Design: one lifecycle authority for integration; AIQ-56 is its persistence alias                                                                 | AI runtime, CarryCtx/lifecycle |
-| AIQ-11 | Context injection-defense enforcement evidence — Closed(partial): L0/L1 and L2 selective-compression facets closed; see disposition                                | Prerequisite: untrusted observations cannot control maintenance policy; durable retention policy and cross-session GC facets stay open           | AI runtime, security           |
-| AIQ-12 | Canonical serialization and stable-prefix ordering — Closed (adopted-draft); see disposition                                                                       | Design: deterministic prompt/1 encoding adopted for the prefix-cache prerequisite                                                                | AI runtime                     |
-| AIQ-13 | Provider-scoped prefix-cache key and routing scope — Closed (adopted-draft); see disposition                                                                       | Design: provider-scoped CacheKey/CacheScope keying plus measured hit-rate evidence; implicit-vs-explicit routing stays a follow-up policy choice | AI runtime, security           |
+| ID     | Open choice                                                                                                                                                                           | Blocking feature and rationale                                                                                                                   | Proposed routing               |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
+| AIQ-01 | Per-request versus incremental context generation — Closed(partial): snapshot-stream, window-budget, compiled-ingest, and three-zone context compilation facets only; see disposition | Design: view cadence and invalidation                                                                                                            | AI runtime                     |
+| AIQ-02 | Compression backend selection — Closed (adopted-draft); see disposition                                                                                                               | Design: routing within provider consent and budget                                                                                               | AI runtime, security           |
+| AIQ-03 | Artifact expiry and reference invalidation — Closed(partial): store-expiry facet only; see disposition                                                                                | Prerequisite: retained artifacts must honor deletion and bounds                                                                                  | AI runtime, security           |
+| AIQ-04 | Selection priority versus durable retention authority — Closed(partial): generation-pin facet only; see disposition                                                                   | Prerequisite: pinning cannot override consent or expiry                                                                                          | AI runtime, security           |
+| AIQ-05 | Background maintenance scheduling/consistency — stays open; cancel-observability evidence recorded with no facet closed, see note                                                     | Design: preserve bounded responsive admission                                                                                                    | AI runtime                     |
+| AIQ-06 | Re-expansion after projection compaction                                                                                                                                              | Design: only surviving authorized originals are recoverable; see AIQ-57                                                                          | AI runtime                     |
+| AIQ-07 | Cross-session memory retrieval mechanism                                                                                                                                              | Prerequisite: consent, freshness and deletion propagation                                                                                        | AI runtime, security           |
+| AIQ-08 | MCP schema cache invalidation — Closed(partial): fail-closed missing/unversioned schema facet only; see disposition                                                                   | Prerequisite: stale schemas cannot authorize changed effects                                                                                     | AI runtime, security           |
+| AIQ-09 | Skill format/versioning and ecosystem compatibility — Closed(partial): cache-stable version hashing and loading declaration isolation facets only; see disposition                    | Design: loading declarations grants no execution authority                                                                                       | AI runtime, plugin API         |
+| AIQ-10 | Task lifecycle authority and CarryCtx backend/handoff — Closed(partial): task DAG engine, generation fencing, cascade readiness, and SQLite persistence facets only; see disposition  | Design: one lifecycle authority for integration; AIQ-56 is its persistence alias                                                                 | AI runtime, CarryCtx/lifecycle |
+| AIQ-11 | Context injection-defense enforcement evidence — Closed(partial): L0/L1 and L2 selective-compression facets closed; see disposition                                                   | Prerequisite: untrusted observations cannot control maintenance policy; durable retention policy and cross-session GC facets stay open           | AI runtime, security           |
+| AIQ-12 | Canonical serialization and stable-prefix ordering — Closed (adopted-draft); see disposition                                                                                          | Design: deterministic prompt/1 encoding adopted for the prefix-cache prerequisite                                                                | AI runtime                     |
+| AIQ-13 | Provider-scoped prefix-cache key and routing scope — Closed (adopted-draft); see disposition                                                                                          | Design: provider-scoped CacheKey/CacheScope keying plus measured hit-rate evidence; implicit-vs-explicit routing stays a follow-up policy choice | AI runtime, security           |
 
 ### AIQ-08, AIQ-09, AIQ-11, AIQ-12, and AIQ-13 dispositions (local draft only)
 
@@ -168,8 +169,8 @@ This disposition closes a register facet with implementation evidence. It sets
 no owners or milestones, grants no global promotion, and uses Closed(partial)
 wording only.
 
-- **AIQ-01 — Closed(partial): snapshot-stream, window-budget, and
-  compiled-ingest facets closed; full incrementality and
+- **AIQ-01 — Closed(partial): snapshot-stream, window-budget,
+  compiled-ingest, and three-zone context compilation facets closed; full incrementality and
   background-maintenance facets stay open.** Closed choice:
   session-pinned snapshot plus per-turn deltas with explicit host-authorized
   refresh rotating the generation pin — the stable snapshot head warms the
@@ -245,10 +246,27 @@ wording only.
   `forged_digest_appendage_without_summary_prefix_fails`,
   `truncation_marker_tail_compiles_as_inert_delta`,
   `compiled_ingest_is_deterministic`); merged in `bitty-ai` `29005c7`
-  (AI-0141). Stay-open facets
-  with reasons: full incremental view update (each turn reassembles from the
-  pinned snapshot plus a recollected delta; no cached view is mutated in
-  place and no diff-application mechanism is evidenced) and background
+  (AI-0141). Three-zone context compilation facet: AI-0165 implements
+  `ContextCompiler` and `ContextTree` in `bitty-ai-slice`, establishing a
+  deterministic Three-Zone context compilation pipeline with Merkle tree cognitive
+  state tracking. `ContextTree` maps named slot entries (`TreeEntry`,
+  `EntryKind::Blob`, `EntryKind::Tree`) to immutable content hashes with versioned
+  length-prefixed canonical encoding (`tree:v1\0`), tree diffing (`diff`), binary
+  reconstruction (`from_canonical_bytes`), and 3-way semantic slot merging (`merge_3way`)
+  with typed `SlotConflict` detection. `ContextCompiler` compiles context into three
+  distinct zones: Zone 1 (Stable Prefix) preserves byte-identical system prompts and
+  schemas across turns for LLM prefix-cache hits and fails closed on budget violation
+  (`Zone1BudgetExceeded`); Zone 2 (Structured State) encodes the active task, cognitive
+  checkpoints, and context tree slots; Zone 3 (Dynamic Tail) retains the turn prompt
+  and recent execution observations. A multi-tier budget reduction pipeline enforces
+  hard token/byte limits: Tier 1 prunes unpinned scratchpad slots (`scratch/*`, `temp/*`),
+  Tier 2 compresses older checkpoint rationales into 1-line digests while retaining recent
+  checkpoints, and Tier 3 cleanly truncates dynamic tail observations while strictly
+  preserving Zone 1 and the active task. Facade access through `AiEngine::compile_context`;
+  8 integration tests in `crates/bitty-ai-slice/tests/context_compiler.rs`; merged in
+  `bitty-ai` `acfb4a1` (AI-0165). Stay-open facets with reasons: full incremental view update
+  (each turn reassembles from the pinned snapshot plus a recollected delta; no cached
+  view is mutated in place and no diff-application mechanism is evidenced) and background
   maintenance scheduling and consistency (ingest keeps no cache and schedules
   no background refresh; the ledger is pure generation arithmetic with no
   bytes, clock, or I/O; refresh timing stays a host decision — overlapping
@@ -438,20 +456,54 @@ unknown_reconcile_max_delay_ms}` mirrored through `reconcile_config()`;
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
+### AIQ-10 and AIQ-56 disposition (local draft only)
+
+This disposition closes register facets with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-10 and AIQ-56 — Closed(partial): task DAG engine, generation fencing, cascade
+  readiness, and SQLite persistence facets closed; distributed scheduling, cross-session
+  worker leases, and dynamic priority re-evaluation facets stay open.** Closed choices:
+  (1) Graph-theoretic task DAG engine: typed validated `TaskId` (sanitized alphanumeric
+  identifiers with validated deserialization), `TaskStatus` lifecycle state machine
+  (`Pending`, `Ready`, `Running`, `Blocked`, `Succeeded`, `Failed`, `Cancelled`),
+  BFS cycle detection with `CycleDetected` fail-closed error preventing deadlock
+  topologies before mutation, and Kahn's topological sort producing deterministic
+  task execution sequence with priority tie-breaking. (2) Monotonic generation fencing:
+  each task carries a monotonic `generation` token; worker completion attempts must
+  present the active generation token, failing closed with typed `StaleGeneration`
+  on stale, cancelled, or timed-out worker attempts. (3) Cascade readiness and blocking:
+  completing a task automatically promotes downstream dependents to `Ready` when all
+  prerequisites succeed, while task failure or cancellation propagates `Blocked` status
+  across the entire transitive dependency subgraph. (4) SQLite persistence: `tasks` and
+  `task_dependencies` schema in persistent and in-memory stores via `rusqlite`.
+  Evidence: code `bitty-ai/crates/bitty-ai-slice/src/task_dag.rs` (`TaskId`, `TaskStatus`,
+  `TaskNode`, `TaskDraft`, `TaskEngine`, `TaskEngineError`), `facade.rs`
+  (`AiEngine::open_task_engine`, `open_in_memory_task_engine`); 10 integration tests in
+  `crates/bitty-ai-slice/tests/task_dag.rs`; merged in `bitty-ai` `5c3a3dc` (AI-0164).
+  Stay-open facets with reasons: distributed task scheduling across remote nodes (engine
+  is local single-process only), cross-session worker leases and heartbeats (handled
+  at host supervisor layer), and dynamic runtime priority re-evaluation. AIQ-56 mirrors
+  AIQ-10 as its persistence integration alias.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
 ## Commands and tools
 
 Details: [command/tool architecture](../architecture/command-tool-architecture.md).
 
-| ID     | Open choice                                                                                                          | Blocking feature and rationale                                                | Proposed routing                   |
-| ------ | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
-| AIQ-31 | Trait/lint/review enforcement of Core/Lua split — Closed(partial): lint-gate enforcement facet only; see disposition | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
-| AIQ-32 | Workflow-to-AI-Core promotion review                                                                                 | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
-| AIQ-33 | Unified authorization/isolation backend                                                                              | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
-| AIQ-34 | Command registration API and versioning                                                                              | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
-| AIQ-35 | Git primitives versus high-level wrappers                                                                            | Design: structured API or bounded authorized execution                        | AI runtime                         |
-| AIQ-36 | Native versus MCP tool transport and bridge placement                                                                | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
-| AIQ-37 | Structured exec result schema — Closed(partial): runtime/slice-side outcome-vocabulary facet only; see disposition   | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
-| AIQ-38 | Generic execution and registry ownership across repositories                                                         | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
+| ID     | Open choice                                                                                                                                              | Blocking feature and rationale                                                | Proposed routing                   |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
+| AIQ-31 | Trait/lint/review enforcement of Core/Lua split — Closed(partial): lint-gate enforcement facet only; see disposition                                     | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
+| AIQ-32 | Workflow-to-AI-Core promotion review                                                                                                                     | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
+| AIQ-33 | Unified authorization/isolation backend                                                                                                                  | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
+| AIQ-34 | Command registration API and versioning                                                                                                                  | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
+| AIQ-35 | Git primitives versus high-level wrappers                                                                                                                | Design: structured API or bounded authorized execution                        | AI runtime                         |
+| AIQ-36 | Native versus MCP tool transport and bridge placement                                                                                                    | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
+| AIQ-37 | Structured exec result schema — Closed(partial): runtime/slice-side outcome-vocabulary, action protocol, and auto-spillover facets only; see disposition | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
+| AIQ-38 | Generic execution and registry ownership across repositories                                                                                             | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
 
 ### AIQ-37 disposition (local draft only)
 
@@ -459,8 +511,8 @@ This disposition closes a register facet with implementation evidence. It sets
 no owners or milestones, grants no global promotion, and uses Closed(partial)
 wording only.
 
-- **AIQ-37 — Closed(partial): runtime/slice-side outcome-vocabulary facet
-  closed; wire/IPC schema facet stays open.** Closed choice: structured
+- **AIQ-37 — Closed(partial): runtime/slice-side outcome-vocabulary, action
+  protocol, and auto-spillover facets closed; wire/IPC schema facet stays open.** Closed choice: structured
   exec-outcome vocabulary with typed fail-closed disclosure — every dispatch
   leaves an attributed terminal `ToolExecution`, failures render typed
   single-line errors, truncation surfaces counted flags, and `Unknown`
@@ -513,12 +565,32 @@ Unknown}`, `EffectState::{Completed, Failed, Canceled, Unknown}`,
   pre-queue/pre-write absence, `scrub_from` replaces every occurrence with the
   fixed marker, and seeded-secret negative tests prove absence across provider,
   consent/bridge, and turn-request snapshot surfaces (including the merged-commit
-  review fix that stopped echoing the candidate surface into the test log);
   merged in `bitty-ai`
-  `386952c` (AI-0138). Stay-open facets with reasons: wire/IPC schema
-  with the terminal side (the terminal/IPC half of the outcome contract stays
-  a host and upstream decision; overlapping terminal/IPC routing, which stays
-  open).
+  `386952c` (AI-0138). Action protocol and auto-spillover facet: AI-0166 and
+  AI-0167 implement a standardized action protocol separating action requests
+  from execution outcomes in `bitty-ai-slice`. Actions carry structured `ActionIntent`
+  (`Inspect`, `Modify`, `Execute`, `Verify`, `Custom`) with validated targets
+  and arguments. When tool execution produces stdout or stderr exceeding the inline
+  threshold (`max_inline_bytes`, default 4 KiB), `ActionEngine` automatically
+  spills the full raw payload into a content-addressed `BlobSink` (`ContentStore`),
+  storing the SHA-256 `BlobPointer` and generating bounded head/tail UTF-8 previews
+  with explicit truncation indicators. Structured observation formatting
+  (`format_for_context`) produces clean Markdown blocks containing blob content
+  addresses, exit codes, and execution durations optimized for Zone 3 context
+  compilation. Unified WheelKernel orchestrator (`WheelKernel`) coordinates data,
+  task, cognitive, and action planes, committing Merkle tree blobs and updating
+  branch/HEAD refs atomically within a single SQLite transaction (`update_refs_atomic`).
+  Safe, zero-unsafe `WheelBridge` provides JSON-RPC dispatch over byte buffers and
+  typed `BridgeResponse` envelopes with checked integer conversions, exposed to Lua
+  via `crates/bitty-ai-slice/lua/wheel/kernel.lua`. Evidence: code
+  `bitty-ai/crates/bitty-ai-slice/src/action_protocol.rs`, `wheel_kernel.rs`,
+  `wheel_bridge.rs`; 6 integration tests in `crates/bitty-ai-slice/tests/action_protocol.rs`,
+  14 integration tests across `tests/wheel_kernel.rs` and `tests/wheel_bridge.rs`;
+  merged in `bitty-ai` `045aa7f` (AI-0166) and `42309b3` (AI-0167). Stay-open
+  facets with reasons: wire/IPC schema with the terminal side (the terminal/IPC
+  half of the outcome contract stays a host and upstream decision; overlapping
+  terminal/IPC routing, which stays open), interactive streaming tool input,
+  capability-mediated sandbox revocation, and concurrent tool effect arbitration.
 
 ### AIQ-31 disposition (local draft only)
 
@@ -555,20 +627,20 @@ as part of those inspections beyond this register.
 
 Details: [agent coordination](../agent/agent-coordination.md).
 
-| ID     | Open choice                                                                                                               | Blocking feature and rationale                                                        | Proposed routing                                |
-| ------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| AIQ-21 | Service compatibility-key validation/invalidation                                                                         | Prerequisite: incompatible targets/overlays must not share state                      | AI runtime, code intelligence                   |
-| AIQ-22 | Cross-scope service non-disclosure mechanism                                                                              | Prerequisite: prove isolation or exclude sharing; filtering alone is not proof        | code intelligence, security                     |
-| AIQ-23 | Lease heartbeat and crash reconciliation                                                                                  | Prerequisite: bounded supervised ownership cannot rely on destructors                 | AI runtime, terminal/IPC                        |
-| AIQ-24 | Atomic ancestor/global budget reservation — Closed(partial): single-hop whole-batch admission facet only; see disposition | Prerequisite: concurrent delegation cannot overspend or double-spend                  | AI runtime, security                            |
-| AIQ-25 | Measured depth/fan-out limits — Closed(partial): single-hop whole-batch admission facet only; see disposition             | Prerequisite: bounded delegation admission                                            | AI runtime, security                            |
-| AIQ-26 | Independent review evidence criteria                                                                                      | Prerequisite: acceptance cannot derive from self-review/shared PASS                   | AI runtime, CarryCtx/lifecycle                  |
-| AIQ-27 | Context graph traversal/cycle mechanism                                                                                   | Prerequisite: bounded retrieval under adversarial references                          | AI runtime, security                            |
-| AIQ-28 | Critical-message acknowledgement and recovery                                                                             | Prerequisite: assignment/approval/cancel cannot silently drop or imply effect success | AI runtime, CarryCtx/lifecycle                  |
-| AIQ-29 | Optional Panel/execution projection bindings                                                                              | Design: presentation movement cannot move execution targets                           | AI runtime, terminal/panel                      |
-| AIQ-2A | No-UI execution feature profile                                                                                           | Scope: bounded work versus persistent services needs explicit selection               | AI runtime, terminal/IPC, standalone AI product |
-| AIQ-2B | Supervisor crash recovery/adoption — Closed(partial): adoption-rule and no-replay facet only; see disposition             | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
-| AIQ-2C | Interactive writer fencing — Closed(partial): generation/epoch lease fencing facet only; see disposition                  | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
+| ID     | Open choice                                                                                                                               | Blocking feature and rationale                                                        | Proposed routing                                |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| AIQ-21 | Service compatibility-key validation/invalidation                                                                                         | Prerequisite: incompatible targets/overlays must not share state                      | AI runtime, code intelligence                   |
+| AIQ-22 | Cross-scope service non-disclosure mechanism                                                                                              | Prerequisite: prove isolation or exclude sharing; filtering alone is not proof        | code intelligence, security                     |
+| AIQ-23 | Lease heartbeat and crash reconciliation                                                                                                  | Prerequisite: bounded supervised ownership cannot rely on destructors                 | AI runtime, terminal/IPC                        |
+| AIQ-24 | Atomic ancestor/global budget reservation — Closed(partial): single-hop whole-batch admission facet only; see disposition                 | Prerequisite: concurrent delegation cannot overspend or double-spend                  | AI runtime, security                            |
+| AIQ-25 | Measured depth/fan-out limits — Closed(partial): single-hop whole-batch admission facet only; see disposition                             | Prerequisite: bounded delegation admission                                            | AI runtime, security                            |
+| AIQ-26 | Independent review evidence criteria                                                                                                      | Prerequisite: acceptance cannot derive from self-review/shared PASS                   | AI runtime, CarryCtx/lifecycle                  |
+| AIQ-27 | Context graph traversal/cycle mechanism — Closed(partial): BFS cycle detection and Kahn topological ordering facets only; see disposition | Prerequisite: bounded retrieval under adversarial references                          | AI runtime, security                            |
+| AIQ-28 | Critical-message acknowledgement and recovery                                                                                             | Prerequisite: assignment/approval/cancel cannot silently drop or imply effect success | AI runtime, CarryCtx/lifecycle                  |
+| AIQ-29 | Optional Panel/execution projection bindings                                                                                              | Design: presentation movement cannot move execution targets                           | AI runtime, terminal/panel                      |
+| AIQ-2A | No-UI execution feature profile                                                                                                           | Scope: bounded work versus persistent services needs explicit selection               | AI runtime, terminal/IPC, standalone AI product |
+| AIQ-2B | Supervisor crash recovery/adoption — Closed(partial): adoption-rule and no-replay facet only; see disposition                             | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
+| AIQ-2C | Interactive writer fencing — Closed(partial): generation/epoch lease fencing facet only; see disposition                                  | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
 
 ### AIQ-24 and AIQ-25 disposition (local draft only)
 
@@ -665,6 +737,31 @@ wording only.
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
+### AIQ-27 disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-27 — Closed(partial): BFS cycle detection and Kahn topological ordering
+  facets closed; adversarial reference traversal and distributed graph resolution
+  facets stay open.** Closed choice: dependency graph cycle prevention and deterministic
+  linear execution ordering via pure graph algorithms in the task DAG engine: (a) BFS
+  cycle detection inspects dependencies before state mutation, immediately failing
+  closed with typed `CycleDetected` error when an edge would create a cycle, preventing
+  deadlock topologies; (b) Kahn's algorithm performs in-degree topological sorting
+  with priority tie-breaking to compute deterministic execution sequences. Evidence:
+  code `bitty-ai/crates/bitty-ai-slice/src/task_dag.rs` (`check_cycle`, `topological_sort`),
+  `tests/task_dag.rs` (`cycle_detection_rejects_circular_dependencies`,
+  `topological_sort_orders_ready_tasks_by_priority`); merged in `bitty-ai` `5c3a3dc`
+  (AI-0164). Stay-open facets with reasons: adversarial circular reference traversal
+  in arbitrary unstructured context graphs (the engine validates structured task DAGs
+  only; open-ended knowledge-graph or file-link cycles stay unaddressed) and
+  distributed graph resolution across networked agents.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
 ## Code intelligence
 
 Details: [code intelligence](../agent/code-intelligence.md).
@@ -747,20 +844,20 @@ as part of those inspections beyond this register.
 
 Details: [persistence/evidence](../persistence/persistence-evidence.md).
 
-| ID     | Open choice                                                                                                                  | Blocking feature and rationale                                                              | Proposed routing                            |
-| ------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| AIQ-51 | Schema and transaction boundaries — Closed(partial): content-addressed store facet only; see disposition                     | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
-| AIQ-52 | State reconstruction versus effect re-execution contract                                                                     | Prerequisite: replay must not silently rerun effects                                        | AI runtime, security                        |
-| AIQ-53 | Backend and optional search index — Closed(partial): SQLite content-addressed backend facet only; see disposition            | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
-| AIQ-54 | Cross-store retention policy authority                                                                                       | Prerequisite: host limits constrain user/tool preferences                                   | AI runtime, security                        |
-| AIQ-55 | Deletion/expiry and derived-record invalidation — Closed(partial): store-propagation facet only; see disposition             | Prerequisite: remove payloads, summaries, caches and indexes consistently                   | AI runtime, security                        |
-| AIQ-56 | Alias of AIQ-10: CarryCtx persistence integration                                                                            | Same design classification as AIQ-10; backend/handoff facet, not separate lifecycle owner   | AI runtime, CarryCtx/lifecycle              |
-| AIQ-57 | Reconstruction after deletion, expiry or destructive journal reduction                                                       | Prerequisite: disclose missing evidence; projection-only compaction need not lose originals | AI runtime, security                        |
-| AIQ-58 | Per-reader evidence sharing enforcement                                                                                      | Prerequisite: cache references cannot leak broader authority                                | AI runtime, security                        |
-| AIQ-59 | Unknown effect reconciliation and retry eligibility — Closed(partial): runtime-bounded-reconcile facet only; see disposition | Prerequisite: event log alone grants neither exactly-once nor safe retry                    | AI runtime, terminal/IPC, security          |
-| AIQ-5A | Typed redaction markers and invalidation mechanism — Closed(partial): container-level redaction facet only; see disposition  | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
-| AIQ-5B | Bounded authorized observability queries                                                                                     | Design: query needs and performance evidence; optional FTS                                  | AI runtime                                  |
-| AIQ-5C | Standalone AI persistence/release profile                                                                                    | Scope: neither ephemeral v0.1 nor post-1.0 deferral is decided                              | standalone AI product, AI runtime, security |
+| ID     | Open choice                                                                                                                          | Blocking feature and rationale                                                              | Proposed routing                            |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| AIQ-51 | Schema and transaction boundaries — Closed(partial): content-addressed store facet only; see disposition                             | Design: select representation for chosen durable feature profile                            | AI runtime                                  |
+| AIQ-52 | State reconstruction versus effect re-execution contract                                                                             | Prerequisite: replay must not silently rerun effects                                        | AI runtime, security                        |
+| AIQ-53 | Backend and optional search index — Closed(partial): SQLite content-addressed backend facet only; see disposition                    | Design: FTS5 is not inherent to event storage/replay                                        | AI runtime                                  |
+| AIQ-54 | Cross-store retention policy authority                                                                                               | Prerequisite: host limits constrain user/tool preferences                                   | AI runtime, security                        |
+| AIQ-55 | Deletion/expiry and derived-record invalidation — Closed(partial): store-propagation facet only; see disposition                     | Prerequisite: remove payloads, summaries, caches and indexes consistently                   | AI runtime, security                        |
+| AIQ-56 | Alias of AIQ-10: CarryCtx persistence integration — Closed(partial): mirrors AIQ-10 task DAG and persistence facets; see disposition | Same design classification as AIQ-10; backend/handoff facet, not separate lifecycle owner   | AI runtime, CarryCtx/lifecycle              |
+| AIQ-57 | Reconstruction after deletion, expiry or destructive journal reduction                                                               | Prerequisite: disclose missing evidence; projection-only compaction need not lose originals | AI runtime, security                        |
+| AIQ-58 | Per-reader evidence sharing enforcement                                                                                              | Prerequisite: cache references cannot leak broader authority                                | AI runtime, security                        |
+| AIQ-59 | Unknown effect reconciliation and retry eligibility — Closed(partial): runtime-bounded-reconcile facet only; see disposition         | Prerequisite: event log alone grants neither exactly-once nor safe retry                    | AI runtime, terminal/IPC, security          |
+| AIQ-5A | Typed redaction markers and invalidation mechanism — Closed(partial): container-level redaction facet only; see disposition          | Prerequisite: implement mandatory pre-queue/pre-write redaction, not choose its timing      | AI runtime, security                        |
+| AIQ-5B | Bounded authorized observability queries                                                                                             | Design: query needs and performance evidence; optional FTS                                  | AI runtime                                  |
+| AIQ-5C | Standalone AI persistence/release profile                                                                                            | Scope: neither ephemeral v0.1 nor post-1.0 deferral is decided                              | standalone AI product, AI runtime, security |
 
 AIQ-10/56 and AIQ-22/42 are stable aliases, not removed or renumbered IDs.
 Any promotion must reconcile all references and retain the alias mapping.
