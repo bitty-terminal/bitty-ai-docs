@@ -395,16 +395,16 @@ as part of those inspections beyond this register.
 
 Details: [command/tool architecture](../architecture/command-tool-architecture.md).
 
-| ID     | Open choice                                                                                                        | Blocking feature and rationale                                                | Proposed routing                   |
-| ------ | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------- |
-| AIQ-31 | Trait/lint/review enforcement of Core/Lua split                                                                    | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
-| AIQ-32 | Workflow-to-AI-Core promotion review                                                                               | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
-| AIQ-33 | Unified authorization/isolation backend                                                                            | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
-| AIQ-34 | Command registration API and versioning                                                                            | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
-| AIQ-35 | Git primitives versus high-level wrappers                                                                          | Design: structured API or bounded authorized execution                        | AI runtime                         |
-| AIQ-36 | Native versus MCP tool transport and bridge placement                                                              | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
-| AIQ-37 | Structured exec result schema — Closed(partial): runtime/slice-side outcome-vocabulary facet only; see disposition | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
-| AIQ-38 | Generic execution and registry ownership across repositories                                                       | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
+| ID     | Open choice                                                                                                          | Blocking feature and rationale                                                | Proposed routing                   |
+| ------ | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
+| AIQ-31 | Trait/lint/review enforcement of Core/Lua split — Closed(partial): lint-gate enforcement facet only; see disposition | Design: AI mechanism ownership preserves terminal boundary                    | AI runtime, plugin API             |
+| AIQ-32 | Workflow-to-AI-Core promotion review                                                                                 | Design: performance never permits terminal AI embedding                       | AI runtime, security               |
+| AIQ-33 | Unified authorization/isolation backend                                                                              | Prerequisite: every native/MCP effect needs target, scope, consent and budget | AI runtime, terminal/IPC, security |
+| AIQ-34 | Command registration API and versioning                                                                              | Design: compose with accepted plugin API                                      | AI runtime, plugin API             |
+| AIQ-35 | Git primitives versus high-level wrappers                                                                            | Design: structured API or bounded authorized execution                        | AI runtime                         |
+| AIQ-36 | Native versus MCP tool transport and bridge placement                                                                | Prerequisite: resolve conflicting drafts without direct-spool bypass          | AI runtime, terminal/IPC, security |
+| AIQ-37 | Structured exec result schema — Closed(partial): runtime/slice-side outcome-vocabulary facet only; see disposition   | Prerequisite: disclose failures, truncation and Unknown outcomes              | AI runtime, terminal/IPC           |
+| AIQ-38 | Generic execution and registry ownership across repositories                                                         | Prerequisite: preserve BA-2/BA-3, no model I/O in bitty-agent                 | AI runtime, terminal/IPC, security |
 
 ### AIQ-37 disposition (local draft only)
 
@@ -472,6 +472,34 @@ Unknown}`, `EffectState::{Completed, Failed, Canceled, Unknown}`,
   with the terminal side (the terminal/IPC half of the outcome contract stays
   a host and upstream decision; overlapping terminal/IPC routing, which stays
   open).
+
+### AIQ-31 disposition (local draft only)
+
+This disposition closes a register facet with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-31 — Closed(partial): lint-gate enforcement facet closed; Lua/plugin API
+  boundary review and workflow-promotion facets stay open.** Closed choice: a
+  shell-based host-boundary lint gate (`scripts/host-boundary-lint.sh`) runs as a
+  required quality-gate step (`just host-boundary-lint`) and enforces that no
+  binding crate reaches the `bitty-ai-core` crate directly, covering the
+  following bypass classes: (a) macro-mediated Core paths — the Core crate
+  identifier is banned anywhere in binding text, not only adjacent to `::`, so
+  `macro_rules!` forms that receive it as an argument are also closed; (b)
+  source-graph escapes — every Cargo target source of a binding crate is scanned,
+  not only `lib.rs`; (c) allowlist discipline — the gate maintains an explicit
+  `ALLOWED_BINDINGS` list so any new binding crate must be added explicitly; (d)
+  path-dependency escapes — `[patch]` and `[replace]` overrides that could
+  silently reroute a crate around the boundary are detected and rejected. The gate
+  runs in CI on every pull request and cannot be bypassed by a rename or indirect
+  path. Evidence: `bitty-ai` `13f5861` (AI-0145, initial gate), `0446724`
+  (AI-0149, bypass fixes round 1), `01f610f` (AI-0145/AI-0152, macro,
+  source-graph, allowlist, and path-dep escape closures). Stay-open facets with
+  reasons: Lua/plugin API boundary review (governance decision pending plugin API
+  acceptance; the lint gate covers Rust bindings only); workflow-to-AI-Core
+  promotion review (AIQ-32 owns the performance-driven embedding risk; no
+  promotion has occurred so no evidence is needed yet).
 
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
