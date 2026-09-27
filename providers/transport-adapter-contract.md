@@ -17,9 +17,9 @@ sidebar_order: 46
 > network layer rather than reimplemented, and which concerns stay with the
 > adapter. It proposes no accepted architecture, adopts no dependency, no
 > crate, no trait, and no numeric limit, authorizes no shipped behavior, and
-> closes no Artificial Intelligence Question entry. AIQ-33 and AIQ-36 stay
-> open. No product code is introduced or described as implemented. The
-> normative security and IPC obligations linked from
+> closes no new architecture decision. AIQ-02 is dispositioned in the
+> unresolved questions register; AIQ-33 and AIQ-36 stay open. No product code is
+> introduced or described as implemented. The normative security and IPC obligations linked from
 > [AI Architecture](../architecture/ai-architecture.md) override any
 > experimental adoption stated here.
 
@@ -433,30 +433,38 @@ and the transport taxonomy recorded there.
 
 ## Precondition: network-layer delivery
 
-No real network-capable adapter is written until the following issues in the
-`bitty-network` repository have merged and the separate TLS-policy precondition
-is satisfied:
+A network-capable provider transport adapter depends on the shared `bitty-network`
+extension. The core network foundation contracts and security architectures
+have been delivered in the `bitty-network` repository:
 
-| Issue                             | Title                                                       | Bears on this document                                                         |
-| --------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `bitty-terminal/bitty-network#37` | Re-authorize redirects and enforce HTTP response budgets    | Redirect re-authorization, per-hop policy, and transfer budgets                |
-| `bitty-terminal/bitty-network#38` | Bound WebSocket messages and preserve proxy/deadline safety | Proxy precedence, proxy authentication, and message bounds                     |
-| `bitty-terminal/bitty-network#39` | Harden CONNECT, DNS, subprotocol, and diagnostic boundaries | Destination resolution, tunnel and subprotocol framing, and diagnostic hygiene |
+| Issue / Decision                  | Title                                                                          | Delivered interface and contract                                                                               |
+| --------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `bitty-terminal/bitty-network#37` | Re-authorize redirects and enforce HTTP response budgets                       | Redirect re-authorization per-hop against capability; body budget via `Request.max_body_bytes`                 |
+| `bitty-terminal/bitty-network#38` | Bound WebSocket messages and preserve proxy/deadline safety                    | Proxy precedence, refusing plaintext for TLS endpoints, connection deadline pacing                             |
+| `bitty-terminal/bitty-network#39` | Harden CONNECT, DNS, subprotocol, and diagnostic boundaries                    | DNS resolution deadlines, tunnel framing, diagnostic hygiene with redacting Debug and Display                  |
+| `bitty-terminal/bitty-network#25` | Authenticated proxy credentials, canonical origin normalization, scoped leases | `CanonicalOrigin`, `ProxyCredentialProvider`, `ScopeRegistry`, `AuthorizationLease` with dual-origin binding   |
+| `bitty-terminal/bitty-network#28` | OAuth credential flow architecture and security boundary                       | Proactive refresh, exclusive pool invalidation via `ScopeRegistry::invalidate_origin`, opaque bearer redaction |
 
-Those issues are necessary but not sufficient for TLS. The owning contract is
-in the `bitty-network` repository, and it must publish and enforce a reviewed
-TLS policy that defines peer verification, supported protocol and cipher
-posture, certificate handling, and typed failure behavior. Issue #38 mentions
-TLS only for rejecting a TLS endpoint as a plaintext proxy; it does not define
-that policy. No bypass or adapter-selected override is a substitute.
+The delivered `bitty-network-api` crate provides the stable consumer interface:
 
-This is a stated precondition, not a schedule. It carries no date, milestone,
-owner assignment, or implementation authorization here; milestone and
-sequencing metadata on the cited issues remain that repository's own planning.
-The precondition ensures that a future adapter's network-facing obligations
-are wired to published contracts rather than designed a second time. It does
-not resolve AIQ-33 or AIQ-36 and does not settle numeric transport limits,
-redirect policy, or TLS policy.
+- `bitty_network_api::Request`: carries method, destination URL string, headers,
+  body, optional transfer ceiling `max_body_bytes`, and deadline `timeout_ms`.
+  `TurnRequest.budget_bytes` maps directly to `max_body_bytes`.
+- `bitty_network_api::Response`: typed status, response headers, and body bytes
+  bounded by the requested budget.
+- `bitty_network_api::NetworkError`: typed error variants (`Offline`, `Timeout`,
+  `Cancelled`, `BadStatus`, etc.) with fail-closed offline semantics and
+  non-leaking Display and Debug representations.
+- `bitty_network::ScopeRegistry` and `AuthorizationLease`: thread-safe connection
+  pool scoping by `(proxy_origin, destination_origin, credential_id, generation, scope_epoch)`,
+  supporting proactive invalidation and lease draining upon OAuth token refresh
+  or grant revocation.
+
+The host-only credential exposure edge injects bearer tokens
+(`Authorization: Bearer <secret>`) strictly at the adapter boundary via
+`SecretField::expose_for_adapter()` under `ai.provider` consent before handing
+off the request to the network executor. The network layer cannot resolve or
+retain credentials.
 
 ## Explicit non-claims
 
@@ -633,8 +641,15 @@ This document closes no register entry and proposes no new identifier:
 - AIQ-38 (generic execution and registry ownership across repositories) stays
   open: the registry split and placement that decide where an adapter is
   registered and isolated remain undecided.
-- AIQ-02 (routing within provider consent and budget) and AIQ-13
-  (provider-scoped cache key and routing scope) keep their register entries.
+- **AIQ-02 (compression backend selection) is Closed (adopted-draft).**
+  L2+ selective compression summarization routes through the host-provided
+  `Summarizer` trait (`bitty_ai_runtime::compression::Summarizer`) with full
+  dependency inversion. When model-backed summarization is selected, it routes
+  through `ModelProvider::complete` within user consent (`ai.provider`), bounded
+  by `budget_bytes`, delegating transport to `bitty-network` via the transport
+  adapter contract. Untrusted sources preserve untrusted provenance with zero
+  priority escalation.
+- AIQ-13 (provider-scoped cache key and routing scope) keeps its register entry.
   AIQ-24's open atomic ancestor/global delegation-reservation facets also stay
   open and are distinct from the CP-5 context bound in `budget_bytes`. This
   document selects no cross-delegation reservation mechanism.
@@ -707,11 +722,11 @@ Repository gate success and this draft do not constitute those sign-offs.
   authorization backend and path-selection contract as the adapter's
   precondition.
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md) (Draft):
-  AIQ-02, AIQ-5A, AIQ-13, AIQ-24, AIQ-33, AIQ-36, and AIQ-38, each keeping its
-  existing register disposition.
+  AIQ-02 (Closed, adopted-draft), AIQ-5A, AIQ-13, AIQ-24, AIQ-33, AIQ-36, and
+  AIQ-38.
 - [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)
   (Draft): single-crate scope and the no-network v0.1 posture.
 - [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) (Accepted): bounded
   framing, scopes, consent ledger, and streaming chunking.
-- `bitty-network` Issues 37, 38, and 39: the delivery precondition recorded in
-  [Precondition: network-layer delivery](#precondition-network-layer-delivery).
+- `bitty-network` Issues 25, 28, 37, 38, and 39: the delivery contracts
+  recorded in [Precondition: network-layer delivery](#precondition-network-layer-delivery).
