@@ -566,8 +566,8 @@ Details: [agent coordination](../agent/agent-coordination.md).
 | AIQ-28 | Critical-message acknowledgement and recovery                                                                             | Prerequisite: assignment/approval/cancel cannot silently drop or imply effect success | AI runtime, CarryCtx/lifecycle                  |
 | AIQ-29 | Optional Panel/execution projection bindings                                                                              | Design: presentation movement cannot move execution targets                           | AI runtime, terminal/panel                      |
 | AIQ-2A | No-UI execution feature profile                                                                                           | Scope: bounded work versus persistent services needs explicit selection               | AI runtime, terminal/IPC, standalone AI product |
-| AIQ-2B | Supervisor crash recovery/adoption                                                                                        | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
-| AIQ-2C | Interactive writer fencing                                                                                                | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
+| AIQ-2B | Supervisor crash recovery/adoption — Closed(partial): adoption-rule and no-replay facet only; see disposition             | Prerequisite: never adopt arbitrary survivors or repeat Unknown effects               | AI runtime, terminal/IPC, security              |
+| AIQ-2C | Interactive writer fencing — Closed(partial): generation/epoch lease fencing facet only; see disposition                  | Prerequisite: takeover/restart must invalidate stale writers before new input         | AI runtime, terminal/IPC, security              |
 
 ### AIQ-24 and AIQ-25 disposition (local draft only)
 
@@ -617,6 +617,50 @@ self.config.max_tool_calls_per_turn)` before any dispatch, FS-AI1
   direct-report measurement or enforcement evidenced); both are v0.1 non-goals
   (multi-agent budgets, hierarchical delegation).
 
+### AIQ-2B and AIQ-2C disposition (local draft only)
+
+This disposition closes register facets with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-2B — Closed(partial): adoption-rule and no-replay facet closed;
+  cross-process transport and epoch election facets stay open.** Closed choice:
+  supervisor adoption of crashed session state requires an explicit, typed
+  `AdoptionClaim` where four fail-closed checks must all pass: (a) prior session
+  must be in terminal `Failed` state (live sessions are never adopted;
+  `Completed`/`Canceled` have no adoptable leftovers); (b) every carried
+  `Unknown` effect must be explicitly claimed as `Escalated` (adopting as
+  quarantined declarations; claimed `Reconciled` over unresolved evidence or
+  omitted `Unknown`s refuse); (c) nothing replays (check takes no executor,
+  returns declarative data only, and adopted ids stay foreign to the fresh
+  session); (d) claim fence token matches current supervisor epoch. Evidence:
+  code `bitty-ai/crates/bitty-ai-runtime/src/adoption.rs` (`AdoptionClaim`,
+  `ClaimedUnknownEffect`, `UnknownDisposition`, `check_adoption`),
+  `tests/recovery_adoption.rs` (four refusal verbs, exact-set coverage, no
+  stowaway or missing evidence, quarantine of escalated unknowns, no-replay
+  observable where executor call counts stay flat, stale fence token rejection);
+  merged in `bitty-ai` (AI-0091). Stay-open facets with reasons: cross-process
+  claim/evidence transport, supervisor epoch election, and persistent storage of
+  fence tokens across machine restart.
+- **AIQ-2C — Closed(partial): generation/epoch lease fencing facet closed;
+  cross-process transport and persistent storage stay open.** Closed choice:
+  interactive writer fencing enforces that any interactive writer holds a typed
+  `WriterLease` (`writer_id`, `session_generation`, `epoch`), and `check_writer`
+  refuses before input admission unless all three hold: (a) session is `Active`
+  (terminal sessions refuse as `AlreadyTerminated`); (b) lease generation equals
+  the session's current generation (takeover or restart via
+  `AgentSession::rotate_generation` invalidates all outstanding leases as
+  `StaleGeneration`, while fresh leases succeed); (c) lease epoch equals current
+  supervisor epoch (`StaleEpoch`). Check order is terminal-first so dead
+  sessions never leak fence timing. Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/src/fencing.rs` (`WriterLease`,
+  `check_writer`, `WriterRefusalReason`), `session.rs` (`rotate_generation`),
+  `tests/writer_fencing.rs` (three refusal verbs, terminal-first check order,
+  post-takeover blanket invalidation of prior leases, fresh lease admission);
+  merged in `bitty-ai` (AI-0092). Stay-open facets with reasons: cross-process
+  lease transport, supervisor liveness election, and durable persistence of
+  fence state.
+
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
@@ -624,16 +668,79 @@ as part of those inspections beyond this register.
 
 Details: [code intelligence](../agent/code-intelligence.md).
 
-| ID     | Open choice                                          | Blocking feature and rationale                                             | Proposed routing              |
-| ------ | ---------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------- |
-| AIQ-41 | Document overlay coordination                        | Prerequisite: conflicting buffers cannot silently share semantic state     | code intelligence             |
-| AIQ-42 | Alias of AIQ-22: privileged-server filtering         | Same prerequisite as AIQ-22; retained identifier, no independent closure   | code intelligence, security   |
-| AIQ-43 | Incomplete fingerprint handling                      | Prerequisite: disable generic reuse/coalescing when equivalence is unknown | code intelligence, security   |
-| AIQ-44 | Cache invalidation granularity                       | Prerequisite: stale inputs cannot produce a falsely current PASS           | code intelligence             |
-| AIQ-45 | Effectful coalescing equivalence/isolation mechanism | Prerequisite: every waiter has its own grant; otherwise disable coalescing | code intelligence, security   |
-| AIQ-46 | Syntax fallback disclosure format                    | Prerequisite: fallback must be distinguishable from semantic evidence      | code intelligence             |
-| AIQ-47 | Diagnostic rate limits and prioritization            | Prerequisite: bounded attributed subscriptions                             | code intelligence, security   |
-| AIQ-48 | Warm-service/restart policy                          | Design: bounded supervisor policy within required isolation limits         | code intelligence, AI runtime |
+| ID     | Open choice                                                                                                                        | Blocking feature and rationale                                             | Proposed routing              |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------- |
+| AIQ-41 | Document overlay coordination                                                                                                      | Prerequisite: conflicting buffers cannot silently share semantic state     | code intelligence             |
+| AIQ-42 | Alias of AIQ-22: privileged-server filtering                                                                                       | Same prerequisite as AIQ-22; retained identifier, no independent closure   | code intelligence, security   |
+| AIQ-43 | Incomplete fingerprint handling — Closed(partial): complete-input and disable-on-unknown facet only; see disposition               | Prerequisite: disable generic reuse/coalescing when equivalence is unknown | code intelligence, security   |
+| AIQ-44 | Cache invalidation granularity — Closed(partial): generation/scope/artifact granularity denial facet only; see disposition         | Prerequisite: stale inputs cannot produce a falsely current PASS           | code intelligence             |
+| AIQ-45 | Effectful coalescing equivalence/isolation mechanism                                                                               | Prerequisite: every waiter has its own grant; otherwise disable coalescing | code intelligence, security   |
+| AIQ-46 | Syntax fallback disclosure format — Closed(partial): minimal-envelope fallback format facet only; see disposition                  | Prerequisite: fallback must be distinguishable from semantic evidence      | code intelligence             |
+| AIQ-47 | Diagnostic rate limits and prioritization — Closed(partial): context-budgeted seed and reconcile query facet only; see disposition | Prerequisite: bounded attributed subscriptions                             | code intelligence, security   |
+| AIQ-48 | Warm-service/restart policy                                                                                                        | Design: bounded supervisor policy within required isolation limits         | code intelligence, AI runtime |
+
+### AIQ-43, AIQ-44, AIQ-46, and AIQ-47 dispositions (local draft only)
+
+This disposition closes register facets with implementation evidence. It sets
+no owners or milestones, grants no global promotion, and uses Closed(partial)
+wording only.
+
+- **AIQ-43 — Closed(partial): complete-input and disable-on-unknown facet
+  closed; cross-process distribution and semantic equivalence facets stay
+  open.** Closed choice: complete input fingerprints (`InputFingerprint`
+  pinning `(digest, input_len)` via FNV-1a-64 over the entire input without
+  truncation or stable-prefix shortcuts) with fail-closed construction
+  (`FingerprintError::MissingInput`, `FingerprintError::UnknownComponent`) that
+  disables generic reuse or coalescing whenever any component's equivalence is
+  unknown. Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/src/fingerprint.rs` (`InputFingerprint`,
+  `FingerprintError`), `tests/input_fingerprint.rs` (deterministic FNV digest,
+  fail-closed refusal on missing input, typed refusal with component index on
+  unknown components, different inputs yield different digests); merged in
+  `bitty-ai` (AI-0095). Stay-open facets with reasons: cross-process fingerprint
+  distribution and compiler-specific semantic AST equivalence hashing.
+- **AIQ-44 — Closed(partial): generation/scope/artifact granularity denial
+  facet closed; fine-grained AST/symbol cache invalidation facets stay open.**
+  Closed choice: fail-closed stale-PASS denial across four distinct boundaries:
+  (1) generation granularity — records cached at generation N reject requests at
+  generation N+1 with `StaleGeneration` before any provider I/O; (2) scope
+  granularity — `CacheKey` enforces that Turn, Session, and Round scopes compare
+  unequal over identical bytes, preventing scope-crossing cache reuse; (3)
+  artifact-set granularity — foreign or evicted artifact references resolve as
+  typed `ArtifactUnavailable` without synthetic substitution; (4) grant
+  granularity — mid-turn tier downgrades deny remaining mutating dispatches at
+  the boundary while preserving executed effects. Evidence: code
+  `bitty-ai/crates/bitty-ai-runtime/tests/granularity_denial.rs` (10 tests
+  pinning all four granularities); merged in `bitty-ai` (AI-0094). Stay-open
+  facets with reasons: fine-grained AST/symbol-level cache invalidation and
+  distributed cache eviction.
+- **AIQ-46 — Closed(partial): minimal-envelope fallback format facet closed;
+  interactive client rendering negotiation stays open.** Closed choice:
+  structured disclosure failures fall back to a permanently-readable minimal
+  envelope (`FallbackEnvelope`: `id` + `kind` + `text`) encoded via versioned,
+  length-prefixed framing (`fallback/1`) that is fail-closed, byte-bounded, and
+  distinguishable from semantic evidence without silent truncation. Evidence:
+  code `bitty-ai/crates/bitty-ai-runtime/src/fallback.rs` (`FallbackEnvelope`,
+  `FallbackError`, `fallback_for`), `tests/fallback_envelope.rs` (bounded field
+  enforcement, length-prefixed framing, fail-closed malformed decoding, total
+  error recovery); merged in `bitty-ai` `cbbffeb` (AI-0097). Stay-open facets
+  with reasons: interactive client rendering negotiation and semantic error
+  recovery.
+- **AIQ-47 — Closed(partial): context-budgeted seed and reconcile query facet
+  closed; streaming diagnostic push rate-limiting stays open.** Closed choice:
+  diagnostic rate pressure is bounded through existing runtime controls —
+  diagnostic inputs enter only as `provider: "diagnostics"` seed records
+  subject to the context byte budget (greedy include with counted truncation),
+  `Low` effective-priority drop-first order, and the `Unknown` reconcile query
+  budget (`ReconcileConfig::effective_retries`), with zero free/unbounded status,
+  subscription, or telemetry methods exposed on the agent surface. Evidence:
+  code `bitty-ai/crates/bitty-ai-runtime/tests/subscription_bounds.rs` (proving
+  zero unbudgeted telemetry methods and bounded reconcile query paths); merged
+  in `bitty-ai` (AI-0093). Stay-open facets with reasons: streaming diagnostic
+  push rate-limiting and external subscriber backpressure.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
 
 ## Persistence and evidence
 
