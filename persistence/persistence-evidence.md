@@ -196,6 +196,39 @@ shared-library dynamic loading and asynchronous IPC event multiplexing stay open
 [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 This describes sibling behavior only as read.
 
+**TaskView inlined dependency batch retrieval evidence (experimental, control plane optimization facet only):**
+the sibling `bitty-ai` `TaskEngine` and `WheelBridge` implement single-query prerequisite inlining
+for task records. `TaskView` enriches `TaskNode` with `dependencies: Vec<TaskId>`, implementing
+`Deref<Target = TaskNode>` and flattened serialization. `TaskEngine::list_task_views` batch retrieves
+all tasks and their direct prerequisites in $O(|V| + |E|)$ time using a single query across `tasks`
+and `task_dependencies`, grouping prerequisite IDs in memory and completely eliminating N+1 query
+roundtrips across IPC. `WheelBridge` routes `task.get`/`task.get_view` and `task.list`/`task.list_views`
+through `TaskView`, providing immediate dependency graphs to external callers and UI visualizers.
+Integration test coverage in `crates/bitty-ai-slice/tests/task_dag.rs` (`task_view_dependencies_inlining_and_serde`),
+`tests/wheel_bridge.rs` (`test_bridge_task_dependencies_inlined`), and `tests/wheel_kernel.rs`
+(`test_kernel_task_view_dependencies`); merged in `bitty-ai` `34fc526` (AI-0169). Cross-repository
+transitive dependency resolution across independent DAGs stays open — see
+[AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
+**Line-delimited JSON-RPC stdio host runner and cross-process integration evidence (experimental, host runner and IPC drill facets only):**
+the sibling `bitty-ai` example binary `wheel_stdio_host.rs` exposes `WheelBridge` over standard
+input/output via line-delimited JSON-RPC with optional `--db <path>` SQLite persistence or ephemeral
+in-memory operation. Dual-format parsing supports both structured JSON envelopes (`{"command": "...", "payload": ...}`)
+and space-delimited command lines (`command payload_json`), with all diagnostics and lifecycle
+banners strictly isolated to `stderr`. Deserialization of `TaskDraft` and `TaskView` enforces
+resilient visitor decoding (`deserialize_task_deps`), transparently accepting sequences, `null`,
+and empty maps (`{}`) from dynamic language serializers (Lua). Verified live in an 11-stage automated
+cross-process drill over Unix named pipes (`bitty-terminal/wheel` `tests/e2e_cross_process.lua`, `just e2e`),
+exercising handshake, diamond DAG decomposition, dynamic programming topological wave calculation,
+monotonic generation fencing (`StaleGeneration`), cascade readiness propagation, Merkle context tree
+slots (`tree:v1\0`), action auto-spillover (>8 KiB), Three-Zone context compilation under 64 KiB budget,
+6-field structured `Rationale` checkpoints, and multi-process crash/restart SQLite recovery.
+Merged in `bitty-ai` `6e062d0` (AI-0170) and `bitty-terminal/wheel` `6f9d09b` (CTX-0009). Socket-based
+daemonization, multiplexed bidirectional streaming events, and multi-host consensus stay open — see
+[AI Unresolved Questions](../product/ai-unresolved-questions.md).
+This describes sibling behavior only as read.
+
 ## Verification plan
 
 The inspected `bitty-ai` revision
