@@ -37,6 +37,15 @@ sidebar_order: 28
 > only `Accepted` or `normative` documents authorize shipped behavior. All thresholds
 > below are candidate pre-study values that require a reviewed acceptance decision
 > before implementation may claim them.
+>
+> Later change (2026-09-30, `bitty` CTX-0886; issues #1554, #1556, #1557):
+> `bitty-terminal.project`, `bitty-terminal.browser-panel`,
+> `bitty-terminal.ai-panel`, and `bitty-terminal.mail-panel` were removed from
+> Core; the bundled-disabled catalog is `bitty-terminal.shell-integration` and
+> `bitty-terminal.workspace`. AI surfaces move to the separate optional
+> `bitty-ai` extension, mail is not planned, and project and browser may return
+> later as independent optional plugins. References below to a bundled
+> `project` plugin are point-in-time and no longer describe Core.
 
 **Repository archival note (2026-09-14).** This pre-study references
 `bitty-mcp` as the candidate host of the MCP tool surface (relationship table,
