@@ -101,6 +101,8 @@ task closure and a final checkpoint.
 | Repository                                                                   | Role                                           |
 | ---------------------------------------------------------------------------- | ---------------------------------------------- |
 | [bitty](https://github.com/bitty-terminal/bitty)                             | Terminal platform implementation.              |
+| [bitty-agent](https://github.com/bitty-terminal/bitty-agent)                 | L1 Core Extension: AI agent protocol layer.    |
+| [bitty-ipc](https://github.com/bitty-terminal/bitty-ipc)                     | L1 Core Extension: Out-of-process IPC bridge.  |
 | [bitty-docs](https://github.com/bitty-terminal/bitty-docs)                   | Shared cross-project governance and registers. |
 | [bitty-terminal-docs](https://github.com/bitty-terminal/bitty-terminal-docs) | Terminal-platform documentation.               |
 | [bitty-plugins-docs](https://github.com/bitty-terminal/bitty-plugins-docs)   | Plugin-ecosystem documentation.                |
