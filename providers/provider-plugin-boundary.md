@@ -334,6 +334,42 @@ for this document; it is recorded as a handoff item below. The unresolved
 credential-storage tiers stay with their existing trackers; this document
 reopens none of them.
 
+### Provider credential references and storage tiers
+
+Configuration references credentials rather than embedding literal keys (MPC-2, [OQ-054](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)). Four storage tiers govern where credentials live and how the host resolves them ([OQ-055](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)):
+
+| Tier           | Storage shape                        | Resolution mechanism                                         | Candidate use                                             |
+| -------------- | ------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------------- |
+| **HostEnv**    | Host environment                     | Injected `api_key_env = "OPENROUTER_API_KEY"`                | Developer shells and CI without disk writes               |
+| **ConfigFile** | `$XDG_CONFIG_HOME/bitty/secrets.env` | Host-parsed key-value file with mandatory `0600` permissions | Headless servers without an OS keyring                    |
+| **OsKeyring**  | Platform credential store            | Secret Service (Linux), Keychain (macOS), DPAPI (Windows)    | Desktop default for interactive OAuth tokens and API keys |
+| **CommandRef** | External CLI command                 | Host-executed `api_key_cmd = ["op", "read", "op://..."]`     | Password managers (1Password, pass, Bitwarden)            |
+
+Configuration example (declarative references only; literal values fail closed):
+
+```toml
+[ai.providers.openrouter]
+kind = "openai_compatible"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+
+[ai.providers.anthropic]
+kind = "anthropic"
+api_key_env = "ANTHROPIC_API_KEY"
+
+[ai.providers.openai]
+kind = "openai_compatible"
+api_key_cmd = ["op", "read", "op://dev/openai/key"]
+```
+
+### Project override boundary: projects cannot widen credentials
+
+Wheel supports project-level configuration via `<repo>/.wheel/config.toml` (and portable skills under `<repo>/.agents/`). However, the project boundary is strictly constrained:
+
+- **Selection only:** A project may select among already-consented providers and models (for example, setting the preferred coding model to `claude-3-7-sonnet` or `deepseek-r1`).
+- **Cannot widen credentials:** Project configurations cannot define new credential references, rebind API keys to external endpoints, raise `privacy_class`, or introduce unconsented providers.
+- **Fail-closed validation:** Any project-level attempt to declare `api_key_env`, `api_key_cmd`, or inline tokens fails closed with an attributed configuration diagnostic, protecting users against malicious repository configurations.
+
 ## Core versus plugin boundary
 
 | Capability                  | Core            | Plugin                          | Notes                                   |
