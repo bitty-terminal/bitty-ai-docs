@@ -159,7 +159,7 @@ Every IPC/MCP connection carries a length-prefixed binary frame stream:
   unbounded internal buffer — the decoder's working buffer is capped at the
   frame maximum.
 
-The crate `bitty-ipc` already implements `frame::encode_frame`,
+The standalone extension crate `bitty-ipc` implements `frame::encode_frame`,
 `frame::decode_frame`, and incremental `frame::Framer` with these bounds as
 draft experimental evidence (headless, no OS handle).
 
@@ -916,11 +916,11 @@ The mapping clarifies the present versus deferred boundary: the local, scoped, b
 
 ## Experimental implementation notes (accepted contract, draft evidence before acceptance)
 
-The following draft surfaces already existed in the `bitty` workspace and were
-cited as experimental review evidence for this RFC before acceptance
-(now accepted contract):
+The following draft surfaces originated as experimental review evidence for
+this RFC and have since been organized into dedicated L1 Rust Core Extension
+repositories (`bitty-ipc` and `bitty-agent`):
 
-- `crates/bitty-ipc`: bounded request/response channels (`DEFAULT_REQUEST_CAPACITY`,
+- `bitty-ipc` repository: bounded request/response channels (`DEFAULT_REQUEST_CAPACITY`,
   `DEFAULT_RESPONSE_CAPACITY`, `MAX_CHANNEL_CAPACITY = 256`,
   `MAX_PENDING_REQUESTS = 64`), transport caps (`DEFAULT_TRANSPORT_CAPACITY = 64`),
   length-prefixed framing bounded at `256 KiB` (`frame::encode_frame`,
