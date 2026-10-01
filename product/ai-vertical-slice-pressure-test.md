@@ -152,7 +152,11 @@ reconciliations of surface that already exists.
   deterministic local provider; it decides no wire protocol or preset location.
 - OQ-081 (distribution boundary): the slice assumes an out-of-process consumer
   and shows the bridge-consumability gap (G-1) that the boundary decision must
-  resolve.
+  resolve. OQ-081 is partially resolved: its process and distribution half is
+  settled by [DIR-030](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/index.md) (the AI host as the independently installed native
+  component `ai`, executable `bitty-ai`, plus a Lua front-end plugin); the
+  external-harness skeleton half stays open, and G-1 is not closed by that
+  partial resolution.
 
 ## Maintenance
 
