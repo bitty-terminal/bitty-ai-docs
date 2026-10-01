@@ -40,3 +40,4 @@ conflicting direction.
 | [Multimodal inference boundary](multimodal-inference-boundary.md)    | Draft  | Core multimodal extension for capability vocabulary, task envelope, assets.  |
 | [Dependency Strategy](dependency-strategy.md)                        | Draft  | Std-only runtime kernel with post-v0.1 adapter dependency boundaries.        |
 | [Provider transport adapter contract](transport-adapter-contract.md) | Draft  | Adapter input envelope, guarantees, and network delegation boundary.         |
+| [Frequently asked questions](faq.md)                                 | Draft  | Provider credential storage tiers, Secret Invariant, and project boundaries. |
