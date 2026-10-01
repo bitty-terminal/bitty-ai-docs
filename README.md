@@ -54,15 +54,16 @@ root topic trees; this repository's process documents stay under `docs/`.
 
 ## Structure
 
-| Path                             | Purpose                                                      |
-| -------------------------------- | ------------------------------------------------------------ |
-| `docs/README.md`                 | Documentation map and authority rules for this repository.   |
-| `docs/development/`              | Contributor workflow and the normative documentation policy. |
-| `<topic>/`                       | Canonical AI-core documents in root topic trees.             |
-| `TODO.md`                        | Work register for this repository.                           |
-| `AGENTS.md`                      | Agent scope, CarryCtx workflow, and local gate rules.        |
-| `.github/scripts/check-docs.mjs` | Links, metadata, language, budgets, and hygiene checks.      |
-| `justfile`                       | Pinned docs-quality commands; `just check` is the gate.      |
+| Path                             | Purpose                                                         |
+| -------------------------------- | --------------------------------------------------------------- |
+| `docs/README.md`                 | Documentation map and authority rules for this repository.      |
+| `docs/development/`              | Contributor workflow and the normative documentation policy.    |
+| `<topic>/`                       | Canonical AI-core documents in root topic trees.                |
+| `FAQ.md`                         | Frequently asked questions on credentials, privacy, and models. |
+| `TODO.md`                        | Work register for this repository.                              |
+| `AGENTS.md`                      | Agent scope, CarryCtx workflow, and local gate rules.           |
+| `.github/scripts/check-docs.mjs` | Links, metadata, language, budgets, and hygiene checks.         |
+| `justfile`                       | Pinned docs-quality commands; `just check` is the gate.         |
 
 ## Authority and status
 
