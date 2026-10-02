@@ -102,11 +102,19 @@ task closure and a final checkpoint.
 | Repository                                                                   | Role                                           |
 | ---------------------------------------------------------------------------- | ---------------------------------------------- |
 | [bitty](https://github.com/bitty-terminal/bitty)                             | Terminal platform implementation.              |
-| [bitty-agent](https://github.com/bitty-terminal/bitty-agent)                 | L1 Core Extension: AI agent protocol layer.    |
+| [bitty-agent](https://github.com/bitty-terminal/bitty-agent)                 | AI agent protocol crate; not linked by Core.   |
+| [bitty-network](https://github.com/bitty-terminal/bitty-network)             | `net` native component and wire codec.         |
 | [bitty-ipc](https://github.com/bitty-terminal/bitty-ipc)                     | L1 Core Extension: Out-of-process IPC bridge.  |
 | [bitty-docs](https://github.com/bitty-terminal/bitty-docs)                   | Shared cross-project governance and registers. |
 | [bitty-terminal-docs](https://github.com/bitty-terminal/bitty-terminal-docs) | Terminal-platform documentation.               |
 | [bitty-plugins-docs](https://github.com/bitty-terminal/bitty-plugins-docs)   | Plugin-ecosystem documentation.                |
+
+Current-state note (2026-10-02): on `bitty` `main` at `799f7433` (bitty-terminal/bitty#1603, bitty-terminal/bitty#1604), Core links neither
+`bitty-agent` nor any network implementation crate. Native capabilities run
+as out-of-process native components under [DIR-030](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/index.md): the `net` component is
+the `bitty-net` stdio coprocess, Core links only the `bitty-network-wire`
+codec, and the AI host is planned as component `ai`. See the
+[Native Component Boundary](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/development/native-component-boundary.md).
 
 ## License
 

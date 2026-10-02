@@ -411,7 +411,12 @@ Dispositions:
 
 1. `bitty-core` has no network dependency: `bitty`-side, out of scope.
    Terminal-docs owns it; recorded here only as a dependency of the
-   layering, not decided.
+   layering, not decided. Current-state note (2026-10-02): on `bitty` `main` at `799f7433` (bitty-terminal/bitty#1603, bitty-terminal/bitty#1604),
+   the embedded network path (the optional `network` Cargo feature, the
+   `bitty-network-lua` dependency, and the Lua `bitty.network` module) is
+   removed from Core; network access is the out-of-process `net` native
+   component and Core links only the `bitty-network-wire` codec, per the
+   [Native Component Boundary](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/development/native-component-boundary.md) ([DIR-030](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/index.md)). The Lua request/response surface is deferred.
 2. `bitty-ai-runtime` has no network dependency: proposal rationale
    consistent with the Kernel principle and the v0.1 `FakeProvider`
    no-network posture, not a new normative requirement. The runtime remains a
@@ -489,8 +494,10 @@ handles.
 
 Judgment: record the options and the bridge sketch as an implementation input.
 This document adopts no rename, assigns no identifier, and decides no mapping.
-The `bitty-agent` protocol-identity side belongs to the `bitty` repository and
-is out of scope here; any change there needs its own reviewed contract in the
+The `bitty-agent` protocol-identity side belongs to the
+[bitty-agent](https://github.com/bitty-terminal/bitty-agent) repository
+(Core no longer links that crate since `bitty` `799f7433`) and is out of
+scope here; any change there needs its own reviewed contract in the
 owning repository.
 
 ## Illustrative version observations

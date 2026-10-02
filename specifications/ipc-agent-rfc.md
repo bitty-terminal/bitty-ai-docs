@@ -918,7 +918,10 @@ The mapping clarifies the present versus deferred boundary: the local, scoped, b
 
 The following draft surfaces originated as experimental review evidence for
 this RFC and have since been organized into dedicated L1 Rust Core Extension
-repositories (`bitty-ipc` and `bitty-agent`):
+repositories (`bitty-ipc` and `bitty-agent`). Current-state note
+(2026-10-02): on `bitty` `main` at `799f7433` (bitty-terminal/bitty#1603, bitty-terminal/bitty#1604), Core links `bitty-ipc` but no longer links
+`bitty-agent`; that crate's intended consumer is the out-of-process
+`bitty-ai` native component under [DIR-030](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/index.md):
 
 - `bitty-ipc` repository: bounded request/response channels (`DEFAULT_REQUEST_CAPACITY`,
   `DEFAULT_RESPONSE_CAPACITY`, `MAX_CHANNEL_CAPACITY = 256`,

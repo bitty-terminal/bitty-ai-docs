@@ -56,6 +56,12 @@ pinned Git revision (`3c9cfea`) rather than re-implementing it. It never links
 Core's in-process `bitty-agent` or `bitty-runtime`; the only host boundary is a
 generic `IpcBridge`/`HostPeer` seam.
 
+Current-state note (2026-10-02): on `bitty` `main` at `799f7433` (bitty-terminal/bitty#1603, bitty-terminal/bitty#1604), Core no longer links
+`bitty-agent` in-process and `bitty-runtime/src/ai_panel.rs` is no longer
+present, so gap G-5 below describes the state at the slice commit. The
+host process boundary for the AI runtime is now the native component model
+of the [Native Component Boundary](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/development/native-component-boundary.md) ([DIR-030](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/index.md)).
+
 ### Primitive reuse map
 
 | Slice element          | Generic primitive reused                                                                           | Accepted source                                                                       |
