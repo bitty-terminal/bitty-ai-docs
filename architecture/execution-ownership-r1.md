@@ -93,6 +93,11 @@ experimental adoption row already recorded in
   typed outcome, or IPC — never be derived from PTY output. This is why
   execution, agent task/job state, and PTY stay separate: the PTY shows, the
   supervisor knows.
+  Current-state note (2026-10-04): per ADR-0016 Boundary 1, the Process
+  Supervisor and Execution Service mechanism has been extracted from Core into
+  the dedicated extension repository `bitty-execution`
+  (`bitty-terminal/bitty-execution`). Core executes interactive terminal PTYs
+  only and does not supervise agent background execution.
 - Presentation movement (hide, show, move, detach) changes attachment only. It
   never moves the execution target, broadens context access, or manufactures
   consent.

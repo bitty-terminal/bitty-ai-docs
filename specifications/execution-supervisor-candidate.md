@@ -35,6 +35,11 @@ and the proposed `execution-supervisor.md` or `background-execution-r7.md`
 document are **not** accepted by this candidate design. Nothing here is promoted
 to accepted status, and no implementation is described as shipped.
 
+Current-state note (2026-10-04): per ADR-0016 Boundary 1, the Process Supervisor
+mechanism is externalized to `bitty-execution` (`bitty-terminal/bitty-execution`),
+keeping terminal core free of child process supervision and background execution
+tracking.
+
 The direction's strongest ideas are the four-object separation with Panel as
 projection only (which agrees with the R1 ExecutionContext-primary
 direction), the Job-as-wrapper principle with the explicit negative (an
