@@ -398,11 +398,11 @@ never escapes its `(AgentId, generation)` owner without an explicit read grant.
    ModelProvider `ai.model:complete`/`ai.model:stream` needs `ai.provider`
    plus `ai.stream` distinct from Tool Bus scopes; API keys are `0600` and
    `SecretField` redacted.
-4. MCP isolation: each MCP tool maps to exactly one capability; invoking
-   `xuepoo.fs:read` without `fs.read:PATTERN` fails even if `mcp.invoke` is
-   granted. High-risk tools (`terminal.input.all`, `fs.write:PATTERN`,
-   `process.spawn`) cannot be granted implicitly and never via bus message
-   receipt.
+4. MCP isolation: each MCP tool maps to exactly one capability; invoking MCP
+   tool `xuepoo.fs:read` without the `fs.read:PATTERN` grant fails even if
+   `mcp.invoke:TOOL` for another tool is granted. High-risk tools
+   (`terminal.input.all`, `fs.write:PATTERN`, `process.spawn`) cannot be
+   granted implicitly and never via bus message receipt.
 5. Bus isolation: subscribing to or emitting on a Browser or Agent topic
    (`bitty.browser:navigated`, `xuepoo.agent:tool-output`) requires the
    emitter to have declared that topic as produced and the subscriber as
