@@ -53,9 +53,9 @@ Source lines 26-46 propose:
     /fork                           /goal
          │                             │
          └──────────────┬──────────────┘
-                        ▼
-                 bitty-ai-core
-                        │
+                         ▼
+                 bitty-ai-core conceptual layer
+                         │
     Session / Context / Tools / Agent / MCP
                         │
                         ▼
@@ -63,19 +63,19 @@ Source lines 26-46 propose:
                Panel / PTY / FS / UI
 ```
 
-This is a **proposal** for Bitty, not a description of existing implementation. The source argues (lines 14-23) that this boundary prevents the pattern where every command becomes a Rust feature, contrasting it with a hypothetical anti-pattern where `/compact`, `/review`, `/plan`, `/loop` all live in Rust.
+This is a **proposal** for Bitty, not a description of existing implementation. The source argues (lines 14-23) that this boundary prevents the pattern where every command becomes a Rust feature, contrasting it with a hypothetical anti-pattern where `/compact`, `/review`, `/plan`, `/loop` all live in Rust. `bitty-ai-core` below means the conceptual layer, not a crate (see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)); the code has two crates (`bitty-ai-runtime`, `bitty-ai-slice`).
 
 ## Layer ownership proposal
 
 Source lines 52-60 propose three distinct cores:
 
-| Layer           | Responsibility                                                                     | Implementation |
-| --------------- | ---------------------------------------------------------------------------------- | -------------- |
-| `bitty-core`    | Panel, PTY, process, workspace, render, plugin host, logging                       | Rust           |
-| `bitty-ai-core` | Agent loop, Session, Context, Tool runtime, Provider, MCP, permissions, Delegation | Rust           |
-| `bitty-ai`      | `/review`, `/plan`, `/loop`, UI, default workflow                                  | Lua            |
+| Layer                            | Responsibility                                                                     | Implementation |
+| -------------------------------- | ---------------------------------------------------------------------------------- | -------------- |
+| `bitty-core`                     | Panel, PTY, process, workspace, render, plugin host, logging                       | Rust           |
+| `bitty-ai-core` conceptual layer | Agent loop, Session, Context, Tool runtime, Provider, MCP, permissions, Delegation | Rust           |
+| `bitty-ai`                       | `/review`, `/plan`, `/loop`, UI, default workflow                                  | Lua            |
 
-The source argues (lines 61-70) that Bitty itself is not an AI Terminal but provides AI primitives. `bitty-ai-core` is an Agent Kernel; Lua decides how primitives compose into experience. This boundary allows `bitty-ai-core` to remain a mechanism layer (lines 92-112) offering `Agent`, `Context`, `Session`, `Tool`, `MCP`, `LSP`, `AST`, `Task`, while Lua plugins deliver `review`, `plan`, `loop`, `DCP`, `memory`, `statusline`, `agent-dashboard`.
+The source argues (lines 61-70) that Bitty itself is not an AI Terminal but provides AI primitives. The `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) is an Agent Kernel; Lua decides how primitives compose into experience. This boundary allows the `bitty-ai-core` conceptual layer to remain a mechanism layer (lines 92-112) offering `Agent`, `Context`, `Session`, `Tool`, `MCP`, `LSP`, `AST`, `Task`, while Lua plugins deliver `review`, `plan`, `loop`, `DCP`, `memory`, `statusline`, `agent-dashboard`.
 
 **Disposition: improve.** The table preserves the recording's conceptual names, not a repository/crate assignment. Here **AI runtime Core** means reviewed Rust mechanisms owned by the independent `bitty-ai` runtime/helper, outside the terminal process. **Terminal Core** owns terminal state, PTY/process targets, generic host capabilities and presentation. BA-2/BA-3 keep `bitty-agent` free of model selection, model I/O and API keys; providers and context/tool loops remain in the separate AI helper. No native AI code is loaded into the terminal to implement this proposal. Exact generic execution-backend ownership and standalone composition need cross-repository review.
 
@@ -157,7 +157,7 @@ CodeReviewManager
 LoopModeManager
 ```
 
-The rationale is preventing `bitty-ai-core` from becoming a giant harness over years of feature accumulation (line 260).
+The rationale is preventing the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) from becoming a giant harness over years of feature accumulation (line 260).
 
 **Draft interpretation**: This is a design recommendation. Performance evidence may justify reviewed AI runtime mechanism changes, but never relocation of AI into the terminal or bypass of normative security boundaries.
 
@@ -192,7 +192,7 @@ Proposed tool classification (lines 271-295), with `Core` meaning AI runtime mec
 | Review                 | not Tool, is Workflow   |
 | Plan                   | not Tool, is Workflow   |
 
-The source emphasizes (lines 297-313) that Tree-sitter, AST, LSP, and structured code reading must be first-class `bitty-ai-core` capabilities because they define the fundamental way agents obtain code information, not a specific workflow.
+The source emphasizes (lines 297-313) that Tree-sitter, AST, LSP, and structured code reading must be first-class `bitty-ai-core` conceptual-layer capabilities (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) because they define the fundamental way agents obtain code information, not a specific workflow.
 
 **Disposition: unresolved native/MCP transport choice.** The source favors native tools while AI Architecture TB-1 currently proposes MCP transport and rejects direct process/filesystem spools. Native implementation is not a bypass channel: both native and MCP calls require the same authenticated principal, captured target/generation, schema/effect validation, least-privilege scopes, current consent, budgets, redaction and attributed outcomes. Terminal-owned effects stay behind its host boundary. AI runtime local tools, if selected, need an equivalent reviewed execution backend; a filename or spool never authorizes an effect. Selecting native dispatch versus MCP routing remains AIQ-36/AIQ-38, not an accepted change here.
 
@@ -248,18 +248,18 @@ The recording's source separation (lines 1318-1356) motivates a temporary semant
 
 This abstraction unifies Panel, headless agent workspace, Tree-sitter, LSP sharing, log folding, and Agent Dashboard into a coherent system where context management is not post-hoc compression but deliberate semantic construction.
 
-The mechanism/policy split ensures `bitty-ai-core` remains a stable, reviewable kernel while community workflows and product features iterate in Lua without Rust churn.
+The mechanism/policy split ensures the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) remains a stable, reviewable kernel while community workflows and product features iterate in Lua without Rust churn.
 
 ## Verification plan
 
 This specification records the candidate direction and comparative harness observations. It does **not** describe implemented Bitty behavior. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for Core/Lua separation
-- `bitty-ai-core` Rust trait definitions for `Context`, `Session`, `Tool`, `Agent`, `MCP`
+- `bitty-ai-core` conceptual-layer Rust trait definitions for `Context`, `Session`, `Tool`, `Agent`, `MCP` (layer, not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md))
 - Lua API reference for command registration, agent spawning, and primitive invocation
-- Cross-repository IPC contract between `bitty-core` and `bitty-ai-core`
+- Cross-repository IPC contract between `bitty-core` and the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md))
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` (historical path at that revision; live equivalent: `crates/bitty-ai-runtime/src/session.rs`) contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
 
 ## Open points
 
@@ -277,7 +277,7 @@ Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109
 
 7. **`exec` structured result contract**: What schema defines the "structured result" returned by `agent.exec()`? Is it a Rust type, a JSON shape, or a provider-specific envelope? Where is it specified?
 
-8. **Cross-repository boundary**: `bitty-core` and `bitty-ai-core` are proposed as distinct layers, but `bitty-terminal-docs` and `bitty-ai-docs` are separate documentation repositories. Who owns the IPC contract between them? Is there a single authoritative specification, or do both repositories maintain synchronized views?
+8. **Cross-repository boundary**: `bitty-core` and the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) are proposed as distinct layers, but `bitty-terminal-docs` and `bitty-ai-docs` are separate documentation repositories. Who owns the IPC contract between them? Is there a single authoritative specification, or do both repositories maintain synchronized views?
 
 ### Follow-up work
 

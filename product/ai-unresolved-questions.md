@@ -615,8 +615,9 @@ wording only.
   boundary review and workflow-promotion facets stay open.** Closed choice: a
   shell-based host-boundary lint gate (`scripts/host-boundary-lint.sh`) runs as a
   required quality-gate step (`just host-boundary-lint`) and enforces that no
-  binding crate reaches the `bitty-ai-core` crate directly, covering the
-  following bypass classes: (a) macro-mediated Core paths — the Core crate
+  binding crate reaches the `bitty-ai-core` conceptual layer (not a crate; see
+  [v0.1 Implementation Profile](implementation-profile-v0.1.md)), enforced in code as `bitty_ai_runtime` core modules, directly, covering the
+  following bypass classes: (a) macro-mediated Core paths — the Core layer
   identifier is banned anywhere in binding text, not only adjacent to `::`, so
   `macro_rules!` forms that receive it as an argument are also closed; (b)
   source-graph escapes — every Cargo target source of a binding crate is scanned,
