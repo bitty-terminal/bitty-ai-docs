@@ -233,7 +233,8 @@ This describes sibling behavior only as read.
 
 The inspected `bitty-ai` revision
 `3623c6b3ce33e97c1c493109ec6356219d0c9722` has a real experimental slice
-(`crates/bitty-ai-slice/src/session.rs:68-136`), not evidence of this proposed
+(`crates/bitty-ai-slice/src/session.rs:68-136` at that revision; live equivalent:
+`crates/bitty-ai-runtime/src/session.rs`), not evidence of this proposed
 store/replay runtime. Before enabling persistence/reuse/recovery, obtain an
 explicit scoped design and independent security review, then evidence for
 consent/redaction, deletion propagation, authorization, bounded storage, crash

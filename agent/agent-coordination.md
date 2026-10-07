@@ -173,7 +173,7 @@ Agent coordination separates logical agent identity from OS processes and model 
 This specification records the candidate direction through its critical synthesis and separately attributed comparative observations. It does **not** establish implementation of these coordination proposals. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for agent/process separation and service supervision
-- `bitty-ai-core` Rust implementation of service supervisor, lease manager, team coordinator
+- `bitty-ai-core` conceptual-layer Rust implementation of service supervisor, lease manager, team coordinator (layer, not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md))
 - Service compatibility key schema and validation implementation
 - Lease heartbeat, fencing, and recovery implementation
 - Team budget reservation and reconciliation implementation

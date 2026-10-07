@@ -497,7 +497,7 @@ The source argues (lines 1019-1020) this fits Bitty's Panel philosophy better th
 2. Categorization of compressible, recoverable, and pinned content
 3. Interactive compression, dropping, pinning, and inspection operations
 
-**Unresolved**: Does this UI live in `bitty-core` (native Panel), `bitty-ai-core` (context domain), or `bitty-ai` Lua (policy layer)? Cross-reference Panel specifications in `bitty-terminal-docs`.
+**Unresolved**: Does this UI live in `bitty-core` (native Panel), the `bitty-ai-core` conceptual layer (context domain; not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)), or `bitty-ai` Lua (policy layer)? Cross-reference Panel specifications in `bitty-terminal-docs`.
 
 ## Skills registry integration
 
@@ -517,7 +517,7 @@ OpenCode already supports `.opencode/skills`, `.claude/skills`, `.agents/skills`
 
 Real workflows like `/review`, `/release`, `/debug`, `/refactor` are Skills (lines 1103-1113), not built-in commands.
 
-**Design consequence**: `bitty-ai-core` provides `SkillRegistry` primitive; Lua plugins or MCP servers supply skill implementations.
+**Design consequence**: The `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) provides `SkillRegistry` primitive; Lua plugins or MCP servers supply skill implementations.
 
 **Unresolved**: What is the Skill format—Markdown with frontmatter, YAML, or structured JSON? How are Skills versioned and updated? Cross-reference OpenCode and Claude Code skill formats for compatibility.
 
@@ -600,7 +600,7 @@ Reviewer    ───────► review            #31
 
 This connects Agent/Panel decoupling discussed elsewhere (line 1221-1222).
 
-**Design consequence**: `bitty-ai-core` provides Task graph primitives; Lua provides `/task` command and Dashboard UI.
+**Design consequence**: The `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) provides Task graph primitives; Lua provides `/task` command and Dashboard UI.
 
 **Unresolved**: How does the Task model integrate with CarryCtx? Is CarryCtx a persistence backend for Task, or are they parallel systems? (Forward reference pending reconciliation with CarryCtx integration specification.)
 
@@ -714,12 +714,12 @@ The Session/Context separation enables:
 This specification records the candidate direction and comparative harness analysis. It does **not** describe implemented Bitty behavior. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for Session/Context separation
-- `bitty-ai-core` Rust implementation of `Session`, `Context`, `ContextBuilder`, `CompactionBackend`
+- `bitty-ai-core` conceptual-layer Rust implementation of `Session`, `Context`, `ContextBuilder`, `CompactionBackend` (layer, not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md))
 - Artifact store implementation with URI scheme and GC policy
 - Lua API reference for context inspection, compression, and retention control
 - Performance evidence showing continuous maintenance avoids emergency compaction
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` (historical path at that revision; live equivalent: `crates/bitty-ai-runtime/src/session.rs`) calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
 
 ## Open points
 

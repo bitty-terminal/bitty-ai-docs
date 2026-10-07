@@ -143,7 +143,7 @@ Code intelligence sharing reduces duplicate language server instances and redund
 This specification records the candidate direction through its critical synthesis; comparative source observations retain their separately pinned provenance. It does **not** establish implementation of these code-intelligence proposals. Verification requires:
 
 - Accepted architectural decision records in `bitty-docs` for LSP sharing and result reuse
-- `bitty-ai-core` Rust implementation of LSP broker, verification fingerprinting, result cache
+- `bitty-ai-core` conceptual-layer Rust implementation of LSP broker, verification fingerprinting, result cache (layer, not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md))
 - LSP broker with document lifecycle, request correlation, notification bounds
 - Verification fingerprint schema and manifest builder
 - Result cache with authorization checks and freshness metadata
