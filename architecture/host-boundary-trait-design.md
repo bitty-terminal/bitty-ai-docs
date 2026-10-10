@@ -64,6 +64,15 @@ plugin registry in either crate. The inventory below is therefore prospective:
 it names the Core-side seams a future host layer must traverse, not calls a
 Lua layer makes today.
 
+> Phase-0 note (2026-10-10): the survey above is anchored at `bitty-ai`
+> `main` `97d3125` and predates the sibling lint-gate evidence recorded in
+> the [AIQ-31 disposition](../product/ai-unresolved-questions.md#aiq-31-disposition-local-draft-only).
+> That disposition records a landed shell-based gate
+> (`scripts/host-boundary-lint.sh`, `just host-boundary-lint`) closing
+> macro-mediated, source-graph, allowlist, and path-dependency escapes. Where
+> the sketch patterns below and that landed gate differ, the landed gate plus
+> review decides, and this document is revised first.
+
 ### Seam 1: extension-point declarations (`extension.rs`, AI-0079)
 
 `crates/bitty-ai-runtime/src/extension.rs` (`366` lines) declares the
@@ -199,7 +208,10 @@ What the trait does not cover:
   security corpus; the trait carries an `AuthProof`, it never mints one.
 - Transport and presentation. Wire framing, Panel projection, and rendering
   stay with the accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and AIQ-29;
-  the trait returns outcome views, never pixels or wire bytes.
+  the trait returns outcome views, never pixels or wire bytes. The draft
+  terminal-to-helper surface (ops, budgets, consent, redaction handoffs) is
+  sketched in [Execution ownership R1](execution-ownership-r1.md#scoped-helper-ipc-surface-draft),
+  not here.
 - Loader mechanics. How Lua code is loaded, sandboxed, versioned, or
   reloaded is a separate loader design; this trait only constrains what the
   loaded code may reach once running.
@@ -261,16 +273,31 @@ which stays with review and the trait bound.
 1. Land the lint gate first. It is cheap (textual patterns, no refactor),
    immediate (runs on the current tree with zero hits expected, since no
    binding crates exist yet), and ratchets: every future host or Lua binding
-   crate is born inside the gate.
+   crate is born inside the gate. Phase-0 note (2026-10-10): this step is
+   recorded as satisfied in the sibling `bitty-ai` repository by the
+   [AIQ-31 disposition](../product/ai-unresolved-questions.md#aiq-31-disposition-local-draft-only)
+   (shell-based gate with macro, source-graph, allowlist, and path-dependency
+   escape closures). The gate applies from day one to the Phase 1 crate below.
 2. Accept this design through review (DEC-0004). No trait migration starts
    before acceptance; the sketch above must survive review unchanged in
    intent or be revised here first.
-3. Migrate per call site after acceptance, one scoped task per seam
-   (extension registry, ToolBus path, provider/selection path, cache and
-   disclosure primitives). Each migration task wires its seam through the
-   accepted trait, extends the gate patterns if new bypass spellings appear,
-   and closes no AIQ entry by itself.
-4. Revisit the review facet separately. Trait plus lint cover mechanism;
+3. Phase 1 (approved direction, draft record): crate-first
+   `crates/bitty-ai-host` inside the `bitty-ai` repository, per the
+   owner-approved host-helper schedule (2026-10-10;
+   [CTX-0136 issue](https://github.com/bitty-terminal/bitty-ai-docs/issues/237)),
+   with the host-boundary lint gate covering the new crate from day one.
+   This record grants no implementation permission: the implementing task is
+   separately scoped.
+4. Phase 2 (per-seam migration backlog; each item is a separately scoped task
+   after acceptance): provider registry plus model I/O; selection; ToolBus
+   and dispatch; context providers; extension-registry wiring; cache and
+   disclosure primitives; MCP placement per AIQ-36 and AIQ-38;
+   slice adapter routing, including the `LocalEndpoint` route question
+   (whether the slice `LocalProvider` adapter path routes helper-side or
+   provider-plugin-side under the `local-only` privacy class). Each migration
+   task wires its seam through the accepted trait, extends the gate patterns
+   if new bypass spellings appear, and closes no AIQ entry by itself.
+5. Revisit the review facet separately. Trait plus lint cover mechanism;
    human review policy for promotions and new seams stays with AIQ-32 and
    AIQ-34 and is not claimed here.
 
@@ -286,7 +313,10 @@ transport R2](tool-transport-r2.md), [Provider plugin
 boundary](../providers/provider-plugin-boundary.md)) are referenced as inputs only and
 are unrevised by this document. The `bitty-ai` implementation at `97d3125`
 is surveyed read-only; nothing here describes that slice as the complete
-proposed runtime.
+proposed runtime. Recording Phase 1 and the Phase 2 backlog above grants no
+implementation permission. Acceptance as DEC-0004 requires independent review
+by the architecture category owner, the docs curator, and a security
+reviewer; it is not granted by this draft.
 
 ## References
 

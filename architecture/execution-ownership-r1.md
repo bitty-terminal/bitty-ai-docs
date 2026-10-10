@@ -152,16 +152,90 @@ conflict as draft disposition:
 - BA-2 (Agent versus AI split) and BA-3 (Bridge process model) win on placement. Provider registry implementation and all
   model I/O belong in the independent AI helper behind scoped IPC, consistent
   with the bridge process model. The terminal side never loads AI code into
-  the main process.
+  the main process. Under [DIR-030](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/index.md)
+  the helper is the native component `ai` (executable `bitty-ai`), resolved
+  from the component install root (never `PATH`), digest-verified, and spawned
+  as a stdio coprocess; the current-state notes in [AI Architecture](ai-architecture.md)
+  and the accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) record that
+  terminal Core no longer links `bitty-agent`, whose intended consumer is that
+  out-of-process component.
 - A terminal-side registry, if retained, validates generic service metadata
   and mediates authorized requests only. It is not a provider implementation
   and holds no credentials.
-- Exact registry split and owning crates remain draft choices. This section
-  grants no permission to implement either contradictory location.
+- Exact split, narrowed to two draft options (AIQ-38 stays open; this section
+  grants no permission to implement either option):
+  - **Option S-1 (metadata-only terminal registry).** The terminal side keeps
+    a generic service-metadata view (provider and model names, declared
+    capabilities, routing facts) validated at registration; it mediates
+    authorized requests and enforces scopes, consent, and budgets at the IPC
+    boundary. Registry implementation, selection-policy execution, provider
+    I/O, and credentials stay helper-side.
+  - **Option S-2 (protocol-only terminal side).** The terminal side keeps no
+    registry state; every AI request is forwarded over scoped IPC to the
+    helper, which owns registry, selection, and I/O. The terminal side still
+    enforces scopes, consent, and budgets at the IPC boundary and still
+    exposes no AI-specific API beyond generic primitives.
+  - Both options preserve the red line above, the BA-6 pressure-test gate in
+    [AI Architecture](ai-architecture.md) (no terminal-Core change for AI; each
+    demanded Core AI-specific API is a Plugin API gap, not a feature), and the
+    rule that every effect passes caller/target authorization, consent,
+    budgets, redaction, and attributed outcomes. Choosing between them needs
+    the architecture owner: the deciding evidence is which option keeps
+    failure semantics (post-dispatch `Unknown` reconciliation across IPC),
+    the consent ledger, and the budget ledger in one auditable place without
+    duplicating registry state.
 - Transport selection between native tools and MCP routing stays open under
   AIQ-36 and AIQ-38. Neither path bypasses the common authorization,
   target and generation binding, schema and effect validation, consent,
   budgets, redaction, and attributed outcomes required for every effect.
+
+## Scoped helper IPC surface (draft)
+
+This section sketches the draft IPC surface between the terminal side and the
+`bitty-ai-host` helper. It is a candidate derived from BA-3 in
+[AI Architecture](ai-architecture.md), DIR-030, and the accepted
+[IPC and Agent RFC](../specifications/ipc-agent-rfc.md). On any conflict the
+RFC's normative statements win, and this section grants no implementation
+permission.
+
+- **Transport shape.** Under DIR-030 the helper is the native component `ai`
+  (executable `bitty-ai`): terminal Core resolves it from the component
+  install root (never `PATH`), verifies its digest, and spawns it as a stdio
+  coprocess. The helper may use the bitty-network crates only under a
+  Core-issued network capability grant, which it never widens. IPC stays
+  local-user-only by default with an explicit scope per operation, and framing
+  stays bounded per the RFC's transport and framing rules; exact helper-side
+  values are not pinned here.
+- **Op families (candidate).** Provider-turn ops (selection plus
+  complete/stream behind the helper, with streamed turns in sequenced,
+  byte-ceiled chunks); tool-effect dispatch ops (real execution happens in the
+  host/runtime under capability-checked dispatch, rate limits, per-client
+  scopes, consent prompts, and audit — `bitty-agent` itself never executes a
+  tool); observation and context reads (read-only by default; terminal content
+  is untrusted observation data, never instructions); consent-elevation ops
+  (per scope, ledgered, revocable); and budget/accounting ops (usage reported
+  helper-to-terminal against the same per-client quotas). No op family widens
+  authority: possession of the channel grants nothing beyond presenting a
+  request for server-side evaluation.
+- **Budget handoff.** Terminal-side per-client quotas follow the RFC's rate
+  limit and budget rules (request rate and payload caps, stream chunk
+  ceilings, newest-first shed with attributed records and countable metrics).
+  Helper-side pre-I/O gates follow the CP-5 rule (budget gates every request
+  before provider I/O) with typed `BudgetExceeded` failure per MP-5/MP-9.
+  Usage is reported, never self-granted, on both sides of the boundary.
+- **Consent handoff.** Default deny for a fresh client identity; elevation
+  requires a separate grant per scope showing the exact method set it enables
+  (no bundled admin grant); every grant is ledgered (who, agent identity,
+  scope, method set, grant and expiry time, granter) and visible on an
+  inspection surface; revocation is immediate; terminal-output content is kept
+  separate from filesystem- or network-authorized dispatch per the RFC's
+  confused-deputy rule.
+- **Redaction handoff.** Scrubbed views are required at every log or IPC
+  crossing (redaction marker, bounded scrubbed-output size per the RFC's
+  recorded scrubbing evidence, which stays experimental review evidence, not a
+  normative bound); raw arguments and results are retained only for host
+  dispatch, never for logs or IPC; typed secret-field machinery and the
+  secret-exposure-via-traces rule apply unchanged across the boundary.
 
 ## Frozen multi-agent scope
 
@@ -218,7 +292,10 @@ This document changes the status of no register entry:
 - AIQ-2A (no-UI execution feature profile) stays a scope choice. Bounded work
   versus persistent services needs explicit profile selection.
 - AIQ-38 (generic execution and registry ownership across repositories) stays
-  a prerequisite. BA-2 and BA-3 are preserved; the exact split needs review.
+  a prerequisite. BA-2 and BA-3 are preserved; the exact split is narrowed to
+  options S-1 and S-2 above with the deciding evidence named, and the choice
+  needs architecture-owner review. Transport selection (native versus MCP
+  placement) stays open under AIQ-36 and AIQ-38.
 
 Promotion of any of these identifiers requires the canonical admission rule
 cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
