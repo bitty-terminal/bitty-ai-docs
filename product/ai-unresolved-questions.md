@@ -996,3 +996,39 @@ wording only.
 
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
+
+### AIQ-5B note (local draft only)
+
+This note records a candidate without closing any facet. It sets
+no owners or milestones, grants no global promotion, mints no new
+identifier, and uses no Closed wording.
+
+- **AIQ-5B — stays open; audit-export / global reflog read-only surface
+  recorded as a candidate, unnumbered facet; no facet closed.** Need: a
+  bounded, authorized, read-only surface for cross-reference full-history
+  reads that per-reference capped `read_reflog` cannot serve, including
+  tombstone rows — audit export, forensic timeline reconstruction,
+  cross-session debugging, and compliance retention reads. The candidate is
+  the designated future first non-test caller of the `bitty-ai`
+  `dump_reflog_all` helper, which stays test/debug-only until the
+  `bitty-ai` AI-0189 bounded page API lands; that AI-0189 page API is the
+  consumer trigger for any production use. Non-goals: no unbounded
+  production reads, no live query path over the full history, and no
+  promotion of `dump_reflog_all` beyond test/debug-only in this register.
+  Constraints: per-reader authorization per AIQ-58 (references must not leak
+  broader authority), typed redaction per AIQ-5A (mandatory pre-queue and
+  pre-write redaction with typed markers), bounded pagination exclusively
+  through AI-0189 (page bounds, not open-ended scans), and accepted RFC text
+  wins on any conflict with this candidate. Numbering rationale: this file
+  admits no task-level minting — it preserves a fixed identifier set,
+  assigns no owners or milestones, requires the canonical OQ admission rule
+  for promotion, and keeps alias mappings stable — so the owner numbers any
+  future identifier; this facet stays explicitly unnumbered. Open points:
+  surface shape (a `WheelBridge` verb versus a CLI command versus a
+  standalone export tool) and the retention policy for exported history
+  (what is retained, for how long, and under which deletion obligations).
+  Nothing here claims implemented behavior in Bitty; all behavior above is
+  planned and unverified.
+
+This candidate describes sibling interfaces only as read; this repository
+was not modified as part of those inspections beyond this register.
