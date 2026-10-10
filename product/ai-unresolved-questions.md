@@ -103,6 +103,12 @@ Adopted-draft wording only.
   canonical form, sorted LF-only lists, trailing-change prefix stability, and
   prompt-never-grants narrowing; merged in `bitty-ai` `12312ac` (AI-0029).
   Cache-key scope (AIQ-13) and measured hit-rate claims stay out of scope.
+  External evidence consistent with the identical-bytes-are-not-interchangeable
+  stance includes HijackKV (Zhang et al., [HijackKV: New Threat in
+  Position-Independent KV Cache Reuse](https://arxiv.org/abs/2607.19957),
+  presented at USENIX Security 2026, reporting 94% single-attempt hijack via
+  position-independent reuse); transfer to this draft stays an open question,
+  and nothing here is presented as implemented or measured in Bitty.
 - **AIQ-11 — Closed(partial): L0/L1 and L2 selective-compression facets closed;
   durable retention policy and cross-session GC facets stay open.** Closed
   choices: (1) L0 structured-output plus L1 lossless-pruning enforcement under
@@ -161,7 +167,12 @@ owner, summary, body)` dedupe with deny-by-default survivor, untrusted
   key mechanism plus 7-test harness) and `2b984c4` (AI-0084, length-aware
   boundary plus alias-proof test). Follow-up pointer, not an open facet: the
   implicit-versus-explicit routing half narrows to a pure policy choice
-  operating inside non-leaking keys.
+  operating inside non-leaking keys. External evidence consistent with the
+  per-reader-authority stance includes PrefixShield (Wang and Buyya,
+  [Preserving Admission Responsibility in Multi-Tenant Large Language Model Prefix Caches](https://arxiv.org/abs/2608.01657),
+  describing the admission-responsibility gap in multi-tenant prefix caches);
+  how any future key-scope claim would close that gap stays an open question,
+  and nothing here is presented as implemented or measured in Bitty.
 
 ### AIQ-01 disposition (local draft only)
 
@@ -318,7 +329,14 @@ wording.
   evidenced; the counter reads 0 or 1 under the terminal state machine and
   two-waiter shared work is explicitly out of scope; scheduling timing stays
   a host decision — consistent with the AIQ-01 disposition above, which keeps
-  its background-maintenance facet open).
+  its background-maintenance facet open). As an open point, external evidence
+  suggests workflow-aware eviction stays open research: LRU is systematically
+  poor for agent loops, consistent with KVFlow (Pan et al.,
+  [KVFlow: Efficient Prefix Caching for Accelerating LLM-Based Multi-Agent Workflows](https://arxiv.org/abs/2507.07400))
+  and the SGLang agent-aware-KV-cache RFC
+  ([sgl-project/sglang#24656](https://github.com/sgl-project/sglang/issues/24656));
+  TTL-based keep-alive would be a weak answer to that eviction question, and
+  nothing here proposes it as a mechanism.
 
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
