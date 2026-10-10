@@ -111,7 +111,11 @@ prefixes.
 and how conformance is tested. The source proposes a `ContextSerializer` and a
 `Canonical Context Encoding` protocol (lines 200-260). This draft records the
 direction without adopting that type name or encoding as a contract. Proposed
-tracking: AIQ-12.
+tracking: AIQ-12. As external evidence consistent with this direction, the
+[OpenAI Prompt Caching 201 cookbook](https://developers.openai.com/cookbook/examples/prompt_caching_201)
+describes restricting per-turn tools via `allowed_tools` and `tool_choice`
+without mutating the tools array, preserving the cached prefix; whether any
+future serializer adopts this technique stays an open question.
 
 ### 4. Dynamic runtime state is referenced, not embedded, whenever possible
 
@@ -247,7 +251,14 @@ Multi-agent shared prefixes (one stable prefix fanning out to per-agent
 histories, source lines 1029-1076) are likewise a future hypothesis. Sharing
 a prefix across agents is permissible only within identical provider, model,
 tokenizer, and consent scope, and only when per-reader authority enforcement
-permits it. Cross-agent cache sharing is not a v0.1 goal.
+permits it. External evidence consistent with the hypothesis includes PolyKV
+(Patel and Joshi, [PolyKV: A Shared Asymmetrically-Compressed KV Cache Pool for Multi-Agent LLM Inference](https://arxiv.org/abs/2604.24971),
+reporting 15 concurrent agents sharing 4K context with 19.8GB reduced to
+0.45GB at +0.57% perplexity) and KVFlow (Pan et al.,
+[KVFlow: Efficient Prefix Caching for Accelerating LLM-Based Multi-Agent Workflows](https://arxiv.org/abs/2507.07400),
+reporting an Agent Step Graph with up to 1.83x single-workflow and 2.19x
+concurrent speedups over the SGLang hierarchical radix cache); whether any of
+these results transfer to this proposal stays an open question. Cross-agent cache sharing is not a v0.1 goal.
 
 ## Cache observability
 
@@ -288,6 +299,20 @@ configuration, prefix)`. Model routing that switches providers or models
 5. Panel, terminal, and workspace state referenced from context resolves
    server-side under existing consent and budget rules. The context layer
    does not invent its own panel-addressing authority.
+6. Minimum cacheable prefix lengths exist per provider: external evidence
+   notes that prefixes below a provider-defined threshold never cache, so
+   short prompts stay an open question for any future cache claim. See the
+   [OpenAI prompt-caching guide](https://developers.openai.com/api/docs/guides/prompt-caching)
+   and the [Anthropic prompt-caching documentation](https://platform.claude.com/docs/en/build-with-claude/prompt-caching),
+   consistent with rule 3 above (no provider numbers are adopted here).
+7. Cache writes can carry cost on newer models: external evidence notes that
+   unreused writes are pure cost, so any future proposal would need to weigh
+   write volume against subsequent reads as an open question. See the same
+   [OpenAI](https://developers.openai.com/api/docs/guides/prompt-caching) and
+   [Anthropic](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+   guides, consistent with the analytical cloud-cost model in Li et al.,
+   [Towards More Economical Context-Augmented LLM Generation by Reusing Stored KV Cache](https://arxiv.org/abs/2503.14647),
+   where delay savings do not imply cost savings.
 
 ## v0.1 scope boundary
 
