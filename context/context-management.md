@@ -719,7 +719,7 @@ This specification records the candidate direction and comparative harness analy
 - Lua API reference for context inspection, compression, and retention control
 - Performance evidence showing continuous maintenance avoids emergency compaction
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` (historical path at that revision; live equivalent: `crates/bitty-ai-runtime/src/session.rs`) calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` (historical path at that revision; skeleton path persists at `crates/bitty-ai-runtime/src/session.rs` while store/refs live in `bitty-ai-session`) calls provider completion before conditional bounded context collection, optional tool dispatch and fragment emission. That experimental slice does not establish the proposed context-first continuation, journal/store or replay runtime. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
 
 ## Open points
 

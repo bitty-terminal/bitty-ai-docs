@@ -63,7 +63,7 @@ Source lines 26-46 propose:
                Panel / PTY / FS / UI
 ```
 
-This is a **proposal** for Bitty, not a description of existing implementation. The source argues (lines 14-23) that this boundary prevents the pattern where every command becomes a Rust feature, contrasting it with a hypothetical anti-pattern where `/compact`, `/review`, `/plan`, `/loop` all live in Rust. `bitty-ai-core` below means the conceptual layer, not a crate (see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)); the code has two crates (`bitty-ai-runtime`, `bitty-ai-slice`).
+This is a **proposal** for Bitty, not a description of existing implementation. The source argues (lines 14-23) that this boundary prevents the pattern where every command becomes a Rust feature, contrasting it with a hypothetical anti-pattern where `/compact`, `/review`, `/plan`, `/loop` all live in Rust. `bitty-ai-core` below means the conceptual layer, not a crate (see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)); the code has four crates (`bitty-ai-runtime` deterministic single-agent skeleton, `bitty-ai-session` content store plus refs/reflog, `bitty-ai-slice` pressure-test harness not shipped, `bitty-ai-mcp` MCP client transport).
 
 ## Layer ownership proposal
 
@@ -259,7 +259,7 @@ This specification records the candidate direction and comparative harness obser
 - Lua API reference for command registration, agent spawning, and primitive invocation
 - Cross-repository IPC contract between `bitty-core` and the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md))
 
-Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` (historical path at that revision; live equivalent: `crates/bitty-ai-runtime/src/session.rs`) contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
+Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109ec6356219d0c9722`: `crates/bitty-ai-slice/src/session.rs:68-136` (historical path at that revision; skeleton path persists at `crates/bitty-ai-runtime/src/session.rs` while store/refs live in `bitty-ai-session`) contains provider completion, conditional bounded context, optional tool dispatch and fragment emission. This experimental slice does not establish the complete proposed command registry, context-first continuation, store/replay or supervised execution architecture. See [current evidence](../specifications/ai-runtime-boundaries-candidate.md#current-bitty-ai-evidence).
 
 ## Open points
 
