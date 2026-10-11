@@ -302,6 +302,103 @@ AIQ-24). Alias-to-candidate mappings are configuration, never capability
 grants: resolving to a model still requires the applicable `ai.provider`
 consent and network grant (MP-10, MP-3).
 
+## Provider-routing doctrine (candidate, 2026-10-11)
+
+This section records the owner-approved provider-routing doctrine candidate
+(2026-10-11) as a consolidation of the Core-owned selection/routing semantics,
+the transport taxonomy proposal, and the two-level plugin model above. It is a
+candidate direction, not an accepted decision: it proposes no crate, package,
+API, command, or release vehicle, closes no AIQ or OQ entry, changes no entry
+status, mints no new identifier, and claims no implemented or measured behavior.
+It elaborates the cited surfaces without changing them; where any sentence here
+conflicts with a normative source, the normative text wins.
+
+No provider matrix lives in our tree. The candidate proposes that neither Core
+nor any Bitty-owned plugin ships or maintains a per-vendor or per-model matrix:
+daily provider and model churn plus per-model parameters (for example effort or
+maximum output bounds) would bloat any plugin that tried to track them, so the
+maintenance posture is infeasible by construction. All provider integrations
+live outside our tree in user-chosen gateways and adapters behind the
+Core-owned `ModelProvider` contract; vendor endpoint construction, request
+signing, retry behavior, and model discovery stay adapter-owned per the
+MP-4 deferred surface (capabilities, streaming, and cancellation deferred as
+trait operations in [v0.1 interface freeze](#v01-interface-freeze-ai-0135)),
+and selection-layer model registration bridging stays host-side.
+
+Wheel Core and host speak only a narrow wire shape outward: OpenAI-compatible
+chat completions against a configured base URL, with the Anthropic-native and
+Google-native compat shapes as candidate adapter protocols alongside it (kept
+from MPC-5 in [AI Architecture](../architecture/ai-architecture.md), adapter-owned,
+never Core branches). The gateway owns the model catalog and per-model
+parameters; Wheel passes the request through and enforces budgets. Budget
+semantics stay Core-owned under MP-5 (typed `BudgetExceeded` before provider
+I/O) and MP-9 (provider I/O charged against the same per-client quotas as IPC
+and MCP traffic, no separate model budget); adapters report usage and Core owns
+the ledger. A Core condition on a provider name, endpoint shape, or vendor wire
+format remains a conformance defect, not a feature.
+
+Endpoint tiers below are descriptive routing and deployment classes only, with
+no endorsement and no product default. Class-level description only; no specific
+product is named as the default and no product name appears here at all:
+
+- Tier 0, direct vendor URL, is the default: zero extra dependency beyond the
+  configured endpoint and credential reference.
+- Tier 1, light self-host gateways, is the single-binary self-hosted class for
+  users who operate their own routing point.
+- Tier 2, full gateways, is opt-in only: the free-tier farming class for users
+  who explicitly choose aggregated access.
+- Tier 3, hosted gateways, is the zero-deploy class for users who prefer no
+  self-hosted component.
+
+These endpoint tiers are distinct from the credential storage tiers
+(`HostEnv`, `ConfigFile`, `OsKeyring`, `CommandRef` under OQ-054/OQ-055,
+reference-not-value per MPC-2); endpoint choice never widens credential scope,
+and the [Secret invariant](#secret-invariant) governs every tier equally.
+
+Subscriptions never enter Core. Where a user holds a consumer subscription
+rather than an API key, access runs through an independent user-operated auth
+component with its own token store behind the opaque-handle edge (MP-10/MPC-2,
+dedicated `ai.provider` consent), never through Core credential handling. The
+terms-of-service gray-zone rule for such bridges is that this specification
+defines the user-operated bridge interface only and blesses no specific
+circumvention: extracting or impersonating a client session stays rejected per
+the [Transport taxonomy proposal](#transport-taxonomy-proposal) (supported
+surfaces only, fail-closed degradation or no shipment), and the project
+override boundary holds (projects select among already-consented providers and
+models and cannot introduce credential references or unconsented providers).
+
+The configuration surface for all of the above is the LLM Manager GUI plugin
+as Level 1 of the [Two-level plugin model](#two-level-plugin-model): a
+Bitty-side administration surface that edits endpoints, aliases, fallback
+order, and auth-state display without implementing network protocols. Per the
+Wheel Small Core doctrine candidate (2026-10-11) in
+[Command and Tool Architecture](../architecture/command-tool-architecture.md),
+Core stays a minimal headless runtime (lifecycle, context DAG, dispatch, GC)
+and every such surface ships as an extension, never in Core; panel ownership
+and plugin-API mechanics stay with the owning repositories as handoff input,
+undecided here.
+
+Token saving and compression are explicitly out of scope for Wheel routing.
+They are a gateway-side concern in this candidate; the AI-core token play is
+the provider-scoped prefix cache (AIQ-13, Closed adopted-draft, keying and
+routing scope per [AI Unresolved Questions](../product/ai-unresolved-questions.md)),
+and model-backed summarization stays with the AIQ-02 disposition (host-provided
+`Summarizer` through `ModelProvider::complete` within consent and budget). This
+candidate proposes no compression, caching, or savings mechanism.
+
+Consistency notes, all planned and unverified: the R1 no-model-I/O rule holds
+(registry implementation and provider I/O stay in the independent AI helper,
+never terminal Core; the AIQ-38 exact-split choice stays open per
+[Execution ownership R1](../architecture/execution-ownership-r1.md)); provider
+adapters remain behind the unified authorization backend, never a second
+authorization path; the v0.1 no-network posture with `FakeProvider` is
+unchanged; capability match and privacy class stay hard routing constraints
+with cost, latency, window, and quota as soft preferences. Identifier reuse
+only: MP-1 through MP-11, MPC-1, MPC-2, MPC-5, AIQ-02, AIQ-13, AIQ-24, AIQ-33,
+AIQ-36, AIQ-38, AIQ-5A, and OQ-054/OQ-055; this file admits no task-level
+minting, so the owner numbers any future identifier and this candidate stays
+explicitly unnumbered.
+
 ## Secret invariant
 
 > **A model can use credentials; a model must never see credentials.**
