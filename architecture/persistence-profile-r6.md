@@ -54,10 +54,17 @@ accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and the canonic
 corpus linked by [AI Architecture](ai-architecture.md) remain overriding
 authority, including P0-AC-026.
 
-No product code is introduced or described as implemented. No durable
-journal, evidence store, index, or replay implementation exists today;
-every substrate named below is a draft direction awaiting a scoped
-implementation task with independent security review.
+No product code is introduced or accepted as shipped by this draft.
+An experimental durable session/checkpoint/ref store exists in the
+`bitty-ai-session` crate (landed AI-0186: SQLite `ContentStore` over
+blobs, checkpoints, refs, reflog, and `durable_meta`, plus
+`pending_effects` and `session_bindings`), and an experimental context
+compiler with merge/GC exists in the `bitty-ai-slice` pressure-test
+harness (not shipped); neither is an accepted R6 substrate. Replay,
+index, and evidence store per the R6 contract remain unimplemented
+drafts, and every substrate named below stays a draft direction
+awaiting a scoped implementation task with independent security
+review.
 
 ## Decision
 
