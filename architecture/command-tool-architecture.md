@@ -250,6 +250,16 @@ This abstraction unifies Panel, headless agent workspace, Tree-sitter, LSP shari
 
 The mechanism/policy split ensures the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) remains a stable, reviewable kernel while community workflows and product features iterate in Lua without Rust churn.
 
+## Wheel Small Core doctrine (candidate, 2026-10-11)
+
+This section records the owner-approved Wheel Small Core doctrine candidate (2026-10-11) as a consolidation of the mechanism-versus-policy rule above. It is a candidate direction, not an accepted decision: it proposes no crate, package, API, command, or release vehicle, closes no AIQ or OQ identifier, and claims no implemented or measured behavior. It mirrors the Bitty microkernel philosophy (a small core with composition at the edges; see [AI Architecture](ai-architecture.md)) without copying terminal-owned content.
+
+Core is a minimal headless runtime, mechanism only: session and agent lifecycle primitives, the context DAG, tool dispatch, and GC/reaping (session reachable-subgraph collection plus kill-reap supervision). Layering inside Core stays high-cohesion and low-coupling, with the context-store and tool-call layers as the named example: each owns its budget and interface, and neither absorbs the other's policy.
+
+Extensions are policy and UX, never in Core: the Dashboard as an observer/monitor surface, fleet and workspace views, statusline-class surfaces, and memory and wheel UX. The Bitty statusline analogy applies: Core exposes the observability API and will not implement the surfaces; users compose them via extensions. This extends the Lua-delivers direction above (`review`, `plan`, `loop`, `DCP`, `memory`, `statusline`, `agent-dashboard`) to the Wheel surfaces, and defers to the Core-versus-Plugin boundary table in [Wheel core and plugin boundary (candidate)](../specifications/wheel-core-plugin-boundary-candidate.md), which this section references without restating normatively.
+
+Execution is lifecycle-bound: agents survive Dashboard detach until their own lifecycle ends, so detaching (even exiting) the observer never stops agents. Adopted from the [AIQ-05 note](../product/ai-unresolved-questions.md#aiq-05-note-local-draft-only) as a doctrine consequence, observer-must-not-retain holds: a detached observer adds zero GC roots or retention, so no agent stays reachable through the Dashboard, with lifecycle-end completion or close as the reclamation trigger. Panel and agent lifetime independence and the authorized-execution model stay with [Execution ownership R1](execution-ownership-r1.md); enforcement mechanism (trait plus lint gate) stays with [HostBoundary trait and lint-gate design](host-boundary-trait-design.md). The fuller workspace-scoped fleet-management product vision stays parked as a separate future candidate per the AIQ-05 note and is not part of this doctrine.
+
 ## Verification plan
 
 This specification records the candidate direction and comparative harness observations. It does **not** describe implemented Bitty behavior. Verification requires:
