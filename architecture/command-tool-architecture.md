@@ -79,6 +79,21 @@ The source argues (lines 61-70) that Bitty itself is not an AI Terminal but prov
 
 **Disposition: improve.** The table preserves the recording's conceptual names, not a repository/crate assignment. Here **AI runtime Core** means reviewed Rust mechanisms owned by the independent `bitty-ai` runtime/helper, outside the terminal process. **Terminal Core** owns terminal state, PTY/process targets, generic host capabilities and presentation. BA-2/BA-3 keep `bitty-agent` free of model selection, model I/O and API keys; providers and context/tool loops remain in the separate AI helper. No native AI code is loaded into the terminal to implement this proposal. Exact generic execution-backend ownership and standalone composition need cross-repository review.
 
+### Route-1 Lua contract (candidate, 2026-10-11)
+
+This subsection records the owner-decided Route-1 Lua-contract candidate
+(2026-10-11) against the boundary above. It is a candidate direction, not an
+accepted decision: it proposes no crate, package, API, command, or registry
+entry, closes no AIQ or OQ identifier, mints no new identifier, and claims no
+implemented behavior. Tool declarations follow the pi-style declaration shape
+with Wheel native execution; the capabilities vocabulary is unchanged. A Lua
+`ExecutionContext` is modeled on the opencode `ToolContext` shape, adjusted
+Bitty-native for captured target, generation binding, and the unified
+authorization backend. Under this candidate, `native` plus backend names
+`lua-plugin-host` as the first roster member, gated as stated in
+[Tool transport R2](tool-transport-r2.md). Transport selection stays open
+under AIQ-36 and AIQ-38.
+
 ## Command classification and primitive mapping
 
 Source lines 116-141 classify existing harness commands by their underlying primitive:
@@ -288,6 +303,26 @@ Read-only inspection on 2026-09-14 found `bitty-ai` at `3623c6b3ce33e97c1c493109
 7. **`exec` structured result contract**: What schema defines the "structured result" returned by `agent.exec()`? Is it a Rust type, a JSON shape, or a provider-specific envelope? Where is it specified?
 
 8. **Cross-repository boundary**: `bitty-core` and the `bitty-ai-core` conceptual layer (not a crate; see [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md)) are proposed as distinct layers, but `bitty-terminal-docs` and `bitty-ai-docs` are separate documentation repositories. Who owns the IPC contract between them? Is there a single authoritative specification, or do both repositories maintain synchronized views?
+
+### Candidate answers (2026-10-11, open entries retained)
+
+The open entries above are retained; acceptance removes them, not this task.
+This subsection records owner-decided candidate answers (2026-10-11) without
+closing any entry, minting any identifier, or claiming implemented behavior.
+
+- **Boundary enforcement (answers 1, candidate).** Lint is the floor and
+  human-intent review sits above it: an automated lint gate enforces the
+  mechanism/policy split as a minimum bar, and reviewer judgment covers intent
+  the lint cannot see. Promotion process and enforcement ownership stay with
+  the existing open entry.
+- **Bridge scope (answers 6, candidate).** The bridge is runtime, not
+  translation: Core provides the MCP client runtime and Lua registers MCP
+  tools into the Tool Bus; Lua never hand-parses JSON-RPC.
+- **`exec` contract (answers 7, candidate).** The structured result projects
+  from the Rust type source through three layers: the Rust type as source,
+  the wire JSON shape derived from it, and the Lua projection derived from
+  the shape. The schema source stays with the Rust type; no layer invents a
+  parallel contract.
 
 ### Follow-up work
 

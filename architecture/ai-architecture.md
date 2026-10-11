@@ -1249,6 +1249,32 @@ accepted contracts it cites.
 
 These are not blockers for this draft; they will be decided in a follow-up Agent or Tool Bus amendment with independent review.
 
+### OQ-066, OQ-069, and OQ-070 candidate dispositions (2026-10-11, proposals only)
+
+Status: **candidate, non-normative**. This subsection records owner-decided
+candidate dispositions (2026-10-11) for three entries owned by the
+[open-question register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
+They are proposals for the owning repository, not closures here: this document
+changes the status of no bitty-docs entry, and a separate owning-repo task
+decides acceptance.
+
+- **[OQ-066](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)
+  (context budget profiles) — narrow-only proposal.** The candidate proposes a
+  narrow-only disposition: the token-first CP-5 contract and the candidate
+  byte default stay as stated, with per-model parameterization kept narrow and
+  no core-contract widening.
+- **[OQ-069](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)
+  (role/model/capability orthogonality) — closed-by-prior-decisions
+  proposal.** The candidate proposes that prior decisions already cover the
+  question (capability-enforced roles, routing selects a model never an
+  authority tier, and role/model/capability independence as stated above); the
+  owning register decides whether that coverage closes the entry.
+- **[OQ-070](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)
+  (agent growth pipeline) — session-default plus approval-to-durable
+  proposal.** The candidate proposes that a learned skill defaults to
+  session-scoped state and becomes durable project data only through the
+  approval surface that versions it; no silent promotion path is proposed.
+
 ## Acceptance criteria
 
 This RFC is **draft**. It does not self-accept and does not close an open question beyond its linkage to [OQ-018](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md). The lifecycle is `Draft -> experimental review evidence -> Accepted -> normative`; only `Accepted` or `normative` documents authorize shipped, stable, or compatibility-guaranteed behavior. Draft text carries no compatibility promise and does not form public reference.

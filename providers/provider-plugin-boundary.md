@@ -495,6 +495,26 @@ concrete provider integrations and management UI belong to plugins. Model
 management as a whole is therefore not "all plugin": the contract, registry,
 and policy stay in Core.
 
+### Subscription surfaces (candidate, 2026-10-11)
+
+This subsection records the owner-decided subscription-surface candidate
+(2026-10-11) against the `Subscription/CLI adapters` row above. It is a
+candidate direction, not an accepted decision: it changes no table cell,
+closes no AIQ or OQ entry, mints no new identifier, and claims no
+implemented behavior. The `Model Manager panel and UI` handoff cell stays
+undecided here.
+
+The Model Manager (Level 1) owns catalog entries, the authorization-process
+user experience, and status display for subscription-backed access. Wire
+protocol, credential storage, and terms-of-service posture stay out: the
+Manager never implements network protocols, never holds credential values,
+and never blesses a circumvention. Mechanism classes are closed to three:
+`oauth-device-flow`, `cli-subprocess-bridge`, and `api-key`; an unknown
+mechanism fails closed with a typed refusal and no shipment. Refresh is lazy
+on request rather than background polling, and authorization grants default
+to per-agent scope. Where any sentence here conflicts with a normative
+source, the normative text wins.
+
 ## Consistency with existing dispositions
 
 - R1 red line preserved. The R1 disposition in

@@ -236,6 +236,20 @@ draft does not add them to the frozen Rust surface.
   contract but is not pinned here; a numeric value requires the same review as
   the MP-8 profile and no new number is adopted by this document.
 
+#### MP-8 numbers (candidate, 2026-10-11)
+
+This subsection records the owner-decided MP-8 number candidate (2026-10-11)
+surveyed against this contract and
+[Provider plugin boundary](provider-plugin-boundary.md); it lands here
+because this contract owns the adapter timeout guarantees. It is a candidate
+direction, not an accepted limit: it changes no frozen field, adopts no crate
+or trait, mints no new identifier, and claims no measured behavior. Turn
+deadline 120 s and per-stream idle bound 30 s are recorded as candidates only.
+The hard ceiling lives in code while the working value lives in
+configuration; an overrange request fails at the admission gate with a typed
+outcome before provider I/O. A turn gate and idle diagnosis are named as
+future slices, not part of this candidate.
+
 ### Provider-independent errors
 
 The frozen v0.1 `ProviderError` surface has the following variants and has no

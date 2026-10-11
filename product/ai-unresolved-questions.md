@@ -811,6 +811,50 @@ wording only.
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
+### AIQ-29 note (local draft only)
+
+This note records a candidate without closing any facet. It sets
+no owners or milestones, grants no global promotion, mints no new
+identifier, and uses no Closed wording.
+
+- **AIQ-29 — stays open; panel-agent graph facets recorded as candidates; no
+  facet closed.** Identity and placement split: an agent identity and a panel
+  identity are distinct facts, so an agent identifier never names a panel and
+  a panel identifier never names an agent. Edges form a graph, not a tree: an
+  agent execution may project to more than one panel and a panel may observe
+  more than one agent execution over its lifetime, with each edge carrying its
+  own authorization and generation binding. Suspend-on-panel-death: when a
+  bound panel dies, the agent suspends awaiting rebind rather than
+  terminating; presentation loss never moves the execution target and never
+  manufactures consent. Cross-agent authorization runs through an extended
+  consent triple candidate under AIQ-33 (the unified authorization backend
+  stays the single gate; no second path is proposed here). The Dashboard reads
+  as a bipartite view over the same graph: agents on one side, panels on the
+  other, edges as authorized projection bindings. Nothing here claims
+  implemented behavior in Bitty; all behavior above is planned and unverified.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
+### AIQ-2A note (local draft only)
+
+This note records a candidate without closing any facet. It sets
+no owners or milestones, grants no global promotion, mints no new
+identifier, and uses no Closed wording.
+
+- **AIQ-2A — stays open; dual-profile facets recorded as candidates; no facet
+  closed.** The candidate holds two profiles: B as the default bounded-work
+  profile and P as the locked persistent-service profile. Detach-still-B
+  anti-confusion clause: detaching or exiting the observer never promotes an
+  execution from B to P; a detached B execution remains B until its own
+  lifecycle ends. P unlock conditions stay explicit: a P execution requires an
+  explicit feature-profile selection beyond B authorization, budgets, and
+  evidence retention, with no silent promotion path. Nothing here claims
+  implemented behavior in Bitty; all behavior above is planned and unverified.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
 ### AIQ-27 disposition (local draft only)
 
 This disposition closes a register facet with implementation evidence. It sets
