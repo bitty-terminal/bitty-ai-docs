@@ -457,6 +457,63 @@ facet change.
 These describe sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
+### AIQ-04 note (local draft only)
+
+This note records a candidate without closing any facet. It sets
+no owners or milestones, grants no global promotion, mints no new
+identifier, and uses no Closed wording.
+
+- **AIQ-04 — stays open; carryctx-borrowable mechanisms recorded as
+  candidates, unnumbered facets; no facet closed.** Each item below names
+  a carryctx mechanism as surveyed and a candidate fit as read in the
+  sibling `bitty-ai` checkout; every fit stays planned and unverified:
+  (1) Deterministic ambient resolution plus hook-safe unambiguous-session
+  rule (surveyed as `resolve_task` / `resolve_hook_task`): the candidate
+  fit would map to `bitty-ai-session` `session_bindings` (`sessions.rs`:
+  `session_bindings`, `bind_session`, `WheelSessionId`) plus the Wheel
+  attach path (`wheel_kernel.rs`); the hoped-for effect would be no
+  cross-tagging when two agents are live, with ambiguity refusing rather
+  than attaching to a guessed session. (2) Same-transaction append-only
+  audit plus immutable checkpoints with side-table corrections (surveyed as
+  events no-update/delete enforcement plus `checkpoint_corrections`): the
+  candidate fit would sit alongside hash-addressed checkpoints and the
+  same-transaction reflog (`session_refs.rs`: reflog row in the same
+  transaction as the move; `content_hash.rs`, `content_store.rs`: blobs,
+  checkpoints, refs) so corrections land in a side table without rewriting
+  content hashes. (3) Git-plumbing snapshot publication split (local-only
+  versus redacted-public ref) plus export-DAG merge-base plus staged
+  `candidate.sqlite` conflict workflow with atomic swap: the candidate fit
+  would offer an offline-portable multi-holder recipe for the merge and GC
+  extension (`content_store.rs`: `merge_base`, GC-support narrow methods;
+  `merge.rs`: `merge_commit`, `strict_merge_base`, `gc_preview` /
+  `collect_garbage`). (4) Row-merge semantics (tombstone side table plus
+  terminal-wins lattice plus display-ID renumber plus degraded flag): the
+  candidate fit would cover row-identity conflicts that ref-level-only
+  tombstones do not handle, as read (all-zero-hash deletion tombstones with
+  no payload; application-level slot tombstones noted as future if any in
+  `merge.rs`). (5) Export-time redaction pass (secret field names, long
+  token runs, host-path rewrite, URL and hash exemptions) plus lock-free
+  read projections: the candidate fit would serve as a drop-in sanitizer
+  pattern for AIQ-54 under AIQ-5A typed markers (`secret.rs`:
+  `SecretField`, `SECRET_REDACTED`, `expose_for_adapter`,
+  `is_absent_from`, `scrub_from`) and AIQ-58 per-reader authority, sized
+  for parallel worktrees. Non-transfers stay explicit: ticket-tracker state
+  machines (task states, teams, handoffs, decision records) stay out of the
+  content store; row-model versus blob-model stays separate
+  (`content_hash.rs` addressing is kept); CLI and transport surfaces stay
+  harness control-plane rather than WheelBridge verbs; retention policy
+  itself is not borrowed (consent-bounded AIQ-04, AIQ-11, and AIQ-54 own the
+  policy; mechanisms only). Numbering rationale: this file admits no
+  task-level minting — it preserves a fixed identifier set, assigns no
+  owners or milestones, requires the canonical OQ admission rule for
+  promotion, and keeps alias mappings stable — so the owner numbers any
+  future identifier; these facets stay explicitly unnumbered. Nothing here
+  claims implemented behavior in Bitty; all behavior above is planned and
+  unverified.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
 ### AIQ-59 disposition (local draft only)
 
 This disposition closes a register facet with implementation evidence. It sets
