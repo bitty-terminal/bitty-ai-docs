@@ -300,6 +300,17 @@ This document changes the status of no register entry:
 Promotion of any of these identifiers requires the canonical admission rule
 cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 
+Candidate note (2026-10-11, choice open): the S-1/S-2 selection above stays
+open pending a helper-liveness prerequisite question. A resident singleton
+helper favors S-1 because a long-lived process can hold the
+metadata-only terminal view against a versioned helper-side snapshot; an
+on-demand spawned helper favors S-2 because no registry state survives
+between spawns and every request forwards over scoped IPC. Commander lean
+(not a decision): S-1 with a versioned snapshot, reusing the AI-0211
+pattern as read-only reference. The lean changes no status, closes no
+identifier, and grants no implementation permission; the choice needs
+architecture-owner review under AIQ-38.
+
 ## Acceptance criteria
 
 - Draft owner: CTX-0009 implementer (`ai-docs-ctx0009-impl`).

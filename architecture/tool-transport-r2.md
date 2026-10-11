@@ -300,6 +300,16 @@ This document changes the status of no register entry:
 Promotion of any of these identifiers requires the canonical admission
 rule cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
 
+Candidate note (2026-10-11, direction A): the bridge sits helper-side in
+Phase 2, compatible with the R2 MCP-default disposition above. The
+candidate placement roster holds the supervisor, the host boundary, and
+`lua-plugin-host`, with `lua-plugin-host` approved-conditional only. The
+native inventory is empty: no native placement is claimed or evidenced here.
+A first placement is gated on roster-member existence plus the per-tool
+placement review checklist named in the acceptance follow-ups. This note
+changes the status of no register entry; AIQ-36 and AIQ-38 stay open and
+acceptance belongs to reviewers, not to this task.
+
 ## Acceptance criteria
 
 - Draft owner: CTX-0011 implementer (`ai-docs-ctx0011-impl`).
