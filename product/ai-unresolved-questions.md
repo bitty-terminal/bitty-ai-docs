@@ -295,9 +295,9 @@ This disposition closes the compression backend selection choice with implementa
 
 ### AIQ-05 note (local draft only)
 
-This note records implementation evidence without closing any facet. It sets
-no owners or milestones, grants no global promotion, and uses no Closed
-wording.
+This note records implementation evidence and one backlog candidate without
+closing any facet. It sets no owners or milestones, grants no global
+promotion, mints no new identifier, and uses no Closed wording.
 
 - **AIQ-05 — stays open; cancel-observability evidence recorded, no facet
   closed.** Recorded behavior: an honored-cancellation counter plus a
@@ -337,6 +337,48 @@ wording.
   ([sgl-project/sglang#24656](https://github.com/sgl-project/sglang/issues/24656));
   TTL-based keep-alive would be a weak answer to that eviction question, and
   nothing here proposes it as a mechanism.
+
+- **AIQ-05 — stays open; multi-agent resident-memory ceiling validation
+  recorded as a candidate, unnumbered facet; no facet closed.** Motivation,
+  not evidence: a 2026-10-11 community anecdote reporting a Node/Bun agent
+  CLI screenshot with a 13.4GB parent process plus roughly 43 child
+  processes at roughly 350MB each, lingering after tasks finished; all
+  figures are screenshot-reported in that anecdote, never a measurement,
+  and the anecdote motivates the ceiling only. The candidate assumes the
+  Wheel structural mitigations already designed in — single-runtime
+  state-machine agents, bounded queues/payloads/executions caps, session
+  reachable-subgraph GC plus kill-reap supervision, and content-addressed
+  dedup — and would validate them at EGOIST scale. Validation bar: N
+  concurrent agents in the `bitty-ai-slice` pressure harness with a
+  resident-memory ceiling assertion, exercising session-close reaping.
+  Non-goals: no benchmark numbers are claimed now, no provider-side
+  token-cost claims, and no Windows-native target per the platform
+  baseline. Numbering rationale: this file admits no task-level minting —
+  it preserves a fixed identifier set, assigns no owners or milestones,
+  requires the canonical OQ admission rule for promotion, and keeps alias
+  mappings stable — so the owner numbers any future identifier; this facet
+  stays explicitly unnumbered. Deployment constraint (owner, 2026-10-11,
+  planned and unverified): the Wheel core would stay headless-first and
+  modular (high cohesion, low coupling; context-store and tool-call layers
+  separate); the Dashboard would be an observer/monitor surface users may
+  attach or detach at will, where detaching (even exiting) never stops
+  agents, which would run until their own lifecycle ends;
+  observer-must-not-retain would hold (zero added GC roots or retention, so
+  a detached dashboard keeps no agent reachable, with lifecycle-end
+  completion/close as the reclamation trigger); the global resident-memory
+  ceiling would compose from per-layer budgets (context-store cap, tool-call
+  queue cap, execution caps), and any future validation would assert
+  per-layer and global ceilings dashboard-detached; the ceiling validation
+  would be dashboard-observable (planned and unverified): the Dashboard
+  observes all Wheel agents system-wide across workspaces keyed by absolute
+  path / WorkspaceID, showing a global resident total plus a per-workspace
+  breakdown with no per-directory session-resume workflow and no multiple
+  TUIs. The fuller workspace-scoped fleet-management product vision
+  (per-project views, switching, lifecycle operations from the Dashboard)
+  is parked as a separate future candidate, not part of this entry.
+  Nothing here claims
+  implemented or measured behavior in Bitty; all behavior above is planned
+  and unverified.
 
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
