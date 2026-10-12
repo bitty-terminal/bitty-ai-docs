@@ -754,6 +754,58 @@ wording only.
 This describes sibling behavior only as read; this repository was not modified
 as part of those inspections beyond this register.
 
+### AIQ-38 note (local draft only)
+
+This note records a candidate without closing any facet. It sets
+no owners or milestones, grants no global promotion, mints no new
+identifier, and uses no Closed wording.
+
+- **AIQ-38 — stays open; bitty-agent vocabulary converge-vs-archive decision
+  recorded as a candidate, unnumbered facet; no facet closed.** Placement, as a
+  candidate choice: this note sits under AIQ-38 because that row already owns
+  generic execution and registry ownership across repositories under the BA-2/BA-3
+  prerequisite, so the architecture spine in `architecture/ai-architecture.md` and
+  the mechanism discussion in `architecture/command-tool-architecture.md` stay
+  untouched. Surveyed scope, as read in sibling checkouts: `bitty-agent/README.md`
+  labels the crate accepted contract with implementation not yet verified, states
+  Bitty Core does not link it because the small-core split (bitty CTX-0918)
+  removed it, states no consumer pins the repository yet, and presents
+  `bitty-agent-api` as the zero-dependency pure-type crate that cross-repo
+  consumers would depend on; no `lua` or `Lua` match was found in
+  `crates/bitty-agent/src/lib.rs` or `crates/bitty-agent-api/src/lib.rs` as read.
+  Parallel vocabulary, as read: `bitty-ai/crates/bitty-ai-runtime/src/tool.rs`
+  defines its own `ToolSpec`, `ToolRegistry`, `ToolCall`, and `ToolBus`, and
+  `src/session.rs` defines its own `AgentSession`; the candidate drift risk is that
+  the two vocabularies evolve separately without a shared owner. Bridge shape, as
+  read: `bitty-ai/crates/bitty-ai-slice/src/wheel_bridge.rs` exposes `WheelBridge`
+  JSON-RPC command dispatch with `dispatch(command, payload_json)` documented as the
+  boundary entry point for Lua scripts, FFI shims, or host IPC endpoints, with no
+  `mlua` binding in the slice or runtime manifests as read; the slice reaches Lua
+  transitively, as read: `crates/bitty-ai-slice/Cargo.toml` pins `bitty-plugin-host`
+  (and `bitty-package`) from the `bitty` repository at rev
+  `271d662ba7445f0c963d86f01df63a75bcd81fa1`, and the slice README Dependencies
+  section states that pin transitively pulls `bitty-lua` (hence the `phodopus` Git
+  source allowlisted in `deny.toml`). Candidate options for the OWNER decision,
+  cross-commander scope with `bitty-agent` recorded as having no commander: (a)
+  converge post-v0.1 by pinning `bitty-agent-api` at an exact rev once the OWNER
+  accepts the vocabulary, with no v0.1 gate depending on it; (b) reference-only
+  with conformance checks that fail closed on drift and no dependency pin; (c)
+  archive the converge question if the OWNER rejects both, through a separate
+  OWNER decision with its own task. Sharper edge, as a candidate: the
+  `bitty-plugin-host` pin from the `bitty` repository would be re-owned helper-side
+  (described in the task as route B) under the owner-approved host-helper schedule
+  (Phase 1 crate-first `crates/bitty-ai-host` in the `bitty-ai` repository per
+  `architecture/host-boundary-trait-design.md` and CTX-0136), rather than lingering
+  as a cross-repo Core pin; mechanism selection stays open under AIQ-36 and AIQ-38.
+  Numbering rationale: this file admits no task-level minting — it preserves a fixed
+  identifier set, assigns no owners or milestones, requires the canonical OQ admission
+  rule for promotion, and keeps alias mappings stable — so the owner numbers any future
+  identifier; this facet stays explicitly unnumbered. Nothing here claims implemented
+  behavior in Bitty; all behavior above is planned and unverified.
+
+This describes sibling behavior only as read; this repository was not modified
+as part of those inspections beyond this register.
+
 ## Agent coordination
 
 Details: [agent coordination](../agent/agent-coordination.md).
