@@ -324,6 +324,27 @@ closing any entry, minting any identifier, or claiming implemented behavior.
   the shape. The schema source stays with the Rust type; no layer invents a
   parallel contract.
 
+### Candidate threat note: calls unattributable until AI-0246 (2026-10-12, open limitation retained)
+
+The open entries above are retained; acceptance removes them, not this task.
+This subsection records a candidate threat-model limitation without closing
+any entry, minting any identifier, proposing any accepted mechanism, or
+claiming implemented behavior. No dedicated consent/dispatch limitation
+section exists in this document; this note is placed here because the
+`Open points` tool-dispatch entries are the closest existing coverage of
+consent, dispatch, and attribution.
+
+- **Attribution gap (candidate).** Tool calls are unattributable until
+  AI-0246: consent grants record only `(protocol, tool, scope, expiry)` with
+  no caller instance, grant time, granter, or call site; `ToolExecution` and
+  `ExecutionRecord` record only `(execution_id, tool, status)` with no
+  principal, timestamp, scope, or dispatch site; `pending_effects` records
+  contacted calls only; and no durable usage log exists under the v0.1
+  `DurableGated` gate.
+- **Review-surface guard (candidate).** Review surfaces MUST NOT present
+  per-principal call history until AI-0246 lands. This claims no accepted
+  mechanism.
+
 ### Follow-up work
 
 1. Independent review of this specification against existing `ai-architecture.md`.
