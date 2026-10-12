@@ -407,6 +407,69 @@ any identifier requires the canonical admission rule cited by
 
 AIQ-10/56 and AIQ-22/42 alias mappings are retained unchanged.
 
+### Candidate: pre-approved post-v0.1 durable usage_log shape (2026-10-12, parked for v0.1)
+
+This subsection records a candidate without closing any entry, minting
+any identifier, selecting any dependency, setting any owner or
+milestone, or claiming implemented behavior. It uses no Closed wording
+and makes no R6 acceptance claim. AIQ-33, AIQ-11, AIQ-37, and AIQ-51
+through AIQ-5C all stay open; the gate-conditioned deferral above is
+retained unchanged.
+
+- **Placement reason (candidate).** This note sits here, and not on an
+  AIQ-33-adjacent page, because R6 owns the durable-scope deferral and
+  the release profile (ephemeral v0.1 plus gate-conditioned deferral).
+  The AIQ-33-adjacent pages (`tool-transport-r2.md`,
+  `command-tool-architecture.md`) own the unified authorization gate
+  mechanism; this shape owns no gate mechanism, only a parked durable
+  projection of the already-gated in-memory usage ring. Surveyed and
+  left untouched: the AIQ-33 row in
+  [AI Unresolved Questions](../product/ai-unresolved-questions.md)
+  (mechanism open, prerequisite for every native/MCP effect) and the
+  R6 release-profile table above (durability only after the AIQ-33,
+  AIQ-11, and AIQ-37 gates plus the R3 propagation bar).
+- **Pre-approved shape (candidate, post-v0.1 only).** A single isolated
+  allowlisted SQLite file holding a durable `usage_log` projection of
+  the in-memory usage ring. Isolated means exactly one allowlisted
+  path, separate from every journal, `ContentStore`, `TaskEngine`,
+  `WheelKernel`, and `WheelBridge` store path; no second durable path
+  is proposed here.
+- **Constructor surface (candidate).** Only `open_durable` plus
+  `open_in_memory` for tests. No `open`, no `open_with_config`, and no
+  other file-backed constructor is proposed for this file.
+- **Digest-only columns (candidate).** Columns mirror the ring event
+  fields only: execution id, tool name, registry-threaded scope,
+  protocol id, caller triple, dispatch timestamp, placement-derived
+  site labels, outcome axes, bounded reason, and FNV-1a-64
+  `args_digest`. No raw argument bytes, no working-directory bytes, no
+  summaries, no result bytes, and no secrets. Variable-length strings
+  stay bounded to display-safe printable ASCII, as on ring push.
+- **File mode (candidate).** User-only (`0600`) enforcement on create
+  and open, fail-closed otherwise, consistent with the artifact-bytes
+  posture above.
+- **Bounded retention (candidate).** Explicit row cap at the ring scale
+  with oldest-delete prune in the same transaction as insert. No
+  unbounded growth and no background scheduler, consistent with the
+  removed-scheduling disposition above.
+- **Guard-test update (candidate).** The v0.1 zero-file guard
+  (`v01_no_durable_path`, the `just gate-v01-durable` and CI guard for
+  AI-0238) allows exactly this one `usage_log::open_durable` path, plus
+  `open_in_memory` for tests. All Wheel store triple paths still refuse
+  with the gate error before any filesystem access and create no file.
+- **Park rationale for v0.1 (candidate).** The durable shape is parked,
+  not shipped, because the v0.1 zero-file invariant stays CI-enforced,
+  the in-memory ring (oldest-evicting, read-only snapshot, Slice 1
+  gate evidence) suffices for v0.1 attribution, and restart survival is
+  not required under the ephemeral v0.1 profile above.
+- **What stays gated (candidate).** All 8 refused path-taking
+  constructors stay gated: `ContentStore::open`,
+  `ContentStore::open_durable`, `TaskEngine::open`,
+  `TaskEngine::open_durable`, `WheelKernel::open`,
+  `WheelKernel::open_with_config`, `WheelKernel::open_durable`, and
+  `WheelBridge::open`, with the `AiEngine` delegating wrappers
+  (`open_content_store`, `open_task_engine`, `open_wheel_kernel`,
+  `open_wheel_bridge`) continuing to refuse as consequences.
+
 ## Acceptance criteria
 
 - Draft owner: CTX-0014 implementer (`ai-docs-ctx0014-impl`).
