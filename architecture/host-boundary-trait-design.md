@@ -301,6 +301,92 @@ which stays with review and the trait bound.
    human review policy for promotions and new seams stays with AIQ-32 and
    AIQ-34 and is not claimed here.
 
+## Phase 1 scope (candidate shell, no behavior)
+
+This section records the candidate scope of the Phase 1 step named in
+[Migration plan](#migration-plan) step 3: what a shell-only
+`crates/bitty-ai-host` crate inside the `bitty-ai` repository would contain
+and what it would exclude. It is draft direction only: it proposes no
+behavior, authorizes no implementation beyond the shell skeleton, closes no
+AIQ or OQ entry, mints no identifier, and changes no accepted document.
+Where any sentence here conflicts with a normative source, the normative text
+wins.
+
+### What the shell would contain
+
+- Workspace membership (candidate): the shell would live as
+  `crates/bitty-ai-host` in the `bitty-ai` repository workspace, alongside
+  the existing runtime crate, so the host-boundary lint gate in
+  [Migration plan](#migration-plan) step 1 and the
+  [AIQ-31 disposition](../product/ai-unresolved-questions.md#aiq-31-disposition-local-draft-only)
+  would cover the new crate from day one.
+- Dependency policy (candidate rule): the shell would start std-only,
+  consistent with the
+  [std-only kernel direction](../providers/dependency-strategy.md#kernel-principle-std-only-runtime-with-dependency-inversion);
+  any future network, TLS, or IPC dependency would need its own scoped task
+  plus supply-chain review before adoption. Stated here as a candidate rule,
+  not a gate decision.
+- Crate-level deny-all defaults (candidate): the shell would carry no ambient
+  authority by construction, composing the fail-closed primitives surveyed in
+  [Call-site inventory](#call-site-inventory-prospective) (deny-by-default
+  dispatch, fail-closed selection, lease-checked writes) behind one choke
+  point, so an empty shell would grant nothing.
+- Seam skeleton, module listing only (candidate names, zero behavior): the
+  shell would contain empty module declarations only — names without
+  signatures, logic, or wiring — for the seams a later phase could traverse:
+  provider registry; model selection; ToolBus and dispatch; context
+  providers; extension-registry wiring; cache and disclosure primitives; MCP
+  placement. Each name points at the corresponding seam in
+  [Call-site inventory](#call-site-inventory-prospective) and at the Phase 2
+  backlog in [Migration plan](#migration-plan); per-seam behavior stays with
+  separately scoped Phase 2 tasks.
+
+### Gate from day one (candidate)
+
+- The shell would enter the same quality posture as its sibling crates from
+  its first commit (candidate): formatting, `clippy` with denied warnings,
+  tests, and dependency deny/audit checks, wired into the `bitty-ai`
+  repository's `just check` and CI the way sibling crates are.
+- Durable posture (candidate): the shell would create no durable path,
+  consistent with the v0.1 ephemeral profile in
+  [Release profile and AIQ-5C disposition](persistence-profile-r6.md#release-profile-and-aiq-5c-disposition)
+  and [v0.1 non-goals](../product/implementation-profile-v0.1.md#v01-non-goals);
+  any durable store would need its own scoped task and gates.
+
+### Red lines inherited (by reference, not restated)
+
+- `bitty-agent` no-selection, no-model-I/O, no-keys rule: see the
+  [R1 registry-ownership disposition](execution-ownership-r1.md#mp-1-registry-ownership-versus-ba-2-agent-versus-ai-split-and-ba-3-bridge-process-model-disposition).
+- BA-6 pressure-test gate: see
+  [Sub-platform staging](ai-architecture.md#sub-platform-staging-proposed).
+- No ambient authority: see the isolation rule in the
+  [provider boundary security review](../providers/provider-plugin-boundary.md#security-review)
+  and the draft op families in
+  [Scoped helper IPC surface](execution-ownership-r1.md#scoped-helper-ipc-surface-draft).
+- Secrets never in errors, logs, or traces: see the
+  [Secret invariant](../providers/provider-plugin-boundary.md#secret-invariant)
+  and the
+  [AIQ-5A disposition](../product/ai-unresolved-questions.md#aiq-5a-disposition-local-draft-only).
+
+### Explicitly open (no choice made here)
+
+- S-1 versus S-2 registry-split choice: stays open under AIQ-38 with the
+  architecture owner deciding; see
+  [R1 open points](execution-ownership-r1.md#open-points) and the
+  [AIQ-38 note](../product/ai-unresolved-questions.md#aiq-38-note-local-draft-only).
+- DEC-0004 acceptance: still requires the architecture category owner, the
+  docs curator, and a security reviewer; see
+  [Acceptance criteria](#acceptance-criteria).
+- `LocalEndpoint` route question: stays open; see the Phase 2 backlog in
+  [Migration plan](#migration-plan) and the
+  [Transport taxonomy proposal](../providers/provider-plugin-boundary.md#transport-taxonomy-proposal).
+- Per-seam behavior: stays with the Phase 2 backlog in
+  [Migration plan](#migration-plan), extended here by reference only — this
+  section adds no per-seam item and rewrites none.
+
+This record grants no implementation permission beyond the shell skeleton
+described above.
+
 ## Acceptance criteria
 
 This document is a draft candidate design. It is unaccepted, it closes no
