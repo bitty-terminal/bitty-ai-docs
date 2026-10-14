@@ -245,6 +245,54 @@ Pointers:
 - Release-scope sequencing stays in
   [v0.1 Implementation Profile](../product/implementation-profile-v0.1.md).
 
+## Candidate: unified authorization backend and host consent ledger (2026-10-14, S3 unblock for AI-0280)
+
+This subsection records a candidate without closing any entry, minting
+any identifier, selecting any mechanism as accepted, or claiming
+implemented behavior. It uses no Closed wording and makes no R2
+acceptance claim. AIQ-33, AIQ-36, AIQ-37, AIQ-38, and AIQ-08 all stay
+open; the draft disposition above is retained unchanged. The future
+AI-0280 S3 work would implement against this candidate surface; nothing
+here describes shipped behavior.
+
+- **Backend placement (candidate).** The unified authorization backend
+  would sit host-side behind scoped IPC. The terminal would hold no
+  consent ledger and would evaluate no grant; it would forward the call
+  envelope across the host boundary and honor the host verdict. This
+  preserves the terminal host boundary rule above: terminal-owned
+  effects pass only through scoped IPC or the bridge process model,
+  and native placement never means AI code in the terminal process.
+- **Same-position check on both paths (candidate).** Native dispatch
+  and MCP dispatch would check the same authorizer-then-consent step at
+  the same gate position: after authenticated principal, ToolSpec and
+  schema version resolution, and caller, target, and generation
+  authorization, and before budget reservation, placed dispatch,
+  redaction, and attributed outcome. The two paths would share one
+  backend, one ledger, and byte-identical `Denied` reasons; the path
+  would carry the effect after every gate has passed and would never
+  grant authority or widen scope on unavailability.
+- **Ledger shape (candidate).** The host consent ledger would hold only
+  exact `(protocol, tool, scope)` triples. Each triple would carry an
+  absolute expiry. Refresh would renew expiry only and would never grow
+  scope or add triples. The ledger would be bounded: admission beyond
+  the bound would fail closed with a typed `LedgerFull` denial and no
+  partial grant. Revocation would be immediate: a revoked triple would
+  detach at the next dispatch boundary, so a call admitted moments
+  earlier would still be denied. Expired entries would leave through an
+  explicit `drain_expired` step and would never authorize after expiry.
+- **Turn-scoped batch (candidate).** A turn-scoped batch would be N
+  exact triples, never a wildcard and never an allow-all variant. No
+  allow-all grant shape is proposed here; a request needing broader
+  authority would need separately ledgered triples, each with its own
+  expiry, rather than a widened pattern.
+- **S3 implementation surface (candidate).** The future AI-0280 S3
+  implementation would carry the required triples in the dispatch
+  envelope and evaluate them at dispatch `now_ms` against the live host
+  ledger, with no caching of grant decisions across dispatches. A
+  triple missing, expired, revoked, scoped to a different target, or
+  removed by `drain_expired` at evaluation time would deny with the
+  shared `Denied` reason and no partial state, on either path.
+
 ## Verification plan
 
 A future implementation claiming this disposition must show, at minimum:
