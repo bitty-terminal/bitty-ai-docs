@@ -412,6 +412,17 @@ vehicle, closes no AIQ or OQ entry, changes no entry status, mints no new
 identifier, and claims no implemented or measured behavior. Where any sentence
 here conflicts with a normative source, the normative text wins.
 
+### MCP placement policy (candidate, 2026-10-14)
+
+This subsection proposes an MCP placement policy candidate against the
+unified authorization backend in
+[Tool transport R2](../architecture/tool-transport-r2.md) by reference,
+without changing that disposition. It is a candidate direction, not an
+accepted decision: it proposes no crate, package, API, command, or release
+vehicle, closes no AIQ or OQ entry, changes no entry status, mints no new
+identifier, and claims no implemented or measured behavior. Where any sentence
+here conflicts with a normative source, the normative text wins.
+
 Scope vocabulary would stay narrow and reuse existing authority. Caller identity
 would reuse the established caller triple shape (protocol, instance, session)
 without introducing a new authentication primitive; authentication, consent, and
@@ -436,6 +447,34 @@ host — never the adapter — would apply the filter before selection and
 provider I/O. The echo would be observation data, not authority. The exact
 envelope field, error-variant shape, and S3 acceptance evidence would stay
 open.
+
+Route decision would stay with the unified backend at registration review
+time, never with the adapter, the model, or the caller. Each tool registry
+entry would declare an explicit placement (`mcp` or `native`) plus, for a
+`native` declaration, the name of the reviewed backend that mediates the
+effect and the recorded reason MCP is insufficient; a bare performance
+preference would stay not a reason. The set of acceptable backends would stay
+a review list owned outside this document; a placement naming an unknown or
+unlisted backend, or carrying no placement declaration at all, would fail
+closed with a typed refusal and no dispatch, no fallback to the other path,
+and no partial state. Transport kind (`HttpApi`, `LocalEndpoint`,
+`CliHarness`, `ManagedAccount`, `Router`) would never double as tool
+placement, and provider adapters would stay behind the same backend, never a
+second authorization path.
+
+Placement vocabulary would stay data-only until this policy is accepted. The
+`mcp`/`native` labels and backend names in registry entries would declare
+intent only: they would grant no authority, widen no consent, and move no
+provider or tool I/O by themselves. AIQ-36 would stay open whether or not
+this candidate is accepted; acceptance would belong to reviewers through the
+canonical admission rule, not to this task.
+
+The future S3 work tracked under AI-0284 would implement against this
+candidate, if accepted, as a deny-all placement-policy stub evaluated
+host-side at dispatch: every placement would deny with a typed refusal until
+its backend is reviewed and listed. The stub would perform no routing, select
+no model, and move no provider I/O. The exact stub shape, refusal-variant
+shape, and S3 acceptance evidence would stay open.
 
 ## Secret invariant
 
