@@ -399,6 +399,44 @@ AIQ-36, AIQ-38, AIQ-5A, and OQ-054/OQ-055; this file admits no task-level
 minting, so the owner numbers any future identifier and this candidate stays
 explicitly unnumbered.
 
+### MP-4 caller-scope filter (candidate, 2026-10-14)
+
+This subsection proposes a caller-scope filter candidate against the MP-4
+deferred surface (capabilities, streaming, and cancellation deferred as trait
+operations in [v0.1 interface freeze](#v01-interface-freeze-ai-0135), as
+consolidated in
+[Provider-routing doctrine](#provider-routing-doctrine-candidate-2026-10-11))
+by reference, without changing that surface. It is a candidate direction, not
+an accepted decision: it proposes no crate, package, API, command, or release
+vehicle, closes no AIQ or OQ entry, changes no entry status, mints no new
+identifier, and claims no implemented or measured behavior. Where any sentence
+here conflicts with a normative source, the normative text wins.
+
+Scope vocabulary would stay narrow and reuse existing authority. Caller identity
+would reuse the established caller triple shape (protocol, instance, session)
+without introducing a new authentication primitive; authentication, consent, and
+budget gates would stay with the existing IPC and `ai.provider` controls. A
+scope string would propose a bounded, printable-ASCII, slash-separated name
+shape with a closed character set and a stated length ceiling; an empty,
+overlong, or out-of-grammar value would stay invalid. The exact grammar,
+ceiling, and registry-field placement would stay open.
+
+Filter semantics would be intersection-only narrowing with deny-by-default. The
+unfiltered registry snapshot would stay preserved as-is; a filtered view would
+be a subset of that snapshot for the same dispatch `now_ms` and never wider.
+Adding a scope would never widen visibility: the effective view would be the
+intersection of the snapshot and the requested scopes. An unknown scope would
+fail closed with a typed refusal carrying names only (requested scope names and
+applicable registry entry names), never credential values or raw vendor text.
+
+The future S3 work tracked under AI-0278/AI-0279 would implement against this
+candidate, if accepted, with enforcement staying host-side at dispatch
+`now_ms`: the request envelope would carry a scope echo for audit, while the
+host — never the adapter — would apply the filter before selection and
+provider I/O. The echo would be observation data, not authority. The exact
+envelope field, error-variant shape, and S3 acceptance evidence would stay
+open.
+
 ## Secret invariant
 
 > **A model can use credentials; a model must never see credentials.**
