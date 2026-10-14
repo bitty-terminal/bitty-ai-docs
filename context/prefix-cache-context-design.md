@@ -377,6 +377,48 @@ slice-harness chain are compatible starting points, not evidence for the
 remaining proposals. No claim here describes sibling behavior beyond what was
 read.
 
+## Candidate cache admission rules
+
+> Candidate proposal. This section proposes deny-all admission rules for a
+> future cache hint path. It mints no identifiers, closes nothing, describes
+> no implemented behavior, and reports no measured reuse. AIQ-13 stays open.
+
+This candidate presupposes the two standing judgments above:
+stable-before-dynamic ordering (stable content precedes dynamic content) and
+provider-scoped keys (a usable key always includes provider identity, with no
+cross-provider key-value reuse), as stated under
+[Provider qualifications](#provider-qualifications). Admission would operate
+inside those bounds and would not change dispatch authorization, consent,
+budget, redaction, or deletion propagation.
+
+The proposed admission rule is deny-all by default:
+
+- A cache hint would be honored only on exact key, scope, and fingerprint
+  equality. Key covers provider-scoped identity, scope covers the reuse
+  boundary for the turn or session, and fingerprint covers the stable-prefix
+  content admitted under the layering above.
+- A miss or a foreign key would recompute from authorized sources and would
+  never widen authority to make reuse succeed. Identical bytes under a
+  different provider, model, scope, or fingerprint would compare unequal.
+- Equality alone would not authorize reuse. A separate candidate admission
+  handle would still be required before any cached entry could be read, so
+  there would be no auto-reuse on equality.
+- Any path not meeting all of the above would deny reuse. Deny-all is the
+  default outcome, not a fallback.
+
+Gate relationship: this candidate admission rule would be necessary but not
+sufficient for closing AIQ-13. Closing AIQ-13 would still require measured
+prefix reuse plus reviewer acceptance under the register entry in
+[AI Unresolved Questions](../product/ai-unresolved-questions.md), and this
+document records no such measurement or acceptance. AIQ-13 stays open, and
+this section closes nothing.
+
+Interface direction for future work: the future AI-0283 S3 increment would
+implement against this candidate by carrying keys only in hint envelopes,
+while the admission decision itself would stay a deny-all stub. That stub
+would describe the envelope shape and the deny-all outcome only; it would
+claim no caching benefit, no hit-rate result, and no routing behavior.
+
 ## Security review
 
 This proposal must not contradict P0-AC-026, PP-2, or PP-4:
