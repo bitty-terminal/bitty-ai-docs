@@ -387,6 +387,68 @@ wins.
 This record grants no implementation permission beyond the shell skeleton
 described above.
 
+## Extension activation policy (candidate extension of the Phase 2 backlog)
+
+This section extends the Phase 2 per-seam backlog in
+[Migration plan](#migration-plan) step 4 by reference only: it records the
+candidate activation policy the extension-registry wiring item would carry.
+It adds no per-seam item beyond that policy stub, rewrites no backlog entry,
+and grants no implementation permission. It is a candidate proposal only: it
+mints no identifier, closes no AIQ or OQ entry, and claims no implemented
+behavior. Where any sentence here conflicts with a normative source, the
+normative text wins.
+
+### Candidate activation sequence
+
+A candidate point activation would run strictly after the R2 gate order in
+[Tool transport R2](tool-transport-r2.md#decision), in this candidate order:
+
+```text
+grant parse -> authorization -> tool registration -> consent evaluation
+```
+
+Each step would be a precondition for the next, and the sequence would start
+only after the R2 gates have passed. A point declaration (one of the eight
+declaration-only point traits surveyed in
+[Call-site inventory](#call-site-inventory-prospective) Seam 1) would never
+substitute for ToolSpec registration, authorizer grant, or the consent
+triple: the declaration would name the capability shape, while registration,
+grant, and consent evaluation would each remain a separate check owned by the
+R2 backend.
+
+### Deny-all activation stub (candidate shape)
+
+The candidate stub shape would be deny-all: no auto-activate, explicit
+enable per point, and fail-closed on an unknown point:
+
+```rust
+// Illustrative sketch only: candidate deny-all activation stub, not product code.
+enum CandidateActivation {
+    Enabled,
+    Denied,
+}
+
+fn activate_candidate(point: &str, explicitly_enabled: &[&str]) -> CandidateActivation {
+    if explicitly_enabled.contains(&point) {
+        CandidateActivation::Enabled
+    } else {
+        CandidateActivation::Denied
+    }
+}
+```
+
+An empty enable list would therefore deny every point, and a point name the
+stub does not recognize would deny rather than enable. The stub would carry
+policy only; it would perform no registry lookup and no resolution.
+
+### What the future AI-0282 S3 would implement against
+
+The future AI-0282 S3 extension-registry work would implement against this
+policy stub as its gating contract: activation order, deny-all default, and
+per-point explicit enable. Registry population and point resolution behavior
+would stay with that separately scoped task; this section defines the policy
+stub only and specifies no registry or resolution behavior here.
+
 ## Acceptance criteria
 
 This document is a draft candidate design. It is unaccepted, it closes no
