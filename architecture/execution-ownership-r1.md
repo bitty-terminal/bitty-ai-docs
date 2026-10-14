@@ -311,6 +311,69 @@ pattern as read-only reference. The lean changes no status, closes no
 identifier, and grants no implementation permission; the choice needs
 architecture-owner review under AIQ-38.
 
+### AIQ-38 S-1/S-2 options and recommendation (candidate, 2026-10-14)
+
+This candidate extends the S-1/S-2 open text above without changing it. It
+mints no identifier, closes nothing, and grants no implementation permission.
+AIQ-38 stays open and the choice needs architecture-owner review. Nothing here
+claims implemented behavior; both options are candidate readings only.
+
+- **Exact split (candidate reading).**
+  - **S-1 (metadata-only terminal registry).** The terminal side would keep a
+    generic, read-only service-metadata snapshot only: provider and model
+    names, declared capabilities, and routing facts, validated at registration
+    and tagged with a registry version. It would mediate authorized requests
+    through scoped request envelopes and handle mediation at the IPC boundary,
+    enforcing scopes, consent, and budgets there. Registry implementation,
+    selection-policy execution, provider I/O, and credentials would stay
+    helper-side as the authoritative registry.
+  - **S-2 (protocol-only terminal side).** The terminal side would keep no
+    registry state and no snapshot. Every AI request would be forwarded over
+    scoped IPC to the helper through generic request envelopes, with the
+    helper owning registry, selection, and I/O. The terminal side would still
+    enforce scopes, consent, and budgets at the IPC boundary and would still
+    expose no AI-specific API beyond generic primitives.
+  - In both readings, request envelopes and dispatch handles live at the
+    boundary; registry authority and snapshots do not: only S-1 keeps a
+    versioned snapshot, and neither option places provider implementation,
+    selection execution, or credentials on the terminal side.
+- **Deciding evidence (what the owner would compare).**
+  - **Post-dispatch `Unknown` reconciliation across IPC.** Under S-1, an
+    `Unknown` outcome could cite the snapshot version plus the request envelope
+    identifier, giving status inspection a stable correlator on both sides of
+    the boundary. Under S-2, reconciliation would correlate by envelope
+    identifier alone with no local snapshot version, so every retry or status
+    check would depend on a helper round trip for current registry facts.
+  - **Consent and budget ledger placement.** Both options keep enforcement at
+    the IPC boundary with helper-side pre-I/O gates and terminal-side
+    per-client quotas, consistent with the budget and consent handoffs above.
+    S-1 would let boundary checks cite a pinned snapshot version for audit;
+    S-2 would cite only the forwarded envelope, keeping one fewer versioned
+    artifact in the audit trail at the cost of no local routing context.
+  - **No state duplication.** S-2 duplicates nothing by construction. S-1
+    duplicates metadata by design and is acceptable only while the snapshot
+    stays read-only, versioned, credential-free, and never used for selection
+    execution or model I/O.
+  - **Drift and invalidation needs.** S-2 needs no invalidation path. S-1
+    would need one: a defined invalidation or refresh on helper registry
+    change, plus fail-closed behavior on stale or missing snapshot versions so
+    a drifted view cannot authorize or route as if current.
+- **Candidate recommendation (lean, not a verdict).** The candidate lean is
+  toward S-1 with a versioned, read-only, fail-closed snapshot, because it
+  keeps boundary enforcement auditable against a pinned version, makes drift
+  explicit through a required invalidation path, and gives `Unknown`
+  reconciliation a stable correlator without duplicating registry authority,
+  selection, I/O, or credentials. S-2 remains viable where zero terminal-side
+  registry state is preferred over those audit and correlation benefits. The
+  lean changes no status, closes no identifier, and grants no implementation
+  permission; the architecture owner accepts, rejects, or redirects it under
+  AIQ-38.
+- **Red lines (by reference, unchanged).** The red lines in the MP-1 versus
+  BA-2/BA-3 disposition above stay unchanged: `bitty-agent` performs no model
+  selection, no model I/O, and no API-key handling; the terminal side never
+  loads AI code in-process; every effect still passes caller and target
+  authorization, consent, budgets, redaction, and attributed outcomes.
+
 ## Acceptance criteria
 
 - Draft owner: CTX-0009 implementer (`ai-docs-ctx0009-impl`).
