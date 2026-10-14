@@ -197,6 +197,61 @@ Pointers:
 - Persistence-scope follow-up returns as CTX-0014 (R6), which depends on this
   R3 disposition and is not decided here.
 
+## Candidate: retention classes and durable scope for usage rows
+
+This section records a candidate without minting any identifier, closing
+any register entry, authorizing any shipped behavior, or claiming any
+implemented behavior. It extends the consent-bounded retention disposition
+above and proposes no change to the frozen backend, replay-mechanics, or
+release-scope choices.
+
+- **Retention classes (candidate).** This candidate distinguishes two
+  retention classes for usage and observation rows: consented digest-only
+  usage rows held under the durable-scope bound below, and transient
+  observation rows held only in the bounded in-memory session with no
+  durability promise. Both classes would retain only what is authorized,
+  redacted, and still retained; anything missing, expired, deleted, or
+  never recorded would resolve as typed unavailable with an explicit
+  reason, never as silently recovered bytes.
+- **Bounded prune in transaction (candidate).** Each class would carry an
+  explicit row cap at ring scale. When a new row arrives at a full bound,
+  the oldest rows would be deleted in the same transaction as the insert.
+  This candidate proposes no background scheduler, no deferred collection
+  pass, and no unbounded growth.
+- **Hard delete and export exclusion (candidate).** Pruned rows would be
+  hard-deleted, leaving only permitted absence metadata consistent with
+  the tombstone posture above. Pruned, expired, or deleted rows would be
+  excluded from export, backup, snapshot, replay, and debugging surfaces
+  by construction, so no export or backup path would resurrect content
+  outside the surviving authorized set.
+- **Durable scope (candidate).** The durable projection would be a single
+  isolated usage_log-class file holding digest-only columns only:
+  identifiers, scope labels, timestamps, outcome axes, bounded reason
+  text, and digests. It would hold no raw argument bytes, no
+  working-directory bytes, no summaries, no result bytes, and no secrets.
+  The file would be user-only (`0600`) with fail-closed behavior when
+  mode enforcement or consent or redaction machinery is unavailable. The
+  constructor surface would be open_durable-only, plus open_in_memory for
+  tests, with no other file-backed constructor proposed for this file.
+  Consent, minimization, pre-queue and pre-write redaction, and export
+  preview from the consent contract above would apply unchanged.
+- **What stays gated (candidate).** The Wheel triple would stay
+  DurableGated under the CTX-0146 pre-approved post-v0.1 durable
+  usage_log shape, which this candidate takes as its durable-scope
+  reference without restating or widening it. This candidate proposes no
+  second durable path and no change to any gated constructor posture.
+- **What a future AI-0281 S3 would implement against (candidate).** A
+  future AI-0281 S3 slice, if scoped, would implement against the
+  retention handle (explicit cap plus in-transaction oldest-delete with no
+  scheduler) and the ledger shape (digest-only columns, hard-delete
+  semantics, export and backup exclusion, typed unavailable disclosure)
+  described here. Backend selection, index options, replay mechanics, and
+  release profile would stay frozen and deferred as stated above; this
+  candidate selects none of them.
+
+This candidate changes the status of no register entry and claims no
+implemented behavior.
+
 ## Verification plan
 
 A future implementation claiming this disposition must show, at minimum:
