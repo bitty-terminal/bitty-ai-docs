@@ -292,10 +292,12 @@ This document changes the status of no register entry:
 - AIQ-2A (no-UI execution feature profile) stays a scope choice. Bounded work
   versus persistent services needs explicit profile selection.
 - AIQ-38 (generic execution and registry ownership across repositories) stays
-  a prerequisite. BA-2 and BA-3 are preserved; the exact split is narrowed to
-  options S-1 and S-2 above with the deciding evidence named, and the choice
-  needs architecture-owner review. Transport selection (native versus MCP
-  placement) stays open under AIQ-36 and AIQ-38.
+  a prerequisite for its still-open facets. BA-2 and BA-3 are preserved; the
+  S-1/S-2 registry-split facet is decided — S-1 adopted, S-2 archived as a
+  considered-and-archived alternative — per the Ruling (2026-10-15) below,
+  which also settles the helper-liveness prerequisite (resident singleton).
+  Transport selection (native versus MCP placement) and every other AIQ-38
+  facet stay open under AIQ-36 and AIQ-38.
 
 Promotion of any of these identifiers requires the canonical admission rule
 cited by [AI Unresolved Questions](../product/ai-unresolved-questions.md).
@@ -373,6 +375,40 @@ claims implemented behavior; both options are candidate readings only.
   selection, no model I/O, and no API-key handling; the terminal side never
   loads AI code in-process; every effect still passes caller and target
   authorization, consent, budgets, redaction, and attributed outcomes.
+
+### Ruling (2026-10-15)
+
+Acting architecture owner under 2026-10-15 user delegation (prior owners
+departed). This ruling records a decision; it grants no implementation
+permission beyond the decided record and claims no implemented behavior. It
+closes ONLY the S-1/S-2 registry-split facet of AIQ-38; every other AIQ-38
+facet stays open. The S-1/S-2 option definitions above are unchanged as
+historical record.
+
+- **Adopted: S-1 (metadata-only terminal registry) with a resident singleton
+  helper.** The terminal side keeps a read-only, versioned service-metadata
+  snapshot (provider/model names, declared capabilities, routing facts),
+  credential-free, never used for selection execution or model I/O. Registry
+  implementation, selection execution, provider I/O, and credentials stay
+  helper-side.
+- **Invalidation/refresh path REQUIRED with fail-closed behavior.** A defined
+  invalidation/refresh path is required, with fail-closed behavior on stale or
+  missing snapshot versions (AI-0211 deny-stale pattern as read-only
+  reference), so a drifted snapshot view cannot authorize or route as if
+  current.
+- **Helper liveness settled: resident singleton.** On-demand spawn would have
+  forced S-2; the resident singleton prerequisite is settled in favor of S-1.
+- **S-2 archived as a considered-and-archived alternative.** Revisit clause:
+  if a resident helper proves infeasible in implementation, S-2 may be revived
+  only by a new ruling.
+- **Rationale.** Post-dispatch `Unknown` reconciliation gets a stable
+  snapshot-version + envelope-id correlator on both sides; consent/budget
+  boundary checks can cite a pinned snapshot version for audit; the
+  duplication cost is bounded (read-only metadata + one proven invalidation
+  pattern).
+- **Cross-links.** bitty-ai-docs#277 (ruling request); bitty-ipc#21 (Q2
+  answered: S-1 adopted; the snapshot-version + envelope-id correlator lands
+  later as an optional params field).
 
 ## Acceptance criteria
 

@@ -21,7 +21,8 @@ AIQ-01 snapshot-stream, window-budget, compiled-ingest, and three-zone context c
 store-propagation, AIQ-59 runtime-bounded-reconcile, AIQ-10/AIQ-56 task-dag, batch dependency retrieval, and lifecycle engine, AIQ-27 cycle-detection and topological ordering,
 AIQ-37 runtime/slice-side outcome-vocabulary, action protocol, auto-spillover, and stdio IPC runner,
 and AIQ-24/AIQ-25 single-hop whole-batch admission, AIQ-5A container-level redaction,
-AIQ-51 content-addressed store, and AIQ-53 SQLite backend facets (Closed(partial)); no accepted global decision is made here.
+AIQ-51 content-addressed store, and AIQ-53 SQLite backend facets (Closed(partial)), and the
+AIQ-38 S-1/S-2 registry-split facet (Closed, S-1 adopted 2026-10-15); no accepted global decision is made here.
 
 ## Disposition
 
@@ -756,12 +757,29 @@ as part of those inspections beyond this register.
 
 ### AIQ-38 note (local draft only)
 
-This note records a candidate without closing any facet. It sets
-no owners or milestones, grants no global promotion, mints no new
-identifier, and uses no Closed wording.
+This note records the S-1/S-2 registry-split facet as Closed with the evidence
+pointer below; every other facet stays a candidate with nothing further
+closed. It sets no owners or milestones, grants no global promotion, mints no
+new identifier, and uses Closed wording only for the S-1/S-2 registry-split
+facet.
 
-- **AIQ-38 — stays open; bitty-agent vocabulary converge-vs-archive decision
-  recorded as a candidate, unnumbered facet; no facet closed.** Placement, as a
+- **AIQ-38 — S-1/S-2 registry-split facet Closed; every other AIQ-38 facet
+  stays open.** Closed choice: S-1 (metadata-only terminal registry) adopted
+  with a resident singleton helper; S-2 archived as a considered-and-archived
+  alternative, revivable only by a new ruling. The terminal-side snapshot stays
+  read-only, versioned, credential-free, and never used for selection execution
+  or model I/O; a defined invalidation/refresh path with fail-closed behavior
+  on stale or missing snapshot versions is required. Evidence: Ruling
+  (2026-10-15) in [Execution ownership R1](../architecture/execution-ownership-r1.md),
+  rendered by the acting architecture owner under 2026-10-15 user delegation
+  (prior owners departed). Cross-links: bitty-ai-docs#277 (ruling request);
+  bitty-ipc#21 (Q2 answered: S-1 adopted; the snapshot-version + envelope-id
+  correlator lands later as an optional params field). Scope: this closes only
+  the S-1/S-2 facet; the placement, vocabulary, pin-route, and
+  mechanism-selection facets below stay open with no owners or milestones
+  assigned and no global promotion granted.
+- **AIQ-38 — still-open facets; bitty-agent vocabulary converge-vs-archive decision
+  recorded as a candidate, unnumbered facet.** Placement, as a
   candidate choice: this note sits under AIQ-38 because that row already owns
   generic execution and registry ownership across repositories under the BA-2/BA-3
   prerequisite, so the architecture spine in `architecture/ai-architecture.md` and
