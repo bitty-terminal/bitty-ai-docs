@@ -4,18 +4,18 @@ description: Draft candidate design for Core versus Lua enforcement through a Ho
 category: specifications
 audience: contributor
 document_type: specification
-status: draft
+status: accepted
 website_publish: false
 sidebar_order: 57
 ---
 
 # HostBoundary trait and lint-gate design
 
-> Status: **draft**. This document is a candidate design for owner decision
-> DEC-0004 (AIQ-31 facets (a) and (b)): enforcement of the Core versus Lua
-> split through a Rust `HostBoundary` trait plus a lint gate. It proposes no
-> accepted architecture, authorizes no shipped behavior, closes no Artificial
-> Intelligence Question entry, mints no AIQ or OQ identifier, introduces no
+> Status: **accepted** (DEC-0004, 2026-10-15). This document records the
+> accepted direction for AIQ-31 facets (a) and (b): enforcement of the Core
+> versus Lua split through a Rust `HostBoundary` trait plus a lint gate. It
+> authorizes no shipped behavior, closes no Artificial Intelligence Question
+> or open-question entry, mints no AIQ or OQ identifier, introduces no
 > product code, and changes no accepted document. The accepted
 > [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and the normative security corpus
 > override any statement here. Every call-site anchor below is read-only
@@ -41,6 +41,26 @@ denial), the Lua-versus-Core candidate design in the
 (mechanism in Rust, Lua decides how, never whether), and the readiness note in [RFC-split
 readiness](../integration/rfc-split-readiness.md) that Core/Lua enforcement stays open under
 AIQ-31.
+
+## Normative sources
+
+The accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and the
+normative security corpus override any statement here. Design inputs that
+this document revises nothing of: [Execution ownership
+R1](execution-ownership-r1.md), [Tool transport R2](tool-transport-r2.md),
+the [provider plugin boundary](../providers/provider-plugin-boundary.md),
+the [Command and Tool Architecture](command-tool-architecture.md), and the
+[Lua and Core safety boundary
+candidate](../specifications/lua-core-safety-boundary-candidate.md).
+
+## Terminology
+
+This document defines no new glossary terms: `HostBoundary`, binding crate,
+lint gate, shell skeleton, and the `*View` / `AuthProof` / `LeaseProof`
+sketch names are placeholders scoped to this design. Shared vocabulary
+(registry, snapshot, envelope, scope, consent, budget) follows [Execution
+ownership R1](execution-ownership-r1.md) and the accepted [IPC and Agent
+RFC](../specifications/ipc-agent-rfc.md).
 
 ## Call-site inventory (prospective)
 
@@ -206,6 +226,9 @@ What the trait does not cover:
 - Host policy. Budgets, consent scope evaluation, capability grants, and
   redaction stay with the R2 unified authorization backend, MP-10, and the
   security corpus; the trait carries an `AuthProof`, it never mints one.
+  Forward condition: when the view, `AuthProof`, and `LeaseProof` types are
+  defined for real, views must be credential-free and `AuthProof` must be
+  host-minted, opaque, and unforgeable by binding or plugin code.
 - Transport and presentation. Wire framing, Panel projection, and rendering
   stay with the accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) and AIQ-29;
   the trait returns outcome views, never pixels or wire bytes. The draft
@@ -307,10 +330,11 @@ This section records the candidate scope of the Phase 1 step named in
 [Migration plan](#migration-plan) step 3: what a shell-only
 `crates/bitty-ai-host` crate inside the `bitty-ai` repository would contain
 and what it would exclude. It is draft direction only: it proposes no
-behavior, authorizes no implementation beyond the shell skeleton, closes no
-AIQ or OQ entry, mints no identifier, and changes no accepted document.
-Where any sentence here conflicts with a normative source, the normative text
-wins.
+behavior, authorizes no implementation, closes no AIQ or OQ entry, mints no
+identifier, and changes no accepted document. Acceptance records direction
+only; even the shell skeleton described below exists solely by a separately
+scoped task. Where any sentence here conflicts with a normative source, the
+normative text wins.
 
 ### What the shell would contain
 
@@ -370,22 +394,13 @@ wins.
 
 ### Explicitly open (no choice made here)
 
-- S-1 versus S-2 registry-split choice: stays open under AIQ-38 with the
-  architecture owner deciding; see
-  [R1 open points](execution-ownership-r1.md#open-points) and the
-  [AIQ-38 note](../product/ai-unresolved-questions.md#aiq-38-note-local-draft-only).
-- DEC-0004 acceptance: still requires the architecture category owner, the
-  docs curator, and a security reviewer; see
-  [Acceptance criteria](#acceptance-criteria).
-- `LocalEndpoint` route question: stays open; see the Phase 2 backlog in
-  [Migration plan](#migration-plan) and the
-  [Transport taxonomy proposal](../providers/provider-plugin-boundary.md#transport-taxonomy-proposal).
-- Per-seam behavior: stays with the Phase 2 backlog in
-  [Migration plan](#migration-plan), extended here by reference only — this
-  section adds no per-seam item and rewrites none.
+The items left open by this section now live at top level; see
+[Open points](#open-points). This section adds no per-seam item and rewrites
+none.
 
-This record grants no implementation permission beyond the shell skeleton
-described above.
+This record grants no implementation permission: acceptance records
+direction only, and even the shell skeleton described above exists solely by
+a separately scoped task.
 
 ## Extension activation policy (candidate extension of the Phase 2 backlog)
 
@@ -449,11 +464,93 @@ per-point explicit enable. Registry population and point resolution behavior
 would stay with that separately scoped task; this section defines the policy
 stub only and specifies no registry or resolution behavior here.
 
+## Security review
+
+Security-lens verdict (2026-10-15, note PX-0568): APPROVE-WITH-NITS — no
+normative control weakened; deny-all defaults hold; enforcement placement is
+consistent with the R2 gate order; no new attack surface. The two conditions
+are recorded in this document: Phase 2 registry/snapshot wiring carries the
+R1 snapshot constraints (see [Open points](#open-points)), and the
+view/`AuthProof` forward condition above (see `What the trait does not
+cover`). Threat substance stays owned by the security lens.
+
+## Verification plan
+
+- Three-lens review actually performed on 2026-10-15: architecture lens
+  (note PX-0566), docs-curator lens (note PX-0567), security lens (note
+  PX-0568); findings addressed before acceptance (see [Acceptance
+  criteria](#acceptance-criteria)).
+- Repository gates: `just check` green (formatting, lint, links, metadata,
+  language, hygiene). This repository holds no product code, so no test suite
+  applies to this document.
+- Fail-closed behavior stays with the gate definition above; semantic
+  confinement stays with review and the trait bound.
+
+## Alternatives considered
+
+- Convention-only enforcement (rejected): a "call the right function"
+  convention is checked only by reading the diff, while a trait bound is
+  checked on every build, so a future Lua binding crate can hold a
+  `&dyn HostBoundary` and the compiler rejects bypass paths.
+- Trait-first migration order (rejected): the lint gate lands first because
+  it is cheap, immediate, and ratchets every future host or Lua binding crate
+  from day one.
+- S-2 protocol-only terminal side (archived): the registry-split alternative
+  to the adopted S-1, archived per the [R1
+  ruling](execution-ownership-r1.md#ruling-2026-10-15); revived only by a new
+  ruling.
+
+## Affected contracts
+
+Inputs only, unrevised: [Execution ownership R1](execution-ownership-r1.md),
+[Tool transport R2](tool-transport-r2.md), the [provider plugin
+boundary](../providers/provider-plugin-boundary.md), the [Command and Tool
+Architecture](command-tool-architecture.md), the [Lua and Core safety
+boundary
+candidate](../specifications/lua-core-safety-boundary-candidate.md), and the
+accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) — none
+revised by this document. The `bitty-ai` implementation at `97d3125` was
+surveyed read-only. No AIQ or OQ entry is closed by this acceptance.
+
+## Open points
+
+- S-1 adopted by reference: the S-1 versus S-2 registry-split facet is
+  decided — S-1 adopted, S-2 archived — per the [R1
+  ruling](execution-ownership-r1.md#ruling-2026-10-15); no trait change was
+  needed. Phase 2 backlog items touching registry or snapshot wiring
+  (extension-registry wiring, MCP placement per AIQ-36/AIQ-38) must carry the
+  R1 snapshot constraints (read-only, versioned, credential-free, never used
+  for selection execution or model I/O) plus the required invalidation path
+  and fail-closed-on-stale behavior as their acceptance criteria.
+- `LocalEndpoint` route question: stays open; see the Phase 2 backlog in
+  [Migration plan](#migration-plan) and the [Transport taxonomy
+  proposal](../providers/provider-plugin-boundary.md#transport-taxonomy-proposal).
+- Per-seam behavior: stays with the Phase 2 backlog in
+  [Migration plan](#migration-plan); each item is a separately scoped task.
+- Review facet: human review policy for promotions and new seams stays with
+  AIQ-32 and AIQ-34 and is not claimed here.
+
 ## Acceptance criteria
 
-This document is a draft candidate design. It is unaccepted, it closes no
-AIQ or OQ entry (AIQ-31 stays open, as do AIQ-32 through AIQ-38 where
-referenced), and it mints no new identifier. The accepted
+Status: ACCEPTED as DEC-0004 (2026-10-15). Three independent review lenses
+each approve — none the author — acting under 2026-10-15 user delegation
+with the prior category roles vacant:
+
+- Architecture lens: APPROVE after FIX-1 (shell-skeleton authorization
+  harmonized to direction-only) and FIX-2 (S-1 recorded adopted by reference,
+  no trait change) — verdict note PX-0566.
+- Docs-curator lens: APPROVE-WITH-NITS, all eight nits addressed by the
+  canonical headings added above — verdict note PX-0567.
+- Security lens: APPROVE-WITH-NITS, both conditions recorded (Phase 2
+  registry/snapshot wiring carries the R1 snapshot constraints, see
+  [Open points](#open-points); view/`AuthProof` forward condition, see `What
+the trait does not cover` above) — verdict note PX-0568.
+
+Decided context: the S-1 registry-split ruling adopted in [Execution
+ownership R1](execution-ownership-r1.md#ruling-2026-10-15) (2026-10-15). This
+acceptance closes no AIQ or OQ entry: AIQ-31 stays open, as do AIQ-32 through
+AIQ-38 where referenced (the AIQ-38 split-facet closure belongs to CTX-0156,
+not to this acceptance), and it mints no new identifier. The accepted
 [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) is unaffected: no normative framing,
 scope, lifecycle, or consent statement here overrides it. Sibling draft
 dispositions ([Execution ownership R1](execution-ownership-r1.md), [Tool
@@ -462,9 +559,18 @@ boundary](../providers/provider-plugin-boundary.md)) are referenced as inputs on
 are unrevised by this document. The `bitty-ai` implementation at `97d3125`
 is surveyed read-only; nothing here describes that slice as the complete
 proposed runtime. Recording Phase 1 and the Phase 2 backlog above grants no
-implementation permission. Acceptance as DEC-0004 requires independent review
-by the architecture category owner, the docs curator, and a security
-reviewer; it is not granted by this draft.
+implementation permission.
+
+## P0 Review Sign-off
+
+| Role              | Reviewer                                                        | Verdict                                | Evidence / scope                                                                            | Date       |
+| ----------------- | --------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------- | ---------- |
+| architecture lens | acting reviewer (2026-10-15 user delegation; prior role vacant) | APPROVE                                | FIX-1, FIX-2 addressed; layering, composition, S-1 compatibility; note PX-0566              | 2026-10-15 |
+| docs-curator lens | acting reviewer (2026-10-15 user delegation; prior role vacant) | APPROVE-WITH-NITS, nits addressed      | eight spine-section nits resolved by canonical headings; note PX-0567                       | 2026-10-15 |
+| security lens     | acting reviewer (2026-10-15 user delegation; prior role vacant) | APPROVE-WITH-NITS, conditions recorded | Phase 2 snapshot-constraint condition plus view/`AuthProof` forward condition; note PX-0568 | 2026-10-15 |
+
+Three independent reviewers, none the author. No AIQ or OQ entry closed by
+this acceptance.
 
 ## References
 
