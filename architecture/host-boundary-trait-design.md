@@ -464,6 +464,119 @@ per-point explicit enable. Registry population and point resolution behavior
 would stay with that separately scoped task; this section defines the policy
 stub only and specifies no registry or resolution behavior here.
 
+## Classification delta for gate-v2 (candidate, not accepted)
+
+This section is candidate wording only: it proposes a classification delta
+for the host-boundary lint gate v2, and it authorizes no implementation,
+closes no AIQ or OQ entry, mints no identifier, revises no accepted text in
+this document, and changes the acceptance recorded in [Acceptance
+criteria](#acceptance-criteria) in no way. Where any sentence here conflicts
+with a normative source, the normative text wins. The implementing gate-v2
+work stays with the separately scoped `bitty-ai` task (AI-0310); this
+section records the classification basis that task would build against,
+nothing more. Survey anchors below are read-only evidence at `bitty-ai`
+`main` `7879757`; no file in the `bitty-ai` repository was modified.
+
+### Inverted topology (candidate classification)
+
+The candidate classification would invert the topology assumed in
+[Lint-gate rule specification](#lint-gate-rule-specification): the host
+crate would be recorded as a std-only vocabulary crate — no behavior, no
+dependencies — and the endpoint crate would be recorded as the privileged
+consumer. Survey evidence: `crates/bitty-ai-host/Cargo.toml` would carry an
+empty `[dependencies]` section (comment lines only, std only), while
+`crates/bitty-ai-endpoint/src/lib.rs` would consume `51`
+`bitty_ai_runtime::` references plus `45` `bitty_ai_host::` references,
+gated on `bitty-ipc-api` schema validators.
+
+The candidate binding-crate inventory would therefore list the endpoint
+alongside the host and any future plugin binding crates, with the endpoint's
+allowed-consumption set declared as the lawful seams below. Each seam would
+be allow-listed by name; every reference outside the set would fail the gate:
+
+- `ProviderRegistry::select` for model selection (never name-only
+  resolution; surveyed as the single non-test `select` call site through an
+  injected registry view).
+- The fallback seam: host `FallbackDirectiveEnvelopeRequest::resolve`
+  (`Advance` versus `Stop`) with the runtime `fallback_directive` held as a
+  drift-locked test reference.
+- The ToolBus-versus-ToolExecutor seam: the endpoint would consume the
+  `ToolExecutor` handle only as an injected reference inside a
+  caller-supplied view (surveyed `ToolView`), never `ToolBus`, `precheck`,
+  or `dispatch` (`ToolBus` would have zero references in the endpoint).
+- `FakeProvider` and `FakeToolExecutor` as test-only doubles (surveyed
+  exclusively under `#[cfg(test)]` modules).
+- S2 envelope constructors for echo fixtures: `SnapshotEnvelope::new`,
+  `PinEnvelope::new`, `ToolListSnapshot::from_imported`, and
+  `list_version` reads.
+- Snapshot vocabulary: `SnapshotVersion`, `SnapshotRefusal`, and
+  `check_snapshot_version`.
+- S-C schema validators through `bitty-ipc-api` (surveyed
+  `validate_ai_result` call sites plus the `MAX_SCHEMA_*` bound set).
+- The `AgentRefusal` table for mapping refusals to IPC errors.
+- `ChunkReassembler` for test-side reassembly (surveyed under
+  `#[cfg(test)]`; reassembly TTL and expiry semantics would stay owned by
+  `bitty-ipc-api`).
+- `ConsentLedger::inspect` as the single read path (surveyed as the only
+  non-test ledger call; every `.grant(` call site would sit under
+  `#[cfg(test)]`).
+
+### Day-one-red case (candidate record)
+
+The candidate record would note that a verbatim port of the AI-0145 gate
+(which bans `use bitty_ai_runtime::tool::...` in binding paths) would flag
+red on day one against the surveyed import at endpoint `lib.rs:3274`
+(`ToolError as RuntimeToolError, ToolExecutor as RuntimeToolExecutor`).
+Gate-v2 would therefore allow-list — not ban — the endpoint's declared
+consumption set above, and would ban everything outside it, including at
+least: sockets, frames, process spawn, clocks, threads, network and
+filesystem access; provider or registry construction outside tests;
+ledger mutation outside tests; and cost settlement (surveyed as
+recorded-but-never-settled, with `estimate_cost` appearing only under
+`#[cfg(test)]`).
+
+### E0 tests keep-or-remove (candidate recommendation)
+
+The candidate recommendation would keep the exactly two manifest and pin
+tests in the endpoint (`host_manifest_declares_zero_dependencies` at
+`lib.rs:4117` and `endpoint_ipc_pin_stays_at_owner_decision` at `lib.rs:4144`,
+pinning `bitty-ipc-api` at `f201911`) as the gate-v2 seed rather than
+superseding them, for three candidate reasons stated in POLICY-style
+wording: the hermetic manifest read (`include_str!`, no process spawn and
+no filesystem read at test time) would keep the seed cheap; the
+workspace-relative include path would keep silent relocation breaking
+loudly; and the pin assertion would keep a stale-pin bump a separately
+scoped owner decision rather than silent drift. Superseding them would
+require the gate-v2 task to re-prove each property, so keeping them would
+be the smaller change.
+
+### Gate-v2 check inventory (candidate list only, no implementation)
+
+The checks below are candidate acceptance statements only; they specify no
+implementation, and they would be implemented by the separately scoped
+`bitty-ai` gate-v2 task:
+
+- Endpoint consumption allow-list: every `bitty_ai_runtime::` and
+  `bitty_ai_host::` reference in the endpoint would resolve to a member of
+  the declared consumption set; any reference outside the set would fail.
+- Host zero-dep tripwire: the host manifest `[dependencies]` section would
+  stay comment-and-blank-lines only; any dependency entry would fail.
+- Pin tripwire: the endpoint manifest would keep pinning `bitty-ipc-api`
+  at the owner-decided revision; any drift without an owner decision
+  would fail.
+- No-new-edge without classification update: a new binding-crate
+  directory or a new cross-crate edge not listed in the classification
+  would fail until the classification names it.
+- Test-only confinement: seam-trait implementations, test doubles,
+  ledger grants, and registry or provider construction outside the
+  declared set would appear only under `#[cfg(test)]`; any non-test
+  occurrence would fail.
+
+Candidate non-goal: crate-level deny-attributes alone would be
+insufficient — textual bans plus review would still be required, because a
+deny-attribute would not catch a new smuggling spelling that the textual
+patterns have not yet named.
+
 ## Security review
 
 Security-lens verdict (2026-10-15, note PX-0568): APPROVE-WITH-NITS — no
