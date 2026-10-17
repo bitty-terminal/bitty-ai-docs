@@ -1,6 +1,6 @@
 ---
 title: Execution ownership R1
-description: Draft single-agent execution ownership decision for ExecutionContext and Panel projection
+description: Single-agent execution ownership disposition with an accepted provider-routing snapshot binding contract
 category: specifications
 audience: contributor
 document_type: specification
@@ -11,12 +11,14 @@ sidebar_order: 35
 
 # Execution ownership R1
 
-> Status: **draft**. This document records the CTX-0009 R1 draft disposition
-> for single-agent execution ownership only. It proposes no accepted
-> architecture, authorizes no shipped behavior, and closes no open question.
+> Status: **draft**, with only the provider/routing snapshot binding contract in
+> [Provider/routing snapshot binding contract](#providerrouting-snapshot-binding-contract-accepted-2026-10-17)
+> accepted as a scoped maintained working contract. The broader R1 material
+> remains a draft disposition for single-agent execution ownership, its P0
+> sign-off slots remain pending, and it does not authorize shipped behavior.
 > Normative security and IPC obligations override any experimental adoption
-> stated here. Multi-agent scope is frozen and deferred; see
-> [Frozen multi-agent scope](#frozen-multi-agent-scope).
+> stated here. Multi-agent scope is frozen and deferred; see [Frozen
+> multi-agent scope](#frozen-multi-agent-scope).
 
 ## Purpose and scope
 
@@ -46,23 +48,23 @@ No product code is introduced or described as implemented.
 
 ## Normative sources this specification must not weaken
 
-This candidate does not replace or relax the accepted security, consent,
+This draft R1 material does not replace or relax the accepted security, consent,
 authorization, IPC framing, redaction, budget, and lifecycle requirements
 linked by [AI Architecture](ai-architecture.md) and the accepted
 [IPC and Agent RFC](../specifications/ipc-agent-rfc.md). The existing R1
 requirement for a read-only, versioned, credential-free metadata snapshot,
 required invalidation, and fail-closed behavior on stale or missing state
-continues to govern this candidate. A conflict is resolved in favor of those
+continues to govern this contract. A conflict is resolved in favor of those
 normative sources; this document is not an implementation authorization.
 
 ## Terminology
 
-- **Provider/routing snapshot**: The candidate same-domain projection of the
+- **Provider/routing snapshot**: The accepted same-domain projection of the
   populated provider registry used to bind provider-list observations. It is
   not an MCP tool-list snapshot, context snapshot, session snapshot, or
   completion-request snapshot.
 - **Domain**: The fixed binding namespace carried with a publication. The
-  first candidate value is `provider-routing`; a version or digest without
+  first accepted value is `provider-routing`; a version or digest without
   this domain is not a provider/routing binding.
 - **Canonical bytes**: The exact UTF-8 JSON bytes produced by the canonical
   projection rules below. The SHA-256 digest covers these bytes, including
@@ -269,13 +271,19 @@ permission.
   dispatch, never for logs or IPC; typed secret-field machinery and the
   secret-exposure-via-traces rule apply unchanged across the boundary.
 
-## Provider/routing snapshot binding candidate (draft, 2026-10-17)
+## Provider/routing snapshot binding contract (accepted, 2026-10-17)
 
-This section is a candidate contract for the missing same-domain binding after
-the AI-0303 fail-closed `Unbound` seam. It records no S-F ruling, mints no
-identifier, closes no unresolved question, and grants no permission to
-implement. It does not claim that publication, invalidation, helper registry
-population, or live Core-to-helper acknowledgement wiring exists.
+This section promotes the existing provider/routing snapshot binding candidate
+in place. It accepts the same-domain contract and acceptance matrix only. It
+does not claim that publication, invalidation, helper registry population, or
+live Core-to-helper acknowledgement wiring exists, and it grants no
+implementation permission for Core transport, wire, or Lua integration.
+
+The historical candidate record remains recognizable through the original
+projection shape, the `provider-routing` domain, the helper-side equality seam,
+and the fail-closed matrix below. The candidate's open decisions are resolved
+here; residual transport and implementation questions are explicit in [Open
+points](#open-points).
 
 ### Domain boundary
 
@@ -292,26 +300,28 @@ any other snapshot domain, including:
 Every publication, acknowledgement, binding capability, and strict request
 correlator must carry or be associated with the domain tag. The MCP
 `list_version` is never a provider/routing binding. A same numeric version in
-two domains is a mismatch, not a match. Current AI-0303 behavior correctly
-keeps the MCP list version separate and refuses the strict seam as `Unbound`
-until this same-domain contract is accepted and wired.
+two domains is a mismatch, not a match. Current AI-0303 behavior at
+`bitty-ai@6757b1e21ed27941b910ce0452834806fafc9c4b` correctly keeps the MCP
+list version separate and refuses the strict seam as `Unbound` until this
+same-domain contract is accepted and wired.
 
-### Canonical projection
+### Canonical projection and bytes
 
-The first strict candidate is `ai.provider_list`. Its provider/routing
+The accepted initial strict target is `ai.provider_list`. Its provider/routing
 projection is exactly the populated ProviderRegistry model data, with no
 provider implementation, selection result, request, credential, or secret
 material. The projection contains:
 
 - each registered model's `provider_id`;
 - each registered model's `name`;
-- its capability labels;
+- its closed capability labels (`text`, `streaming`, `tool_use`, `image_input`,
+  `audio_input`, `audio_output`, `video_input`, and `reasoning`);
 - its `context_window_tokens` value, where `0` retains the registry meaning
   of unknown; and
 - its relative `input_cost_weight` and `output_cost_weight` values, where
   zero retains the registry meaning of an uncalibrated baseline weight.
 
-The candidate does not include provider display names or free-form
+The accepted projection does not include provider display names or free-form
 `routing_facts`: those are accepted by the current metadata-publication seam,
 but are not fields in the current ProviderRegistry projection used by
 `ai.provider_list`. It also excludes aliases initially. Aliases are a
@@ -319,11 +329,10 @@ separate registry table and must not affect a binding silently. A later alias
 policy may include them only if alias names, candidate order, and all target
 references are projected, bounded, canonicalized, hashed, and included in the
 same equality proof. Until then, alias mutation invalidates any binding if it
-can affect the populated registry state, and the strict candidate does not
-claim alias-aware coverage.
+can affect the populated registry state, and the initial strict contract does
+not claim alias-aware coverage.
 
-The candidate payload shape is the following conceptual JSON object, with the
-field order shown treated as canonical:
+The accepted payload shape is the following canonical JSON object:
 
 ```json
 {
@@ -345,24 +354,48 @@ field order shown treated as canonical:
 }
 ```
 
-The exact canonicalization rules are:
+The accepted canonical JSON profile is deterministic and is the contract, not
+an incidental serializer choice:
 
-1. Encode the object as UTF-8 JSON with no insignificant whitespace, exactly
-   the field names and nesting above, and JSON string escaping that is fixed
-   by the accepted serializer/canonicalization contract.
-2. Sort provider objects by `id` using bytewise ascending UTF-8 order. Sort
-   models within each provider by `name` using the same order. Sort capability
-   labels by their canonical label value and reject duplicate labels. The
-   projection must not preserve registry insertion order.
-3. Use integer JSON values for the three numeric fields. Reject non-finite,
-   fractional, negative, duplicate, unknown, or otherwise out-of-schema
-   values before canonicalization.
-4. Compute `digest` as lowercase hexadecimal SHA-256 over the exact canonical
-   UTF-8 bytes, not over a parsed value, a pretty-printed rendering, or the
-   surrounding publication frame.
+1. The projection is serialized as exact UTF-8 JSON with no insignificant
+   whitespace. The only accepted top-level field order is `domain`, then
+   `providers`; provider field order is `id`, then `models`; model field order
+   is `name`, `capabilities`, `context_window_tokens`, `input_cost_weight`,
+   then `output_cost_weight`.
+2. Provider objects are sorted by `id`, models within a provider by `name`, and
+   capability labels by their canonical label value. Each ordering is ascending
+   bytewise order over the UTF-8 bytes of the string. Duplicate providers,
+   models, or capability labels are rejected. Registry insertion order is never
+   preserved.
+3. JSON strings are Unicode scalar sequences encoded as UTF-8. The canonical
+   serializer emits non-ASCII scalar values unescaped and uses the shortest
+   JSON escape for `"`, `\\`, and U+0000 through U+001F: `\\b`, `\\t`, `\\n`,
+   `\\f`, and `\\r` for those named controls, and lowercase `\\u00xx` for the
+   remaining controls. Invalid UTF-8, surrogate code points, and unescaped
+   control characters are rejected. No alternate escape spelling is
+   canonical.
+4. The three numeric fields are unsigned JSON integers in the registry's
+   `u32` range, encoded in base-10 with no leading zeroes except the value
+   `0`. Fractional, negative, non-finite, duplicate, unknown, and out-of-schema
+   values are rejected before canonicalization. `0` retains the registry
+   meanings of unknown context window and uncalibrated baseline cost weight.
+5. The digest is lowercase hexadecimal SHA-256 over exactly the canonical
+   UTF-8 bytes described above. The digest does not cover a parsed value,
+   pretty-printed rendering, publication frame, acknowledgement, or caller
+   parameters. Domain separation is structural and mandatory: the canonical
+   bytes contain the exact `"domain":"provider-routing"` member, and a
+   publication from any other domain is rejected before equality proof. No
+   MCP `list_version` or other domain can satisfy this check.
 
-The publication frame and every nested collection remain bounded. The first
-candidate reuses the established publication ceiling of 256 KiB for the
+These rules intentionally match the proven AI-0324 helper projection in
+`bitty-ai@6757b1e21ed27941b910ce0452834806fafc9c4b`: the implementation
+evidence emits raw non-ASCII UTF-8, escapes JSON controls, uses the field order
+above, sorts the closed capability labels, and hashes the resulting bytes. A
+future change to the profile requires a new accepted decision and invalidates
+existing bindings.
+
+The publication frame and every nested collection remain bounded. The accepted
+profile reuses the established publication ceiling of 256 KiB for the
 frame and canonical payload, limits model entries to the registry's bounded
 maximum of 64 total entries, limits capabilities to 8 labels per model, and
 limits identity and label strings to 128 bytes unless a later accepted
@@ -382,91 +415,119 @@ the surrounding system handles sensitive data.
 
 ### Ownership and proof
 
-The candidate ownership split is:
+The accepted ownership split is:
 
-- **Core** owns the source of its provider/routing view for publication,
-  mints the monotonic `snapshot_version` and unique publication identity,
-  publishes the domain-tagged canonical payload, and explicitly invalidates a
-  binding when the source view mutates. Core's generic `snapshot_version`
-  fields on outbound `ai.*` parameters do not by themselves constitute this
-  publication or its acknowledgement wiring.
-- **The helper** receives the bounded publication, verifies the domain,
-  identity, monotonic lifecycle, canonical bytes, SHA-256 digest, and schema;
-  maps the projection to its populated ProviderRegistry; and compares the
-  resulting canonical projection for exact equality. It issues the opaque
-  binding capability only after the exact publication acknowledgement and
-  equality proof both succeed. A version or digest supplied by a caller is
-  never authority.
-- **bitty-ipc** has no implementation assignment in this candidate. A shared
-  DTO or canonicalization module belongs there only if the accepted transport
-  design demonstrates that both sides must share it. The candidate does not
-  preassign a crate, wire field, or transport placement.
+- **Core** owns publication authority: it derives and publishes the exact
+  canonical provider/routing projection, mints the monotonic
+  `snapshot_version` and never-reused publication identity, and owns
+  invalidation when its source view mutates. Core's generic
+  `snapshot_version` fields on outbound `ai.*` parameters do not by themselves
+  constitute this publication or its acknowledgement wiring.
+- **The helper** owns the authoritative populated `ProviderRegistry` for this
+  contract. It validates domain, identity, lifecycle, canonical bytes, digest,
+  schema, and bounds; projects the actual registry consumed by
+  `ai.provider_list`; and compares that projection byte-for-byte with the Core
+  publication. The helper issues the acknowledgement after exact publication
+  validation, then issues the opaque proof only after consuming that exact
+  acknowledgement and proving registry equality. A version, digest,
+  projection, or acknowledgement echoed by a caller is never authority.
+- **Mutation** of any registry state invalidates the proof before strict use,
+  including an alias-table mutation even though aliases are excluded from the
+  initial projection. Aliases cannot affect strict `ai.provider_list` behavior
+  until a later accepted alias projection decision.
+- **Transport placement** remains unassigned. A shared DTO or canonicalizer
+  belongs in `bitty-ipc` only if a future accepted transport design proves that
+  both sides must share it. This acceptance assigns no crate, wire field, Core
+  transport, or Lua integration work.
 
-The current endpoint metadata publication accepts `publication_id`,
-`snapshot_version`, `digest`, and `metadata_json`; its current metadata is
-provider ID/name/model/capability/routing-fact data and has no domain tag.
-That existing seam is validation vocabulary and state only. It is not evidence
-that Core publishes this provider/routing projection or that the helper has
-populated and compared its runtime registry. The verified AI-0303 source at
-bitty-ai revision `900aa72` still leaves strict dispatch `Unbound` and does not
-equate MCP `SnapshotEnvelope.list_version` with this domain. The verified Core
-snapshot-version source at revision `08aa903` emits a Core-owned generic
-version in outbound `ai.*` parameters, but does not publish this canonical
-provider/routing payload or wire live publication and acknowledgement to the
-helper.
+The existing endpoint metadata publication is validation vocabulary and state
+only. Its provider ID/name/model/capability/routing-fact payload is not this
+projection and has no provider-routing domain tag. The AI-0324 implementation
+evidence at `bitty-ai@6757b1e21ed27941b910ce0452834806fafc9c4b` proves a pure
+helper-side projection and equality seam for a populated ProviderRegistry,
+while strict dispatch remains `Unbound`. The Core snapshot-version
+implementation evidence at `bitty@08aa903e85e148a04a57ac2b3e7ebd04c0405098`
+emits a Core-owned generic version in outbound `ai.*` parameters, but does not
+publish this canonical provider/routing payload or wire live publication and
+acknowledgement to the helper.
+
+Publication acceptance and proof issuance require an authenticated
+Core-origin publication ingress bound to the authorized Core component and
+channel. Caller-supplied identity, version, digest, projection, or metadata
+cannot establish Core origin. Missing or invalid Core-origin authentication
+fails closed before publication acknowledgement or proof issuance. The
+authentication and transport mechanism remains a residual implementation open
+point; this contract grants no permission to choose or implement it.
 
 ### Lifecycle and mode behavior
 
-The candidate lifecycle is:
+The accepted lifecycle is:
 
-- **Publish:** Core publishes a new domain-tagged projection with a strictly
-  greater version and never-reused identity. The helper validates it, retains
-  it as the pending publication, and returns an acknowledgement containing
-  exactly the identity, domain, version, and digest received.
+- **Initial publish:** Core publishes a new `provider-routing` projection with
+  its Core-issued monotonic version and never-reused identity. After the first
+  publication, each replacement is strictly greater than the current Core
+  version. The helper validates the bounded frame and retains the exact
+  publication as pending, then returns an acknowledgement containing exactly
+  the received identity, domain, version, and digest.
 - **Bind:** The helper consumes only that exact pending acknowledgement, proves
-  projection equality against its current ProviderRegistry, then issues the
-  opaque capability. No handler runs before this proof.
-- **Republish:** A changed valid projection receives a new identity and
-  greater version. The previous capability is superseded and cannot remain
-  usable while the new publication is pending or after invalidation.
-- **Mutation invalidation:** Any provider/model/capability/context-window/
-  cost-weight mutation, and any accepted alias mutation that can affect the
-  registry state, invalidates the current binding before the changed state is
-  used for strict routing. Core must publish a fresh projection before strict
-  provider-list use resumes.
-- **Failure:** Missing, stale, replayed, duplicate, future, superseded, or
-  digest-mismatched publications and acknowledgements fail closed. A
-  publication with the right version but the wrong domain or projection is
-  not current. Duplicate publication identity reuse is refused even when its
-  payload is unchanged.
+  equality against the current ProviderRegistry projection consumed by
+  `ai.provider_list`, and issues the opaque helper proof. No strict handler is
+  contacted before proof.
+- **Republish and supersession:** A changed valid projection receives a new
+  identity and greater version. Publishing a newer version supersedes the
+  previous pending publication; the old acknowledgement and proof cannot be
+  used. A duplicate identity is refused even when its payload is unchanged.
+- **Mutation invalidation:** Any provider, model, capability, context-window,
+  cost-weight, or alias-table mutation invalidates the current proof before
+  strict use. Core must publish a fresh exact projection and the helper must
+  re-acknowledge and re-prove it before strict provider-list use resumes.
+- **Fail-closed lifecycle:** Missing, stale, future, replayed, duplicate,
+  superseded, wrong-domain, wrong-digest, malformed, oversized, or
+  projection-mismatched publications and acknowledgements are refused. “Future”
+  means a version or identity that is not the current Core-authorized lifecycle
+  state for this helper, including one presented before Core has published it;
+  the helper never infers authority from a caller-supplied number. Missing or
+  invalid Core-origin authentication is refused before acknowledgement or
+  proof issuance. Any strict refusal happens before handler contact, provider
+  implementation or provider I/O, credential access, tool execution, or any
+  other side effect. Refusal preserves invalidation and never falls back to a
+  prior or guessed snapshot.
 
 Strict mode fails closed on every missing or invalid same-domain proof. The
-first strict enablement candidate is `ai.provider_list` only. MCP list,
-complete, context, tool, and extension methods remain tolerant or not wired
-until each receives its own accepted same-domain contract; their snapshot
-versions must not be silently cross-bound to `provider-routing`. The existing
-default and standalone path remains tolerant and continues to serve its
-current behavior without requiring a publication.
+accepted initial strict domain is `provider-routing`, and `ai.provider_list` is
+the only strict enablement target. This acceptance does not itself enable live
+strict behavior; a separately scoped implementation task must wire it subject
+to this contract and the evidence plan below. MCP list, context, session,
+complete, tool, and extension domains remain tolerant or not wired until each
+receives its own accepted same-domain contract. Their versions must not be
+silently cross-bound to `provider-routing`, and MCP `list_version` must never be
+reused. The existing default and standalone path remains tolerant and continues
+to serve its current behavior without requiring a publication.
 
 ### Acceptance matrix
 
-| Case                                                                                                   | Required result                                                                                    |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| Exact same-domain publication, digest, version, and equal registry projection                          | `ai.provider_list` may proceed only after exact acknowledgement and opaque capability issuance.    |
-| Same version with the wrong domain, including MCP `list_version`                                       | Refuse as a domain mismatch; do not issue a capability or contact a handler.                       |
-| Same domain/version with the wrong digest                                                              | Refuse before mapping or handler contact.                                                          |
-| Projection mismatch in a field, provider/model order, capability order, numeric value, or alias policy | Refuse equality proof and remain fail-closed.                                                      |
-| Stale, missing, or future version                                                                      | Refuse; no fallback to a prior or guessed snapshot.                                                |
-| Replay, duplicate identity, or superseded publication/acknowledgement                                  | Refuse and preserve the prior invalidation state.                                                  |
-| Provider/model/capability/context/cost mutation                                                        | Invalidate the old binding before strict use; require fresh publication and proof.                 |
-| Any strict refusal                                                                                     | No provider-list or other handler contact occurs.                                                  |
-| Oversized frame, field, collection, nesting, or count                                                  | Refuse before allocation or registry mapping beyond the declared bounds.                           |
-| Credential field, secret access, or provider implementation access                                     | Reject the publication/access path; do not treat heuristic secret scanning as universal detection. |
-| Standalone or tolerant call without a publication                                                      | Preserve current tolerant behavior and do not require the capability.                              |
+| Case                                                                                                   | Required result                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exact same-domain publication, digest, version, and equal registry projection                          | A future strict `ai.provider_list` implementation may proceed only after exact acknowledgement and opaque helper proof issuance.                              |
+| Same version with the wrong domain, including MCP `list_version`                                       | Refuse as a domain mismatch; do not issue a capability or contact a handler.                                                                                  |
+| Same domain/version with the wrong digest                                                              | Refuse before mapping or handler contact.                                                                                                                     |
+| Projection mismatch in a field, provider/model order, capability order, numeric value, or alias policy | Refuse equality proof and remain fail-closed.                                                                                                                 |
+| Stale, missing, or future version                                                                      | Refuse; no fallback to a prior or guessed snapshot.                                                                                                           |
+| Replay, duplicate identity, or superseded publication/acknowledgement                                  | Refuse and preserve the prior invalidation state.                                                                                                             |
+| Provider/model/capability/context/cost mutation                                                        | Invalidate the old binding before strict use; require fresh publication and proof.                                                                            |
+| Any strict refusal                                                                                     | Refuse before `ai.provider_list` or other handler contact, provider implementation/provider I/O, credential access, tool execution, or any other side effect. |
+| Oversized frame, field, collection, nesting, or count                                                  | Refuse before allocation or registry mapping beyond the declared bounds.                                                                                      |
+| Credential field, secret access, or provider implementation access                                     | Reject the publication/access path; do not treat heuristic secret scanning as universal detection.                                                            |
+| Standalone or tolerant call without a publication                                                      | Preserve current tolerant behavior and do not require the capability.                                                                                         |
 
-This matrix is acceptance evidence for a future implementation, not evidence
-that the current AI-0303 seam passes any row beyond its documented fail-closed
-behavior.
+This matrix is part of the accepted contract and is acceptance evidence for a
+future implementation, not evidence that the current AI-0303 seam passes any
+row beyond its documented fail-closed behavior. The current AI-0303 seam at
+`bitty-ai@6757b1e21ed27941b910ce0452834806fafc9c4b` and AI-0324 helper
+projection/equality seam at
+`bitty-ai@6757b1e21ed27941b910ce0452834806fafc9c4b` is implementation evidence
+only; the current Core generic-version path is not exact publication or live
+acknowledgement wiring.
 
 ## Frozen multi-agent scope
 
@@ -490,7 +551,7 @@ Pointers:
 
 ## Security review
 
-This candidate preserves the existing trust boundary: the snapshot is
+The accepted provider/routing contract preserves the existing trust boundary: the snapshot is
 read-only metadata, carries no credentials, and grants no provider I/O or
 selection authority. Domain separation prevents an MCP tool-list version from
 being confused with provider/routing state. Canonical bytes, exact digest
@@ -501,9 +562,12 @@ The credential prohibition is precise but not a claim of universal secret
 detection. A future implementation must use the accepted typed secret,
 redaction, authorization, and IPC controls at every access path, and a
 security reviewer must verify that no provider implementation, request
-content, or credential-bearing state enters the projection. Any weakening of
-fail-closed stale/missing behavior requires the normative security review and
-an accepted decision outside this candidate.
+content, or credential-bearing state enters the projection. The projection
+has no credential field or access path; bounded marker checks and the existing
+typed secret/redaction controls apply where the surrounding system handles
+sensitive data, without claiming universal credential detection. Any weakening
+of fail-closed stale/missing behavior requires the normative security review and
+an accepted decision outside this contract.
 
 ## Verification plan
 
@@ -531,14 +595,16 @@ A future implementation claiming this disposition must show, at minimum:
 - Deterministic headless coverage with seeded inputs and fail-closed budget,
   consent, and redaction checks.
 
-The provider/routing candidate additionally requires evidence for every row of
-the acceptance matrix: canonical-byte and SHA-256 reproducibility, exact
-same-domain equality, wrong-domain and wrong-digest refusal, deterministic
-ordering, field/count/frame bounds, mutation invalidation, replay and
-supersession handling, no handler contact on strict refusal, credential/access
-prohibition, and preservation of the tolerant standalone path. Evidence must
-distinguish the current AI-0303 `Unbound` behavior from any future wired
-behavior.
+The accepted provider/routing contract additionally requires evidence for every
+row of the acceptance matrix: canonical-byte and SHA-256 reproducibility,
+exact same-domain equality, wrong-domain and wrong-digest refusal,
+deterministic ordering and escaping, field/count/frame bounds, mutation
+invalidation, stale/future/replay/duplicate/supersession handling, no handler
+contact on strict refusal, credential/access prohibition, and preservation of
+the tolerant standalone path. Evidence must distinguish the current AI-0324
+helper-side projection seam at
+`bitty-ai@6757b1e21ed27941b910ce0452834806fafc9c4b` and AI-0303 `Unbound`
+behavior from any future wired behavior.
 
 ## Alternatives considered
 
@@ -548,8 +614,8 @@ behavior.
 - **Bind only a version or digest without projecting the registry.** Rejected.
   Equality requires canonical provider/model data and a helper-side proof;
   caller-supplied correlators are not authority.
-- **Include aliases without binding their table.** Rejected for the first
-  candidate. Alias names and ordered candidates are separate state and must be
+- **Include aliases without binding their table.** Rejected for the initial
+  contract. Alias names and ordered candidates are separate state and must be
   projected, bounded, hashed, and compared together before they can affect a
   strict binding.
 - **Treat the current metadata-publication payload as the final projection.**
@@ -559,13 +625,14 @@ behavior.
 
 ## Affected contracts
 
-This candidate affects the future Core publication contract, the helper-side
+The accepted contract affects the future Core publication contract, the helper-side
 provider/routing binding and `ai.provider_list` strict admission contract, and
 the eventual acknowledgement path over helper IPC. It does not alter the
 current tolerant endpoint behavior, MCP list-version contract, provider
 selection implementation, or any live Core/helper wire. `bitty-ipc` is an
 affected boundary only if an accepted transport design places a shared DTO or
-canonicalizer there; this document assigns no implementation location.
+canonicalizer there; this document assigns no implementation location or
+implementation permission.
 
 ## Open points
 
@@ -694,47 +761,73 @@ historical record.
   answered: S-1 adopted; the snapshot-version + envelope-id correlator lands
   later as an optional params field).
 
-### Provider/routing candidate open points (no decision)
+### Provider/routing residuals
 
-- The exact canonical JSON serializer rules, including string escaping,
-  Unicode handling, and whether the conceptual field order above becomes the
-  final wire order, remain open.
-- The initial alias exclusion versus a fully projected alias table remains
-  open; no alias policy is accepted by this candidate.
-- Exact Core publication and invalidation event integration remains open. The
-  current generic Core `snapshot_version` emission is not live provider/
-  routing publication or acknowledgement wiring.
+- Live Core publication/version/invalidation events, helper registry
+  population, transport acknowledgement, and strict-handler wiring remain
+  implementation work and are not claimed here.
 - Wire placement, frame shape, and whether a shared DTO/canonicalizer belongs
-  in `bitty-ipc` remain open until transport needs are demonstrated.
-- Helper ProviderRegistry population and the precise equality-proof boundary
-  remain open; this document does not assume that the current registry is
-  populated from Core metadata.
-- Whether `ai.provider_list` strict enablement needs a separate accepted
-  decision remains open. This candidate names it as the first strict target,
-  but does not enable it.
-
-This candidate mints no identifiers, promotes no status, closes no register
-entry, renders no S-F ruling, and grants no implementation permission.
+  in `bitty-ipc` remain a follow-up transport decision. This acceptance grants
+  no Core transport, wire, or Lua integration permission.
+- Alias-dependent strict behavior remains forbidden until a later decision
+  projects, bounds, canonicalizes, hashes, and equality-checks the alias table
+  and its target references.
+- `ai.provider_list` strict enablement requires a separately scoped
+  implementation-task authorization subject to this contract and its evidence
+  plan. No other domain is enabled by this decision.
+- AIQ-29, AIQ-2A, and the non-provider-routing facets of AIQ-38 remain open in
+  their existing register entries. This contract introduces no identifier,
+  owner assignment, milestone, or register closure.
 
 ## Acceptance criteria
 
-- Draft owner: CTX-0009 implementer (`ai-docs-ctx0009-impl`).
-- Acceptance requires independent review by the architecture category owner,
-  the docs curator, and a security reviewer, plus linkage of any promoted
-  open question under the canonical rule. It is not granted by this draft.
-- Suggested follow-ups, each as a separately scoped task: structured exec
-  result schema, generic execution-backend ownership across repositories,
-  no-UI feature-profile selection, and Panel-to-execution binding lifecycle.
-- The provider/routing snapshot candidate is accepted only as a draft input
-  after independent architecture, documentation, and security review. No
-  acceptance criterion here changes the status of the R1 ruling or enables
-  strict `ai.provider_list` behavior.
+- The provider/routing snapshot contract is accepted as a design contract;
+  acceptance does not claim shipped behavior or authorize implementation.
+- The canonical projection contains exactly `provider-routing`, provider IDs,
+  model names, closed capability labels, context window tokens, and relative
+  input/output cost weights, with aliases excluded initially.
+- Canonical bytes are exact UTF-8 JSON under the fixed field order, sorting,
+  escaping, Unicode, integer, bound, and lowercase SHA-256 rules above.
+- Core owns exact publication, monotonic versioning, identity, and invalidation;
+  the helper validates and acknowledges the exact publication, then issues the
+  opaque proof only after registry equality succeeds. Caller echoes are never
+  authority.
+- Mutation invalidates proof; stale, missing, future, replayed, duplicate,
+  superseded, wrong-domain, wrong-digest, malformed, oversized, and mismatch
+  cases fail closed before handler contact, provider implementation/provider
+  I/O, credential access, tool execution, or any other side effect.
+- Publication acceptance and proof issuance require authenticated Core-origin
+  ingress bound to the authorized Core component and channel; missing or
+  invalid authentication fails closed before acknowledgement or proof issuance,
+  and caller-supplied metadata cannot establish origin.
+- Standalone default behavior remains tolerant. MCP/context/session/complete/
+  tool/extension domains remain tolerant or not wired, and MCP `list_version`
+  is not reused.
+- Live `ai.provider_list` strict enablement, Core transport/wire integration,
+  Lua integration, and any shared DTO/canonicalizer are separately scoped
+  follow-ups, not permissions granted by this acceptance.
+- The document remains self-contained, English-only, synchronized with the
+  architecture route, and free of external provenance anchors.
+- Independent architecture-owner, docs-curator, and security-reviewer review
+  records no blocking finding before implementation follow-ups rely on this
+  contract.
 
 ## P0 Review Sign-off
 
-Not signed off. This draft candidate requires architecture-owner,
-documentation-curator, and security review before any identifier can be
-promoted or any implementation task can be authorized.
+The provider/routing contract is accepted as a design record; the following
+three independent review slots remain explicit for the acceptance handoff and
+implementation follow-ups:
+
+- **Architecture category owner:** Pending independent review of projection,
+  ownership, lifecycle, and strict-target boundaries.
+- **Documentation curator:** Pending independent review of status, spine,
+  self-containment, terminology, and route synchronization.
+- **Security reviewer:** Pending independent review of fail-closed behavior,
+  bounds, domain separation, no-handler-contact refusal, and credential/access
+  controls.
+
+Repository gates do not substitute for these reviews, and this sign-off does
+not claim implementation authorization or live strict enablement.
 
 ## References
 
