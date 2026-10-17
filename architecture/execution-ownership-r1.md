@@ -763,6 +763,10 @@ historical record.
 
 ### Provider/routing residuals
 
+- The [Authenticated provider publication](authenticated-provider-publication.md)
+  draft proposes the residual authority, control protocol, source mapping, and
+  state-lifetime mechanism for independent architecture/security/docs review.
+  It is not accepted by this contract and grants no implementation permission.
 - Live Core publication/version/invalidation events, helper registry
   population, transport acknowledgement, and strict-handler wiring remain
   implementation work and are not claimed here.

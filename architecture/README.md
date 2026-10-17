@@ -42,18 +42,19 @@ copied.
 
 ## Documents
 
-| Document                                                                  | Status   | Purpose                                                                                                    |
-| ------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
-| [AI Architecture](ai-architecture.md)                                     | Draft    | Umbrella architecture for ModelProvider, ContextProvider, Tool Bus, Agent levels, and Rich streaming.      |
-| [Command and tool architecture](command-tool-architecture.md)             | Draft    | Slash command registry, tool runtime separation, and the Core-versus-Lua boundary design.                  |
-| [Execution ownership R1](execution-ownership-r1.md)                       | Draft    | R1 remains a draft disposition; its provider-routing snapshot binding contract is accepted separately.     |
-| [Tool transport R2](tool-transport-r2.md)                                 | Draft    | Unified authorization backend with native and MCP path selection and fail-closed denial.                   |
-| [Context retention R3](context-retention-r3.md)                           | Draft    | Consent-bounded retention, deletion propagation, and recovery limits.                                      |
-| [Code intelligence sharing R4](code-intelligence-sharing-r4.md)           | Draft    | Domain-keyed language-service sharing with lease and generation fencing and a reuse evidence bar.          |
-| [Task lifecycle R5](task-lifecycle-r5.md)                                 | Draft    | Product Task lifecycle authority versus CarryCtx backend-or-handoff.                                       |
-| [Persistence profile R6](persistence-profile-r6.md)                       | Draft    | Journal backend replay contract, projection and index as derived operations, and standalone release scope. |
-| [HostBoundary trait and lint-gate design](host-boundary-trait-design.md)  | Accepted | Core-versus-Lua enforcement through a `HostBoundary` trait sketch and a fail-closed lint gate.             |
-| [Prototype-to-Core promotion checklist](prototype-promotion-checklist.md) | Draft    | Hard-gate checklist for promoting workflow prototypes into the AI Core, derived from landed practice.      |
+| Document                                                                    | Status   | Purpose                                                                                                                                                      |
+| --------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [AI Architecture](ai-architecture.md)                                       | Draft    | Umbrella architecture for ModelProvider, ContextProvider, Tool Bus, Agent levels, and Rich streaming.                                                        |
+| [Command and tool architecture](command-tool-architecture.md)               | Draft    | Slash command registry, tool runtime separation, and the Core-versus-Lua boundary design.                                                                    |
+| [Execution ownership R1](execution-ownership-r1.md)                         | Draft    | R1 remains a draft disposition; its provider-routing snapshot binding contract is accepted separately.                                                       |
+| [Authenticated provider publication](authenticated-provider-publication.md) | Draft    | Reviewed conditional proposal for supervisor delegation, control protocol, metadata feed, and revocable helper proof lifetime; mechanism acceptance blocked. |
+| [Tool transport R2](tool-transport-r2.md)                                   | Draft    | Unified authorization backend with native and MCP path selection and fail-closed denial.                                                                     |
+| [Context retention R3](context-retention-r3.md)                             | Draft    | Consent-bounded retention, deletion propagation, and recovery limits.                                                                                        |
+| [Code intelligence sharing R4](code-intelligence-sharing-r4.md)             | Draft    | Domain-keyed language-service sharing with lease and generation fencing and a reuse evidence bar.                                                            |
+| [Task lifecycle R5](task-lifecycle-r5.md)                                   | Draft    | Product Task lifecycle authority versus CarryCtx backend-or-handoff.                                                                                         |
+| [Persistence profile R6](persistence-profile-r6.md)                         | Draft    | Journal backend replay contract, projection and index as derived operations, and standalone release scope.                                                   |
+| [HostBoundary trait and lint-gate design](host-boundary-trait-design.md)    | Accepted | Core-versus-Lua enforcement through a `HostBoundary` trait sketch and a fail-closed lint gate.                                                               |
+| [Prototype-to-Core promotion checklist](prototype-promotion-checklist.md)   | Draft    | Hard-gate checklist for promoting workflow prototypes into the AI Core, derived from landed practice.                                                        |
 
 ## Diagrams
 
