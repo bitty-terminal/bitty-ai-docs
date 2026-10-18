@@ -200,6 +200,19 @@ change; do not silently hex-encode, truncate at NUL, or substitute a resumption
 callback. Both client and server paths must be demonstrated at the proposed
 released pin before unconditional mechanism acceptance.
 
+**Survey outcome (CTX-0163).** The released-dependency survey is recorded
+separately in
+[Authenticated provider publication dependency feasibility](authenticated-provider-publication-dependency-feasibility.md).
+No surveyed candidate was demonstrated to satisfy the entire profile: s2n-tls
+implements TLS 1.3 external PSK with a Rust-crate surface, but its MSRV, platform
+matrix, zeroization, external-mode reachability from the Rust API, and this
+specification's per-step work-accounting requirement remain unestablished, and
+every other candidate is unmet or not demonstrated. The mechanism selected above
+is therefore not yet demonstrated to be implementable with a released
+dependency, and a new reviewed decision is required. That survey approves no
+dependency and enables no strict behavior; this subsection's design bounds,
+acceptance criteria, and review sign-off are unchanged.
+
 ### What the authority actually proves
 
 The root of trust is an uncompromised running Core supervisor, its policy and
