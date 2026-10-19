@@ -32,9 +32,10 @@ the conditional external-PSK profile with the launch-scoped mutual-certificate
 profile, so that profile's unresolved released-dependency blocker is resolved by
 replacement, not by a PSK dependency. Platform adapters and cryptographic
 dependencies still require separately scoped approval and evidence; the selected
-profile is not an approved runnable mechanism. Until its carried verification
-gates are discharged, authenticated publication is unavailable and strict
-dispatch remains `Unbound`.
+profile is not an approved runnable mechanism. The launch-material ownership and
+bootstrap-direction gate is completed in draft below; its remaining carried
+gates keep authenticated publication unavailable and strict dispatch
+`Unbound` until discharged.
 
 ### Pinned starting point
 
@@ -104,9 +105,10 @@ tasks; this draft does not alter foreign repositories or risk states.
 Select candidate A: keep existing stdio for bounded data RPC and add a dedicated
 bidirectional inherited control stream plus a one-shot bootstrap channel.
 The trusted Core supervisor, after policy grants this exact component launch,
-obtains `AUTHORITY_SECRET_BYTES` of OS cryptographic randomness. It installs
-the secret and expected launch manifest only in its private launch object and
-the selected helper through the bootstrap channel. No plugin, project file,
+generates fresh launch key material and the expected launch manifest (see
+[Launch material and bootstrap direction (2026-10-19)](#launch-material-and-bootstrap-direction-2026-10-19)).
+It installs them only in its private launch object and the selected helper
+through the bootstrap channel. No plugin, project file,
 IPC caller, shell, or Lua request may choose, replace, export, or obtain it.
 
 The manifest binds, in binary field order:
@@ -123,9 +125,10 @@ The manifest binds, in binary field order:
 5. Sole delegation purpose `provider-routing-publication`, and control profile
    `provider-publication-control/1`, each encoded as a bounded string as above.
 
-Bootstrap appends exactly the raw launch PSK after that manifest; `Establish`
-and `Established` omit it. The executable digest is raw `bytes32`; no textual
-digest, filesystem path, username, hostname, or credential field is present.
+Bootstrap appends exactly the launch key-material block after that manifest;
+`Establish` and `Established` omit all key material. The executable digest is
+raw `bytes32`; no textual digest, filesystem path, username, hostname, or
+credential field is present.
 
 These values come from trusted supervisor configuration and verified component
 metadata, never caller parameters. Bootstrap is one exact bounded record then
@@ -333,13 +336,142 @@ There is no implemented product binary-signing root of trust to assert here.
 
 A same-user process with ptrace/debug/process-memory access, ability to duplicate
 bootstrap handles, inject code, replace trusted startup code, or compromise the
-kernel/root can steal the delegation. The PSK authenticates its bearer; it cannot
-identify an unauthorized bearer after theft. Prevention depends on platform
+kernel/root can steal the delegation. The pinned launch certificate authenticates
+its bearer and the session nonce binds it to the launch; neither identifies an
+unauthorized bearer after key theft. Prevention depends on platform
 process-access and handle protections, not an impossible cryptographic promise.
 Detected leakage, debugger attachment under deployment policy, grant loss, or
 suspected compromise requires launch revocation, child teardown, and fresh
-bootstrap; the old secret must never authenticate a replacement session. An
+bootstrap; old launch material must never authenticate a replacement session. An
 undetected theft within the trusted-memory boundary is a stated residual risk.
+
+### Launch material and bootstrap direction (2026-10-19)
+
+This section completes, in draft, the carried gate "launch material ownership
+and bootstrap direction" for the selected mutual-certificate profile: how
+certificate and key material is provisioned, owned, delivered, and pinned
+through the trusted one-shot bootstrap. It records proposed mechanics only. It
+adopts no Core dependency, grants no implementation permission, enables no
+strict behavior, and closes no review gate. The dated ruling text above remains
+the record of what was open when the mechanism was selected.
+
+**Ownership and generation.** The supervisor owns launch key material. At every
+helper launch it generates fresh material for that launch only: one ECDSA P-256
+key pair and one self-signed leaf certificate per role — a `core-supervisor`
+client leaf and an `ai-helper` server leaf — bound to the manifest's fresh
+launch nonce. Both leaves carry a fresh random serial, no subject alternative names,
+`basicConstraints` CA false, `keyUsage` digitalSignature, and the
+role-appropriate `extendedKeyUsage` (`clientAuth` or `serverAuth`); the validity
+window is set with bounded margins for hygiene, not as an authorization input.
+No key, certificate, or nonce is reused across launches, helper restarts, or
+reconnects; a restart is a fresh launch with fresh material. The helper
+generates no key material and contacts no CA, PKI, OCSP, or directory service.
+
+**Delivery.** Immediately after spawn the supervisor writes exactly one launch
+manifest to the dedicated one-shot bootstrap handle and closes its write end.
+The manifest is the already specified bounded record — bootstrap and protocol
+versions, roles, Core and launch nonces, component identity and executable
+digest, channel nonces, delegation purpose, and control profile — followed by
+the launch key-material block below in place of the superseded raw-PSK append.
+The block carries the helper leaf certificate and its PKCS#8 private key, the
+Core leaf certificate, and the profile and key-type tags. The Core leaf is
+delivered so the helper can pin it; the helper leaf key is delivered so the
+helper can serve TLS. The supervisor retains the helper leaf digest as its pin
+and keeps its own private key in process memory. No key material, private key,
+or manifest payload enters argv, the environment, the filesystem, logs, the
+control stream, or any control record.
+
+The key-material block uses the same integer and variable-string conventions as
+the manifest (unsigned big-endian, `u32` byte lengths) and ends at the manifest
+EOF:
+
+| Field             | Type  | Bound                   | Content                               |
+| ----------------- | ----- | ----------------------- | ------------------------------------- |
+| `profile`         | u8    | `1`                     | Launch-scoped mutual certificates     |
+| `key_type`        | u8    | `1`                     | ECDSA P-256                           |
+| `core_cert_len`   | u32   | `LAUNCH_CERT_MAX_BYTES` | Length of the Core leaf certificate   |
+| `core_cert`       | bytes | DER                     | Self-signed `core-supervisor` leaf    |
+| `helper_cert_len` | u32   | `LAUNCH_CERT_MAX_BYTES` | Length of the helper leaf certificate |
+| `helper_cert`     | bytes | DER                     | Self-signed `ai-helper` leaf          |
+| `helper_key_len`  | u32   | `LAUNCH_KEY_MAX_BYTES`  | Length of the helper private key      |
+| `helper_key`      | bytes | PKCS#8 DER              | Helper ECDSA P-256 private key        |
+
+The helper checks the total against `CONTROL_BOOTSTRAP_MAX_BYTES` before
+allocation, every length with checked arithmetic, the exact field order and
+EOF, and rejects unknown profile or key type. It derives the peer pin by hashing
+the received Core leaf; digests are not transmitted in the manifest. A
+malformed, truncated, oversize, or trailing-byte manifest fails the launch.
+
+**Pin shape.** The pin is SHA-256 over the leaf certificate DER, not over the
+SPKI. The verifier callback receives the end-entity certificate DER directly, so
+the pin decision needs no X.509 parsing, SPKI extraction, or re-encoding; the
+leaf is minted per launch and never reused, so pinning the complete certificate
+is at least as strong as pinning its public key; and exactly one self-signed
+leaf is accepted, with no intermediates, chains, or alternate encodings.
+Rejected alternatives: SPKI pinning (adds a parser and re-encoding ambiguity for
+no gain on a single-use leaf), exact-DER retention (equivalent security but
+larger retained state than a 32-byte digest), and public-key-value pinning
+without launch material (replayable across launches).
+
+**One-shot bootstrap semantics.** The bootstrap handle is a dedicated inherited
+channel: never standard input or output, never a named path or socket path,
+never the control stream, and never multiplexed with data framing. It is
+unidirectional supervisor-to-helper, written once, read once to the exact
+manifest end, and closed by both sides; handle placement follows the launch
+convention and carries no secret. The helper starts TLS, adopts a projection, or
+accepts any record only after it has consumed the manifest and built its TLS
+server configuration. Any read error, establishment-deadline timeout (the named
+five-second bound), duplicate delivery, or extra byte fails closed; the
+supervisor revokes that launch. The control stream is a separate inherited
+duplex channel whose first bytes are TLS, never manifest bytes.
+
+Unix uses an anonymous pipe with pre-exec descriptor placement; Windows uses an
+anonymous pipe with an inherited handle. Per-platform handle inheritance,
+close-on-exec behavior, and absence of accidental grandchildren inheritance
+remain platform evidence gates.
+
+**Zeroization.** Both sides zeroize their serialized manifest buffer and any raw
+private-key copy once the TLS configuration has consumed it. The limits already
+recorded apply: only owned accessible storage is covered; copies inside rustls
+internals, the crypto provider, rcgen, or inaccessible allocator remnants may
+persist; crash remnants and destructor non-execution are not covered. A process
+that fails after reading the manifest discards the launch rather than continuing
+with partial material.
+
+**Failure and revocation.** A missing handle, manifest timeout, malformed or
+oversize manifest, pin mismatch in either role, certificate or signature failure,
+or TLS establishment failure terminates the launch: the supervisor closes the
+control stream, tears down the recorded child, discards that launch's material,
+and retries only with fresh material and a fresh nonce. Superseded or old launch
+material never authenticates a replacement session.
+
+**Non-circularity.** The pins are provisioned out of band from the channel they
+protect: the supervisor's trusted startup code generates both leaves and hands
+the helper its material through the kernel-mediated inherited bootstrap. The
+helper's pin of the Core leaf is therefore rooted in supervisor generation, not
+in anything observed on the TLS channel; the handshake then proves possession of
+the pinned keys and binds the session to the launch nonce and descriptor digest.
+A same-user attacker able to read the bootstrap handle or process memory has
+already crossed the stated trust boundary; this design does not claim to repair
+a compromised bootstrap.
+
+**Bound revalidation.** With ECDSA P-256 self-signed leaves (certificate DER
+roughly 400–500 bytes, PKCS#8 key roughly 140 bytes), the proposed manifest stays
+well under `CONTROL_BOOTSTRAP_MAX_BYTES` (4 KiB), and the handshake stays well
+under `CONTROL_HANDSHAKE_MAX_BYTES` (64 KiB) and
+`TLS_PREAUTH_WIRE_MAX_BYTES` (128 KiB) per direction. These are design-time
+estimates; measurement with the selected provider and real certificate sizes is
+a verification gate, not a current claim.
+
+**Remaining gates after this section.** The rcgen 0.13.2 supply-chain and
+maturity review; the Core rustls crypto-provider choice (aws-lc-rs versus ring,
+`kx_groups` and post-quantum policy, feature selection) and the reviewed Core
+dependency-adoption decision; per-platform bootstrap-handle evidence; the
+key-generation cost and resource bound measured under an audited bound; the
+handshake byte/record bound revalidation above; the launch key-material
+zeroization evidence across rustls internals, the crypto provider, and rcgen's
+copy-only coverage; and the per-step work-accounting instrumentation plan for
+rustls internals. Each remains separately scoped; none is discharged here.
 
 ## Control protocol and resource policy
 
@@ -384,7 +516,7 @@ Checked arithmetic is mandatory before allocation, conversion, or increment.
 | `CONTROL_TLS_BUFFER_MAX_BYTES`    | 64 KiB per direction                          | Bound ciphertext/handshake buffering separately; TLS fragments application frames rather than assuming one frame fits one TLS record.                                                                                                        |
 | `CONTROL_HANDSHAKE_MAX_BYTES`     | 64 KiB total per peer                         | No certificates or unbounded certificate chain; refuse excess before allocation.                                                                                                                                                             |
 | `CONTROL_SMALL_RECORD_MAX_BYTES`  | 4 KiB                                         | Establishment, invalidation, bind, permits, and errors contain only fixed/bounded fields.                                                                                                                                                    |
-| `CONTROL_BOOTSTRAP_MAX_BYTES`     | 4 KiB                                         | Exactly one launch manifest plus PSK, no provider metadata.                                                                                                                                                                                  |
+| `CONTROL_BOOTSTRAP_MAX_BYTES`     | 4 KiB                                         | Exactly one launch manifest carrying launch certificates and the helper key; no provider metadata.                                                                                                                                           |
 | `CONTROL_PAYLOAD_MAX_BYTES`       | `CONTROL_FRAME_MAX_BYTES - 512`               | Reserve a checked fixed budget for the header and largest publication/feed envelope; stricter than R1's payload ceiling.                                                                                                                     |
 | `CONTROL_QUEUE_MAX_RECORDS`       | 2 per direction                               | Two-frame byte budget also applies; no drop-oldest acknowledgement or invalidation.                                                                                                                                                          |
 | `CONTROL_PENDING_PUBLICATIONS`    | 1                                             | One current tuple; replacements revoke before replacement acceptance.                                                                                                                                                                        |
@@ -395,8 +527,10 @@ Checked arithmetic is mandatory before allocation, conversion, or increment.
 | `CONTROL_CAPABILITIES_MAX`        | 8 per model                                   | Reuse accepted closed label set.                                                                                                                                                                                                             |
 | `CONTROL_STRING_MAX_BYTES`        | 128                                           | Reuse R1 identity/model/label bound; also cap each manifest string.                                                                                                                                                                          |
 | `CONTROL_JSON_DEPTH_MAX`          | 8                                             | Sufficient for the fixed provider/model/capability schema, stricter than IPC depth 32.                                                                                                                                                       |
-| `AUTHORITY_SECRET_BYTES`          | 32                                            | Independent high-entropy pairwise TLS PSK from OS RNG.                                                                                                                                                                                       |
+| `LAUNCH_CERT_MAX_BYTES`           | 1024                                          | One DER-encoded self-signed ECDSA P-256 leaf certificate per role.                                                                                                                                                                           |
+| `LAUNCH_KEY_MAX_BYTES`            | 256                                           | One PKCS#8 DER ECDSA P-256 private key delivered to the helper.                                                                                                                                                                              |
 | `RANDOM_ID_BYTES`                 | 32                                            | Fresh launch/channel/lifetime/receipt identifiers with cryptographic collision margin.                                                                                                                                                       |
+| `LIFETIME_SECRET_BYTES`           | 32                                            | Helper-private lifetime capability value; never serialized or reconstructed from public data.                                                                                                                                                |
 | `CONTROL_ESTABLISH_TIMEOUT`       | 5 seconds from spawn                          | Proposed bounded local bootstrap/TLS/establishment policy; matches the numerical candidate default in the IPC RFC, not an accepted default deadline.                                                                                         |
 | `CONTROL_TRANSACTION_TIMEOUT`     | 5 seconds                                     | Whole feed/publication/ack/bind/permit transaction, not renewed per partial byte.                                                                                                                                                            |
 | `CONTROL_SESSION_MAX_AGE`         | 60 seconds                                    | Expire provider-publication authority and close its dedicated control stream only. Strict stays disabled until an independently safe fresh helper launch; routine expiry never kills tolerant data RPC or automatically respawns the helper. |
@@ -521,7 +655,7 @@ replaceable publication-state object.
 
 | Kind            | Direction        | Body and acceptance effect                                                                                                                                                                                                                                                                         |
 | --------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `1 Establish`   | Core → helper    | Exact bootstrap manifest encoded without PSK. Helper compares every field against private bootstrap expectations; no publication acceptance yet.                                                                                                                                                   |
+| `1 Establish`   | Core → helper    | Exact launch manifest echo (profile, key type, session nonce, descriptor digest, Core and helper certificate digests), never key material. Helper compares every field against private bootstrap expectations; no publication acceptance yet.                                                      |
 | `2 Established` | Helper → Core    | Same manifest, fresh public `lifetime_id:bytes32`. Core confirms roles/channel/descriptor; establishes current lifetime only.                                                                                                                                                                      |
 | `3 Projection`  | Helper → Core    | `lifetime_id`, `feed_revision:u64`, `digest:bytes32`, `payload:bytes`. Helper sends a bounded atomic registry projection; Core validates/canonicalizes before adopting its read-only source view.                                                                                                  |
 | `4 Publish`     | Core → helper    | `lifetime_id`, `feed_revision`, `tuple`, `payload:bytes`. Validate authenticated origin, current source/lifetime/version, exact schema/canonical bytes and digest before storing one pending publication.                                                                                          |
@@ -540,7 +674,7 @@ the bound table. Publication tuples, registry revisions, and receipt lookups
 have no unauthenticated setter. Static reason/error enums have closed values;
 unknown values revoke. On unauthenticated failures, close without application
 error; an authenticated error is best effort, never a blocking dependency of
-local revocation. Never include the bootstrap PSK in a control record.
+local revocation. Never include launch key material or a private key in a control record.
 
 Reason tags are `1` source mutation, `2` registry mutation, `3` reset, `4`
 supersession, `5` grant loss, and `6` shutdown. Error tags are `1` invalid
@@ -551,9 +685,11 @@ arithmetic. A publication-free initial lifetime still has a feed revision.
 
 ### Message order and strict handoff
 
-1. Supervisor verifies descriptor/digest, grants the narrow launch, creates
-   bootstrap/control/data channels, and starts the helper. TLS and
-   `Establish → Established` finish within the establishment deadline.
+1. Supervisor verifies descriptor/digest, grants the narrow launch, generates
+   fresh launch key material, creates bootstrap/control/data channels, starts
+   the helper, delivers the launch manifest over the one-shot bootstrap handle,
+   and closes it. TLS and `Establish → Established` finish within the
+   establishment deadline.
 2. Helper snapshots the actual registry and sends `Projection`. Core adopts a
    validated read-only source view, derives its exact canonical bytes, allocates
    a fresh publication ID/version, and records one private pending tuple.
@@ -761,7 +897,7 @@ Create a helper-private authority owner associated with the established
 control session, separate from a replaceable `PublicationState`. It owns a
 serialized revocation gate, the current lifetime capability, one current proof
 slot, session/version high-water marks, feed revision, and deadlines. The
-lifetime capability includes a fresh OS-random `AUTHORITY_SECRET_BYTES` value
+lifetime capability includes a fresh OS-random `LIFETIME_SECRET_BYTES` value
 that is never serialized or reconstructed from a public tuple. A separate
 random public `lifetime_id` names it on the authenticated control session.
 Proofs reference the shared revocation cell and the private lifetime capability;
@@ -852,7 +988,7 @@ Choose the bounded initial policy of **no live control rebootstrap**. At the
 60-second authority deadline or a control transaction/budget expiry, Core and
 helper permanently disable provider-publication authority for that resident
 launch, revoke all old cells/receipts/pending strict reservations, and close
-control. Do not reissue a PSK, reset TLS counters, reuse a token/session/channel
+control. Do not reissue launch key material, reset TLS counters, reuse a token/session/channel
 ID, or attach a fresh TLS session to the existing helper. This avoids an
 unreviewed secondary bootstrap/rekey protocol. Ordinary reset/mutation before
 expiry may rotate publication lifetime using the still-live authority only;
@@ -872,9 +1008,10 @@ Publication authority returns only on an **independently safe fresh launch**
 already permitted by the existing supervisor lifecycle (for example ordinary
 idle stop with nothing in flight, followed by demand, or an explicitly authorized
 restart). Publication expiry does not request that restart. The fresh launch
-repeats verified bootstrap with fresh PSK, launch/control/data IDs, TLS session,
-private lifetime and tuples; all old objects stay revoked. This design makes
-no seamless strict-refresh/availability promise after authority expiry.
+repeats verified bootstrap with fresh launch key material, launch/control/data
+IDs, TLS session, private lifetime and tuples; all old objects stay revoked.
+This design makes no seamless strict-refresh/availability promise after
+authority expiry.
 
 Security faults are a separate policy: detected bootstrap leakage, failed
 authentication/manifest, malicious framing/injection, or suspected process
@@ -945,15 +1082,15 @@ debug protocol exposure, named-pipe discovery, or new network listener is added.
 This is the local threat-model extension submitted for review; it does not
 change the canonical register or mark any mitigation verified.
 
-| Threat / risk trace                                                          | Required control and test                                                                                                                                       | Residual trust assumption                                                                                                                                                  |
-| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Same-user publication injection / T-09, R-011, P0-AC-021..022                | Restricted per-launch bootstrap plus pairwise TLS/manifest and authenticated ordering; a same-user peer with only a data/control handle is denied before Ack.   | Kernel, supervisor/helper code, and process-memory access protections are trusted.                                                                                         |
-| Bootstrap/secret leakage / R-012, R-014, P0-AC-023,026                       | No argv/env/log/export exposure; child inheritance allowlist, closure, key-log prohibition; seeded-secret tests; revoke/terminate on detected leak.             | A stolen PSK can impersonate its delegated bearer until revocation/expiry. Tests must demonstrate containment after detection, not claim stolen material remains harmless. |
-| Reflection, cross-launch or wrong-role/channel / R-011                       | Unique pairwise key, fixed TLS roles, exact manifest/channel confirmation, session/sequence checks, data-frame permit binding.                                  | Cryptographic library correctly implements TLS and rejects bad transcripts.                                                                                                |
-| Old clone/proof replay / R-011                                               | Fresh private helper lifetime, shared irreversible revocation cell, no value cloning/serialization, checks on old and new endpoint objects.                     | Arbitrary memory rollback/tampering is excluded; public tuples may repeat in offline regression fixtures.                                                                  |
-| Feed drift/alias mutation/confused deputy / R-011, R-013, P0-AC-024          | Atomic mutation invalidation, registry read gate, revision/lifetime match, full retained-byte equality; Core feed acceptance kept distinct from semantic truth. | Authoritative helper/registration policy is trusted; an echo is not independent integrity evidence.                                                                        |
-| Exhaustion, malformed/unknown protocol / R-011, overview invariant 7         | Pre-allocation size/depth/count limits, byte and record budgets, rate/deadline/overflow gates, bounded fuzz corpus; no handler side effects.                    | Bounded local denial of service is possible; default startup/tolerant paths remain usable.                                                                                 |
-| Supply-chain/platform adapter error / R-015, R-018, R-019, P0-AC-028,033,034 | Separate dependency review/audit, narrow unsafe adapters, descriptor/digest stable launch, native platform matrices.                                            | No code-signing or complete same-user isolation is asserted. Unsupported adapters disable strict.                                                                          |
+| Threat / risk trace                                                          | Required control and test                                                                                                                                       | Residual trust assumption                                                                                                                                                                 |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Same-user publication injection / T-09, R-011, P0-AC-021..022                | Restricted per-launch bootstrap plus pairwise TLS/manifest and authenticated ordering; a same-user peer with only a data/control handle is denied before Ack.   | Kernel, supervisor/helper code, and process-memory access protections are trusted.                                                                                                        |
+| Bootstrap/key-material leakage / R-012, R-014, P0-AC-023,026                 | No argv/env/log/export exposure; child inheritance allowlist, closure, key-log prohibition; seeded-key-material tests; revoke/terminate on detected leak.       | A stolen launch private key can impersonate its delegated bearer until revocation/expiry. Tests must demonstrate containment after detection, not claim stolen material remains harmless. |
+| Reflection, cross-launch or wrong-role/channel / R-011                       | Unique pairwise key, fixed TLS roles, exact manifest/channel confirmation, session/sequence checks, data-frame permit binding.                                  | Cryptographic library correctly implements TLS and rejects bad transcripts.                                                                                                               |
+| Old clone/proof replay / R-011                                               | Fresh private helper lifetime, shared irreversible revocation cell, no value cloning/serialization, checks on old and new endpoint objects.                     | Arbitrary memory rollback/tampering is excluded; public tuples may repeat in offline regression fixtures.                                                                                 |
+| Feed drift/alias mutation/confused deputy / R-011, R-013, P0-AC-024          | Atomic mutation invalidation, registry read gate, revision/lifetime match, full retained-byte equality; Core feed acceptance kept distinct from semantic truth. | Authoritative helper/registration policy is trusted; an echo is not independent integrity evidence.                                                                                       |
+| Exhaustion, malformed/unknown protocol / R-011, overview invariant 7         | Pre-allocation size/depth/count limits, byte and record budgets, rate/deadline/overflow gates, bounded fuzz corpus; no handler side effects.                    | Bounded local denial of service is possible; default startup/tolerant paths remain usable.                                                                                                |
+| Supply-chain/platform adapter error / R-015, R-018, R-019, P0-AC-028,033,034 | Separate dependency review/audit, narrow unsafe adapters, descriptor/digest stable launch, native platform matrices.                                            | No code-signing or complete same-user isolation is asserted. Unsupported adapters disable strict.                                                                                         |
 
 Refusal precedes publication Ack/proof issuance on authority failures and
 precedes handler/provider implementation/provider I/O/credential/tool contact
@@ -969,19 +1106,20 @@ do not depend on this control session.
 No row below is reported passed by this draft. Each implementation task records
 exact revisions, platform/runner, commands, and independent review evidence.
 
-| Test group                    | Required cases and observable pass condition                                                                                                                                                                                                                                                                                                           |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Exact positive flow           | Trusted launch, TLS/manifest, actual registry feed, Core acceptance, Publish/Ack/Bind/Bound/Admit, exact data frame, provider-list projection. All tuples/bytes agree; only the scoped provider-list handler runs.                                                                                                                                     |
-| Authority negatives           | Same-user caller, control handle without PSK, fake bootstrap on unrelated helper, wrong key, role reflection, wrong descriptor, ALPN/version/channel/session, replaced process/stream. No Ack or proof; no handler, provider, credential, or tool contact.                                                                                             |
-| Deliberate secret leak        | Give adversarial fixture the bootstrap material and show bearer impersonation is possible inside the stated assumption failure; detect/revoke original launch and prove both captured key and old receipts fail on replacement. Seed PSK/receipts in diagnostic/error inputs and assert no exposure.                                                   |
-| Exact-byte prerequisite       | Reviewed/merged AI-0327 consumed revision; equal digest alone does not substitute for retained-byte equality; field, order, Unicode/escape, integer, schema, domain, and cost/context differences refuse.                                                                                                                                              |
-| Lifetime regression / AI-0330 | Same live process/control/data/session, reset/clone/reconstruct, identical offline publish/ack/bind bytes and public tuple/revision/epoch. Old proof refuses against old cloned endpoint and reconstructed endpoint; fresh internal lifetime is required. Production replay separately refuses before Ack.                                             |
-| Revocation matrix             | Each reset/clone/reconstruction, source/registry/alias mutation, supersession, grant loss, timeout/absolute expiry, closure, crash, shutdown, digest/version change, restart, process/endpoint/generation/channel replacement revokes pending/ack/proof/receipt/reservation.                                                                           |
-| Order/replay/races            | Missing/stale/future/duplicate/replayed/out-of-order Publish/Ack/Bind/Bound/Admit; feed changes between every step; mutate before/after admission; delayed/lost invalidation; old endpoint references. No stale handler entry; bounded already-admitted read has documented linearization.                                                             |
-| Resource/fuzz                 | Every named bound at limit and limit-plus-one; maximum escaped canonical bytes plus full envelope; incomplete headers, huge lengths, unknown kind/version/reason, trailing bytes, invalid TLS, rate burst, queue saturation, blocked writes, RNG failure, sequence/version/revision overflow. No oversized allocation, hang, fallback, or side effect. |
-| Data/control separation       | TLS/control bytes on data stream, RPC on control stream, wrong frame digest/request ID/method, receipt in caller params, cross-channel injection. No sniffed enablement or schema widening.                                                                                                                                                            |
-| Domain/tolerance              | Standalone/default path without bootstrap, safe mode without providers, other `ai.*` methods, MCP `list_version`, generic snapshot version, context/session/tool/extension domains retain their own behavior; none satisfy provider-routing authority.                                                                                                 |
-| Platform matrix               | Linux, each supported BSD, macOS, Windows native runners: unrelated concurrent spawn, descendant/exec/raw-fork restrictions, fd/handle duplication/leak, endpoint/process replacement, executable race, environment dump, debugger boundary, shutdown/restart. Unsupported platform reports strict unavailable.                                        |
+| Test group                    | Required cases and observable pass condition                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exact positive flow           | Trusted launch, TLS/manifest, actual registry feed, Core acceptance, Publish/Ack/Bind/Bound/Admit, exact data frame, provider-list projection. All tuples/bytes agree; only the scoped provider-list handler runs.                                                                                                                                                      |
+| Launch material/bootstrap     | Fresh material per launch; one-shot handle read/close; manifest truncation, oversize, trailing bytes, unknown profile/key type; Core and helper pin mismatch; extra bytes after the manifest; key material absent from records, logs, argv, and environment; failed launch never reuses material. No TLS, projection, or record acceptance before manifest consumption. |
+| Authority negatives           | Same-user caller, control handle without launch key material, fake bootstrap on unrelated helper, wrong key, role reflection, wrong descriptor, ALPN/version/channel/session, replaced process/stream. No Ack or proof; no handler, provider, credential, or tool contact.                                                                                              |
+| Deliberate secret leak        | Give adversarial fixture the bootstrap material and show bearer impersonation is possible inside the stated assumption failure; detect/revoke original launch and prove both captured key and old receipts fail on replacement. Seed launch key material/receipts in diagnostic/error inputs and assert no exposure.                                                    |
+| Exact-byte prerequisite       | Reviewed/merged AI-0327 consumed revision; equal digest alone does not substitute for retained-byte equality; field, order, Unicode/escape, integer, schema, domain, and cost/context differences refuse.                                                                                                                                                               |
+| Lifetime regression / AI-0330 | Same live process/control/data/session, reset/clone/reconstruct, identical offline publish/ack/bind bytes and public tuple/revision/epoch. Old proof refuses against old cloned endpoint and reconstructed endpoint; fresh internal lifetime is required. Production replay separately refuses before Ack.                                                              |
+| Revocation matrix             | Each reset/clone/reconstruction, source/registry/alias mutation, supersession, grant loss, timeout/absolute expiry, closure, crash, shutdown, digest/version change, restart, process/endpoint/generation/channel replacement revokes pending/ack/proof/receipt/reservation.                                                                                            |
+| Order/replay/races            | Missing/stale/future/duplicate/replayed/out-of-order Publish/Ack/Bind/Bound/Admit; feed changes between every step; mutate before/after admission; delayed/lost invalidation; old endpoint references. No stale handler entry; bounded already-admitted read has documented linearization.                                                                              |
+| Resource/fuzz                 | Every named bound at limit and limit-plus-one; maximum escaped canonical bytes plus full envelope; incomplete headers, huge lengths, unknown kind/version/reason, trailing bytes, invalid TLS, rate burst, queue saturation, blocked writes, RNG failure, sequence/version/revision overflow. No oversized allocation, hang, fallback, or side effect.                  |
+| Data/control separation       | TLS/control bytes on data stream, RPC on control stream, wrong frame digest/request ID/method, receipt in caller params, cross-channel injection. No sniffed enablement or schema widening.                                                                                                                                                                             |
+| Domain/tolerance              | Standalone/default path without bootstrap, safe mode without providers, other `ai.*` methods, MCP `list_version`, generic snapshot version, context/session/tool/extension domains retain their own behavior; none satisfy provider-routing authority.                                                                                                                  |
+| Platform matrix               | Linux, each supported BSD, macOS, Windows native runners: unrelated concurrent spawn, descendant/exec/raw-fork restrictions, fd/handle duplication/leak, endpoint/process replacement, executable race, environment dump, debugger boundary, shutdown/restart. Unsupported platform reports strict unavailable.                                                         |
 
 ### TLS flood, fairness, and cleanup acceptance tests
 
@@ -1006,7 +1144,7 @@ exact revisions, platform/runner, commands, and independent review evidence.
   tolerant request complete under its existing deadline without process/data
   restart. Keep the helper long-lived, verify tolerant domains still operate
   and strict stays disabled; allow an independently safe idle/demand restart,
-  then verify all launch/PSK/channel/lifetime/receipt identities are fresh and
+  then verify all launch key material, channel, lifetime, and receipt identities are fresh and
   old proofs fail. No live control rebootstrap or automatic expiry respawn is
   tested or implied. Test security-compromise teardown separately.
 - Before Finished, inject compatibility CCS, zero-length/empty records, junk,
@@ -1089,12 +1227,12 @@ or compatibility promise is made by this draft.
 
 ### Implementation sequence after acceptance
 
-| Order | Separately authorized scope                                                                                                                                                    | Required completion evidence before next gate                                                                                                                                                                                                                            |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1     | Architecture/security/docs acceptance of this decision; owning security-corpus synchronization; crypto/RNG/platform dependency approval; IPC pure contract module if accepted. | Independent three-lens sign-off, audited dependencies and wire vectors, explicit platform exclusions and scoped pin-upgrade plan. No product implementation is authorized by the draft itself.                                                                           |
-| 2     | Core supervisor control/bootstrap adapter, descriptor profile, metadata source view, Core publication/version/invalidation and ack/receipt handling.                           | Native launch authority tests, stable descriptor/executable binding, current-channel revocation, bounded codec/transport, safe diagnostics; Core owns its task allocation.                                                                                               |
-| 3     | Helper authenticated authority owner, shared live revocation/AI-0330, registry feed/mutation gate, retained bytes, ack/bind/receipt and exact data-frame reservation adapter.  | Reviewed/merged AI-0327 exact-byte prerequisite consumed; old/new cloned-object lifetime regression fixed; cross-component and platform/security matrices green. Scopes 2/3 may develop against fixtures but cannot claim integrated authority until both pass together. |
-| 4     | AI-0329 strict `ai.provider_list` admission only.                                                                                                                              | Integrated Core delivery plus helper authority/AI-0330, explicit compatible pins, exact-byte evidence, independent security approval, no-contact negative tests and tolerant regressions.                                                                                |
+| Order | Separately authorized scope                                                                                                                                                                                                   | Required completion evidence before next gate                                                                                                                                                                                                                            |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1     | Architecture/security/docs acceptance of this decision; owning security-corpus synchronization; crypto/RNG/platform dependency approval; IPC pure contract module if accepted.                                                | Independent three-lens sign-off, audited dependencies and wire vectors, explicit platform exclusions and scoped pin-upgrade plan. No product implementation is authorized by the draft itself.                                                                           |
+| 2     | Core supervisor control/bootstrap adapter including launch key-material generation and one-shot bootstrap delivery, descriptor profile, metadata source view, Core publication/version/invalidation and ack/receipt handling. | Native launch authority tests, stable descriptor/executable binding, current-channel revocation, bounded codec/transport, safe diagnostics; Core owns its task allocation.                                                                                               |
+| 3     | Helper authenticated authority owner, shared live revocation/AI-0330, registry feed/mutation gate, retained bytes, ack/bind/receipt and exact data-frame reservation adapter.                                                 | Reviewed/merged AI-0327 exact-byte prerequisite consumed; old/new cloned-object lifetime regression fixed; cross-component and platform/security matrices green. Scopes 2/3 may develop against fixtures but cannot claim integrated authority until both pass together. |
+| 4     | AI-0329 strict `ai.provider_list` admission only.                                                                                                                                                                             | Integrated Core delivery plus helper authority/AI-0330, explicit compatible pins, exact-byte evidence, independent security approval, no-contact negative tests and tolerant regressions.                                                                                |
 
 This sequencing grants no scope for completion/context/MCP/tools/extensions,
 Lua integration, new provider APIs, or broader AI method strict enforcement.
@@ -1114,12 +1252,16 @@ verification gates remain open, and neither unspecified implementation judgment
 nor a silent fallback can close them.
 
 Independent architecture, security, and documentation review approved this
-bounded conditional draft (see P0 Review Sign-off). Remaining acceptance blockers
-are IPC owner's module/dependency direction; the selected profile's carried
-verification gates (the full carried-gate list in the
-[Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19)); and security-corpus
-synchronization by its owner. Native platform evidence and implementation tasks
-remain delivery gates, not invented current support. If reviewers require
+bounded conditional draft (see P0 Review Sign-off). The launch-material
+ownership and bootstrap-direction gate is completed in draft by
+[Launch material and bootstrap direction (2026-10-19)](#launch-material-and-bootstrap-direction-2026-10-19),
+including the certificate-digest pin shape. Remaining acceptance blockers are the
+IPC owner's module/dependency direction; the remaining carried verification
+gates (rcgen 0.13.2 supply chain, Core rustls crypto-provider and dependency
+adoption, per-platform bootstrap-handle evidence, key-generation cost,
+handshake bound revalidation, per-step work accounting, and launch key-material
+zeroization evidence); and security-corpus synchronization by its owner.
+Native platform evidence and implementation tasks remain delivery gates, not invented current support. If reviewers require
 resistance to arbitrary same-user process-memory/bootstrap theft or memory
 snapshot rollback, this proposal cannot meet that requirement without a stronger
 externally anchored isolation/attestation design. Keep strict disabled and
