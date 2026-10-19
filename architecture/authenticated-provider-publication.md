@@ -213,6 +213,13 @@ dependency, and a new reviewed decision is required. That survey approves no
 dependency and enables no strict behavior; this subsection's design bounds,
 acceptance criteria, and review sign-off are unchanged.
 
+**Replacement candidate analysis (CTX-0164).** The launch-scoped
+mutual-certificate alternative recorded by the dependency survey is analysed
+separately in [Authenticated provider publication mutual-certificate feasibility](authenticated-provider-publication-mutual-certificate-feasibility.md).
+That record maps the candidate against this specification's requirements as
+API-feasibility evidence only: it selects no mechanism, edits no profile or
+bound, and enables no strict behavior.
+
 ### What the authority actually proves
 
 The root of trust is an uncompromised running Core supervisor, its policy and
