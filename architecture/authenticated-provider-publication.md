@@ -373,19 +373,24 @@ The launch nonce is bound operationally through the bootstrap record and the
 establishment echo, not embedded in the certificate.
 
 **Delivery.** Immediately after spawn the supervisor writes exactly one launch
-manifest to the dedicated one-shot bootstrap handle and closes its write end.
-The manifest is the already specified bounded record — bootstrap and protocol
-versions, roles, Core and launch nonces, component identity and executable
-digest, channel nonces, delegation purpose, and control profile — followed by
-the launch key-material block below in place of the superseded raw-PSK append.
+bootstrap record to the dedicated one-shot bootstrap handle and closes its
+write end. The record is the already specified bounded manifest — bootstrap
+and protocol versions, roles, Core and launch nonces, component identity and
+executable digest, channel nonces, delegation purpose, and control profile —
+followed by the launch key-material block below in place of the superseded
+raw-PSK append.
 The block carries the helper leaf certificate and its PKCS#8 private key, the
-Core leaf certificate, and the profile and key-type tags. The Core leaf is
+Core leaf certificate, and the key-material profile and key-type tags.
+`key_material_profile` selects the key-material block encoding and is distinct
+from the manifest's control-profile string `provider-publication-control/1`;
+both are echoed separately in `Establish`. The Core leaf is
 delivered so the helper can pin it; the helper leaf key is delivered so the
 helper can serve TLS. The supervisor retains the helper leaf digest as its pin
 and keeps its own private key in process memory. No launch key material or private key enters argv, the environment, the
-filesystem, logs, the data stream, or any control record. Non-secret manifest
-fields and the leaf certificate digests may appear only in the establishment
-echo defined below.
+filesystem, logs, the data stream, or any control record. Outside the one-shot
+bootstrap record, non-secret manifest fields and the leaf digests may appear
+only in the establishment echo defined below; they never appear on the data
+stream.
 
 The key-material block uses the same integer and variable-string conventions as
 the manifest (unsigned big-endian, `u32` byte lengths) and ends at the launch
@@ -424,10 +429,10 @@ without launch material (replayable across launches).
 channel: never standard input or output, never a named path or socket path,
 never the control stream, and never multiplexed with data framing. It is
 unidirectional supervisor-to-helper, written once, read once to the exact
-manifest end, and closed by both sides; handle placement follows the launch
-convention and carries no secret. The helper starts TLS, adopts a projection, or
-accepts any record only after it has consumed the manifest and built its TLS
-server configuration. Any read error, establishment-deadline timeout (the named
+launch bootstrap record end, and closed by both sides; handle placement
+follows the launch convention and carries no secret. The helper starts TLS,
+adopts a projection, or accepts any record only after it has consumed the
+launch bootstrap record and built its TLS server configuration. Any read error, establishment-deadline timeout (the named
 five-second bound), duplicate delivery, or extra byte fails closed; the
 supervisor revokes that launch. The control stream is a separate inherited
 duplex channel whose first bytes are TLS, never manifest bytes.
@@ -437,16 +442,17 @@ anonymous pipe with an inherited handle. Per-platform handle inheritance,
 close-on-exec behavior, and absence of accidental grandchildren inheritance
 remain platform evidence gates.
 
-**Zeroization.** Both sides zeroize their serialized manifest buffer and any raw
-private-key copy once the TLS configuration has consumed it. The limits already
+**Zeroization.** Both sides zeroize their serialized launch bootstrap record
+buffer and any raw private-key copy once the TLS configuration has consumed it. The limits already
 recorded apply: only owned accessible storage is covered; copies inside rustls
 internals, the crypto provider, rcgen, or inaccessible allocator remnants may
 persist; crash remnants and destructor non-execution are not covered. A process
-that fails after reading the manifest discards the launch rather than continuing
-with partial material.
+that fails after reading the launch bootstrap record discards the launch rather
+than continuing with partial material.
 
-**Failure and revocation.** A missing handle, manifest timeout, malformed or
-oversize manifest, pin mismatch in either role, certificate or signature failure,
+**Failure and revocation.** A missing handle, launch bootstrap record timeout,
+malformed or oversize launch bootstrap record, pin mismatch in either role,
+certificate or signature failure,
 or TLS establishment failure terminates the launch: the supervisor closes the
 control stream, tears down the recorded child, discards that launch's material,
 and retries only with fresh material and a fresh nonce. Superseded or old launch
@@ -464,7 +470,7 @@ already crossed the stated trust boundary; this design does not claim to repair
 a compromised bootstrap.
 
 **Bound revalidation.** With ECDSA P-256 self-signed leaves (certificate DER
-roughly 400–500 bytes, PKCS#8 key roughly 140 bytes), the proposed manifest stays
+roughly 400–500 bytes, PKCS#8 key roughly 140 bytes), the launch bootstrap record stays
 well under `CONTROL_BOOTSTRAP_MAX_BYTES` (4 KiB), and the handshake stays well
 under `CONTROL_HANDSHAKE_MAX_BYTES` (64 KiB) and
 `TLS_PREAUTH_WIRE_MAX_BYTES` (128 KiB) per direction. These are design-time
@@ -524,7 +530,7 @@ Checked arithmetic is mandatory before allocation, conversion, or increment.
 | `CONTROL_TLS_BUFFER_MAX_BYTES`    | 64 KiB per direction                          | Bound ciphertext/handshake buffering separately; TLS fragments application frames rather than assuming one frame fits one TLS record.                                                                                                        |
 | `CONTROL_HANDSHAKE_MAX_BYTES`     | 64 KiB total per peer                         | One self-signed leaf per side; no intermediates or unbounded chain; refuse excess before allocation.                                                                                                                                         |
 | `CONTROL_SMALL_RECORD_MAX_BYTES`  | 4 KiB                                         | Establishment, invalidation, bind, permits, and errors contain only fixed/bounded fields.                                                                                                                                                    |
-| `CONTROL_BOOTSTRAP_MAX_BYTES`     | 4 KiB                                         | Exactly one launch manifest carrying launch certificates and the helper key; no provider metadata.                                                                                                                                           |
+| `CONTROL_BOOTSTRAP_MAX_BYTES`     | 4 KiB                                         | Exactly one launch bootstrap record containing the manifest, launch certificates, and helper key; no provider metadata.                                                                                                                      |
 | `CONTROL_PAYLOAD_MAX_BYTES`       | `CONTROL_FRAME_MAX_BYTES - 512`               | Reserve a checked fixed budget for the header and largest publication/feed envelope; stricter than R1's payload ceiling.                                                                                                                     |
 | `CONTROL_QUEUE_MAX_RECORDS`       | 2 per direction                               | Two-frame byte budget also applies; no drop-oldest acknowledgement or invalidation.                                                                                                                                                          |
 | `CONTROL_PENDING_PUBLICATIONS`    | 1                                             | One current tuple; replacements revoke before replacement acceptance.                                                                                                                                                                        |
