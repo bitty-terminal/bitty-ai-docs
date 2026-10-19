@@ -701,8 +701,8 @@ arithmetic. A publication-free initial lifetime still has a feed revision.
 
 1. Supervisor verifies descriptor/digest, grants the narrow launch, generates
    fresh launch key material, creates bootstrap/control/data channels, starts
-   the helper, delivers the launch manifest over the one-shot bootstrap handle,
-   and closes it. TLS and `Establish → Established` finish within the
+   the helper, delivers the launch bootstrap record over the one-shot bootstrap
+   handle, and closes its write end. TLS and `Establish → Established` finish within the
    establishment deadline.
 2. Helper snapshots the actual registry and sends `Projection`. Core adopts a
    validated read-only source view, derives its exact canonical bytes, allocates
