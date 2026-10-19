@@ -22,13 +22,19 @@ It does not change that contract's acceptance, authorize implementation, enable
 strict dispatch, or close an issue, question, risk, or review gate.
 
 The proposal selects a launch-bound dedicated control stream, explicit
-supervisor delegation bootstrapped through a restricted inherited channel,
-conditional standard TLS 1.3 external-PSK authentication, a helper-to-Core metadata feed,
-and helper-owned revocable state lifetimes. Platform adapters and cryptographic
-dependencies require separately scoped approval and evidence. The selected
-cryptographic profile has an unresolved released-dependency feasibility blocker;
-it is not an approved runnable mechanism. Until that blocker is resolved,
-authenticated publication is unavailable and strict dispatch remains `Unbound`.
+supervisor delegation bootstrapped through a restricted inherited channel, a
+launch-scoped mutual-certificate TLS 1.3 control profile, a helper-to-Core
+metadata feed, and helper-owned revocable state lifetimes. Per the owner
+direction recorded with CTX-0164
+([AI-docs #290](https://github.com/bitty-terminal/bitty-ai-docs/issues/290)),
+the [Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19) below replaces
+the conditional external-PSK profile with the launch-scoped mutual-certificate
+profile, so that profile's unresolved released-dependency blocker is resolved by
+replacement, not by a PSK dependency. Platform adapters and cryptographic
+dependencies still require separately scoped approval and evidence; the selected
+profile is not an approved runnable mechanism. Until its carried verification
+gates are discharged, authenticated publication is unavailable and strict
+dispatch remains `Unbound`.
 
 ### Pinned starting point
 
@@ -133,7 +139,11 @@ parameters. Non-secret handle locators may use reviewed platform launch
 metadata; the handle number itself is not an authentication secret.
 
 Use an approved TLS implementation, not a handwritten handshake/MAC, over the
-reliable inherited control byte stream. Proposed profile:
+reliable inherited control byte stream. **Superseded (2026-10-19):** the
+originally proposed external-PSK profile below, together with its
+dependency-approval paragraph, is retained as historical record and replaced by
+the launch-scoped mutual-certificate profile selected in the
+[Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19). Proposed profile:
 
 - TLS 1.3 only; external pairwise PSK with SHA-256 and `psk_dhe_ke`, X25519,
   and `TLS_AES_128_GCM_SHA256`. No certificate/TOFU fallback, PSK-only mode,
@@ -170,6 +180,15 @@ bound the application's I/O wrapper, scheduler, buffering, or CPU work.
 
 ### Released-dependency feasibility blocker
 
+**Historical record (superseded 2026-10-19).** This subsection records the
+released-dependency survey and the blocker it left open for the external-PSK
+profile. Per the [Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19)
+below, that profile is no longer the selected profile: the launch-scoped
+mutual-certificate profile replaces it, and the blocker is resolved by
+replacement rather than by demonstrating external-PSK support. The survey
+evidence below remains historical; it approves no dependency and enables no
+strict behavior.
+
 Commander-supplied documentation evidence inspects **rustls 0.23.46**:
 its public `ClientConfig` and `ServerConfig` do not expose configuration of the
 proposed external pairwise PSK. Session resumption configuration is a different
@@ -180,16 +199,18 @@ PR #2424 being closed pending future work, and client draft PR #2524 being close
 unmerged on 2025-09-15. This is evidence about that released pin and those PRs,
 not a claim about every newer rustls release or every TLS implementation.
 
-The external-PSK profile is therefore **conditional and BLOCKED**, not a claim
-that existing rustls dependencies implement it. A separate dependency/security
-feasibility task must identify and verify a released implementation supporting
-**both client and server external PSK**, exact fixed-role/profile behavior,
-bounded custom pipe I/O and processing/scheduling below, the project MSRV,
-non-network feature selection, all enabled platforms, and the stated limited
-cooperative cleanup. No library substitution, pin/fork, handwritten crypto, or
-insecure fallback is selected or authorized here. If that evidence cannot be
-produced, a different concrete standard mechanism needs a new reviewed decision;
-strict publication remains disabled meanwhile.
+The external-PSK profile was therefore **conditional and BLOCKED** as recorded,
+not a claim that existing rustls dependencies implement it. The separate
+dependency/security feasibility task did not identify and verify a released
+implementation supporting **both client and server external PSK**, exact
+fixed-role/profile behavior, bounded custom pipe I/O and processing/scheduling
+below, the project MSRV, non-network feature selection, all enabled platforms,
+and the stated limited cooperative cleanup. No library substitution, pin/fork,
+handwritten crypto, or insecure fallback is selected or authorized. A different
+concrete standard mechanism required a new reviewed decision; the
+[Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19) below is that
+decision, and it resolves the blocker by replacement. Strict publication
+remains disabled until the selected profile's carried gates are discharged.
 
 No OpenSSL dependency is approved or selected by mentioning external-PSK
 feasibility. Any later candidate must preserve the raw length-delimited nonce
@@ -207,11 +228,12 @@ No surveyed candidate was demonstrated to satisfy the entire profile: s2n-tls
 implements TLS 1.3 external PSK with a Rust-crate surface, but its MSRV, platform
 matrix, zeroization, external-mode reachability from the Rust API, and this
 specification's per-step work-accounting requirement remain unestablished, and
-every other candidate is unmet or not demonstrated. The mechanism selected above
-is therefore not yet demonstrated to be implementable with a released
-dependency, and a new reviewed decision is required. That survey approves no
-dependency and enables no strict behavior; this subsection's design bounds,
-acceptance criteria, and review sign-off are unchanged.
+every other candidate is unmet or not demonstrated. The external-PSK mechanism
+was therefore not demonstrated to be implementable with a released dependency,
+and a new reviewed decision was required; the
+[Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19) below records that
+decision. That survey approves no dependency and enables no strict behavior; it
+is retained as historical record.
 
 **Replacement candidate analysis (CTX-0164).** The launch-scoped
 mutual-certificate alternative recorded by the dependency survey is analysed
@@ -219,6 +241,76 @@ separately in [Authenticated provider publication mutual-certificate feasibility
 That record maps the candidate against this specification's requirements as
 API-feasibility evidence only: it selects no mechanism, edits no profile or
 bound, and enables no strict behavior.
+
+### Mechanism ruling (2026-10-19)
+
+Acting under the owner direction recorded with CTX-0164
+([AI-docs #290](https://github.com/bitty-terminal/bitty-ai-docs/issues/290)) and
+the API-feasibility evidence in
+[Authenticated provider publication mutual-certificate feasibility](authenticated-provider-publication-mutual-certificate-feasibility.md),
+this ruling replaces the external-PSK profile selection with the launch-scoped
+mutual-certificate profile. It records a selection decision; it grants no
+implementation permission, enables no strict behavior, and claims no verified or
+implemented behavior. The superseded external-PSK profile text and feasibility
+discussion above are retained as historical record.
+
+- **Superseded: TLS 1.3 external-PSK profile.** The conditional external-PSK
+  profile and its released-dependency blocker above are no longer the selected
+  profile. The blocker is resolved by replacement, not by a PSK dependency; no
+  library substitution, pin, fork, or fallback is selected.
+- **Selected: launch-scoped mutual-certificate profile.** A per-launch
+  self-signed certificate pair generated at launch, one leaf per side; mutual
+  authentication through released rustls custom certificate verifiers on both
+  sides (`ServerCertVerifier` for the `core-supervisor` TLS client, and
+  `ClientCertVerifier` for the `ai-helper` TLS server); each verifier makes only
+  the certificate-digest pin decision and delegates signature checks to the
+  rustls `verify_tls12_signature` and `verify_tls13_signature` crypto helpers;
+  certificate-digest pinning, with the pin shape — SHA-256 over certificate DER
+  versus SPKI extraction — explicitly left as an open implementation choice;
+  TLS 1.3 only; ALPN `provider-publication-control/1`; no PKI, no external PSK,
+  no resumption, session tickets, or 0-RTT; and no listener or network
+  functionality in Core.
+- **Rationale.** The external-PSK profile had no demonstrated released
+  implementation for either role (CTX-0163), while the mutual-certificate
+  candidate is API-viable in both halves on released dependencies without
+  custom cryptography (CTX-0164).
+- **Carried over unchanged.** The launch-bound dedicated control stream, the
+  restricted one-shot inherited bootstrap channel, the exact control records
+  with their named size/count/deadline bounds, fail-closed behavior before
+  acknowledgement, proof, handler, provider, credential, or tool contact, and
+  the limited cooperative-zeroization framing (owned accessible storage only, no
+  guarantee for inaccessible copies, crash remnants, or destructor execution)
+  stay as specified above.
+- **Remaining verification gates (carried from the CTX-0164 record).** The
+  candidate is API-viable on released dependencies, but these gates remain open
+  and each needs separately scoped evidence before the mechanism is runnable:
+  the certificate-digest pin shape (SHA-256 certificate DER versus SPKI
+  extraction); key-generation cost and resource bounds measured under an audited
+  bound; launch key-material zeroization across rustls internals, the crypto
+  provider, and rcgen's copy-only coverage; the rcgen 0.13.2
+  supply-chain/maturity review (undeclared MSRV, platform matrix, `time` and
+  `yasna` chain); the rustls crypto-provider decision (aws-lc-rs versus ring,
+  `kx_groups` and post-quantum policy, feature selection); launch material
+  ownership and bootstrap direction — how the certificate/key material is
+  provisioned and pinned through the trusted one-shot bootstrap, the gate that
+  keeps the mutual-authentication claim non-circular; handshake byte/record
+  bound re-validation with real certificate sizes; platform evidence for Linux,
+  the BSD family, macOS, and Windows; and a per-step work-accounting
+  instrumentation plan for rustls internals.
+- **Dependency scope.** The profile uses rustls 0.23.46, already resolved in the
+  bitty-ai workspace through the bitty-network family, so it adds no new TLS
+  dependency family there; rcgen 0.13.2 would be a new dependency. The Core side
+  has no rustls today, so its reviewed dependency or transport edge remains a
+  separately scoped adoption decision.
+- **Scope of this ruling.** Implementation remains separately scoped; the
+  helper proof-lifetime binding (AI-0330) and Core delivery remain gates, and
+  strict dispatch stays disabled. The profile-dependent mechanics text written
+  for the superseded external-PSK profile (for example the raw-PSK bootstrap
+  append, PSK identity wording, the PSK-specific `AUTHORITY_SECRET_BYTES` bound,
+  and the no-certificate handshake rationale) stays historical draft text;
+  replacing it with launch key-material, pin, and certificate-bound handling
+  belongs to the separately scoped adoption work. This ruling closes no issue,
+  question, or risk, and mints no identifier.
 
 ### What the authority actually proves
 
@@ -960,17 +1052,17 @@ tampered Finished/ciphertext cases; never a mock that merely sets an
 
 ## Alternatives considered
 
-| Alternative                                                             | Disposition and reason                                                                                                                                                                                                                                                                                                                          |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A: ordinary inherited stdio/private pipe alone                          | Insufficient. Possession of a duplicated handle is not explicit supervisor-delegated component authority; add restricted bootstrap and standard authentication.                                                                                                                                                                                 |
-| B: OS-attested socket/named-pipe endpoint                               | Rejected for this scope. UID/SID/ACL and process ID do not identify authorized Core delegation. It would still need equivalent bootstrap/authentication plus discoverability, replacement/TOCTOU, per-OS peer APIs, and broader lifecycle handling. DIR-030 favors resident coprocesses; no endpoint benefit justifies that extra surface here. |
-| B plus binary identity/signing attestation                              | Could support a separately reviewed future trust root, but no such product signing/attestation delivery exists. Do not assert it now.                                                                                                                                                                                                           |
-| Caller metadata, generic version, pointer, or global epoch as authority | Rejected: repeatable correlators and local identity do not authenticate Core or revoke every old endpoint lifetime.                                                                                                                                                                                                                             |
-| Handwritten challenge/HMAC protocol                                     | Rejected: standard TLS supplies transcript, role, key schedule, record integrity, and replay properties without inventing cryptography. Dependency approval remains a hard gate.                                                                                                                                                                |
-| Mutual per-launch certificates                                          | Plausible standard alternative, but adds certificate generation/validation without removing trusted bootstrap; pairwise random PSK is narrower for a single fixed client/server launch.                                                                                                                                                         |
-| Independent shared registration source                                  | Rejected initially: introduces duplicate registry population semantics and drift. The selected feed explicitly trusts the authoritative helper, with exact equality protecting freshness rather than independent truth.                                                                                                                         |
-| Serialize a helper proof or persist replay history                      | Unnecessary. An opaque receipt refers to one live authoritative slot; session ordering, high-water marks, and irreversible revocation give bounded volatile state.                                                                                                                                                                              |
-| Expand legacy JSON RPC schemas or multiplex control into stdio v1       | Rejected here. A dedicated stream/descriptor discriminator keeps the existing 13 method schemas and generic IPC framing intact.                                                                                                                                                                                                                 |
+| Alternative                                                             | Disposition and reason                                                                                                                                                                                                                                                                                                                                                  |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A: ordinary inherited stdio/private pipe alone                          | Insufficient. Possession of a duplicated handle is not explicit supervisor-delegated component authority; add restricted bootstrap and standard authentication.                                                                                                                                                                                                         |
+| B: OS-attested socket/named-pipe endpoint                               | Rejected for this scope. UID/SID/ACL and process ID do not identify authorized Core delegation. It would still need equivalent bootstrap/authentication plus discoverability, replacement/TOCTOU, per-OS peer APIs, and broader lifecycle handling. DIR-030 favors resident coprocesses; no endpoint benefit justifies that extra surface here.                         |
+| B plus binary identity/signing attestation                              | Could support a separately reviewed future trust root, but no such product signing/attestation delivery exists. Do not assert it now.                                                                                                                                                                                                                                   |
+| Caller metadata, generic version, pointer, or global epoch as authority | Rejected: repeatable correlators and local identity do not authenticate Core or revoke every old endpoint lifetime.                                                                                                                                                                                                                                                     |
+| Handwritten challenge/HMAC protocol                                     | Rejected: standard TLS supplies transcript, role, key schedule, record integrity, and replay properties without inventing cryptography. Dependency approval remains a hard gate.                                                                                                                                                                                        |
+| Mutual per-launch certificates                                          | Selected by the [Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19) as the launch-scoped mutual-certificate profile: per-launch self-signed leaves pinned by digest, no PKI. It adds certificate generation/validation without removing trusted bootstrap; the superseded pairwise-PSK profile had no demonstrated released client-and-server implementation. |
+| Independent shared registration source                                  | Rejected initially: introduces duplicate registry population semantics and drift. The selected feed explicitly trusts the authoritative helper, with exact equality protecting freshness rather than independent truth.                                                                                                                                                 |
+| Serialize a helper proof or persist replay history                      | Unnecessary. An opaque receipt refers to one live authoritative slot; session ordering, high-water marks, and irreversible revocation give bounded volatile state.                                                                                                                                                                                                      |
+| Expand legacy JSON RPC schemas or multiplex control into stdio v1       | Rejected here. A dedicated stream/descriptor discriminator keeps the existing 13 method schemas and generic IPC framing intact.                                                                                                                                                                                                                                         |
 
 ## Affected contracts
 
@@ -1013,24 +1105,26 @@ questions retain their existing status.
 ## Open points
 
 The proposed choices are concrete for review: A with restricted delegation and
-a **conditional** external-PSK TLS profile, dedicated stream, exact
-records/order/bounds, feed source, pure shared contract placement, and helper
-lifetime/revocation. The specified TLS profile has no proven released dependency
-in this decision and is not an approved runnable choice. Its feasibility blocker
-cannot be resolved by unspecified implementation judgment or resumption support.
+the launch-scoped mutual-certificate TLS profile selected by the
+[Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19), dedicated stream,
+exact records/order/bounds, feed source, pure shared contract placement, and
+helper lifetime/revocation. The selected profile is not an approved runnable
+mechanism: it is API-viable on released dependencies, but its carried
+verification gates remain open, and neither unspecified implementation judgment
+nor a silent fallback can close them.
 
 Independent architecture, security, and documentation review approved this
 bounded conditional draft (see P0 Review Sign-off). Remaining acceptance blockers
-are IPC owner's module/dependency direction;
-proof and approval of released client **and** server external-PSK support with
-bounded custom I/O/work, fair scheduling, MSRV, non-network features, supported
-platforms, and limited cooperative zeroization; and security-corpus synchronization by its
-owner. Native platform evidence and implementation tasks remain delivery gates,
-not invented current support. If reviewers require resistance to arbitrary
-same-user process-memory/bootstrap theft or memory snapshot rollback, this
-proposal cannot meet that requirement without a stronger externally anchored
-isolation/attestation design. Keep strict disabled and escalate that trust-root
-decision; do not claim the PSK repairs its own compromised bootstrap.
+are IPC owner's module/dependency direction; the selected profile's carried
+verification gates (the full carried-gate list in the
+[Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19)); and security-corpus
+synchronization by its owner. Native platform evidence and implementation tasks
+remain delivery gates, not invented current support. If reviewers require
+resistance to arbitrary same-user process-memory/bootstrap theft or memory
+snapshot rollback, this proposal cannot meet that requirement without a stronger
+externally anchored isolation/attestation design. Keep strict disabled and
+escalate that trust-root decision; do not claim the launch key material repairs
+its own compromised bootstrap.
 
 No alias projection or future strict domain is accepted here. There is no
 identifier mint, closure, cross-repository task assignment, or implementation
@@ -1060,10 +1154,13 @@ permission implicit in proposing these follow-ups.
 - Cleanup claims cover only owned accessible cooperative zeroization with
   reviewed library support; authoritative revocation after observed death,
   closure, or expiry does not depend on universal erasure or destructor execution.
-- The released-dependency feasibility blocker is resolved by separately approved
-  evidence for both roles of the precise external-PSK profile. Otherwise the
-  mechanism remains conditional and strict stays disabled; no implicit library,
-  pin/fork, custom crypto, or weaker fallback is authorized.
+- The released-dependency feasibility blocker stays resolved by replacement, not
+  by a PSK dependency: the selected launch-scoped mutual-certificate profile
+  needs its separately approved carried evidence (the full carried-gate list in
+  the [Mechanism ruling (2026-10-19)](#mechanism-ruling-2026-10-19)) before the
+  mechanism is runnable. Until then the mechanism remains conditional and strict
+  stays disabled; no implicit library, pin/fork, custom crypto, or weaker
+  fallback is authorized.
 - Source/reset/mutation transitions recover with explicit predecessor correlation
   and unsolicited lifetime announcements; numeric Core request IDs and exact
   frame/response correlation are preserved. Routine authority expiry closes
@@ -1104,6 +1201,9 @@ authorize a Core/IPC/helper implementation by its existence.
   Finished transcript binding, record protection, limits, and 0-RTT exclusions.
 - [RFC 9257](https://www.rfc-editor.org/rfc/rfc9257), pairwise external PSK
   provisioning, entropy, fixed roles, identity-misbinding and compromise limits.
+- [Authenticated provider publication mutual-certificate feasibility](authenticated-provider-publication-mutual-certificate-feasibility.md):
+  CTX-0164 API-feasibility and requirement-mapping evidence for the
+  launch-scoped mutual-certificate profile selected by the mechanism ruling.
 - Released rustls 0.23.46 public
   [ClientConfig](https://docs.rs/rustls/0.23.46/rustls/client/struct.ClientConfig.html)
   and [ServerConfig](https://docs.rs/rustls/0.23.46/rustls/server/struct.ServerConfig.html):
