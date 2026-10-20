@@ -84,13 +84,22 @@ conditional proposal awaiting its recorded gates.
   therefore requires a provider-config source, not only a projection adapter,
   and strict provider publication remains blocked independently of the Core
   pin decision.
-- **Core side (pin landed; adapter in progress).** The Core pin is now
+- **Core side (state machine merged; integration pending).** The Core pin is
   `e6a2c0c` (CTX-1363 / PR #2291), so both consumers use the same pure
-  contract revision. The Core publication-control state machine is in progress
-  under CTX-1390 and is not merged evidence. No Core implementation is
-  claimed, the two sides are not yet integrated evidence for this mechanism,
-  and no `Admit`, data-channel reservation, or strict `ai.provider_list`
-  wiring exists.
+  contract revision. The Core publication-control state machine merged as
+  bitty #2330 (squash `3171f4f5`) behind the default-off
+  `publication-control` feature: bounded 4-byte framing, an authenticated TLS
+  adapter, establishment/projection/publish/ack/bind/bound validation, one
+  pending publication and receipt, rotation with one retired predecessor, and
+  fail-closed non-Unix behavior. Core mints `snapshot_version` separately from
+  the publication version: the source-view version starts at `1` and advances
+  only when Core adopts a replacement projection, and the tuple carries it.
+  The change has 36 control tests; the Windows fail-closed gate passes. The
+  two sides are still not integrated evidence: the Core `ai_helper` spawn
+  wiring, the real provider-registry source, `Admit`, data-channel
+  reservation, and strict `ai.provider_list` remain pending, so strict stays
+  disabled. The TLS record transport is compile-checked locally; a full
+  record-transport round-trip and the per-turn TLS work budgets remain open.
 
 ## Purpose and scope
 
@@ -1277,8 +1286,9 @@ recorded baseline (Core `aa7259d`, endpoint `f201911`) to a reviewed merged
 contract revision. The endpoint consumer has since moved to `e6a2c0c` under
 AI-0336 (bitty-ipc #35; bitty-ai #534, squash `5f66142`), and the Core consumer
 has moved to `e6a2c0c` under CTX-1363 / PR #2291. The Core
-publication-control state machine is in progress under CTX-1390. The recorded
-baseline remains the historical starting point; those revisions are
+publication-control state machine merged under CTX-1390 (bitty #2330, squash
+`3171f4f5`); strict remains disabled pending the integration gates. The
+recorded baseline remains the historical starting point; those revisions are
 incompatible evidence baselines, not evidence that either consumer implements
 this control profile. Golden vectors and cross-pin compatibility tests must
 pass before either upgraded consumer enables strict. No silent pin upgrade or
