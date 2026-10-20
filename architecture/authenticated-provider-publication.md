@@ -73,13 +73,22 @@ conditional proposal awaiting its recorded gates.
   provider publication remains disabled: there is no `Admit`, data-channel
   reservation, `ai.provider_list` handler, or provider, credential, or tool
   contact.
-- **Helper launch entrypoint (AI-0338, in progress).** The helper launch
-  entrypoint that ingests the fd 3 launch bootstrap and the fd 4 control stream
-  and drives that state machine is in progress and is not merged evidence.
+- **Helper launch entrypoint (AI-0338, merged).** The helper launch entrypoint
+  that ingests the fd 3 launch bootstrap and the fd 4 control stream and drives
+  that state machine merged as bitty-ai #539 (squash `44d0c9d`). It uses the
+  empty `ControlOnlyRegistry` placeholder at feed revision `1`; no real
+  provider-registry view is integrated.
+- **Real registry source (pending).** `ProviderRegistry::register` and
+  `register_alias` are exercised only by tests; no production provider/model
+  configuration loader populates the registry. Real registry integration
+  therefore requires a provider-config source, not only a projection adapter,
+  and strict provider publication remains blocked independently of the Core
+  pin decision.
 - **Core side (pending).** The Core pin upgrade from `aa7259d` to `e6a2c0c`
   and the Core publication-control state machine remain pending a separately
-  scoped owner authorization. No Core implementation is claimed, and the two
-  sides are not yet integrated evidence for this mechanism.
+  scoped owner authorization. No Core implementation is claimed, the two
+  sides are not yet integrated evidence for this mechanism, and no `Admit`,
+  data-channel reservation, or strict `ai.provider_list` wiring exists.
 
 ## Purpose and scope
 
