@@ -84,11 +84,13 @@ conditional proposal awaiting its recorded gates.
   therefore requires a provider-config source, not only a projection adapter,
   and strict provider publication remains blocked independently of the Core
   pin decision.
-- **Core side (pending).** The Core pin upgrade from `aa7259d` to `e6a2c0c`
-  and the Core publication-control state machine remain pending a separately
-  scoped owner authorization. No Core implementation is claimed, the two
-  sides are not yet integrated evidence for this mechanism, and no `Admit`,
-  data-channel reservation, or strict `ai.provider_list` wiring exists.
+- **Core side (pin landed; adapter in progress).** The Core pin is now
+  `e6a2c0c` (CTX-1363 / PR #2291), so both consumers use the same pure
+  contract revision. The Core publication-control state machine is in progress
+  under CTX-1390 and is not merged evidence. No Core implementation is
+  claimed, the two sides are not yet integrated evidence for this mechanism,
+  and no `Admit`, data-channel reservation, or strict `ai.provider_list`
+  wiring exists.
 
 ## Purpose and scope
 
@@ -1273,8 +1275,10 @@ boundaries. Acceptance of the module placement requires the IPC owner's scoped
 task, dependency/security review, and explicit consumer pin upgrades from the
 recorded baseline (Core `aa7259d`, endpoint `f201911`) to a reviewed merged
 contract revision. The endpoint consumer has since moved to `e6a2c0c` under
-AI-0336 (bitty-ipc #35; bitty-ai #534, squash `5f66142`); Core remains at
-`aa7259d` pending its own separately authorized decision. Those revisions are
+AI-0336 (bitty-ipc #35; bitty-ai #534, squash `5f66142`), and the Core consumer
+has moved to `e6a2c0c` under CTX-1363 / PR #2291. The Core
+publication-control state machine is in progress under CTX-1390. The recorded
+baseline remains the historical starting point; those revisions are
 incompatible evidence baselines, not evidence that either consumer implements
 this control profile. Golden vectors and cross-pin compatibility tests must
 pass before either upgraded consumer enables strict. No silent pin upgrade or
