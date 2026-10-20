@@ -52,6 +52,35 @@ live authenticated integration evidence:
 | AI-0327               | Merged PR #523, `a2bb62a50582b060e3c1e1173e4af2ab0bf35813`                                      | Retained exact publication bytes and offline exact-byte binding, with 132 endpoint tests. Replaces the pending `7f9f589` dispatch snapshot; does not prove authenticated origin, cross-reset lifetime isolation, or live Core integration. Strict wiring remains blocked by AI-0330 and this mechanism's gates. |
 | AI-0330               | Issue #522                                                                                      | Existing offline reconstruction can make an old proof compare current after identical publication/acknowledgement/bind inputs. Equality of public tuples does not prove same-state provenance.                                                                                                                  |
 
+### Implementation status (2026-10-20)
+
+This dated note records post-baseline implementation progress only. It does not
+change any normative requirement, acceptance gate, named bound, security
+statement, or the strict-disabled position, and it claims neither integrated
+authority nor authenticated live publication. The mechanism remains a
+conditional proposal awaiting its recorded gates.
+
+- **Endpoint pin (AI-0336).** The endpoint now consumes `bitty-ipc-api` at
+  `e6a2c0c`, the pure provider-publication control-record contract from
+  bitty-ipc #35; the consumer bump merged as bitty-ai #534 (squash
+  `5f66142`). The `f201911` row in the pinned table remains the historical
+  starting point for this design; `e6a2c0c` is the current endpoint revision
+  recorded under [Affected contracts](#affected-contracts).
+- **Helper state machine (AI-0337).** The helper-side provider-publication
+  application state machine merged as bitty-ai #536 (squash `5fd49b8`):
+  bounded framing, establishment validation, projection, the
+  `Publish`/`Ack`/`Bind`/`Bound` exchange, and lifetime rotation. Strict
+  provider publication remains disabled: there is no `Admit`, data-channel
+  reservation, `ai.provider_list` handler, or provider, credential, or tool
+  contact.
+- **Helper launch entrypoint (AI-0338, in progress).** The helper launch
+  entrypoint that ingests the fd 3 launch bootstrap and the fd 4 control stream
+  and drives that state machine is in progress and is not merged evidence.
+- **Core side (pending).** The Core pin upgrade from `aa7259d` to `e6a2c0c`
+  and the Core publication-control state machine remain pending a separately
+  scoped owner authorization. No Core implementation is claimed, and the two
+  sides are not yet integrated evidence for this mechanism.
+
 ## Purpose and scope
 
 Resolve the authority, transport, source mapping, and lifetime choices requested
@@ -1232,12 +1261,15 @@ adapters. Do not move broad AI/runtime types or unrelated crates.
 The helper maps its authoritative registry to those DTOs; Core holds only the
 read-only view. TLS/bootstrap adapters remain separately owned composition
 boundaries. Acceptance of the module placement requires the IPC owner's scoped
-task, dependency/security review, and explicit consumer pin upgrades from
-Core `aa7259d` and endpoint `f201911` to a reviewed merged contract revision.
-Those pins are incompatible evidence baselines, not a claim that either already
-supports this control profile. Golden vectors and cross-pin compatibility tests
-must pass before either upgraded consumer enables strict. No silent pin upgrade
-or compatibility promise is made by this draft.
+task, dependency/security review, and explicit consumer pin upgrades from the
+recorded baseline (Core `aa7259d`, endpoint `f201911`) to a reviewed merged
+contract revision. The endpoint consumer has since moved to `e6a2c0c` under
+AI-0336 (bitty-ipc #35; bitty-ai #534, squash `5f66142`); Core remains at
+`aa7259d` pending its own separately authorized decision. Those revisions are
+incompatible evidence baselines, not evidence that either consumer implements
+this control profile. Golden vectors and cross-pin compatibility tests must
+pass before either upgraded consumer enables strict. No silent pin upgrade or
+compatibility promise is made by this draft.
 
 ### Implementation sequence after acceptance
 
