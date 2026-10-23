@@ -114,9 +114,10 @@ the draft dispositions it consumes. It replaces or relaxes none of them:
   asset reference, and presentation-handoff rules in
   [Multimodal inference boundary](../providers/multimodal-inference-boundary.md#generationjob-lifecycle).
   This document reuses that draft lifecycle and does not create a second one.
-- The normative security corpus, whose entry point is the
-  [threat model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md)
-  in `bitty-docs`. If this draft and a normative requirement disagree, the
+- The normative security corpus in `bitty-docs`. Its entry point is the
+  [security index](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/README.md);
+  the [threat model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md)
+  is normative. If this draft and a normative requirement disagree, the
   normative requirement wins.
 
 Citing a draft source here records a dependency and a constraint; it does not
@@ -312,14 +313,15 @@ layer around it; it does not replace that state machine.
 
 Core is the designated owner of transport, authentication, consent enforcement,
 the consent ledger, and scope enforcement. The accepted `AgentSession` state
-machine comes from the IPC and Agent RFC and is carried by the independent
-`bitty-agent` crate, which Core does not link; it is consumed by the AI host.
-This draft does not move it into Core. Whether the durable session record and
-generation issuance live in Core or `bitty-ai` is an open point. `bitty-ai` owns
-the model-facing binding: routing snapshot, context snapshot, turn and
-generation-bound events, tool proposals, speech jobs, and media event schemas.
-The Headed Agent plugin owns presentation, local interaction, and the mapping of
-semantic events to widgets, speech controls, and avatars.
+machine comes from the IPC and Agent RFC and is carried by the separate
+`bitty-agent` state-machine crate, which Core does not link. The AI runtime's
+vocabulary dependency is `bitty-agent-api`, not the state-machine crate. How the
+AI host consumes the state machine, and whether the durable session record and
+generation issuance live in Core or `bitty-ai`, remain open points. `bitty-ai`
+owns the model-facing binding: routing snapshot, context snapshot, turn and
+generation-bound events, tool proposals, speech jobs, and media event schemas. The Headed Agent plugin owns presentation, local
+interaction, and the mapping of semantic events to widgets, speech controls, and
+avatars.
 
 This document fixes only the rules that neither side may violate: no
 presentation authority, no model I/O in Core, no credential exposure, and no
@@ -396,14 +398,14 @@ separate, and a contract family must name the axis it uses:
 
 | Axis                                    | Issued or bound by                                                                                                      | What it fences                                                                                     | Binds consent or elevation?                                                                        |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Session generation                      | The session authority at `start`, session `resume`, or `takeover`; the exact Core-versus-`bitty-ai` split remains open. | Session-level mutating operations, approval verdicts, session stop, and session-scoped media jobs. | Yes, together with the principal, AgentId, and scope.                                              |
+| Session generation                      | The session authority at `start`, session `resume`, or `takeover`; the exact Core-versus-`bitty-ai` split remains open. | Session-level mutating operations, approval verdicts, session stop, and session-scoped media jobs. | Yes, together with the principal and scope.                                                        |
 | Attachment generation                   | The attachment authority at `attach`.                                                                                   | One attachment's local handles, cursors, and presentation state.                                   | No. It never grants authority or binds consent.                                                    |
 | Routing snapshot version and digest     | The scoped accepted provider-routing publication. No separate routing "generation" is defined by this draft.            | The exact provider-routing projection used for a turn or session pin.                              | No. It selects routing data; it never grants a scope.                                              |
 | Context snapshot version and generation | `bitty-ai` context compilation, with `current_generation` bound to the session generation under CP-5.                   | The exact compiled context and its freshness.                                                      | No. Expansion re-authorizes the read; the snapshot itself is not a grant.                          |
 | Speech job identity and status          | The draft `bitty-ai` media-job lifecycle.                                                                               | Cancellation, status inspection, and `Unknown` reconciliation for one speech job.                  | No. Speech egress consent binds to the session generation, principal, provider, and privacy class. |
 
-- Consent and elevation bind to the authenticated principal, the AgentId, the
-  session generation, and the scope. Approval adds the exact call digest, target,
+- Consent and elevation bind to the principal (UID and AgentId), the session
+  generation, and the scope. Approval adds the exact call digest, target,
   schema version, and expiry. An attachment generation, routing version, context
   version, or media-job identity never substitutes for that binding.
 - A stale session generation invalidates elevation and pending approvals; a
@@ -418,10 +420,14 @@ separate, and a contract family must name the axis it uses:
 
 ### Event ordering and loss
 
-- One logical sequencer assigns a monotonically increasing sequence number per
-  session generation at commit, before queue admission. Every event carries that
-  number; a dropped event still consumes a sequence number, so a consumer can
-  distinguish a dropped event from an event that was never produced.
+- The Core owner owns the session-generation sequence. One Core-designated
+  sequencer assigns a monotonically increasing sequence number per session
+  generation at commit, before queue admission. Every event carries that number;
+  a dropped event still consumes a sequence number, so a consumer can distinguish
+  a dropped event from an event that was never produced. AI turn sequencing is
+  nested inside the session-generation sequence: it can order events within a
+  turn, but it cannot advance the session cursor or create a second session
+  sequence.
 - **Gap detection applies only to non-lossy ordered classes:** session
   lifecycle, stop, approval request and verdict, tool result and error, speech
   job lifecycle and terminal status, and other control events. A gap in one of
@@ -595,10 +601,9 @@ Rules:
 - A proposal is not an execution and carries no authority. The model cannot
   approve its own proposal, and the Headed Agent plugin cannot approve on the
   model's behalf.
-- The approval request binds the principal (the authenticated `(UID, AgentId)`
-  pair), the session identity, the session generation, the tool name, a
-  canonical digest of the validated arguments, the schema version, the required
-  scope, the target, and the expiry.
+- The approval request binds the principal, the session identity, the session
+  generation, the tool name, a canonical digest of the validated arguments, the
+  schema version, the required scope, the target, and the expiry.
 - An approval applies to exactly that call and digest by default. A changed
   argument, a changed target, a changed session generation, or a changed scope
   requires a new approval. Standing or session-wide approval is a separate
@@ -1048,10 +1053,10 @@ Platform rules:
 
 Consent rules:
 
-- Consent is per authenticated principal, per session generation or provider,
-  per scope, time bound, visible, and revocable. A plugin install, a model
-  choice, a project file, a panel attachment, or an avatar state never implies
-  consent.
+- Consent is per authenticated principal, per session generation and, for
+  provider egress, per provider and privacy class, per scope, time bound,
+  visible, and revocable. A plugin install, a model choice, a project file, a
+  panel attachment, or an avatar state never implies consent.
 - No bundled admin grant, wildcard consent, or "allow all" control. A new
   provider or a raised privacy class requires a fresh decision.
 - Revocation takes effect at the next dispatch or chunk boundary. It detaches
@@ -1118,29 +1123,39 @@ extension owner** is the future audio/avatar/3D extension repository; **Provider
 plugin owner** is the provider adapter repository. Each row is a review item for
 the named owner.
 
-| Concern                                     | Core owner (`bitty`; future `bittyd`)              | AI owner (`bitty-ai`)                                        | Wheel owner       | Headed Agent owner                     | Media extension owner             | Provider plugin owner                     |
-| ------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------ | ----------------- | -------------------------------------- | --------------------------------- | ----------------------------------------- |
-| IPC framing, auth, instance, rate limits    | Owner                                              | Consumer                                                     | Consumer          | Consumer                               | Consumer through Core             | Consumer through AI and Core              |
-| Consent ledger and revocation               | Owner                                              | Requests verdicts; never stores grants                       | Requests verdicts | Presents prompts; never grants         | Consumes verdicts                 | Consumes verdicts                         |
-| Agent session state machine                 | Host-side transport; state-machine placement open  | Consumes the `bitty-agent` state machine and owns AI records | Consumer          | Projects sanitized view                | None                              | None                                      |
-| Session handle and generation               | Transport only; durable identity placement open    | Binds model-facing state to the session generation           | Consumer          | Consumer                               | None                              | None                                      |
-| Event sequencing and replay window          | Owner of transport sequencing                      | Owns AI event schemas and turn sequencing                    | Consumer          | Consumer                               | Consumes media events             | None                                      |
-| Provider registry and routing               | Enforces scopes and transport                      | Owner of resolution and routing snapshot                     | Consumer          | Consumer; no provider selection        | None                              | Registers; never widens                   |
-| Credentials and secret storage              | Host-owned storage and grants                      | Uses opaque handles; never reads values                      | Uses handles      | Never receives values                  | Never receives values             | Resolves at the adapter edge only         |
-| Context compilation and token budget        | Enforces quotas                                    | Owner                                                        | Consumer          | Consumer                               | None                              | None                                      |
-| Context and session snapshots               | Owns host record and retention policy              | Owns compilation, redaction, and snapshot view               | Consumer          | Reads sanitized view                   | None                              | None                                      |
-| Tool proposal                               | Receives and validates                             | Owner of model proposal relay                                | Consumer          | Presents                               | None                              | None                                      |
-| Tool approval, execution, result            | Owner of ledger and execution                      | Consumes result as untrusted observation                     | Consumer          | Presents request and collects decision | None                              | None; tool providers are separate plugins |
-| Panel identity, lifecycle, focus            | Owner                                              | Reads references only                                        | Consumer          | Requests panel and composes UI         | Renderer consumes a panel surface | None                                      |
-| Event Bus transport and reserved topics     | Owner                                              | Publishes AI-domain topics                                   | Consumer          | Publishes only its private topics      | Publishes declared media topics   | None                                      |
-| Speech job lifecycle                        | Enforces consent and transport                     | Owner of request, stream, cancel, asset ref                  | None              | Owns eligibility and controls          | Owns playback                     | Synthesizes under the speech contract     |
-| Audio device and playback                   | May provide a presentation primitive; none claimed | No ownership                                                 | None              | Requests playback                      | Owner of the device               | None                                      |
-| Avatar semantic state and viseme vocabulary | No ownership                                       | Owner of neutral event vocabulary                            | None              | Maps to appearance and animation       | Renders 2D/3D                     | May emit timing metadata                  |
-| 3D rig, shaders, and GPU surfaces           | No ownership                                       | No ownership                                                 | None              | May request                            | Owner                             | None                                      |
-| CPU, memory, GPU, audio budgets             | Host and transport budgets                         | AI and media-job budgets                                     | Harness work      | Presentation budgets                   | Device and decoder budgets        | Provider quota reporting                  |
-| Platform audio/GPU adapters                 | Host integration where a host adapter exists       | No platform API                                              | No platform API   | No platform API                        | Device-specific adapter owner     | No platform API                           |
-| Coding workflow and task graph              | No ownership                                       | No ownership                                                 | Owner             | No `wheel.*` dependency                | None                              | None                                      |
-| Retention and deletion                      | Host evidence and consent                          | AI record semantics under draft R3                           | Its own records   | Ephemeral local media by default       | No persistent media by default    | Not owned here; provider policy governs   |
+Review roles are cross-cutting, not additional implementation repositories:
+**Security owner** is the security reviewer role, **Product owner** is the
+product/docs review role, **Accessibility owner** is the accessibility review
+role, **terminal docs owner** is `bitty-terminal-docs`, and **Plugin ecosystem
+owner** is `bitty-plugins-docs` plus the plugin repositories. **Architecture
+owner** and **Documentation curator** are the existing architecture-review and
+docs-curation roles. A review role can own a review row without owning
+implementation code; the matrix columns still name the repository accountable
+for the code.
+
+| Concern                                     | Core owner (`bitty`; future `bittyd`)              | AI owner (`bitty-ai`)                                                   | Wheel owner       | Headed Agent owner                     | Media extension owner             | Provider plugin owner                     |
+| ------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- | ----------------- | -------------------------------------- | --------------------------------- | ----------------------------------------- |
+| IPC framing, auth, instance, rate limits    | Owner                                              | Consumer                                                                | Consumer          | Consumer                               | Consumer through Core             | Consumer through AI and Core              |
+| Consent ledger and revocation               | Owner                                              | Requests verdicts; never stores grants                                  | Requests verdicts | Presents prompts; never grants         | Consumes verdicts                 | Consumes verdicts                         |
+| Agent session state machine                 | Host-side transport; state-machine placement open  | Uses `bitty-agent-api`; owns AI records; state-machine consumption open | Consumer          | Projects sanitized view                | None                              | None                                      |
+| Session handle and generation               | Transport only; durable identity placement open    | Binds model-facing state to the session generation                      | Consumer          | Consumer                               | None                              | None                                      |
+| Event sequencing and replay window          | Owner of session-generation sequencing             | Owns AI event schemas and nested turn sequencing                        | Consumer          | Consumer                               | Consumes media events             | None                                      |
+| Provider registry and routing               | Enforces scopes and transport                      | Owner of resolution and routing snapshot                                | Consumer          | Consumer; no provider selection        | None                              | Registers; never widens                   |
+| Credentials and secret storage              | Host-owned storage and grants                      | Uses opaque handles; never reads values                                 | Uses handles      | Never receives values                  | Never receives values             | Resolves at the adapter edge only         |
+| Context compilation and token budget        | Enforces quotas                                    | Owner                                                                   | Consumer          | Consumer                               | None                              | None                                      |
+| Context and session snapshots               | Owns host record and retention policy              | Owns compilation, redaction, and snapshot view                          | Consumer          | Reads sanitized view                   | None                              | None                                      |
+| Tool proposal                               | Receives and validates                             | Owner of model proposal relay                                           | Consumer          | Presents                               | None                              | None                                      |
+| Tool approval, execution, result            | Owner of ledger and execution                      | Consumes result as untrusted observation                                | Consumer          | Presents request and collects decision | None                              | None; tool providers are separate plugins |
+| Panel identity, lifecycle, focus            | Owner                                              | Reads references only                                                   | Consumer          | Requests panel and composes UI         | Renderer consumes a panel surface | None                                      |
+| Event Bus transport and reserved topics     | Owner                                              | Publishes AI-domain topics                                              | Consumer          | Publishes only its private topics      | Publishes declared media topics   | None                                      |
+| Speech job lifecycle                        | Enforces consent and transport                     | Owner of request, stream, cancel, asset ref                             | None              | Owns eligibility and controls          | Owns playback                     | Synthesizes under the speech contract     |
+| Audio device and playback                   | May provide a presentation primitive; none claimed | No ownership                                                            | None              | Requests playback                      | Owner of the device               | None                                      |
+| Avatar semantic state and viseme vocabulary | No ownership                                       | Owner of neutral event vocabulary                                       | None              | Maps to appearance and animation       | Renders 2D/3D                     | May emit timing metadata                  |
+| 3D rig, shaders, and GPU surfaces           | No ownership                                       | No ownership                                                            | None              | May request                            | Owner                             | None                                      |
+| CPU, memory, GPU, audio budgets             | Host and transport budgets                         | AI and media-job budgets                                                | Harness work      | Presentation budgets                   | Device and decoder budgets        | Provider quota reporting                  |
+| Platform audio/GPU adapters                 | Host integration where a host adapter exists       | No platform API                                                         | No platform API   | No platform API                        | Device-specific adapter owner     | No platform API                           |
+| Coding workflow and task graph              | No ownership                                       | No ownership                                                            | Owner             | No `wheel.*` dependency                | None                              | None                                      |
+| Retention and deletion                      | Host evidence and consent                          | AI record semantics under draft R3                                      | Its own records   | Ephemeral local media by default       | No persistent media by default    | Not owned here; provider policy governs   |
 
 ## Security review
 
@@ -1281,9 +1296,8 @@ section carries the local canonical documents and the security entry point.
 
 - [bitty-docs](https://github.com/bitty-terminal/bitty-docs) owns shared
   governance, the decision register, the open-question register, and the
-  normative [threat model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md).
-  This document links to those owners instead of copying or reinterpreting
-  them.
+  normative security corpus. This document links to those owners instead of
+  copying or reinterpreting them.
 - [bitty-terminal-docs](https://github.com/bitty-terminal/bitty-terminal-docs)
   owns the terminal platform's panel runtime, panel presentation, rich
   presentation, and platform-support contracts. The panel and audio/GPU
@@ -1303,30 +1317,30 @@ section carries the local canonical documents and the security entry point.
 
 ## Open points
 
-None of these is resolved by this draft. Each needs an owner, an accepted
+None of these is resolved by this draft. Each needs an owner, a reviewed
 decision, and evidence before the related implementation task opens. This table
 is a review index, not a register and not a local blocker set: entries route to
 the named register or are explicitly marked as follow-up work in `TODO.md`
 until the owning commander files the tracked issue.
 
-| Open point                                     | Question                                                                                                                                                                                                       | Likely owner                                 | Candidate register routing            | Blocks                                      |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------- | ------------------------------------------- |
-| Session authority split                        | Does Core or `bitty-ai` own the durable session handle, generation issuance, and reconnect record?                                                                                                             | Core owner + AI owner                        | `AIQ-29`; `OQ-061` identity domain    | `headed.session`, `headed.stream`           |
-| Headed plugin identity and packaging           | Is the Headed Agent a Lua plugin, an out-of-process component, or a composed distribution? Who signs and updates it?                                                                                           | Plugin ecosystem owner                       | `OQ-081`; plugin packaging decision   | Plugin packaging, media extension packaging |
-| Coding capability access                       | If the Headed Agent needs coding intelligence, does it use only public Core/`bitty-ai` contracts, or must the needed mechanism be promoted there? A `wheel.*` runtime dependency is not authorized either way. | Wheel owner + Plugin ecosystem owner         | Wheel scope decision; follow-up issue | `wheel.*` prohibition, product scope        |
-| Replay retention window                        | How long are control events retained for reconnect, and what storage or memory budget applies?                                                                                                                 | Core owner + AI owner                        | `AIQ-04`; `AIQ-55`; `AIQ-5A`          | `headed.stream`                             |
-| Multi-user and remote headed clients           | Are remote, multi-device, or shared-panel sessions in scope? What authentication and consent model applies?                                                                                                    | Core owner + Security owner                  | `OQ-020`; ADR-0008                    | Identity, consent, transport                |
-| Speech privacy classes and provider consent    | Which speech providers are local-only, which require egress consent, and what is the minimum baseline?                                                                                                         | AI owner + Security owner                    | `OQ-054`; `OQ-055`; `OQ-080`          | `headed.speech`                             |
-| Viseme source and accuracy                     | Is the viseme timeline provider metadata, local analysis, or both? What accuracy and tolerance claims are allowed?                                                                                             | AI owner + Media extension owner             | Follow-up issue                       | `headed.avatar`                             |
-| 3D renderer placement                          | Is 3D an in-process extension, a separate process, or a remote surface? How is GPU memory isolated between principals?                                                                                         | Plugin ecosystem owner + Core owner          | Follow-up issue                       | `headed.avatar`, `headed.platform`          |
-| Audio focus policy                             | Is audio focus per panel, per session, or global? What happens when two sessions speak at once?                                                                                                                | Core owner + Headed Agent owner              | Follow-up issue                       | `headed.panels`, `headed.speech`            |
-| Platform support evidence                      | Which Linux, macOS, Windows, and FreeBSD configurations are actually supported, and who records the evidence?                                                                                                  | Core owner + terminal docs owner             | `OQ-004`; terminal platform evidence  | `headed.platform`                           |
-| Budget defaults                                | What are the numeric CPU, memory, GPU, audio, token, and cost defaults, and who may change them?                                                                                                               | Core owner + AI owner + Security owner       | `OQ-066`; follow-up issue             | `headed.budget`                             |
-| Approval lifetime and standing grants          | How long does a one-shot approval live, and are session-wide or tool-wide grants allowed?                                                                                                                      | Core owner + Security owner                  | `OQ-018` follow-up; follow-up issue   | `headed.tools`                              |
-| Synthetic speech disclosure                    | Is watermarking, provenance metadata, or a spoken disclosure required for synthesized audio?                                                                                                                   | Security owner + Product owner               | Follow-up issue                       | `headed.speech`                             |
-| Recording and export of speech or avatar state | Can users record, export, or delete synthesized audio and viseme data, and under which retention class?                                                                                                        | Core owner + Security owner                  | `AIQ-55`; `AIQ-5A`                    | `headed.speech`, `headed.avatar`            |
-| Shared chat or transcript contract             | Do Wheel and the Headed Agent share a neutral presentation contract in Core or the plugin ecosystem, or only `bitty-ai` events plus Core panels? A `wheel.*` dependency is excluded.                           | Wheel owner + Plugin ecosystem owner         | `OQ-052`; follow-up issue             | UI composition, duplication risk            |
-| Accessibility baseline                         | Which reduced-motion, caption, contrast, and screen-reader behaviors are mandatory versus optional?                                                                                                            | Plugin ecosystem owner + Accessibility owner | Follow-up issue                       | `headed.avatar`, `headed.speech`            |
+| Open point                                     | Question                                                                                                                                                                                                       | Likely owner                                 | Candidate register routing                                                   | Blocks                                      |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------- |
+| Session authority split                        | Does Core or `bitty-ai` own the durable session handle, generation issuance, and reconnect record?                                                                                                             | Core owner + AI owner                        | `OQ-061` (primary)                                                           | `headed.session`, `headed.stream`           |
+| Headed plugin identity and packaging           | Is the Headed Agent a Lua plugin, an out-of-process component, or a composed distribution? Who signs and updates it?                                                                                           | Plugin ecosystem owner                       | Follow-up issue                                                              | Plugin packaging, media extension packaging |
+| Coding capability access                       | If the Headed Agent needs coding intelligence, does it use only public Core/`bitty-ai` contracts, or must the needed mechanism be promoted there? A `wheel.*` runtime dependency is not authorized either way. | Wheel owner + Plugin ecosystem owner         | Wheel scope decision; Follow-up issue                                        | `wheel.*` prohibition, product scope        |
+| Replay retention window                        | How long are control events retained for reconnect, and what storage or memory budget applies?                                                                                                                 | Core owner + AI owner                        | Follow-up issue (AIQ-04/55/5A are adjacent closed(partial) facets)           | `headed.stream`                             |
+| Multi-user and remote headed clients           | Are remote, multi-device, or shared-panel sessions in scope? What authentication and consent model applies?                                                                                                    | Core owner + Security owner                  | ADR-0008 (OQ-020 closed; prior decision); Follow-up issue                    | Identity, consent, transport                |
+| Speech privacy classes and provider consent    | Which speech providers are local-only, which require egress consent, and what is the minimum baseline?                                                                                                         | AI owner + Security owner                    | Follow-up issue                                                              | `headed.speech`                             |
+| Viseme source and accuracy                     | Is the viseme timeline provider metadata, local analysis, or both? What accuracy and tolerance claims are allowed?                                                                                             | AI owner + Media extension owner             | Follow-up issue                                                              | `headed.avatar`                             |
+| 3D renderer placement                          | Is 3D an in-process extension, a separate process, or a remote surface? How is GPU memory isolated between principals?                                                                                         | Plugin ecosystem owner + Core owner          | Follow-up issue                                                              | `headed.avatar`, `headed.platform`          |
+| Audio focus policy                             | Is audio focus per panel, per session, or global? What happens when two sessions speak at once?                                                                                                                | Core owner + Headed Agent owner              | Follow-up issue                                                              | `headed.panels`, `headed.speech`            |
+| Platform support evidence                      | Which Linux, macOS, Windows, and FreeBSD configurations are actually supported, and who records the evidence?                                                                                                  | Core owner + terminal docs owner             | OQ-003 / ADR-0002 (accepted tiers); Follow-up issue for media specifics      | `headed.platform`                           |
+| Budget defaults                                | What are the numeric CPU, memory, GPU, audio, token, and cost defaults, and who may change them?                                                                                                               | Core owner + AI owner + Security owner       | `OQ-066` (context token profile); Follow-up issue for media and host budgets | `headed.budget`                             |
+| Approval lifetime and standing grants          | How long does a one-shot approval live, and are session-wide or tool-wide grants allowed?                                                                                                                      | Core owner + Security owner                  | Follow-up issue (OQ-018 is closed)                                           | `headed.tools`                              |
+| Synthetic speech disclosure                    | Is watermarking, provenance metadata, or a spoken disclosure required for synthesized audio?                                                                                                                   | Security owner + Product owner               | Follow-up issue                                                              | `headed.speech`                             |
+| Recording and export of speech or avatar state | Can users record, export, or delete synthesized audio and viseme data, and under which retention class?                                                                                                        | Core owner + Security owner                  | Follow-up issue (AIQ-55/5A are adjacent closed(partial) facets)              | `headed.speech`, `headed.avatar`            |
+| Shared chat or transcript contract             | Do Wheel and the Headed Agent share a neutral presentation contract in Core or the plugin ecosystem, or only `bitty-ai` events plus Core panels? A `wheel.*` dependency is excluded.                           | Wheel owner + Plugin ecosystem owner         | OQ-056 (presentation projection); otherwise Follow-up issue                  | UI composition, duplication risk            |
+| Accessibility baseline                         | Which reduced-motion, caption, contrast, and screen-reader behaviors are mandatory versus optional?                                                                                                            | Plugin ecosystem owner + Accessibility owner | Follow-up issue                                                              | `headed.avatar`, `headed.speech`            |
 
 The existing panel-identity and projection questions in the
 [AI Unresolved Questions](../product/ai-unresolved-questions.md) register remain
@@ -1416,5 +1430,11 @@ Local canonical documents:
 - [AI Unresolved Questions](../product/ai-unresolved-questions.md)
 - [Documentation workflow](../docs/development/documentation-workflow.md)
 
-Cross-repository owners and security entry point are listed once under
+Cross-repository owners are listed once under
 [Cross-repository references](#cross-repository-references).
+
+### Security entry point
+
+- [Security corpus index](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/README.md)
+- [Threat model](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/threat-model.md)
+  is normative.

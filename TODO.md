@@ -28,7 +28,7 @@ accumulating here.
   are tracked there and not resolved in this repository.
 - The AI-0343 headed Agent contract review index
   ([Headed Agent contracts](agent/headed-agent-contracts-candidate.md#open-points))
-  records 16 candidate open points. Existing entries route to their register
-  identifiers; the unregistered entries require promotion to the
-  unresolved-questions register or a tracked follow-up issue by the owning
-  commander. The table is not a local blocker register.
+  records 16 candidate open points. Candidate routings are proposed; the owning
+  commander verifies each against the register before promotion. Entries marked
+  `Follow-up issue` require a tracked issue; the table is not a local blocker
+  register.
