@@ -26,3 +26,9 @@ accumulating here.
   ([AI Vertical Slice Pressure Test](product/ai-vertical-slice-pressure-test.md))
   are proposals owned by `bitty`, `bitty-terminal-docs`, and `bitty-docs`; they
   are tracked there and not resolved in this repository.
+- The AI-0343 headed Agent contract review index
+  ([Headed Agent contracts](agent/headed-agent-contracts-candidate.md#open-points))
+  records 16 candidate open points. Candidate routings are proposed; the owning
+  commander verifies each against the register before promotion. Entries marked
+  `Follow-up issue` require a tracked issue; the table is not a local blocker
+  register.
