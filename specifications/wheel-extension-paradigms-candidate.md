@@ -21,13 +21,17 @@ behavior, candidate direction, or unimplemented discussion. Labels are
 verified against the owning implementation repositories; anything not
 observed is kept explicitly out of the observed set.
 
-Wheel is the official Agent Harness plugin for the Bitty terminal, scoped to
-software engineering only. That role is real, and the harness itself is a
-pre-implementation scaffold: a static manifest, one Lua entry point, and a
-quality gate, with no harness behavior shipped. Nothing here promotes a
-sketch to an API, a package, a protocol, or a release commitment, and
-nothing here overrides the accepted
-[IPC and Agent RFC](ipc-agent-rfc.md) or the normative security corpus.
+Wheel is the independent Agent Harness for the Bitty terminal, scoped to
+software engineering only. In 0.1.0 it ships as a **standalone Lua library
+artifact**, not a Bitty plugin package: it runs outside the plugin VM and
+receives no plugin capability grant. The repository's `bitty-plugin.toml`
+(`bitty-terminal.wheel`, manifest `0.0.1`) is a transitional scaffold, not the
+0.1.0 distribution contract, and no `plugin-api` compatibility is claimed.
+This document records candidate extension paradigms for Wheel's own ecosystem;
+it does not claim that Wheel itself is a Bitty plugin. Nothing here promotes a
+sketch to an API, a package, a protocol, or a release commitment, and nothing
+here overrides the accepted [IPC and Agent RFC](ipc-agent-rfc.md) or the
+normative security corpus.
 
 This document creates no AIQ or OQ identifier and closes none.
 
@@ -42,19 +46,20 @@ This document creates no AIQ or OQ identifier and closes none.
 
 ## Wheel position and harness role
 
-Status: **real role, scaffold implementation.**
+Status: **real role, standalone 0.1.0 artifact; plugin packaging not in scope.**
 
-Wheel is the official Agent Harness plugin for the Bitty terminal
-(`bitty-terminal.wheel`), scoped to software engineering: its task domain is
-always software development, and roles vary by configuration rather than by
-class explosion. The scaffold carries a static manifest, one Lua entry
-point, and a CI quality gate. The manifest requests only the notification
-capability behind the generated example command: no filesystem, process,
-network, clipboard, terminal-input, or persistent-state authority, and no
-install-time code execution. Sibling future plugins for provider and model
-management, the agent dashboard, and other surfaces are separate
-repositories, never this one. Repository existence, a manifest, or a
-proposed file tree is not evidence of usable plugin behavior.
+Wheel is the independent Agent Harness for the Bitty terminal, scoped to
+software engineering: its task domain is always software development, and roles
+vary by configuration rather than by class explosion. The 0.1.0 deliverable is
+a standalone Lua library artifact with its own process authority under the
+Wheel security model; it does not run inside the plugin VM and receives no
+plugin capability grant. The `bitty-terminal.wheel` manifest is a transitional
+`0.0.1` scaffold, not a distribution contract; it grants no authority for the
+0.1.0 artifact. Sibling future Wheel extension packages for provider and model
+management, the agent dashboard, and other surfaces are candidate surfaces of
+Wheel's own ecosystem, never a claim that Wheel is a Bitty plugin.
+Repository existence, a manifest, or a proposed file tree is not evidence of
+usable plugin behavior.
 
 One generic background rule is cited here without becoming a Wheel claim.
 The plugin-ecosystem direction states that Lua decides policy and

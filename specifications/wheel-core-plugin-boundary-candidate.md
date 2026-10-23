@@ -22,6 +22,13 @@ Lua-to-Lua composition across a service bus and Bitty IPC with a dependency
 graph, the `.wheel/` composition layer with global, project, and portable
 layering, and `bitty-ai` as a possible meta package.
 
+For clarity, **“plugin” in this candidate means a future Wheel extension
+package** in Wheel's own composition graph (tools, providers, UI/dashboard
+surfaces, and memory), not the Wheel harness being a Bitty plugin. Wheel 0.1.0
+is a standalone Lua library artifact; it runs outside the Bitty plugin VM and
+has no `plugin-api` contract. The repository's `bitty-plugin.toml` is a
+transitional `0.0.1` scaffold, not a distribution path for the 0.1.0 harness.
+
 The recommendation is to treat every model below as a candidate input to the
 draft [AI Architecture](../architecture/ai-architecture.md) and its related draft
 dispositions, never as an override of the accepted
