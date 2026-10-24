@@ -23,15 +23,13 @@ sidebar_order: 72
 > R1's broader ownership and cancellation split, R2, R3, the provider boundary,
 > the multimodal speech/job contract, and the AI Architecture remain draft
 > inputs. The nine rows in [P0 Review Sign-off](#p0-review-sign-off) are the
-> single authoritative review gate set for this document. The third-pass
-> verification at `3091977` recorded design-review approvals for Architecture
-> (`PX-1580`), Documentation (`PX-1579`), bitty-ai (`PX-1582`), Plugin
-> (`PX-1583`), Wheel (`PX-1585`), and Product (`PX-1586`). Security (`PX-1581`)
-> and Accessibility (`PX-1587`) remain `NEEDS-FIX` pending the AT-approval trust
-> boundary corrected in this pass; Core (`PX-1584`) remains `NEEDS-FIX` pending
-> re-review and accepted `bitty#2546`. This correction pass fixes the AT path and
-> the Core text findings; re-review is pending for those three rows. No other
-> approval is claimed.
+> single authoritative review gate set for this document. Verification at
+> `39ad004` recorded design-review approvals for Architecture (`PX-1580`),
+> Security (`PX-1590`), bitty-ai (`PX-1582`), Wheel (`PX-1585`), Plugin
+> (`PX-1583`), Product (`PX-1586`), Accessibility (`PX-1589`), and Documentation
+> (`PX-1579`). Core (`PX-1588`) approves the design content but its final
+> sign-off remains conditional on accepted `bitty#2546`. No implementation,
+> security-gate, or release approval is claimed.
 
 ## Purpose and scope
 
@@ -2274,12 +2272,13 @@ role is post-0.1.0.
 
 A **design security review** was completed at `01a1ad4` and recorded
 `APPROVE (design review)` under `PX-1575`. The `3091977` verification (`PX-1581`)
-withdrew that approval: AT activation could record a verdict without a trusted
-user-activation boundary. This pass makes AT activation non-approving and
-requires a Core-observed keyboard or pointer activation; Security re-review is
-pending. A design-review approval covers design content only: no implementation
-was reviewed, no security gate was executed, and it is not a release or
-implementation sign-off. Non-blocking P2/P3 follow-ups from that review are tracked in
+withdrew that approval because AT activation could record a verdict without a
+trusted user-activation boundary; `39ad004` makes AT activation non-approving and
+requires a Core-observed keyboard or pointer activation, closing `PX-1581` and
+recording `PX-1590`. A design-review approval covers design content only: no
+implementation was reviewed, no security gate was executed, and it is not a
+release or implementation sign-off. Non-blocking P2/P3 follow-ups from that
+review are tracked in
 [Remaining review follow-ups](#remaining-review-follow-ups). This section records
 the threat model and the gates a later implementation review must close; the
 document must remain `draft` until every row in
@@ -2692,6 +2691,10 @@ for this correction pass.
   is not approval-invalidating today, and there is no execution-time
   revalidation. The owning tools task must bind the implementation identity and
   add revalidation before `tool.started`.
+- **Speech trigger.** The speech flow's "explicit user or policy request" wording
+  does not by itself require a fresh user gesture; the Core one-shot authorization
+  must state that a plugin-originated request cannot originate egress without the
+  user action. Tracked for the speech contract.
 - **Provider-credential consent.** `ai.provider` is now a named category, but the
   per-principal/per-provider/per-privacy-class rule and the standing-grant
   question still need the accepted consent contract; `D6` and the approval-lifetime
@@ -2799,24 +2802,23 @@ This nine-row table is the **single authoritative sign-off set** for this
 document. Earlier and later summaries that mention approval, review, or a gate
 refer to these rows and do not define a smaller role list.
 
-| Role                   | Reviewer | Status                            | Evidence                                                                                                                                                                                                                                                      |
-| ---------------------- | -------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Architecture owner     | PX-1580  | Approved (design review, PX-1580) | Third-pass review approved the runtime state mapping, `bittyd` generation split, and OQ-058/SMO-versus-Panel-bus separation; the residual status-wording P2 is tracked.                                                                                       |
-| Security reviewer      | PX-1581  | Pending — NEEDS-FIX (PX-1581)     | Third-pass review withdrew the earlier approval: AT activation could record a verdict without a trusted user-activation boundary. This pass makes AT activation non-approving and requires a Core-observed keyboard or pointer activation; re-review pending. |
-| Core / `bittyd` owner  | PX-1584  | Pending — NEEDS-FIX (PX-1584)     | Third-pass review closed all but three text findings (present-tense `bittyd` status, restart durability, `ai.*` namespace claim); those are fixed here. Final sign-off remains conditional on accepted `bitty#2546`.                                          |
-| `bitty-ai` owner       | PX-1582  | Approved (design review, PX-1582) | R3 owner, runtime states, routing-proof gate, ADR-0019 link, and `bitty-agent-api` exports verified.                                                                                                                                                          |
-| Wheel owner            | PX-1585  | Approved (design review, PX-1585) | `.wheel/init.lua` trust-gate split, CLI negative tests, matrix horizons, provider/secret wording, and D1/D2/D6 attribution verified.                                                                                                                          |
-| Plugin ecosystem owner | PX-1583  | Approved (design review, PX-1583) | `ai.*` catalog owner-pending/`P-2`, component examples, 2D-versus-GPU split, `RFC-OQ-4`/`RFC-OQ-5`, package/distribution status, and `ai-panel` supersession verified.                                                                                        |
-| Product owner          | PX-1586  | Approved (design review, PX-1586) | `D5` scope, accepted placement, captions as candidate, `P-C`/`P-D`, predecessor mapping, terminal-pane relation, v1 speech versus post-v1 playback, and `D2`/`D3` verified.                                                                                   |
-| Accessibility owner    | PX-1587  | Pending — NEEDS-FIX (PX-1587)     | Prior accessibility findings closed; the AT approval trust boundary remains the blocker. This pass makes AT activation non-approving; re-review pending.                                                                                                      |
-| Documentation curator  | PX-1579  | Approved (design review, PX-1579) | Spine order, ADR-0019 link, draft-binding qualification, route/index, ADR-0016 attribution, PR-body counts, and terminology verified.                                                                                                                         |
+| Role                   | Reviewer | Status                                | Evidence                                                                                                                                                                                                         |
+| ---------------------- | -------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Architecture owner     | PX-1580  | Approved (design review, PX-1580)     | Third-pass review approved the runtime state mapping, `bittyd` generation split, and OQ-058/SMO-versus-Panel-bus separation; the residual status-wording P2 is tracked.                                          |
+| Security reviewer      | PX-1590  | Approved (design review, PX-1590)     | PX-1581 AT-approval blocker closed at `39ad004`: AT activation is non-approving and a Core-observed keyboard or pointer activation records the verdict; no new security blocker.                                 |
+| Core / `bittyd` owner  | PX-1588  | Approved (design review, conditional) | Three PX-1584 text findings closed. Final sign-off remains conditional on accepted `bitty#2546`: session record/writer, generation separation, attach/takeover, drain/reattach, service API, and platform cells. |
+| `bitty-ai` owner       | PX-1582  | Approved (design review, PX-1582)     | R3 owner, runtime states, routing-proof gate, ADR-0019 link, and `bitty-agent-api` exports verified.                                                                                                             |
+| Wheel owner            | PX-1585  | Approved (design review, PX-1585)     | `.wheel/init.lua` trust-gate split, CLI negative tests, matrix horizons, provider/secret wording, and D1/D2/D6 attribution verified.                                                                             |
+| Plugin ecosystem owner | PX-1583  | Approved (design review, PX-1583)     | `ai.*` catalog owner-pending/`P-2`, component examples, 2D-versus-GPU split, `RFC-OQ-4`/`RFC-OQ-5`, package/distribution status, and `ai-panel` supersession verified.                                           |
+| Product owner          | PX-1586  | Approved (design review, PX-1586)     | `D5` scope, accepted placement, captions as candidate, `P-C`/`P-D`, predecessor mapping, terminal-pane relation, v1 speech versus post-v1 playback, and `D2`/`D3` verified.                                      |
+| Accessibility owner    | PX-1589  | Approved (design review, PX-1589)     | PX-1587 AT-approval blocker closed at `39ad004`: AT activation is non-approving and the Core-observed keyboard path is documented; prior accessibility findings remain closed.                                   |
+| Documentation curator  | PX-1579  | Approved (design review, PX-1579)     | Spine order, ADR-0019 link, draft-binding qualification, route/index, ADR-0016 attribution, PR-body counts, and terminology verified.                                                                            |
 
-Six rows record design-review approvals and three record `NEEDS-FIX`. The
-approvals accept design content only; they accept no implementation, security
-gate result, or release. Security, Accessibility, and Core remain pending:
-Security and Accessibility await re-review of the AT trust boundary, and Core
-awaits re-review plus accepted `bitty#2546`. The document remains `draft` until
-all nine rows record dispositions and any defects are
+Eight rows record design-review approvals; Core records a design-review approval
+whose final sign-off remains conditional on accepted `bitty#2546`. The approvals
+accept design content only; they accept no implementation, security-gate result,
+or release. The document remains `draft` until the Core condition is satisfied
+and any defects are
 resolved or tracked.
 
 ## References
