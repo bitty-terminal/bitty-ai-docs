@@ -93,8 +93,13 @@ none.
 
 ### Recorded scope statements
 
-- **S1, fixed Domain with open Roles.** Wheel is Bitty's official Agent
-  Harness plugin scoped to software engineering only. Domain is fixed to
+- **S1, fixed Domain with open Roles.** Wheel is the independent
+  out-of-process Coding Agent Harness, not a Bitty plugin. The 0.1.0 position is
+  a single harness artifact that holds execution authority, with plugin
+  packaging and `compat.plugin-api` dropped (owner decisions D1, D2, and D6;
+  see the [Wheel README](https://github.com/bitty-terminal/wheel/blob/main/README.md)
+  and [repo.toml](https://github.com/bitty-terminal/wheel/blob/main/repo.toml)).
+  Domain is fixed to
   Coding while Role stays open (Primary, Commander, Coding, Review, Debug,
   Research) over one unified Agent primitive of role, model, tools,
   permissions, context, budget, and workspace. Roles are configuration, never
