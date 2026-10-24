@@ -34,10 +34,11 @@ conflicting direction.
 
 ## Documents
 
-| Document                                                             | Status | Purpose                                                                      |
-| -------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------- |
-| [Provider plugin boundary](provider-plugin-boundary.md)              | Draft  | Core versus provider-plugin boundary for ModelProvider contract and secrets. |
-| [Multimodal inference boundary](multimodal-inference-boundary.md)    | Draft  | Core multimodal extension for capability vocabulary, task envelope, assets.  |
-| [Dependency Strategy](dependency-strategy.md)                        | Draft  | Std-only runtime kernel with post-v0.1 adapter dependency boundaries.        |
-| [Provider transport adapter contract](transport-adapter-contract.md) | Draft  | Adapter input envelope, guarantees, and network delegation boundary.         |
-| [Frequently asked questions](faq.md)                                 | Draft  | Provider credential storage tiers, Secret Invariant, and project boundaries. |
+| Document                                                                                                      | Status | Purpose                                                                        |
+| ------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------ |
+| [Provider plugin boundary](provider-plugin-boundary.md)                                                       | Draft  | Core versus provider-plugin boundary for ModelProvider contract and secrets.   |
+| [Multimodal inference boundary](multimodal-inference-boundary.md)                                             | Draft  | Core multimodal extension for capability vocabulary, task envelope, assets.    |
+| [Dependency Strategy](dependency-strategy.md)                                                                 | Draft  | Std-only runtime kernel with post-v0.1 adapter dependency boundaries.          |
+| [Provider transport adapter contract](transport-adapter-contract.md)                                          | Draft  | Adapter input envelope, guarantees, and network delegation boundary.           |
+| [Provider configuration source and helper binary/mode contract](provider-config-helper-contract-candidate.md) | Draft  | Candidate catalog source and helper mode contract blocking strict publication. |
+| [Frequently asked questions](faq.md)                                                                          | Draft  | Provider credential storage tiers, Secret Invariant, and project boundaries.   |
