@@ -31,13 +31,14 @@ accumulating here.
   [Headed Agent contracts](agent/headed-agent-contracts-candidate.md) candidate
   design. The document stays `draft`. Its nine-row
   [P0 Review Sign-off](agent/headed-agent-contracts-candidate.md#p0-review-sign-off)
-  is the single authoritative gate: after the `01a1ad4` re-review, Security is
-  `Approved (design review, PX-1575)` and the other eight rows remain
-  `Pending — NEEDS-FIX` (Wheel PX-1569, Documentation PX-1577, Architecture
-  PX-1576, Core PX-1571, bitty-ai PX-1570, Plugin PX-1574, Product PX-1572,
-  Accessibility PX-1573) pending the next re-review. Core's final sign-off is
-  conditional on accepted `bitty#2546`. The 19 open points carry an explicit
-  disposition or deferral in the document; open product (`D1`-`D7`) and packaging
+  is the single authoritative gate: after the `3091977` verification, six rows
+  are design-review approved (Architecture PX-1580, Documentation PX-1579,
+  bitty-ai PX-1582, Plugin PX-1583, Wheel PX-1585, Product PX-1586) and three
+  remain `Pending — NEEDS-FIX` (Security PX-1581 and Accessibility PX-1587 for
+  the AT approval trust boundary, Core PX-1584 for re-review plus accepted
+  `bitty#2546`). Core's final sign-off is conditional on `bitty#2546`. The 19
+  open points carry an explicit disposition or deferral in the document;
+  product decisions (`D1`-`D7`; `D7` discharged) and packaging
   (`P-1`-`P-4`) decisions and the non-blocking P2/P3 review follow-ups are listed
   in the review follow-ups. Promotion into the owning registers and issues runs
   through #553 and the named owners, not from this work register.
