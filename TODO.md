@@ -26,9 +26,18 @@ accumulating here.
   ([AI Vertical Slice Pressure Test](product/ai-vertical-slice-pressure-test.md))
   are proposals owned by `bitty`, `bitty-terminal-docs`, and `bitty-docs`; they
   are tracked there and not resolved in this repository.
-- The AI-0343 headed Agent contract review index
-  ([Headed Agent contracts](agent/headed-agent-contracts-candidate.md#open-points))
-  records 16 candidate open points. Candidate routings are proposed; the owning
-  commander verifies each against the register before promotion. Entries marked
-  `Follow-up issue` require a tracked issue; the table is not a local blocker
-  register.
+- AI-0347 ([bitty-ai#553](https://github.com/bitty-terminal/bitty-ai/issues/553))
+  tracks the P0 dispositions and open-point promotion for the
+  [Headed Agent contracts](agent/headed-agent-contracts-candidate.md) candidate
+  design. The document stays `draft`. Its nine-row
+  [P0 Review Sign-off](agent/headed-agent-contracts-candidate.md#p0-review-sign-off)
+  is the single authoritative gate: after the `39ad004` verification, eight rows
+  are design-review approved (Architecture PX-1580, Security PX-1590,
+  Documentation PX-1579, bitty-ai PX-1582, Plugin PX-1583, Wheel PX-1585,
+  Product PX-1586, Accessibility PX-1589) and Core is design-approved but
+  conditional (PX-1588) on accepted `bitty#2546`. The 19
+  open points carry an explicit disposition or deferral in the document;
+  product decisions (`D1`-`D7`; `D7` discharged) and packaging
+  (`P-1`-`P-4`) decisions and the non-blocking P2/P3 review follow-ups are listed
+  in the review follow-ups. Promotion into the owning registers and issues runs
+  through #553 and the named owners, not from this work register.
