@@ -32,8 +32,11 @@ accumulating here.
   design. The document stays `draft`. Its nine-row
   [P0 Review Sign-off](agent/headed-agent-contracts-candidate.md#p0-review-sign-off)
   is the single authoritative gate: every row remains pending, no row is
-  approved, and the four independent reviews recorded `NEEDS-FIX` (PX-1550
-  through PX-1553) require re-review. The 16 open points carry an explicit
-  disposition or deferral in the document; promotion into the owning registers
-  and issues runs through #553 and the named owners, not from this work
-  register.
+  approved, and all nine independent reviews recorded `NEEDS-FIX` (Wheel
+  PX-1550, Documentation PX-1551, Architecture PX-1552, Security PX-1553, Core
+  PX-1564/AI-0350, bitty-ai PX-1565/AI-0351, Plugin PX-1566/AI-0352, Product
+  PX-1563/AI-0353, Accessibility PX-1562/AI-0354) require re-review. The 17 open
+  points carry an explicit disposition or deferral in the document, and open
+  product (`D1`-`D6`) and packaging (`P-1`-`P-4`) decisions are listed in the
+  review follow-ups. Promotion into the owning registers and issues runs through
+  #553 and the named owners, not from this work register.

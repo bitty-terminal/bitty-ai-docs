@@ -1,6 +1,6 @@
 ---
 title: Headed Agent contracts (candidate)
-description: Candidate reusable bitty-ai contracts for a sibling Headed Agent plugin covering sessions streaming routing panels speech avatars budgets and platform fallback
+description: Candidate reusable bitty-ai contracts for an optional Headed Agent surface covering sessions streaming routing panels speech avatars accessibility budgets and platform fallback
 category: specifications
 audience: contributor
 document_type: specification
@@ -13,32 +13,45 @@ sidebar_order: 72
 
 > Status: **draft**, and it remains `draft`. This document records a candidate
 > contract set for review. It accepts nothing, authorizes no implementation,
-> changes no Wheel behavior, and does not claim that a Headed Agent plugin,
+> changes no Wheel behavior, and does not claim that a Headed Agent surface,
 > speech implementation, avatar renderer, provider loader, or panel feature
 > exists. Accepted inputs it must not weaken are the IPC and Agent RFC, the
-> Panel Runtime RFC, RFC-0006, the scoped provider-routing snapshot binding
-> inside the draft R1 disposition, the OQ-058 owner ruling, ADR-0013, ADR-0002,
-> and the security corpus. R1's broader ownership and cancellation split, R2,
-> R3, the provider boundary, the multimodal speech/job contract, and the AI
-> Architecture remain draft inputs. The nine rows in
-> [P0 Review Sign-off](#p0-review-sign-off) are the single authoritative review
-> gate set for this document. Four independent reviews recorded `NEEDS-FIX`
-> (PX-1550 through PX-1553); re-review is pending and no row is approved.
+> Panel Runtime RFC, RFC-0006, ADR-0019, ADR-0016 Boundaries 1 and 3, ADR-0013,
+> ADR-0002, the accepted accessibility extraction contract `W-134`, RFC-0001,
+> RFC-0002, the scoped provider-routing snapshot binding inside the draft R1
+> disposition, the OQ-058 and OQ-083 owner rulings, and the security corpus.
+> R1's broader ownership and cancellation split, R2, R3, the provider boundary,
+> the multimodal speech/job contract, and the AI Architecture remain draft
+> inputs. The nine rows in [P0 Review Sign-off](#p0-review-sign-off) are the
+> single authoritative review gate set for this document. All nine independent
+> reviews recorded `NEEDS-FIX`: Wheel `PX-1550`, Documentation `PX-1551`,
+> Architecture `PX-1552`, Security `PX-1553`, Core `PX-1564`/`AI-0350`,
+> bitty-ai `PX-1565`/`AI-0351`, Plugin `PX-1566`/`AI-0352`, Product
+> `PX-1563`/`AI-0353`, and Accessibility `PX-1562`/`AI-0354`. This second-pass
+> correction addresses those findings; re-review is pending and no row is
+> approved.
 
 ## Purpose and scope
 
-This document defines the reusable `bitty-ai` contracts that a future sibling
-Headed Agent plugin would consume. "Headed" describes presentation and human
-interaction, never authority, persistence, or lifecycle. The proposed plugin is
-a sibling of the Wheel Coding Agent Harness, not a Wheel module and not a Wheel
-front end.
+This document defines the reusable `bitty-ai` contracts that an optional Headed
+Agent surface would consume. "Headed" describes presentation and human
+interaction, never authority, persistence, or lifecycle. The proposed surface is
+an optional `bitty-ai` extension and the successor candidate to the removed
+`ai-panel` agent surface, not a Wheel module, not a Wheel front end, and not a
+new Core feature. It consumes Core and `bitty-ai` mechanisms as a sibling
+consumer relative to Wheel; it does not share Wheel's code, state, or packaging.
 
 The document covers:
 
-- The boundary between Bitty Core, `bitty-ai`, Wheel, the Headed Agent plugin,
-  provider plugins, and optional media extensions.
+- The product thesis, candidate v1 scope, and placement of the surface,
+  including the `ai-panel` predecessor and the product decisions that remain
+  open.
+- The boundary between Bitty Core, `bittyd`, `bitty-execution`, `bitty-ai`,
+  Wheel, the Headed Agent surface, provider plugins, and optional media
+  presentation.
 - Independent contract versions for sessions, streaming, routing, snapshots,
-  tool approval, panel topics, speech, avatars, budgets, and platform fallback.
+  tool approval, panel topics, speech, avatars, accessibility, budgets, and
+  platform fallback.
 - Agent session lifecycle operations (`start`, `attach`, `detach`, `stop`),
   generation fencing, cancellation, event ordering, backpressure, and
   reconnect.
@@ -47,7 +60,7 @@ The document covers:
 - Panel and Event Bus topics, multi-panel suspend and resume, and the
   Core-versus-plugin ownership split.
 - Speech synthesis request, streaming, and cancellation, plus avatar state,
-  animation, and viseme events.
+  animation, viseme events, and the accessibility baseline they must satisfy.
 - CPU, memory, GPU, audio, token, cost, and storage budgets; Linux, macOS,
   Windows, and FreeBSD fallback; and security, privacy, and consent gates.
 - An ownership matrix, open points, cross-repository references, and the
@@ -64,7 +77,7 @@ This document does not define, authorize, or describe as implemented:
   decoder.
 - Any UI layout, chat transcript design, character design, voice persona, or
   plugin packaging decision.
-- Any claim that the Headed Agent plugin ships, is installable, or has passed
+- Any claim that the Headed Agent surface ships, is installable, or has passed
   architecture or security review.
 
 The design remains a candidate input. It references the accepted
@@ -83,14 +96,110 @@ boundary, and the multimodal speech contract are draft sources, not accepted
 contracts. Linked documents remain authoritative for their own surfaces; this
 document only records the additional contract families a headed consumer needs.
 
+## Product thesis and v1 placement
+
+### Thesis
+
+Bitty is an agent-friendly, not agent-centric terminal: AI and Agent
+capabilities extend Bitty through plugins rather than becoming the fixed center
+of the core product, and the core binds to no model vendor, prompt system, or AI
+workflow
+([Product Vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/vision.md#agent-friendly-not-agent-centric)).
+The Headed Agent gives an existing Bitty user a live, human-usable agent
+workspace inside that architecture: a panel composition that presents an agent
+session, its streaming output, approvals, speech, and avatar state, while Core
+keeps terminal truth and authority and `bitty-ai` keeps model I/O and AI policy.
+
+The product thesis is therefore narrower than "a chat UI". The surface exists to
+make agent work legible and controllable without leaving the terminal host, and
+to do so without granting presentation any authority, without binding Core to a
+provider, and without making Wheel the product center. It is not a replacement
+terminal, not the Wheel TUI, not a general chat client, and not a model vendor's
+front end.
+
+### Candidate v1 scope
+
+The following is a product-review candidate, not a commitment. It states the
+minimum surface this contract set is written to support; the final scope is
+product decision `D1` in [Review follow-ups](#review-follow-ups).
+
+| Area         | Candidate v1 scope                                                                                                          | Explicitly not v1                                                                    |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Presentation | Text-first panel composition: streaming turn text, tool proposal/approval cards, status, errors, and session attach/detach. | Chat transcript persistence, custom chat transport, shared Wheel chat contract.      |
+| Interaction  | Keyboard-complete operation, explicit approval decisions, stop/cancel, reconnect and resync.                                | Voice approval, gesture approval, ambience-driven control.                           |
+| Speech       | Optional speech output with synchronized captions and an inspectable transcript; playback off by default.                   | Voice cloning, speaker identification, always-on audio, autoplay defaults.           |
+| Avatar       | Optional 2D or software-rendered state indicator with text-equivalent announcements.                                        | 3D rigs, GPU scene graphs, photoreal characters, biometric sensing.                  |
+| Media        | Core presentation primitives only; no v1 media package.                                                                     | Lua media plugin, in-process decoder, GPU/window/PTY access from a plugin or helper. |
+| Recording    | Ephemeral by default; recording and export only under explicit retention consent if the product offers them at all (`D3`).  | Default recording, silent export, indefinite retention.                              |
+| Platforms    | ADR-0002 support tiers unchanged; text and captions work at the lowest presentation class.                                  | Any presentation class upgrading a platform's support tier.                          |
+
+### Placement and the `ai-panel` predecessor
+
+The recorded predecessor is `bitty-terminal.ai-panel`, the bundled agent panel
+surface. `bitty` CTX-0886 removed `ai-panel` (with `browser-panel`,
+`mail-panel`, and `project`) from Core on 2026-09-30; AI surfaces move to the
+separate optional `bitty-ai` extension, and the accepted subset of the former
+surface is retained as a dated record in
+[AI Surface Accepted Record](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ai-surface-accepted-record.md).
+The split decision recorded `ai-panel` as a **split-later hybrid**: Core-owned
+bounded snapshots, semantic-zone context, and MCP transport feed a Lua chat UI,
+history, and commands, blocked on the panel-provider contract and the
+`bitty-ai` surfaces plus distribution
+([Bundled-Plugin Split Decision](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/product/bundled-plugin-split-decision.md#ai-panel--split-later-hybrid)).
+
+This document treats the Headed Agent as that predecessor's successor candidate,
+not as a generic "future sibling repository". Its identity is one of the open
+packaging decisions (`P-1` in [Review follow-ups](#review-follow-ups)): a renamed
+`ai-panel` successor versus a new plugin identity. This draft works from the
+assumption that placement is an optional `bitty-ai` extension, the recorded
+destination for AI surfaces and the jurisdiction where AI involvement wins, while
+the final product placement and user-facing name remain `D5`. It is not a Core
+feature, not a Wheel module, not a bundled plugin, and not a distribution preset.
+The panel-provider registration and mount contract it needs is accepted by
+RFC-0006; the `bitty-ai` surfaces and distribution questions that blocked the
+split remain open.
+
+### Open product decisions versus settled contract inputs
+
+The contract inputs below are already accepted and are not reopened here. The
+product decisions below are genuinely open and are recorded in
+[Review follow-ups](#review-follow-ups) rather than silently answered.
+
+Settled contract inputs consumed by this draft:
+
+- Panel identity, lifecycle, focus routing, and Event Bus grammar from the
+  accepted Panel Runtime RFC and RFC-0006.
+- `AgentId`, `PanelId`, `ExecutionContextId`, and `GenerationId` separation from
+  ADR-0013, with panels never owning executions.
+- Platform support tiers from ADR-0002; presentation classes never upgrade a
+  tier.
+- The accessibility baseline obligations retained by Core under ADR-0016
+  Boundary 3 and elaborated by accepted `W-134`: projection-not-authority,
+  focus association, tab order, announcements, reduced motion, and contrast.
+- The provider-routing publication/proof split in the scoped accepted R1
+  binding.
+- Consent, approval, redaction, and retention floors in the normative security
+  corpus and the accepted IPC and Agent RFC.
+- The `bittyd` v0.2.0 staging and session-grained attach/detach in ADR-0019.
+
+Open product decisions, detailed in
+[Review follow-ups](#review-follow-ups): `D1` product thesis and v1 scope, `D2`
+synthetic-speech disclosure, `D3` recording/export/delete rights and retention
+class, `D4` accessibility floor beyond the accepted baseline, `D5` product
+placement and user-facing name, `D6` consent surface, and `D7` gate correction.
+`D7` is discharged by the nine-row table in this revision; the other six remain
+open owner decisions.
+
 ## Normative sources this specification must not weaken
 
 This draft is subordinate to the accepted IPC and Agent RFC, the accepted Panel
 Runtime RFC with RFC-0006, the scoped accepted provider-routing snapshot
-binding, the accepted OQ-058 owner ruling and ADR-0013 identity model, ADR-0002
-platform support tiers, and the normative security corpus. It also must not
-misstate or weaken the draft dispositions it consumes. It replaces or relaxes
-none of them:
+binding, the accepted OQ-058 and OQ-083 owner rulings and ADR-0013 identity
+model, ADR-0019 `bittyd` staging, ADR-0016 execution and accessibility
+boundaries, ADR-0002 platform support tiers, the accepted accessibility
+extraction contract `W-134`, RFC-0001 and RFC-0002, and the normative security
+corpus. It also must not misstate or weaken the draft dispositions it consumes.
+It replaces or relaxes none of them:
 
 - The accepted [IPC and Agent RFC](../specifications/ipc-agent-rfc.md) for
   framing, transport, authentication, scopes, bounded agent messages, consent,
@@ -112,6 +221,12 @@ Focused -> Suspended -> Disposed` lifecycle, `(PanelId, Generation)` identity,
   [open-question register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md),
   adopting the SMO-1 through SMO-4 spatial-orchestration topology and keeping
   presentation non-authoritative.
+- The accepted OQ-083 owner ruling (2026-09-23): the panel-lease kernel
+  direction (`Idle`/`Occupied`, acquire, release, and handoff) composing with
+  the Stable Id hierarchy and the event bus. This draft consumes it as a
+  design constraint and defines no competing panel lease; OQ-083 remains the
+  owner of lease semantics, and takeover here is a session relation, not a
+  panel lease.
 - The accepted
   [ADR-0013](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0013-core-ontology-identity.md)
   core ontology and identity model: `AgentId` is distinct from task, run,
@@ -124,6 +239,64 @@ Focused -> Suspended -> Disposed` lifecycle, `(PanelId, Generation)` identity,
   platform support tiers (`Tier 1` supported, `Tier 2` best-effort, `Tier 3`
   community). Presentation classes in this draft are separate and never
   upgrade a platform's support tier.
+- The accepted
+  [ADR-0019](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0019-bittyd-v0-2-0-staging.md)
+  `bittyd` staging decision (2026-10-22): the local, per-user, single-instance
+  host process enters the v0.2.0 slice with session-grained attach/detach, a
+  per-domain single writer, service API versioning, and no persistence across a
+  daemon restart. This draft consumes that staging and claims no daemon binary.
+- The accepted
+  [ADR-0016](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0016-execution-graphics-accessibility-storage-platform-boundaries.md)
+  Boundaries 1 and 3: the AI-agnostic execution supervisor moves to
+  `bitty-execution` under focused contract `W-132` while Core retains PTY,
+  permission and resource enforcement, host-side generation fencing, and the
+  AI-agnostic execution bridge; the platform accessibility adapter moves to
+  `bitty-a11y` under `W-134` while Core retains the accessibility baseline,
+  projection-not-authority, and focus/terminal-state association. Both are
+  accepted directions; neither implementation is claimed.
+- The accepted
+  [Accessibility Extraction Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/accessibility-extraction-contract.md)
+  (`W-134`) for the derived semantic snapshot, focus synchronization, the
+  controlled action interface, the platform AT backends (AT-SPI/D-Bus, Windows
+  UI Automation, macOS AX), and the retained Core baseline. It fixes that an
+  adapter is never a principal, never mutates terminal state directly, and
+  never publishes the projection on the Event Bus.
+- The accepted
+  [RFC-0001 appearance configuration](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0001-appearance-configuration.md)
+  for the minimum-contrast rule and fail-closed configuration resolution, and
+  the accepted
+  [RFC-0002 panel animations](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0002-panel-animations.md)
+  for the bounded reduced-motion and safe-mode contract. The high-contrast
+  posture and reduced motion are Core-retained, non-plugin-overridable
+  baselines.
+- The open question OQ-078 as scoped by ADR-0016 Boundary 3: it remains open
+  on the accessibility API/tree shape and its exact v1 versus post-v1 scope.
+  The accepted direction and `W-134` obligations are not reopened by this
+  draft; only the still-open adapter and surface details are referenced.
+- The accepted
+  [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md)
+  for the v1 Lua package boundary, the closed capability grammar, declarative
+  UI limits, generation lifecycle, and the prohibition on native in-process
+  plugins (`R-017`). This draft does not define a plugin category, package
+  class, or capability identifier.
+- The capability-catalog dependency rule: `panel.*` identifiers come from the
+  accepted Panel Runtime RFC and RFC-0006; `ai.*`, `agent.*`, and `mcp.*`
+  identifiers come from the `bitty-ai` extension capability catalog that
+  `bitty-plugins` accepts. This draft defines none of those identifiers and
+  adds no `media.*`, `audio.*`, or `gpu.*` family. Presentation capabilities in
+  `headed.platform` are presentation classes, not plugin grants.
+- The accepted
+  [Package Lifecycle RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/packaging/package-lifecycle-rfc.md)
+  and [Package Follow-up RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/packaging/package-followup-rfc.md)
+  for staged activation, integrity, rollback, and the still-draft signature,
+  provenance, and registry mechanics. Package signing and distribution remain
+  owner-pending.
+- The accepted
+  [Product Vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/vision.md#agent-friendly-not-agent-centric)
+  constraint that Bitty is agent-friendly, not agent-centric, and the accepted
+  [AI Surface Accepted Record](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ai-surface-accepted-record.md)
+  recording the removal of the `ai-panel` Core surface and the move of AI
+  surfaces to the optional `bitty-ai` extension.
 - The normative
   [P0 acceptance criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md),
   including `P0-AC-005`, `P0-AC-009`, and `P0-AC-010` for any rich, avatar, or
@@ -142,6 +315,16 @@ Focused -> Suspended -> Disposed` lifecycle, `(PanelId, Generation)` identity,
 - The draft cancellation split in R1: pre-dispatch prevention and post-dispatch
   `Unknown` reconciliation, with no rollback and no exactly-once claim. The
   split is design input, not an accepted cancellation contract.
+- The draft `bittyd` session-host consumer requirements in
+  [bittyd session host requirements](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/bittyd-session-host-requirements-candidate.md),
+  especially `R-B09` (exactly one writer per fact: `bittyd` is the only writer
+  of registry, lifecycle, generation, attach-count, lease, and last-seen state;
+  the worker owns run state; one controller lease unless Core adopts a
+  multi-controller model; clients mutate only through generation-checked
+  methods) and the companion
+  [bitty#2546](https://github.com/bitty-terminal/bitty/issues/2546) contract
+  scope. That document is consumer design input, not an accepted contract, and
+  this draft does not treat its candidate field names as settled.
 - The draft unified authorization gate order and fail-closed conditions in
   [Tool transport R2](../architecture/tool-transport-r2.md#unified-authorization-backend).
   A presentation surface never gains tool authority by holding a session, a
@@ -154,11 +337,12 @@ Focused -> Suspended -> Disposed` lifecycle, `(PanelId, Generation)` identity,
   [AI Architecture](../architecture/ai-architecture.md#privacy-first),
   including PP-1 through PP-6, FS-AI1 through FS-AI7, AG-1 through AG-5, and
   CP-5 through CP-7.
-- The draft Core-owned privacy classes, provider descriptor, secret invariant,
-  and project-override prohibition in
+- The draft `bitty-ai` Core-owned privacy classes, provider descriptor, secret
+  invariant, and project-override prohibition in
   [Provider plugin boundary](../providers/provider-plugin-boundary.md#core-owned-surface)
   and its [secret invariant](../providers/provider-plugin-boundary.md#secret-invariant).
-  The provider boundary is not accepted.
+  "Core" in that document means the `bitty-ai` Core surface, not the terminal
+  Core; the provider boundary is not accepted.
 - The draft speech task, generation-job lifecycle, `Unknown` reconciliation,
   asset reference, and presentation-handoff rules in
   [Multimodal inference boundary](../providers/multimodal-inference-boundary.md#generationjob-lifecycle).
@@ -174,93 +358,107 @@ accept that source, promote its status, or authorize its implementation.
 
 ## Terminology
 
-| Term                  | Meaning in this document                                                                                                                                                                                                                                                                                                        |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Core                  | The terminal platform and its host services. Core is the designated owner of record for panel runtime, IPC transport, consent enforcement, process supervision, and event-bus transport. Panel identity, lifecycle, and the Event Bus are accepted by the Panel Runtime RFC; their implementation is not claimed by this draft. |
-| `bittyd`              | A future, undecided Core-side service context in which host-owned lifecycle, panel, and transport authority may run. No v1.0 `bittyd` binary is claimed to exist.                                                                                                                                                               |
-| `bitty-ai`            | The independent AI sub-platform that owns provider abstraction, routing, inference jobs, context compilation, and the AI-facing event vocabulary.                                                                                                                                                                               |
-| Wheel                 | The out-of-process Coding Agent Harness. It consumes Core and `bitty-ai` and owns coding-workflow policy.                                                                                                                                                                                                                       |
-| Headed Agent plugin   | The prospective sibling composition plugin that owns chat composition, presentation policy, speech controls, and avatar appearance mapping. Working name only.                                                                                                                                                                  |
-| Presentation surface  | A panel, window, widget tree, or avatar surface that renders state. It is not a session, execution, or consent record.                                                                                                                                                                                                          |
-| Media extension       | An optional, separately packaged implementation of audio playback, decoding, 2D rendering, avatar rigging, or 3D presentation. It is never required for text operation.                                                                                                                                                         |
-| Media layer           | The combined runtime surface of zero or more media extensions plus Core presentation primitives. It is not an owner, contract, or authority.                                                                                                                                                                                    |
-| Principal             | The authenticated `(UID, AgentId)` pair defined by the accepted IPC and Agent RFC. A self-asserted name, plugin identity, or panel label is not a principal.                                                                                                                                                                    |
-| Agent session         | The accepted `AgentSession` lifecycle anchor plus the application-level handle and attachments defined here.                                                                                                                                                                                                                    |
-| Session handle        | A generation-fenced reference returned by `start`; it is not a grant and not a credential.                                                                                                                                                                                                                                      |
-| Attachment            | A presentation or observation subscription created by `attach`. Many attachments may exist for one session.                                                                                                                                                                                                                     |
-| Session generation    | The monotonic fence for session-level operations, approvals, and consent/elevation binding, issued by the session authority; the issuing authority is also the generation's sequencer (see [Authority split](#authority-split)). A stale session generation fails closed.                                                       |
-| Attachment generation | The monotonic fence for one attachment's local handles and presentation state. It never grants authority or binds consent.                                                                                                                                                                                                      |
-| `GenerationId`        | The accepted ADR-0013 fencing identifier for reloads, leases, and handoffs. It composes with the per-contract axes here but does not replace the session or attachment generation.                                                                                                                                              |
-| Cursor                | The tuple of session identity, session generation, attachment identity, attachment generation, and last applied sequence per delivery class used for replay or resynchronization.                                                                                                                                               |
-| Event Bus             | The host-mediated transport accepted by the Panel Runtime RFC, carrying authorized, bounded, manifest-declared topics between host services, panels, and plugins. It is not implemented by this draft.                                                                                                                          |
-| Panel                 | A presentation surface identity accepted by the Panel Runtime RFC, addressed as `(PanelId, Generation)` with the lifecycle `Declared -> Created -> Mounted -> Focused -> Suspended -> Disposed`. A panel projects state; it does not own execution, consent, or the session.                                                    |
-| Routing snapshot      | The scoped accepted, read-only, digest-verified provider-routing projection. It is not a context or session snapshot.                                                                                                                                                                                                           |
-| Context snapshot      | An immutable, redacted, bounded view of compiled model context for a turn or attachment, identified by version and digest.                                                                                                                                                                                                      |
-| Session snapshot      | A bounded, redacted state view used to attach or resynchronize; it is not a transcript and not a replay log.                                                                                                                                                                                                                    |
-| Speech job            | A `bitty-ai` generation job for the `Speech` task, reusing the draft multimodal generation-job lifecycle.                                                                                                                                                                                                                       |
-| Viseme timeline       | Optional timing metadata that maps synthesized audio intervals to mouth-shape identifiers. It is best-effort presentation data.                                                                                                                                                                                                 |
-| Candidate             | Proposed by this document only; no review has accepted it.                                                                                                                                                                                                                                                                      |
-| Owner-pending         | Belongs to another repository or team; recorded here as a pointer, never as settled content.                                                                                                                                                                                                                                    |
-| Illustrative-only     | A sketch whose names, fields, bounds, or defaults are explicitly undecided and create no schema or compatibility promise.                                                                                                                                                                                                       |
+| Term                               | Meaning in this document                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Core                               | The terminal platform and its host services. Core authorizes and fences execution and retains PTY ownership, permission and resource enforcement, host-side generation fencing, and the AI-agnostic execution bridge; the `bitty-execution` supervisor performs AI-agnostic supervision and execution (ADR-0016 Boundary 1, focused contract `W-132`). Core is also the owner of record for panel runtime, IPC transport, consent enforcement, and event-bus transport. Panel identity, lifecycle, and the Event Bus are accepted by the Panel Runtime RFC; their implementation is not claimed by this draft. |
+| `bittyd`                           | The local, per-user, single-instance Core host process accepted into the v0.2.0 slice by ADR-0019 (2026-10-22). It owns the session registry, lifecycle, generation, attach-count, lease, and last-seen state as sole writer (`R-B09`), with session-grained attach/detach and no persistence across a daemon restart. No `bittyd` binary ships today.                                                                                                                                                                                                                                                         |
+| `bitty-execution`                  | The independent AI-agnostic execution supervisor direction accepted by ADR-0016 Boundary 1 and parked to focused contract `W-132`. It supervises and executes; Core authorizes each operation and fences stale handles. No implementation is claimed.                                                                                                                                                                                                                                                                                                                                                          |
+| `bitty-ai`                         | The independent AI sub-platform that owns provider abstraction, routing, inference jobs, context compilation, and the AI-facing event vocabulary. "AI Core" in provider documents means this surface, never the terminal Core.                                                                                                                                                                                                                                                                                                                                                                                 |
+| Wheel                              | The out-of-process Coding Agent Harness. It consumes Core and `bitty-ai` and owns coding-workflow policy.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Headed Agent surface               | The prospective optional `bitty-ai` extension that owns chat composition, presentation policy, speech controls, and avatar appearance mapping. It is the successor candidate to the removed `ai-panel` surface. Working name only.                                                                                                                                                                                                                                                                                                                                                                             |
+| Presentation surface               | A panel, window, widget tree, or avatar surface that renders state. It is not a session, execution, or consent record.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Media presentation (owner-pending) | An owner-pending presentation category for audio playback or decoding, 2D rendering, avatar rigging, or 3D presentation. It is **not** a v1 Lua plugin or package: the v1 plugin boundary forbids native in-process code, native module loading, and direct GPU, window, or PTY access (`R-017`). The native path is a Core extension component (the `bitty-graphics`, `bitty-a11y`, or `bitty-platform-services` pattern) or, post-1.0, a declared native helper that receives no GPU, window, PTY, or host-Rust handle. It is never required for text operation.                                             |
+| Media layer                        | The combined runtime surface of zero or more media presentations plus Core presentation primitives. It is not an owner, contract, or authority.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Principal                          | The authenticated `(UID, AgentId)` pair defined by the accepted IPC and Agent RFC. A self-asserted name, plugin identity, or panel label is not a principal.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Agent session                      | The accepted IPC and Agent RFC `AgentSession` contract (`Created`, `Running`, `WaitingToolResult`, `Completed`, `Failed`) as the lifecycle anchor, plus the `bitty-ai` runtime's own vocabulary and the application-level handle and attachments defined here. It is not a `bittyd` session and not a panel.                                                                                                                                                                                                                                                                                                   |
+| Session handle                     | A generation-fenced reference returned by `start`; it is not a grant and not a credential.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Attachment                         | A presentation or observation subscription created by `attach`. Many attachments may exist for one session.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Session generation                 | The fencing value for session-level operations, approvals, and consent/elevation binding. Its issuing authority and durable record are the subject of `bitty#2546`; if `bittyd` owns that record, `bittyd` is the sole writer of the generation under `R-B09`, and whether it also sequences the control stream is part of `bitty#2546`. No second component may advance the same generation. A stale session generation fails closed.                                                                                                                                                                         |
+| Attachment generation              | The monotonic fence for one attachment's local handles and presentation state. It never grants authority or binds consent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `GenerationId`                     | The accepted ADR-0013 fencing identifier for reloads, leases, and handoffs. It composes with the per-contract axes here but does not replace the session or attachment generation.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `bittyd` session                   | One unit registered and supervised by `bittyd`: a client-visible record with lifecycle, generation, attach-count, leases, and last-seen state. The host may register a terminal session or a hosted agent worker; whether it hosts non-terminal agent workers is undecided (`bitty#2546`, `D-01` in the consumer requirements).                                                                                                                                                                                                                                                                                |
+| Application handle                 | The `start` result the Headed Agent holds: session identity, generation, initial cursor, selected versions, snapshot, and budget reference. It references an AgentSession and, only when the host is supervised by `bittyd`, a `bittyd` session. It is not a grant, credential, or `bittyd` lease.                                                                                                                                                                                                                                                                                                             |
+| Agent generation (`AG-2`)          | The `(AgentId, generation)` or `(PluginId, generation)` binding defined by AG-2 and used by CP-5 `current_generation`. It is separate from the session generation and from the AI runtime's `AgentSession.generation`/rotation fence.                                                                                                                                                                                                                                                                                                                                                                          |
+| Panel generation                   | The `(PanelId, generation)` identity accepted by the Panel Runtime RFC. A stale panel handle is rejected by the host; an attachment may not outlive its panel generation.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| AT adapter                         | The `bitty-a11y` platform accessibility backend (AT-SPI/D-Bus, Windows UI Automation, macOS AX). It materializes a projection and forwards controlled actions; it is never a principal.                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Caption                            | A synchronized text rendering of the currently presented speech audio, tied to the audio clock with a stated timing tolerance and bounded latency.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Transcript                         | An inspectable, scrollable text record of spoken content. It is bounded, redacted with the same rules as the speech text, locale-tagged, and retained under the declared retention class.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Cursor                             | The tuple of session identity, session generation, attachment identity, attachment generation, and last applied sequence per delivery class used for replay or resynchronization.                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Event Bus                          | The host-mediated transport accepted by the Panel Runtime RFC, carrying authorized, bounded, manifest-declared topics between host services, panels, and plugins. It is not implemented by this draft.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Panel                              | A presentation surface identity accepted by the Panel Runtime RFC, addressed as `(PanelId, Generation)` with the lifecycle `Declared -> Created -> Mounted -> Focused -> Suspended -> Disposed`. A panel projects state; it does not own execution, consent, or the session.                                                                                                                                                                                                                                                                                                                                   |
+| Routing snapshot                   | The scoped accepted, read-only, digest-verified provider-routing projection. It is not a context or session snapshot.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Context snapshot                   | An immutable, redacted, bounded view of compiled model context for a turn or attachment, identified by version and digest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Session snapshot                   | A bounded, redacted state view used to attach or resynchronize; it is not a transcript and not a replay log.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Speech job                         | A `bitty-ai` generation job for the `Speech` task, reusing the draft multimodal generation-job lifecycle.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `AssetRef`                         | The shared Core artifact-reference contract used for generated media. `bitty-ai` owns only the speech-job instance (job identity, media type, expiry, version, retention class); this draft does not define its fields.                                                                                                                                                                                                                                                                                                                                                                                        |
+| Viseme timeline                    | Optional timing metadata that maps synthesized audio intervals to mouth-shape identifiers. It is best-effort presentation data.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Candidate                          | Proposed by this document only; no review has accepted it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Owner-pending                      | Belongs to another repository or team; recorded here as a pointer, never as settled content.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Illustrative-only                  | A sketch whose names, fields, bounds, or defaults are explicitly undecided and create no schema or compatibility promise.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Boundary and sibling relationship
 
 ### Three consumers, one platform
 
 Core is the designated owner of record for the neutral platform surface:
-transport, authentication, consent enforcement, process and PTY supervision,
-panel identity and lifecycle, and the event-bus transport. The panel identity,
-lifecycle, and Event Bus contracts are accepted by the
+transport, authentication, consent enforcement, PTY ownership and process
+permission enforcement, panel identity and lifecycle, and the event-bus
+transport. Core authorizes and fences execution; the accepted ADR-0016
+Boundary 1 direction moves AI-agnostic supervision and execution to
+`bitty-execution` under `W-132`, not into Core and not into `bitty-ai`. The
+panel identity, lifecycle, and Event Bus contracts are accepted by the
 [Panel Runtime RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-rfc.md);
 their implementation is not claimed here. `bitty-ai` is the designated owner
-of reusable AI mechanisms. Wheel and the Headed Agent plugin are independent
-consumers of those mechanisms. This is an ownership design target; Core panel,
-Event Bus, and future `bittyd` implementation do not exist as a result of this
-document.
+of reusable AI mechanisms. Wheel and the Headed Agent surface are independent
+consumers of those mechanisms, and the Headed Agent is an optional `bitty-ai`
+extension rather than a Core or Wheel component. This is an ownership design
+target; Core panel, Event Bus, `bitty-execution`, and `bittyd` implementation do
+not exist as a result of this document.
 
 ```text
-Bitty Core / future bittyd (implementation not claimed here)
+Bitty Core / bittyd (ADR-0019 v0.2.0 staging; no binary claimed)
   |-- IPC, consent enforcement, panel runtime (accepted contract),
-  |   Event Bus (accepted contract)
+  |   Event Bus (accepted contract), PTY ownership and permission enforcement
   |
-  |-- bitty-ai
-  |     |-- provider/model routing and inference jobs
-  |     |-- context compilation and snapshots
-  |     |-- AI event vocabulary and speech job contract
-  |     |
-  |     |-- Wheel (Coding Agent Harness)
-  |     |     `-- coding workflow, task graph, harness policy
-  |     |
-  |     `-- Headed Agent plugin (presentation composition)
-  |           `-- optional media extensions
-  |                 |-- audio playback and decoding
-  |                 `-- 2D/3D avatar rendering
+  |-- bitty-execution (W-132 direction: AI-agnostic supervisor)
+  |-- bitty-graphics (W-133), bitty-a11y (W-134), platform services (W-136)
   |
-  `-- Core presentation primitives used by either consumer (contract accepted;
-      implementation not claimed)
+  `-- bitty-ai
+        |-- provider/model routing and inference jobs
+        |-- context compilation and snapshots
+        |-- AI event vocabulary and speech job contract
+        |
+        |-- Wheel (Coding Agent Harness)
+        |     `-- coding workflow, task graph, harness policy
+        |
+        `-- Headed Agent surface (optional bitty-ai extension)
+              `-- media presentation
+                    |-- Core extension component (bitty-graphics-style), or
+                    `-- post-1.0 native helper (no GPU/window/PTY handle)
 ```
 
-There is deliberately no edge between Wheel and the Headed Agent plugin. They
-are siblings, not layers. Shared needs are promoted to Core or `bitty-ai`; a
-private cross-consumer dependency is not created.
+There is deliberately no edge between Wheel and the Headed Agent surface. They
+are sibling consumers, not layers. Shared needs are promoted to Core or
+`bitty-ai`; a private cross-consumer dependency is not created.
 
 ### Responsibility boundary
 
 The table records design-target ownership. It does not claim that Core panel,
-Event Bus, `bittyd`, or media-extension code exists.
+Event Bus, `bittyd`, `bitty-execution`, or media presentation code exists.
 
-| Surface                      | Owns (design target)                                                                                                                           | Consumes                                                | Must not                                                                                                |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Bitty Core / future `bittyd` | Transport, authentication, consent enforcement, scope enforcement, panel identity and lifecycle, Event Bus transport, process/PTY supervision. | No model I/O and no AI policy.                          | Select models, assemble prompts, synthesize speech, animate avatars, or render plugin UI.               |
-| `bitty-ai`                   | Provider abstraction, routing, inference jobs, context compilation, snapshots, AI event schemas, speech job contract, viseme vocabulary.       | Core transport, consent verdicts, and provider plugins. | Own a window, panel, audio device, GPU surface, chat layout, or credential store.                       |
-| Wheel                        | Coding Agent Harness policy: coding workflow, task graph, tool composition, harness-level consent and audit behavior.                          | Core and `bitty-ai`.                                    | Gain a headed UI, speech, avatar, or 3D responsibility from this design.                                |
-| Headed Agent plugin          | Chat and interaction composition, presentation policy, panel layout, speech controls, avatar appearance and animation mapping.                 | Core and `bitty-ai`; optional media extensions.         | Depend on `wheel.*`; hold execution authority; bypass Core authorization; own provider credentials.     |
-| Provider plugin              | Vendor protocol adaptation, transport, and provider-specific request mapping behind an opaque credential handle.                               | `bitty-ai` provider contract and Core grants.           | Widen capabilities, raise a privacy class, or expose credentials to the agent, plugin, or presentation. |
-| Media extension              | Audio device playback, media decoding, 2D rendering, 3D rigging, and GPU presentation behind a declared capability.                            | `bitty-ai` speech/avatar events and Core grants.        | Become a session authority, read transcripts, capture camera or microphone input, or persist media.     |
+| Surface                            | Owns (design target)                                                                                                                                                                                | Consumes                                                            | Must not                                                                                                                                                                  |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bitty Core / `bittyd`              | Transport, authentication, consent enforcement, scope enforcement, panel identity and lifecycle, Event Bus transport, PTY ownership, permission/resource enforcement, host-side generation fencing. | No model I/O and no AI policy.                                      | Select models, assemble prompts, synthesize speech, animate avatars, render plugin UI, or supervise AI-agnostic execution itself.                                         |
+| `bitty-execution` (`W-132`)        | AI-agnostic execution supervision: spawn-time lifetime, cancellation execution, PTY/process resource mechanics, structured outcome, bounded output, recovery.                                       | Core authorizations, generation fences, and the AI-agnostic bridge. | Learn agent or task ontology, grant consent, or own `bitty-ai` semantic state.                                                                                            |
+| `bitty-ai`                         | Provider abstraction, routing, inference jobs, context compilation, snapshots, AI event schemas, speech job contract, viseme vocabulary.                                                            | Core transport, consent verdicts, and provider plugins.             | Own a window, panel, audio device, GPU surface, chat layout, or credential store.                                                                                         |
+| Wheel                              | Coding Agent Harness policy: coding workflow, task graph, tool composition, harness-level consent and audit behavior.                                                                               | Core and `bitty-ai`.                                                | Gain a headed UI, speech, avatar, or 3D responsibility from this design.                                                                                                  |
+| Headed Agent surface               | Chat and interaction composition, presentation policy, panel layout, speech controls, avatar appearance and animation mapping.                                                                      | Core and `bitty-ai`; presentation primitives.                       | Depend on `wheel.*`; hold execution authority; bypass Core authorization; own provider credentials; define a plugin category or capability family.                        |
+| Provider plugin                    | Vendor protocol adaptation, transport, and provider-specific request mapping behind an opaque credential handle.                                                                                    | `bitty-ai` provider contract and Core grants.                       | Widen capabilities, raise a privacy class, or expose credentials to the agent, plugin, or presentation.                                                                   |
+| Media presentation (owner-pending) | Presentation of audio, 2D/3D, or avatar content through a Core extension component or a post-1.0 native helper, with a declared capability and budget.                                              | `bitty-ai` speech/avatar events and Core grants.                    | Be a v1 Lua plugin/package; hold GPU, window, PTY, or host-Rust handles; become a session authority; read transcripts; capture camera or microphone input; persist media. |
 
 ### The `wheel.*` prohibition
 
-The Headed Agent plugin must not import, require, call, configure, inspect, or
+The Headed Agent surface must not import, require, call, configure, inspect, or
 otherwise depend on any `wheel.*` module, package, service, configuration key,
 environment variable, or internal API. It does not load Wheel as a library, act
 as a Wheel front end, or reuse Wheel private state. The prohibition also covers
@@ -310,34 +508,36 @@ Each family is versioned independently. The labels below are contract-family
 names for review, not wire methods, Lua modules, package names, or accepted API
 spellings.
 
-| Family            | Candidate version | Accountable owner(s)                                      | Purpose                                                                                                        | Status |
-| ----------------- | ----------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------ |
-| `headed.session`  | 1                 | Core owner + AI owner                                     | Session handle, `start`/`attach`/`detach`/`stop`, session and attachment generations, cancellation, reconnect. | Draft  |
-| `headed.stream`   | 1                 | Core owner + AI owner                                     | Bounded delivery classes, sequencing, backpressure, replay, and resynchronization.                             | Draft  |
-| `headed.routing`  | 1                 | AI owner (resolution); Core owner (publication authority) | Model-profile request and routing against the scoped accepted routing snapshot.                                | Draft  |
-| `headed.context`  | 1                 | Core owner + AI owner                                     | Context snapshot and session snapshot references, redaction, and viewer filtering.                             | Draft  |
-| `headed.tools`    | 1                 | Core owner + AI owner                                     | Tool proposal, approval request, verdict, execution, and result events.                                        | Draft  |
-| `headed.panels`   | 1                 | Core owner + Headed Agent owner                           | Reserved topic families, panel attachment, suspend, resume, and audio focus.                                   | Draft  |
-| `headed.speech`   | 1                 | AI owner (contract); Media extension owner (playback)     | Speech request, stream, cancel, playback handoff, and asset reference.                                         | Draft  |
-| `headed.avatar`   | 1                 | AI owner (events); Headed Agent owner (mapping)           | Presentation state, animation, and viseme events; renderer ownership stays outside `bitty-ai`.                 | Draft  |
-| `headed.budget`   | 1                 | Core owner + AI owner                                     | Budget envelope, enforcement attribution, and degradation actions.                                             | Draft  |
-| `headed.platform` | 1                 | Core owner + Media extension owner                        | Capability detection and presentation classes on Linux, macOS, Windows, and FreeBSD.                           | Draft  |
+| Family            | Candidate version | Accountable owner(s)                                                                               | Purpose                                                                                                        | Status |
+| ----------------- | ----------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------ |
+| `headed.session`  | 1                 | Core owner (host authority, pending `bitty#2546`) + AI owner                                       | Session handle, `start`/`attach`/`detach`/`stop`, session and attachment generations, cancellation, reconnect. | Draft  |
+| `headed.stream`   | 1                 | Core owner + AI owner                                                                              | Bounded delivery classes, sequencing, backpressure, replay, and resynchronization.                             | Draft  |
+| `headed.routing`  | 1                 | AI owner (resolution); Core owner (publication authority)                                          | Model-profile request and routing against the scoped accepted routing snapshot.                                | Draft  |
+| `headed.context`  | 1                 | Core owner + AI owner                                                                              | Context snapshot and session snapshot references, redaction, and viewer filtering.                             | Draft  |
+| `headed.tools`    | 1                 | Core owner (authorization); `bitty-execution` (execution under `W-132`); AI owner (proposal relay) | Tool proposal, approval request, verdict, execution, and result events.                                        | Draft  |
+| `headed.panels`   | 1                 | Core owner + Headed Agent owner (presentation only)                                                | Panel attachment, suspend, resume, and audio focus. Panel identity and lifecycle are consumed, not owned.      | Draft  |
+| `headed.speech`   | 1                 | AI owner (contract); owner-pending media presentation                                              | Speech request, stream, cancel, playback handoff, and asset reference.                                         | Draft  |
+| `headed.avatar`   | 1                 | AI owner (events); Headed Agent owner (mapping)                                                    | Presentation state, animation, and viseme events; renderer ownership stays outside `bitty-ai`.                 | Draft  |
+| `headed.budget`   | 1                 | Core owner + AI owner                                                                              | Budget envelope, enforcement attribution, and degradation actions.                                             | Draft  |
+| `headed.platform` | 1                 | Core owner + accessibility owner (`bitty-a11y` adapter)                                            | Capability detection, presentation classes, and AT adapter availability on Linux, macOS, Windows, and FreeBSD. | Draft  |
 
 ### Family boundaries
 
 Several families touch the same mechanic. The authoritative family or accepted
 source is named once here so the draft does not define it twice:
 
-| Shared mechanic                                               | Authoritative family or source                                                               | Boundary in this draft                                                                                                                        |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Session handle, session generation, `attach`/`detach`         | `headed.session`                                                                             | `headed.panels` only requests panel identity; panel lifecycle stays with the accepted Panel Runtime RFC.                                      |
-| Session snapshot content                                      | `headed.session` defines the bounded attachment view; `headed.context` defines context views | A session snapshot is neither a context snapshot nor a transcript, and it never substitutes for `attach` authorization.                       |
-| Context snapshot and CP-5 `current_generation`                | `headed.context` consuming draft CP-5                                                        | CP-5 binds the AG-2 agent generation; `headed.session` does not own that generation.                                                          |
-| Event sequencing, backpressure, replay, resynchronization     | `headed.stream` for the session observation stream                                           | The Event Bus owns inter-panel topic delivery and its PR-7/PR-8/PR-9 queues; `headed.stream` never redefines bus queues.                      |
-| Topic grammar, manifest produce/consume, per-principal ledger | Accepted Panel Runtime RFC Event Bus                                                         | `headed.panels` consumes the grammar and ledger; it mints neither.                                                                            |
-| Panel identity, lifecycle, focus, suspend                     | Accepted Panel Runtime RFC and RFC-0006                                                      | Attachment lifecycle is a separate relation; see [Panel lifecycle versus attachment lifecycle](#panel-lifecycle-versus-attachment-lifecycle). |
-| Speech job status and `Unknown`                               | Draft multimodal generation-job lifecycle consumed by `headed.speech`                        | Avatar, animation, and viseme events never carry a terminal job state.                                                                        |
-| Rich rendering controls                                       | Normative `P0-AC-005`, `P0-AC-009`, `P0-AC-010`                                              | `headed.avatar` and `headed.panels` inherit them; transcript and chat layout stay out of scope.                                               |
+| Shared mechanic                                               | Authoritative family or source                                                               | Boundary in this draft                                                                                                                                                                                                                              |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session handle, session generation, `attach`/`detach`         | `headed.session`                                                                             | `headed.panels` only requests panel identity; panel lifecycle stays with the accepted Panel Runtime RFC.                                                                                                                                            |
+| Session snapshot content                                      | `headed.session` defines the bounded attachment view; `headed.context` defines context views | A session snapshot is neither a context snapshot nor a transcript, and it never substitutes for `attach` authorization.                                                                                                                             |
+| Context snapshot and CP-5 `current_generation`                | `headed.context` consuming draft CP-5                                                        | CP-5 binds the AG-2 agent generation; `headed.session` does not own that generation.                                                                                                                                                                |
+| Event sequencing, backpressure, replay, resynchronization     | `headed.stream` for the non-lossy session control stream                                     | The Event Bus is observation delivery only: it owns inter-panel topic delivery and its PR-7/PR-8/PR-9 DropOldest queues; approval, stop, tool-result, and speech-job control events never travel on it. `headed.stream` never redefines bus queues. |
+| Session authority, generation, attach leases                  | `bitty#2546` (Core contract) with ADR-0019 staging and `R-B09` single-writer rule            | `headed.session` records consumer requirements only. A `bittyd` session, an AgentSession, and the application handle are distinct; `start` does not create all three.                                                                               |
+| Plugin identity, package category, distribution, signing      | `bitty-plugins-docs` plugin-platform and packaging contracts                                 | The Headed Agent product owner (`bitty-ai`) chooses whether to publish a package; it does not define the platform category or signing rules.                                                                                                        |
+| Topic grammar, manifest produce/consume, per-principal ledger | Accepted Panel Runtime RFC Event Bus                                                         | `headed.panels` consumes the grammar and ledger; it mints neither.                                                                                                                                                                                  |
+| Panel identity, lifecycle, focus, suspend                     | Accepted Panel Runtime RFC and RFC-0006                                                      | Attachment lifecycle is a separate relation; see [Panel lifecycle versus attachment lifecycle](#panel-lifecycle-versus-attachment-lifecycle).                                                                                                       |
+| Speech job status and `Unknown`                               | Draft multimodal generation-job lifecycle consumed by `headed.speech`                        | Avatar, animation, and viseme events never carry a terminal job state.                                                                                                                                                                              |
+| Rich rendering controls                                       | Normative `P0-AC-005`, `P0-AC-009`, `P0-AC-010`                                              | `headed.avatar` and `headed.panels` inherit them; transcript and chat layout stay out of scope.                                                                                                                                                     |
 
 ### Version negotiation authority
 
@@ -346,7 +546,9 @@ contract-version binding of every session-bound family in the table. `start`
 returns the selected version for each family it negotiates; a session generation
 cannot change that binding in place. `headed.platform` is the one
 presentation-scoped family with a standalone pre-session probe path, so `start`
-is not its only possible authority.
+is not its only possible authority. `start` here is the application-level
+operation; whether it also creates a `bittyd` session remains `bitty#2546` and
+does not change this version binding.
 
 - `start` negotiates every session-bound family the client declares, including
   the baseline `headed.platform` version even when no presentation attachment
@@ -399,38 +601,62 @@ is not its only possible authority.
 
 ### Authority split
 
-The accepted `AgentSession` state machine
-(`Created -> Running <-> WaitingToolResult -> Completed/Failed`) remains the
-lifecycle anchor. This design adds an application-level handle and attachment
-layer around it; it does not replace that state machine.
+Three session concepts are routinely conflated and are kept separate here:
 
-Core is the designated owner of transport, authentication, consent enforcement,
-the consent ledger, and scope enforcement. The accepted `AgentSession` state
-machine comes from the IPC and Agent RFC and is carried by the separate
-`bitty-agent` state-machine crate, which Core does not link. The AI runtime's
-vocabulary dependency is `bitty-agent-api`, not the state-machine crate: at the
-pinned `bitty-agent` revision `a8e4112`, `bitty-agent-api` exposes only `AgentId`
-and `AgentError`, while `bitty-ai-runtime` defines its own `AgentSession` states
-including `Canceled`. The report-only AI-0257 vocabulary-conformance ledger
-records that drift; this draft does not rename either vocabulary or claim they
-converge. How the AI host consumes the RFC state machine (including how
-`Canceled` maps to the accepted terminal set), and whether the durable session
-record and generation issuance live in Core or `bitty-ai`, remain open points.
-`bitty-ai` owns the model-facing binding: routing snapshot, context snapshot,
-turn and generation-bound events, tool proposals, speech jobs, and media event
-schemas. The Headed Agent plugin owns presentation, local interaction, and the
-mapping of semantic events to widgets, speech controls, and avatars.
+| Level              | What it is                                                                                                                                 | Identity and generation                                                                                                                                                   | Authority and sole writer                                                                                           | Status                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `bittyd` session   | One unit registered and supervised by the local daemon: a terminal session or a hosted worker.                                             | Server-assigned session id plus a worker-binding generation and a state revision; session-grained attach/detach.                                                          | `bittyd` is the only writer of registry, lifecycle, generation, attach-count, lease, and last-seen state (`R-B09`). | ADR-0019 staging accepted; the contract is `bitty#2546`, open.  |
+| AgentSession       | The accepted IPC and Agent RFC lifecycle anchor: `Created`, `Running`, `WaitingToolResult`, `Completed`, `Failed`.                         | Its own RFC lifecycle state; the application-level session identity and generation used by `start`/`attach` belong to the handle, with placement open under `bitty#2546`. | Core authorizes and holds the consent ledger; the AI side owns model-facing turn and job state.                     | RFC contract accepted at design level; no implementation claim. |
+| Application handle | The object the Headed Agent holds after `start`: identity, generation, cursor, selected versions, snapshot, budget reference, attachments. | References the session generation; carries its own attachment generations.                                                                                                | Owned by the Headed Agent as a consumer object; it grants nothing.                                                  | Candidate (this draft).                                         |
 
-A session generation has one issuing authority for its lifetime, and that
-authority is also the generation's sequencer: whoever mints
-`(session identity, generation)` assigns the per-generation sequence at commit
-before any event is admitted. Where issuance and transport sequencing are held
-by separate components, the handoff from issuer to sequencer is a single
-recorded step that adopts the exact issued generation; no event may be admitted
-before adoption, and a mismatch fails closed. Two components may not
-independently advance the same session generation. This draft does not decide
-whether durable issuance belongs to Core or `bitty-ai`; it fixes the handoff
-invariant either placement must satisfy.
+`start` does not necessarily create all three. Whether a headed `start` creates
+a `bittyd` session, only an AgentSession, or only an application handle that
+references an already-hosted session is exactly what `bitty#2546` must settle;
+this draft does not decide it. A Headed Agent that runs without `bittyd` (the
+supported daemon-absent state under ADR-0019 D5) cannot assume a `bittyd`
+session, a lease, or restart persistence. When `bittyd` does host the session,
+the worker or agent runtime remains the only writer of the run's task, context,
+tool, and audit state; `bittyd` never stores or mutates that state (`R-B09`).
+
+The accepted RFC `AgentSession` state names remain the lifecycle anchor at the
+contract level. The `bitty-agent` crate's session lifecycle is draft and not
+normative, and the AI-0257 vocabulary-conformance ledger records implementation
+drift without resolving it. At the pinned `bitty-agent` revision `a8e4112`,
+`bitty-agent-api` exposes only `AgentId` and `AgentError` and is a **test-only
+dev-dependency** used for report-only conformance evidence; the AI runtime does
+not depend on `bitty-agent` or on its state machine in production. `bitty-ai`
+defines its own `AgentSession` vocabulary, including a terminal `Canceled`,
+which is mapped explicitly in [Outcome levels](#outcome-levels). Whether the two
+vocabularies converge or the crate is archived remains open; this draft renames
+neither and claims no convergence.
+
+Execution authority follows ADR-0016 Boundary 1. Core authorizes every
+`observe`, `read_output`, `write_input`, `signal`, `cancel`, `attach`, and
+`transfer` operation, retains PTY ownership and permission/resource
+enforcement, rejects stale host handles itself, and keeps the AI-agnostic typed
+execution bridge. The AI-agnostic supervisor `bitty-execution` (`W-132`
+direction, no implementation claimed) supervises and executes. Core does not
+supervise execution itself, and `bitty-ai` does not own host process or PTY
+lifecycle. The execution record's durable placement remains part of the draft
+R1 disposition and is not assigned here.
+
+Generation sequencing is a single-writer problem, not a declared Core role. The
+accepted `R-B09` rule requires exactly one writer per fact. If `bitty#2546`
+places the session record in `bittyd`, `bittyd` issues that generation and is its
+only writer; whether it also sequences the session control stream is part of
+`bitty#2546`, and any separation of issuance from sequencing uses the handoff
+invariant below. If placement is elsewhere, the same invariant applies to that
+authority. The handoff adopts the exact issued generation in one recorded step;
+no event is admitted before adoption, a mismatch fails closed, and two
+components never advance one generation. The earlier draft sentence naming Core
+as the designated sequencer is withdrawn: it decided an open placement question
+in the body while the open-point table called it undecided.
+
+`bitty-ai` owns the model-facing binding: routing snapshot consumption, context
+snapshot, turn and generation-bound events, tool proposals, speech jobs, and
+media event schemas. The Headed Agent surface owns presentation, local
+interaction, and the mapping of semantic events to widgets, speech controls, and
+avatars.
 
 This document fixes only the rules that neither side may violate: no
 presentation authority, no model I/O in Core, no credential exposure, no
@@ -480,31 +706,41 @@ later, but UI absence is never lifecycle authority.
 **`stop`.** The caller supplies the expected session generation and a bounded
 reason. Cancellation follows the draft R1 split: before dispatch, the request is
 prevented and no effect occurs; after dispatch, owned execution is asked to
-cancel and the recorded outcome is the actual result or `Unknown`. This contract
-maps session cancellation to the accepted `Completed` or `Failed` terminal state
-with a cancellation attribution; it does not add a third accepted
-`AgentSession` state. A speech or media job may separately report `Queued`,
-`Preparing`, `Running`, `Streaming`, `Completed`, `Failed`, `Cancelled`, or
-`Unknown` in its own draft media-job status. `Completed`, `Failed`, and
-`Cancelled` are terminal for that job; `Unknown` is a reconciliation state, never
-a terminal success or failure. The two levels are never collapsed: a job
-reaching `Cancelled` does not by itself terminate the session, and a session
-reaching `Completed` or `Failed` does not rewrite a job's recorded status.
-`Unknown` is reconciled by status inspection or user direction before any retry;
-no rollback and no exactly-once claim is made. `stop` is idempotent, releases
-owned resources at a bounded grace deadline, and reports the retention outcome
-for evidence. A stale session generation cannot stop a newer session.
+cancel and the recorded outcome is the actual result or `Unknown`. The accepted
+RFC `AgentSession` terminal set stays `Completed`/`Failed`; a cancellation
+recorded in that vocabulary is one of those two with a cancellation
+attribution. The `bitty-ai` runtime vocabulary instead has a terminal
+`Canceled`; this contract maps to it rather than rewriting it into `Completed`
+or `Failed`, and the mapping is recorded in [Outcome levels](#outcome-levels).
+This draft adds no third state to the accepted RFC set and claims no vocabulary
+convergence. A speech or media job may separately report `Queued`, `Preparing`,
+`Running`, `Streaming`, `Completed`, `Failed`, `Cancelled`, or `Unknown` in its
+own draft media-job status. `Completed`, `Failed`, and `Cancelled` are terminal
+for that job; `Unknown` is a reconciliation state, never a terminal success or
+failure. The levels are never collapsed: a job reaching `Cancelled` does not by
+itself terminate the session, and a session reaching `Completed`, `Failed`, or
+`Canceled` does not rewrite a job's recorded status. `Unknown` is reconciled by
+status inspection or user direction before any retry; no rollback and no
+exactly-once claim is made. `stop` is idempotent, releases owned resources at a
+bounded grace deadline, and reports the retention outcome for evidence. A stale
+session generation cannot stop a newer session.
 
 ### Outcome levels
 
 Session outcomes and job outcomes are separate records with separate state
 sets. A consumer must read the level it is acting on:
 
-| Level      | State set                                                                                     | Terminal states                    | Rule                                                                                                                |
-| ---------- | --------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Session    | `Created`, `Running`, `WaitingToolResult`, `Completed`, `Failed` (accepted IPC and Agent RFC) | `Completed`, `Failed`              | Cancellation records one of the two terminal states with cancellation attribution; there is no third session state. |
-| Media job  | `Queued`, `Preparing`, `Running`, `Streaming`, `Completed`, `Failed`, `Cancelled`, `Unknown`  | `Completed`, `Failed`, `Cancelled` | `Unknown` is reconciled by status inspection before retry and is never recorded as success or failure.              |
-| Attachment | `attached`, `suspended`, `closed`, `failed`                                                   | `closed`, `failed`                 | An attachment outcome never terminates the session and never substitutes for a session or job outcome.              |
+| Level                            | State set                                                                                    | Terminal states                    | Rule                                                                                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Session, accepted RFC vocabulary | `Created`, `Running`, `WaitingToolResult`, `Completed`, `Failed`                             | `Completed`, `Failed`              | Cancellation records one of the two terminal states with cancellation attribution. The RFC vocabulary is not extended.                                 |
+| Session, `bitty-ai` runtime      | `Created`, `Running`, `WaitingToolResult`, `Completed`, `Failed`, `Canceled`                 | `Completed`, `Failed`, `Canceled`  | `Canceled` is terminal and is not rewritten. A UI maps either vocabulary to one user-visible cancellation outcome; the records are mapped, not merged. |
+| Media job                        | `Queued`, `Preparing`, `Running`, `Streaming`, `Completed`, `Failed`, `Cancelled`, `Unknown` | `Completed`, `Failed`, `Cancelled` | `Unknown` is reconciled by status inspection before retry and is never recorded as success or failure.                                                 |
+| Attachment                       | `attached`, `suspended`, `closed`, `failed`                                                  | `closed`, `failed`                 | An attachment outcome never terminates the session and never substitutes for a session or job outcome.                                                 |
+
+The spellings differ deliberately: the `bitty-ai` session state is `Canceled`
+(one `l`, matching that vocabulary) and the media-job state is `Cancelled` (two
+`l`). They are separate records; a UI may present both as "cancelled", but the
+stored states are not merged.
 
 ### Controlled session transitions
 
@@ -513,37 +749,61 @@ alongside `start`, `attach`, `detach`, and `stop`. The first two are controlled
 transitions with fail-closed authorization; `reset` is deliberately not defined
 by this draft.
 
-| Transition       | Preconditions                                                                                                                                                                                                                            | Generation effect                                                   | Consent and effects                                                                                                                                                                                                                                         |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Session `resume` | The principal is authenticated, the session is retained and not live under another writer, and the caller passes the current session generation.                                                                                         | Issues a new session generation.                                    | Prior elevation is invalid. Re-grant requires a fresh prompt. No queued command, tool effect, speech request, or animation is replayed.                                                                                                                     |
-| `takeover`       | The current owner or an explicit user-owned host policy authorizes the handoff, the handoff is recorded with both principals and the target session generation, and the target principal's current grants and consent are re-authorized. | Issues a new session generation; the old generation is invalidated. | Fresh consent is required. Pending actions are reconciled, not replayed, and media jobs started under the old generation are reconciled to their recorded status before the new generation is used. A stale owner cannot continue under the old generation. |
-| `reset`          | Not defined here. A destructive reset is a new-session operation that requires a separate Core contract.                                                                                                                                 | None.                                                               | This draft provides no reset path and no implicit consent. A caller that needs a clean session performs a new `start`.                                                                                                                                      |
+| Transition       | Preconditions                                                                                                                                                                                                                            | Generation effect                                                                                      | Consent and effects                                                                                                                                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session `resume` | The principal is authenticated, the session is retained and not live under another writer, and the caller passes the current session generation.                                                                                         | Issues a new session generation through the `bitty#2546` authority.                                    | Prior elevation is invalid. Re-grant requires a fresh prompt. No queued command, tool effect, speech request, or animation is replayed.                                                                                                                     |
+| `takeover`       | The current owner or an explicit user-owned host policy authorizes the handoff, the handoff is recorded with both principals and the target session generation, and the target principal's current grants and consent are re-authorized. | Issues a new session generation through the `bitty#2546` authority; the old generation is invalidated. | Fresh consent is required. Pending actions are reconciled, not replayed, and media jobs started under the old generation are reconciled to their recorded status before the new generation is used. A stale owner cannot continue under the old generation. |
+| `reset`          | Not defined here. A destructive reset is a new-session operation that requires a separate Core contract.                                                                                                                                 | None.                                                                                                  | This draft provides no reset path and no implicit consent. A caller that needs a clean session performs a new `start`.                                                                                                                                      |
 
 Session `resume` and `takeover` retain the contract-version binding of the
 original `start`; they do not renegotiate it. A client that requires a different
 major performs a new `start` with a fresh session and fresh consent.
+
+Session `resume` is **not restart persistence**. ADR-0019 excludes sessions that
+survive a daemon restart; a session retained across a detach is still live in the
+same daemon instance. After a daemon restart the old session and generation are
+gone, and the client performs a new `start` rather than claiming recovery.
+
+`takeover` transfers the session-controller relation. It is not the OQ-083 panel
+lease or handoff: a panel lease change follows the accepted OQ-083 kernel and
+does not by itself move session control, and a session takeover does not grant a
+panel lease.
 
 ### Generation, version, and consent axes
 
 The word "generation" is not a single universal fence. The following axes are
 separate, and a contract family must name the axis it uses:
 
-| Axis                                    | Issued or bound by                                                                                                                                                                                                 | What it fences                                                                                     | Binds consent or elevation?                                                                        |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Session generation                      | The session authority at `start`, session `resume`, or `takeover`, which is also that generation's sequencer; the exact Core-versus-`bitty-ai` split for durable issuance remains open.                            | Session-level mutating operations, approval verdicts, session stop, and session-scoped media jobs. | Yes, together with the principal and scope.                                                        |
-| Attachment generation                   | The attachment authority at `attach`.                                                                                                                                                                              | One attachment's local handles, cursors, and presentation state.                                   | No. It never grants authority or binds consent.                                                    |
-| Routing snapshot version and digest     | Core publication authority under the scoped accepted provider-routing binding, with the AI helper owning the authoritative registry and proof. No separate routing "generation" is defined by this draft.          | The exact provider-routing projection used for a turn or session pin.                              | No. It selects routing data; it never grants a scope.                                              |
-| Context snapshot version and generation | `bitty-ai` context compilation. CP-5 `current_generation` binds the AG-2 agent generation, which is separate from the session generation and from the runtime `AgentSession.generation`/`rotate_generation` fence. | The exact compiled context and its freshness.                                                      | No. Expansion re-authorizes the read; the snapshot itself is not a grant.                          |
-| Speech job identity and status          | The draft `bitty-ai` media-job lifecycle.                                                                                                                                                                          | Cancellation, status inspection, and `Unknown` reconciliation for one speech job.                  | No. Speech egress consent binds to the session generation, principal, provider, and privacy class. |
+| Axis                                    | Issued or bound by                                                                                                                                                                                                                                  | What it fences                                                                                     | Binds consent or elevation?                                                                        |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Session generation                      | The authority designated by `bitty#2546`. If `bittyd` owns the session record, `bittyd` is the sole writer of the generation (`R-B09`); whether it also sequences the control stream is part of `bitty#2546`. This draft does not decide placement. | Session-level mutating operations, approval verdicts, session stop, and session-scoped media jobs. | Yes, together with the principal and scope.                                                        |
+| Attachment generation                   | The attachment authority at `attach`.                                                                                                                                                                                                               | One attachment's local handles, cursors, and presentation state.                                   | No. It never grants authority or binds consent.                                                    |
+| Panel generation                        | The host under the accepted Panel Runtime RFC, as `(PanelId, generation)`.                                                                                                                                                                          | Panel identity, mount, focus, suspend, and stale panel-handle rejection.                           | No.                                                                                                |
+| Agent generation (`AG-2`)               | The `bitty-ai` agent/plugin generation, as `(AgentId, generation)` or `(PluginId, generation)`; CP-5 `current_generation` binds this axis.                                                                                                          | Agent-level elevation, context assembly freshness, and turn-scoped records.                        | Yes for agent elevation. CP-5 itself grants nothing.                                               |
+| `GenerationId` (ADR-0013)               | The accepted core ontology, for reloads, leases, and handoffs.                                                                                                                                                                                      | The accepted fencing identity that composes with the narrower axes above.                          | Indirectly, where a lease or handoff carries authority; it is not itself consent.                  |
+| Execution projection                    | The draft [execution-projection binding](../specifications/execution-projection-binding-candidate.md#the-binding-relation); candidate only.                                                                                                         | The candidate panel-to-execution projection relation.                                              | No. The projection is not an authorization.                                                        |
+| Routing snapshot version and digest     | Core publication authority under the scoped accepted provider-routing binding, with the AI helper owning the authoritative registry and proof. No separate routing "generation" is defined by this draft.                                           | The exact provider-routing projection validated for one turn.                                      | No. It selects routing data; it never grants a scope.                                              |
+| Context snapshot version and generation | `bitty-ai` context compilation. CP-5 `current_generation` is the AG-2 agent generation, separate from the session generation and from the runtime `AgentSession.generation`/`rotate_generation` fence.                                              | The exact compiled context and its freshness.                                                      | No. Expansion re-authorizes the read; the snapshot itself is not a grant.                          |
+| Speech job identity and status          | The draft `bitty-ai` media-job lifecycle.                                                                                                                                                                                                           | Cancellation, status inspection, and `Unknown` reconciliation for one speech job.                  | No. Speech egress consent binds to the session generation, principal, provider, and privacy class. |
 
+- A stale session generation invalidates elevation and pending approvals; a
+  stale attachment generation closes only that attachment; a stale panel
+  generation rejects the panel handle; a stale AG-2 generation fails context
+  assembly with `StaleGeneration`. None of these is interchangeable.
+- An execution projection is a candidate relation, not a fourth authority. It
+  binds a `PanelId` and generation to an `ExecutionContextId` for presentation
+  and never lets a panel own an execution. It fails closed when any bound
+  generation is stale.
 - Consent and elevation bind to the principal (UID and AgentId), the session
   generation, and the scope. Approval adds the exact call digest, target,
-  schema version, and expiry. An attachment generation, routing version, context
-  version, or media-job identity never substitutes for that binding.
-- A stale session generation invalidates elevation and pending approvals; a
-  stale attachment generation closes only that attachment. A stale routing or
-  context version fails the turn closed rather than silently reusing an older
-  projection.
+  schema version, and expiry. An attachment generation, panel generation,
+  routing version, context version, agent generation, or media-job identity
+  never substitutes for that binding.
+- A stale routing or context version fails the turn closed rather than silently
+  reusing an older projection. A routing snapshot pin is not a durable lease:
+  any provider, model, capability, context-window, cost, or alias mutation
+  invalidates the proof before strict use, and the turn fails closed rather
+  than continuing on the old pin.
 - An agent suspend, dispose, or reload invalidates prior elevation even before a
   new session generation is issued. Panel suspension does not invalidate agent
   elevation; it expires only the attachment-local handles.
@@ -552,10 +812,20 @@ separate, and a contract family must name the axis it uses:
 
 ### Event ordering and loss
 
-- The session-generation issuing authority owns its sequence; where that is
-  Core, Core is the designated sequencer. One sequencer assigns a monotonically
-  increasing sequence number per session generation at commit, before queue
-  admission, after the issuer-to-sequencer handoff recorded in
+- **Control and observation use different transports.** Session lifecycle,
+  `attach`/`detach`, stop, approval requests and verdicts, tool results, and
+  speech-job lifecycle travel on the session-bound control stream defined by
+  `headed.stream`. They are not Event Bus topics. The accepted host-mediated
+  Event Bus carries authorized, bounded, manifest-declared observation topics
+  and uses `DropOldest` as the v1 default; treating a control event as a bus
+  topic would put an approval or a stop behind a lossy observation queue and is
+  forbidden. A future control queue on the bus would require its own accepted
+  bus amendment; this draft does not claim one.
+- The session-generation issuing authority owns its sequence. The sequencer is
+  whichever authority `bitty#2546` designates; this draft designates none and
+  does not place a sequencer in Core by assertion. One sequencer assigns a
+  monotonically increasing sequence number per session generation at commit,
+  before queue admission, after the issuer-to-sequencer handoff recorded in
   [Authority split](#authority-split). Every event carries that number; a
   dropped event still consumes a sequence number, so a consumer can distinguish
   a dropped event from an event that was never produced. AI turn sequencing is
@@ -580,11 +850,11 @@ separate, and a contract family must name the axis it uses:
 - **Durable media-job events are separate from ephemeral presentation events.**
   Speech job lifecycle and terminal events use the draft multimodal status set
   `Queued`, `Preparing`, `Running`, `Streaming`, `Completed`, `Failed`,
-  `Cancelled`, and `Unknown`. That class is control, non-lossy, and
-  gap-detected. Avatar state, animation, and viseme events are ephemeral
-  presentation, lossy, and latest-wins. A terminal media-job state is never
-  carried only by an ephemeral avatar event, and `Unknown` is never treated as a
-  terminal success or failure.
+  `Cancelled`, and `Unknown`. That class travels on the non-lossy session
+  control stream and is gap-detected; it is not an Event Bus topic. Avatar
+  state, animation, and viseme events are ephemeral presentation, lossy, and
+  latest-wins. A terminal media-job state is never carried only by an ephemeral
+  avatar event, and `Unknown` is never treated as a terminal success or failure.
 - Audio uses its own media-channel chunk sequence and playback buffer. It does
   not use the session sequence for gap detection and never triggers a session
   resynchronization.
@@ -608,6 +878,10 @@ separate, and a contract family must name the axis it uses:
 | Recoverable observation | Turn deltas, progress, context updates, routing fallback notices.                                        | Bounded and sequence-numbered; cumulative resynchronization is available. | Coalesce or drop oldest with counted loss, then resynchronize from a snapshot or cumulative turn. |
 | Ephemeral presentation  | Avatar state, animation steps, viseme markers, cursor and focus hints.                                   | Latest-wins or short bounded queue; no user-visible data depends on it.   | Drop stale entries with counters; never queue without bound.                                      |
 | Audio                   | Speech chunks and playback buffers.                                                                      | Bounded ring buffer with a real-time budget.                              | Stop or restart playback at a safe boundary; never play out of order or unbounded.                |
+
+The control row describes the **session control stream**, not the Event Bus.
+The Event Bus carries only observation classes and uses `DropOldest` for its
+queues; the control class's non-lossy rule is not a bus queue policy.
 
 - Backpressure never silently escalates into spawning another agent, another
   session, or an unbounded retry loop.
@@ -656,7 +930,7 @@ covers this attachment.
 
 ### Model-profile routing
 
-The Headed Agent plugin asks for a model profile or role together with
+The Headed Agent surface asks for a model profile or role together with
 constraints. It does not select a provider, name an endpoint, supply a
 credential, read a provider registry, or construct an alias route.
 
@@ -688,11 +962,14 @@ Routing rules:
   does not silently become `upload-notice`.
 - A model alias is outside the accepted strict path. The accepted binding
   excludes the alias table from the initial projection until a later accepted
-  alias projection decision, and this draft defines no alias routing. A client
-  that needs an alias resolves it to a model profile before `start` or fails
-  closed; the routing layer never silently interprets an alias, and an alias
-  request is never counted as strict provider-list coverage. Any alias-table
-  mutation invalidates the current binding before strict use.
+  alias projection decision, and this draft defines no alias routing. A strict
+  request carries a model profile, never an alias; an alias identifier is
+  rejected before routing and is never interpreted as a profile. A client that
+  has only an alias fails closed until an accepted alias projection exists; it
+  never falls back to the provider list or to a local alias table. Any
+  registry, capability, context-window, cost, or alias-table mutation
+  invalidates the proof before strict use, and an alias request is never
+  counted as strict provider-list coverage.
 - A provider that resolves to a stored credential requires the matching
   `ai.provider` consent for that principal, provider, and privacy class. A
   standing tool grant or session-wide approval never pre-authorizes provider
@@ -704,9 +981,12 @@ Routing rules:
 - A fallback is visible as a bounded routing event with the reason and the
   selected model identity. Silent degradation of privacy, capability, or cost
   is forbidden.
-- A routing snapshot version and digest are pinned for the turn and associated
-  with the session generation. A refresh is explicit, attributed, and
-  session-generation-bound; it is not triggered by a failed request as an
+- A routing snapshot version and digest are validated for **one turn**; they are
+  not a durable session pin. Any provider, model, capability, context-window,
+  cost, or alias mutation invalidates the proof before strict use, and the turn
+  fails closed rather than continuing on the previous projection. A later turn
+  binds a new version only after a fresh publication and proof. A refresh is
+  explicit, attributed, and never triggered by a failed request as an
   unreviewed retry.
 - Routing failure is a typed outcome. The UI may explain it and offer a consent
   flow, but the agent never asks the user to paste a credential into chat.
@@ -745,8 +1025,8 @@ The tool event sequence is:
 tool.proposed              bitty-ai relays the model's proposal as data
 tool.approval.requested    Core opens an approval request
 tool.approved | denied     Core records the verdict
-tool.started               Core starts an authorized execution
-tool.result | tool.failed  Core reports the outcome as untrusted observation
+tool.started               Core authorizes; bitty-execution starts the execution
+tool.result | tool.failed  bitty-execution reports the outcome; presentation shows it as untrusted observation
 ```
 
 These labels are illustrative event-family names, not wire methods.
@@ -754,7 +1034,7 @@ These labels are illustrative event-family names, not wire methods.
 Rules:
 
 - A proposal is not an execution and carries no authority. The model cannot
-  approve its own proposal, and the Headed Agent plugin cannot approve on the
+  approve its own proposal, and the Headed Agent surface cannot approve on the
   model's behalf.
 - The approval request binds the principal, the session identity, the session
   generation, the tool name and tool version (not the name alone), a canonical
@@ -777,9 +1057,12 @@ Rules:
   accepted security review.
 - Tool results are untrusted observation. They never become instructions,
   policy, or automatic follow-up tool calls without fresh authorization.
-- The approval ledger, the verdict, and the execution record are Core-owned.
-  The Headed Agent plugin owns only the presentation of the request and the
-  collection of the user's explicit decision.
+- The approval ledger and the verdict are Core-owned. The execution record's
+  durable placement is part of the draft R1 disposition, and the structured
+  execution outcome is owned by `bitty-execution` under `W-132`; neither is
+  assigned to a panel or to `bitty-ai` by this draft. The Headed Agent surface
+  owns only the presentation of the request and the collection of the user's
+  explicit decision.
 
 ## Panel and Event Bus ownership
 
@@ -788,24 +1071,36 @@ Rules:
 Topic identifiers follow the accepted Panel Runtime RFC grammar
 `owner.name:topic`, matching
 `^[a-z][a-z0-9_-]*\.[a-z][a-z0-9_-]*:[a-z][a-z0-9_.-]*$` and bounded to 64
-bytes. The rows below are candidate family allocations in that grammar, not
-accepted wire strings, subscription methods, or plugin API names. `panel.*` in
-this document is the accepted capability family (`panel.provider`,
+bytes. The rows below are illustrative bus topics in that grammar, not accepted
+wire strings, subscription methods, or plugin API names. `panel.*` in this
+document is the accepted capability family (`panel.provider`,
 `panel.create`, `panel.focus`, `panel.overlay`), not a topic namespace;
 Core-owned panel topics use qualified names such as `bitty.panel:mounted`.
 
-| Family                   | Producer           | Consumer                   | Accountable owner  | Delivery class         |
-| ------------------------ | ------------------ | -------------------------- | ------------------ | ---------------------- |
-| `session.lifecycle:*`    | Core               | Attachments, host services | Core owner         | Control, non-lossy     |
-| `ai.turn:*`              | AI owner           | Attachments                | AI owner           | Lossy observation      |
-| `ai.context:*`           | AI owner           | Attachments                | AI owner           | Lossy observation      |
-| `ai.tool-proposal:*`     | AI owner           | Attachments, approval UI   | AI owner           | Control, non-lossy     |
-| `tool.approval:*`        | Core owner         | Attachments, approval UI   | Core owner         | Control, non-lossy     |
-| `tool.result:*`          | Core owner         | Attachments                | Core owner         | Control, non-lossy     |
-| `ai.speech-job:*`        | AI owner           | Headed Agent owner         | AI owner           | Control, non-lossy     |
-| `ai.avatar:*`            | AI owner           | Headed Agent owner         | AI owner           | Ephemeral presentation |
-| `bitty.panel:*`          | Core owner         | Attachments, host services | Core owner         | Control                |
-| `example.headed-agent:*` | Headed Agent owner | Its own subscribers        | Headed Agent owner | Plugin-defined         |
+The Event Bus carries **observation topics only**. Session lifecycle, stop,
+approval, tool-result, and speech-job lifecycle events are control events on
+the session control stream (below); they are not listed as bus topics and are
+not governed by `DropOldest`. The `ai.*` prefix in the table is an illustrative
+owner prefix for a topic, not a capability identifier and not a new catalog;
+`ai.*`, `agent.*`, and `mcp.*` capabilities come from the `bitty-ai` extension
+catalog accepted by `bitty-plugins`.
+
+| Illustrative bus topic         | Producer           | Consumer                   | Accountable owner  | Delivery class          |
+| ------------------------------ | ------------------ | -------------------------- | ------------------ | ----------------------- |
+| `bitty.panel:mounted`          | Core               | Attachments, host services | Core owner         | Observation, DropOldest |
+| `ai.turn:delta`                | AI owner           | Attachments                | AI owner           | Lossy observation       |
+| `ai.context:updated`           | AI owner           | Attachments                | AI owner           | Lossy observation       |
+| `ai.avatar:state`              | AI owner           | Headed Agent owner         | AI owner           | Ephemeral presentation  |
+| `example.headed-agent:private` | Headed Agent owner | Its own subscribers        | Headed Agent owner | Plugin-defined          |
+
+Control families and their actual transport:
+
+| Control family                                  | Transport              | Producer                 | Rule                                                    |
+| ----------------------------------------------- | ---------------------- | ------------------------ | ------------------------------------------------------- |
+| Session lifecycle, `attach`, `detach`, `stop`   | Session control stream | Session authority        | Non-lossy, ordered per session generation, gap-detected |
+| Approval request and verdict, tool result/error | Session control stream | Core / `bitty-execution` | Non-lossy, never a bus topic unless the bus is amended  |
+| Speech job lifecycle and terminal status        | Session control stream | `bitty-ai`               | Non-lossy, gap-detected                                 |
+| Audio chunks                                    | Media channel          | Media presentation       | Own chunk sequence and playback buffer                  |
 
 A row's accountable owner is the repository accountable for the topic schema,
 producer identity, and authorization; a consumer is never the owner of a topic
@@ -842,17 +1137,15 @@ Topic rules:
   `RC-10` continue to apply. `DropOldest` is the accepted v1 default, with
   `DropNewest` as the documented alternative; both count drops per queue and
   attribute them to the owning panel or plugin.
-- This draft's control class is deliberately stricter than the v1 default:
-  approval, stop, tool-proposal, speech-job lifecycle, and tool-result events
-  are bounded non-lossy and refuse the newest event instead of dropping an
-  older one. That tightening must be accepted in the owning bus contract and is
-  not claimed as accepted here.
-- Ordering is FIFO within one queue and per session generation where the topic
-  carries session events. There is no ordering across panels or topics and no
+- Control events are not made reliable by relabeling them as bus topics. The
+  non-lossy session control stream is the transport; a bus-based control queue
+  would need its own accepted amendment and is not claimed here.
+- Ordering is FIFO within one bus queue and, separately, per session generation
+  on the control stream. There is no ordering across panels or bus topics and no
   global total order.
-- Retention is per topic class. Control topics retain enough to support the
-  documented reconnect window; ephemeral presentation topics may retain only
-  the latest state.
+- Retention is per class. Control events retain enough to support the documented
+  reconnect window on the session control stream; ephemeral presentation topics
+  on the bus may retain only the latest state.
 - A plugin-private topic is not a covert cross-plugin channel. It is still
   subject to payload bounds, audit, and the platform's plugin isolation rules.
 
@@ -860,16 +1153,20 @@ Topic rules:
 
 The table records design-target ownership only; it claims no implementation.
 
-| Concern                       | Core / future `bittyd`                                                                                                  | `bitty-ai`                                                                                         | Headed Agent plugin                        |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| Panel identity and lifecycle  | Owner under the accepted Panel Runtime RFC: identity, create, mount, suspend, dispose; implementation not claimed here. | Consumes panel references only; no ownership.                                                      | Requests a panel; never invents identity.  |
-| Layout, focus, and visibility | Owner of accepted host focus and visibility routing.                                                                    | No ownership.                                                                                      | Owns its internal composition and widgets. |
-| Rendering and animation       | Owner of presentation primitives under accepted rich-presentation contracts; implementation not claimed here.           | Owns the semantic state and viseme event schemas.                                                  | Maps semantics to 2D/3D appearance.        |
-| Agent and turn state          | Host-side transport; durable session-record and state-machine placement open.                                           | Owns model-facing turn and job state; consumes the RFC state names, not a shared crate vocabulary. | Projects the sanitized view.               |
-| Topic schema                  | Owner of accepted reserved namespaces (`bitty.*`) and transport; `ai.*` reserved for the AI owner by this draft.        | Owns AI-domain topic schemas it produces.                                                          | Owns only its private topics.              |
-| Consent and approval          | Ledger, prompt, and verdict owner; no implementation claimed.                                                           | Relays proposals and results; grants nothing.                                                      | Presents the request; cannot grant.        |
-| Retention and deletion        | Host evidence policy owner.                                                                                             | Owns AI record semantics under draft R3.                                                           | Keeps local media ephemeral by default.    |
-| Audio focus                   | Host device and window focus owner; one device plays one stream at a time.                                              | Owns the speech job lifecycle.                                                                     | Requests playback; does not steal focus.   |
+| Concern                                    | Core / `bittyd` / `bitty-execution`                                                                                                                                   | `bitty-ai`                                                                                                           | Headed Agent surface                                               |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Panel identity and lifecycle               | Core owner under the accepted Panel Runtime RFC: identity, create, mount, suspend, dispose; implementation not claimed.                                               | Consumes panel references only; no ownership.                                                                        | Requests a panel; never invents identity.                          |
+| Layout, focus, and visibility              | Core owner of accepted host focus and visibility routing.                                                                                                             | No ownership.                                                                                                        | Owns its internal composition and widgets.                         |
+| Execution                                  | Core authorizes and fences every operation and retains PTY, permission, and resource enforcement; `bitty-execution` (`W-132`) supervises and executes.                | Owns semantic task, binding, retry policy, and model-facing execution intent.                                        | Requests work through the session; never executes or approves.     |
+| Rendering and animation                    | Core owner of presentation primitives under accepted rich-presentation contracts; implementation not claimed.                                                         | Owns the candidate semantic state and viseme event vocabulary.                                                       | Maps semantics to 2D/3D appearance.                                |
+| Agent and turn state                       | Host-side transport; `bittyd` is the sole session-registry writer if `bitty#2546` places the record there; placement open.                                            | Owns model-facing turn and job state; consumes the RFC state names, not a shared crate vocabulary.                   | Projects the sanitized view.                                       |
+| Accessibility                              | Core retains the baseline, projection mechanism, focus-order rule, announcements, reduced motion, and contrast; `bitty-a11y` owns platform AT adapters under `W-134`. | Supplies semantic state for its own content; no AT authority.                                                        | Conforms to the baseline; owns no AT backend or terminal mutation. |
+| Topic schema                               | Core owner of accepted reserved namespaces (`bitty.*`) and transport; `ai.*` belongs to the AI owner namespace.                                                       | Owns AI-domain observation topic schemas it produces.                                                                | Owns only its private observation topics.                          |
+| Consent and approval                       | Core ledger, prompt, and verdict owner; no implementation claimed.                                                                                                    | Relays proposals and results; grants nothing.                                                                        | Presents the request; cannot grant.                                |
+| Provider descriptor and privacy vocabulary | Consumes the vocabulary; does not define it.                                                                                                                          | Owns the provider descriptor, capability labels, and privacy classes as the `bitty-ai` Core surface.                 | Reads bounded results only; never selects a provider.              |
+| Retention and deletion                     | Terminal Core owns host evidence, consent, and storage; R3 owns the context retention policy.                                                                         | Owns AI record semantics and the speech-job asset-reference instance.                                                | Keeps local media ephemeral by default.                            |
+| Plugin packaging                           | No ownership.                                                                                                                                                         | Product owner chooses whether to publish the Headed Agent package; does not define the platform category or signing. | Consumes the accepted plugin-platform contract and manifest rules. |
+| Audio focus                                | Host device and window focus owner; one device plays one stream at a time.                                                                                            | Owns the speech job lifecycle.                                                                                       | Requests playback; does not steal focus.                           |
 
 A panel is a presentation surface, not a session, execution, or consent record;
 ADR-0013 keeps panel provenance non-authoritative and separates `PanelId` from
@@ -907,6 +1204,10 @@ neither one implies the other:
 - The panel generation fences panel identity and stale-handle rejection. The
   attachment generation fences one attachment's local handles. The session
   generation fences session operations. None substitutes for another.
+- An attachment is bound to the `(PanelId, generation)` that mounted it. A panel
+  dispose, rebuild, or generation bump closes or fails that attachment before
+  any further event is delivered; a stale attachment cannot keep receiving
+  session events into a destroyed panel surface.
 - Panel suspend and resume change visibility, not panel generation and not
   attachment generation. A resumed panel therefore reuses its attachment unless
   authorization or a version binding changed and the attachment must fail
@@ -1002,6 +1303,11 @@ neither one implies the other:
 Speech synthesis reuses the draft `Speech` task, generation-job lifecycle,
 status set, `Unknown` reconciliation, and asset-reference rules of the draft
 [Multimodal inference boundary](../providers/multimodal-inference-boundary.md#generationjob-lifecycle).
+`AssetRef` is a **shared Core contract**, not an AI-private type: Core owns the
+artifact-reference contract, and `bitty-ai` owns only the speech-job
+asset-reference instance (job identity, media type, expiry, and version). This
+draft consumes `AssetRef` by reference and defines none of its fields.
+
 This contract adds only the headed consumer's request, streaming, playback, and
 cancellation rules. It creates no competing inference job, no second audio
 provider registry, and no inline audio payload in model context. The multimodal
@@ -1019,7 +1325,8 @@ explicit user or policy request
   -> speech job (Queued -> Preparing -> Running -> Streaming ->
      Completed | Failed | Cancelled; Unknown reconciles)
   -> bounded audio chunks and optional viseme timeline
-  -> optional media extension playback
+  -> presentation playback (Core extension component or post-1.0 helper)
+  -> synchronized captions and inspectable transcript
   -> terminal status, or Unknown reconciliation before any retry
 ```
 
@@ -1067,12 +1374,13 @@ provider identity, endpoint, credential, or raw vendor parameter.
   the audio backpressure class.
 - A streaming request has a first-chunk deadline and a total duration bound.
   Missing the deadline produces a typed timeout, not an unbounded wait.
-- A non-streaming request returns an asset reference and metadata. Audio bytes
-  are not placed in context, events, or snapshots. The reference carries an
-  expiry and a version; expanding an expired reference fails closed and is
-  re-requested, never replayed. Job submission carries an idempotency key: a
-  duplicate submission before expiry returns the original job, and after expiry
-  it fails closed (the store-expiry facet recorded under AIQ-03).
+- A non-streaming request returns an `AssetRef` and metadata. Audio bytes are
+  not placed in context, events, or snapshots. The reference carries an expiry,
+  a version, and its declared retention class; expanding an expired reference
+  fails closed and is re-requested, never replayed. Job submission carries an
+  idempotency key: a duplicate submission before expiry returns the original
+  job, and after expiry it fails closed (the store-expiry facet recorded under
+  AIQ-03).
 - A player may start before the full asset exists, but it never plays
   out-of-order chunks. On underflow it pauses or restarts at a safe boundary
   and reports the degradation.
@@ -1090,10 +1398,13 @@ provider identity, endpoint, credential, or raw vendor parameter.
   `Unknown` when the remote job may have completed and billed. `Completed`,
   `Failed`, and `Cancelled` are the job terminal states; `Unknown` is a
   reconciliation state, not a terminal outcome. `Cancelled` here is the draft
-  speech-job status, not an accepted `AgentSession` state; the session records
-  `Completed` or `Failed` with cancellation attribution at the session level.
-  `Unknown` is reconciled by status inspection before any retry; a retry is a
-  new submission, not a replay, and carries a new idempotency key.
+  speech-job status, not an `AgentSession` state. At the session level the
+  cancellation is recorded in whichever session vocabulary applies: the
+  `bitty-ai` runtime records terminal `Canceled`, while the accepted RFC
+  vocabulary records `Completed` or `Failed` with cancellation attribution (see
+  [Outcome levels](#outcome-levels)). `Unknown` is reconciled by status
+  inspection before any retry; a retry is a new submission, not a replay, and
+  carries a new idempotency key.
 - Cancellation never leaves a partial asset silently presented as complete.
   Partial audio is discarded or explicitly marked incomplete.
 - Detaching the only playback attachment stops local playback but does not
@@ -1104,19 +1415,51 @@ provider identity, endpoint, credential, or raw vendor parameter.
 ### Playback ownership
 
 Audio device selection, decoding, buffering, volume, mute, and device-loss
-recovery belong to a media extension. Core may provide a neutral presentation
-primitive, but no Core audio implementation is claimed here. `bitty-ai` owns the
-speech job and the semantic event; it does not open an audio device. The Headed
-Agent plugin owns when speech is offered, which messages are eligible, and the
-user controls.
+recovery belong to a media presentation implementation. That implementation is
+an **owner-pending category**: a Core extension component following the
+`bitty-graphics`/`bitty-a11y`/`bitty-platform-services` pattern, or a post-1.0
+declared native helper. It is not a v1 Lua plugin or package, it never loads a
+native module into the host, and it receives no GPU, window, PTY, or host-Rust
+handle. Core may provide a neutral presentation primitive, but no Core audio
+implementation is claimed here. `bitty-ai` owns the speech job and the semantic
+event; it does not open an audio device. The Headed Agent surface owns when
+speech is offered, which messages are eligible, the user controls, and the
+caption/transcript presentation. The playback implementation receives bounded
+audio chunks only and is transcript-free: it neither reads nor renders the
+transcript.
 
 Playback is off by default. Autoplay may be enabled only by an explicit,
 user-owned host policy that names the applicable session or attachment and
 remains revocable; absent that policy, a fresh user gesture is required. A host
 policy, plugin default, agent request, or model output cannot silently start
-audio. Captions or a text transcript remain available whenever speech is
-available. A host without an audio device degrades to text; it does not fail the
-session.
+audio.
+
+Whenever speech is presented, **synchronized captions and an inspectable
+transcript are available**, and audio is never the only channel for required
+information:
+
+- Captions follow the audio clock within a declared timing tolerance and a
+  bounded added latency. The tolerance is a named policy constant in the future
+  accepted speech contract; this draft fixes only that one exists and that
+  captions never run ahead of the audio.
+- Captions and the transcript render the same post-validation, post-redaction
+  text that was authorized for synthesis. They never reveal hidden context or
+  sibling-panel content that the speech request excluded.
+- The transcript is bounded, locale-tagged, scrollable or inspectable, and
+  toggleable. Turning captions off does not remove transcript access.
+- Both are exposed to assistive technology as text with a stable accessible
+  name and state, and caption changes announce only at a sentence or declarative
+  boundary, not per chunk.
+- Retention follows the declared class: ephemeral by default, deleted with the
+  source history under R3, and retained only under explicit, consented
+  recording. The transcript's retention class is named independently of the
+  audio `AssetRef`.
+- Synthesized audio is disclosed as synthetic at the point of playback and in
+  any exported metadata. The exact minimum product disclosure (spoken, visual,
+  or metadata-only) is product decision `D2`; this draft does not silently
+  settle it.
+- A host without an audio device degrades to text and captions; it does not fail
+  the session or drop the transcript.
 
 ## Avatar, animation, and viseme contract
 
@@ -1124,7 +1467,8 @@ session.
 
 An avatar is a presentation of session state. It is never the session
 identity, authorization signal, or source of truth. The semantic state
-vocabulary is intentionally small and non-anthropomorphic:
+vocabulary below is a **new candidate vocabulary**; it is not an accepted
+`bitty-ai` contract and creates no compatibility promise:
 
 | State       | Meaning                                                         |
 | ----------- | --------------------------------------------------------------- |
@@ -1146,6 +1490,12 @@ authority. A smiling or attentive avatar cannot approve a tool call.
   stale animation steps; the queue never grows without bound.
 - Reduced-motion, static, and text-only modes are first-class. A user can
   disable animation or the avatar entirely without losing session function.
+  Reduced motion is the accepted RFC-0002 / `W-134` obligation: it collapses
+  animation to the final committed state and is **not plugin-overridable**.
+  Motion is decoration; the final state is exposed immediately.
+- Flashing and rapid motion respect the host flash threshold. No avatar or
+  media surface may flash above that threshold, and no plugin setting may
+  re-enable a disallowed flash rate.
 - Animation never blocks the event loop, the terminal hot path, or audio
   playback. Rendering work runs off the hot path under the presentation budget.
 - A device loss, GPU context loss, or missing renderer falls back to the next
@@ -1155,18 +1505,18 @@ authority. A smiling or attentive avatar cannot approve a tool call.
 ### Viseme events
 
 - A viseme event maps a bounded time interval in the speech audio to a
-  renderer-neutral mouth-shape identifier. The identifier vocabulary is
-  versioned and owned by `bitty-ai`; a renderer maps it to its own rig,
-  sprites, or blendshapes.
+  renderer-neutral mouth-shape identifier. The identifier vocabulary is a new
+  candidate vocabulary owned by `bitty-ai`; it is not accepted. A renderer maps
+  it to its own rig, sprites, or blendshapes.
 - The audio clock is authoritative. Viseme timing is best-effort and may be
   corrected by the renderer within a declared tolerance.
 - Viseme events are ephemeral presentation data. They may be coalesced or
   dropped under backpressure; audio continues and captions remain accurate.
 - A viseme timeline may come from provider metadata or a local analysis step.
-  Local analysis is an optional media-extension capability and is not defined
-  here.
+  Local analysis is an optional media-presentation capability and is not
+  defined here.
 - This contract makes no lip-sync accuracy claim. Accuracy evidence belongs to
-  the renderer or media extension that implements it.
+  the renderer or media presentation that implements it.
 
 ### 2D and 3D ownership
 
@@ -1175,18 +1525,28 @@ presentations. A 2D implementation may use sprites, layered images, or a small
 state machine; a 3D implementation may use a rig, blendshapes, or a scene graph.
 Neither implementation lives in `bitty-ai`, Core, or Wheel.
 
-The Headed Agent plugin owns appearance, character composition, and the mapping
-from semantic events to its chosen presentation. A 3D renderer is an optional,
-separately packaged media extension with its own capability declaration,
-resource budget, and security review. No 3D code, GPU surface, or avatar asset
-pipeline is authorized by this document.
+The Headed Agent surface owns appearance, character composition, and the mapping
+from semantic events to its chosen presentation. A 3D renderer is an optional
+media presentation in the owner-pending category: a Core extension component
+with its own capability declaration, resource budget, and security review, or a
+post-1.0 native helper that receives no GPU, window, PTY, or host-Rust handle. No
+3D code, GPU surface, or avatar asset pipeline is authorized by this document,
+and a v1 Lua plugin is excluded.
 
 ### Accessibility and privacy
 
-- Captions or a text transcript accompany speech; audio is never the only
-  channel for required information.
-- Flashing, rapid motion, and high-contrast effects follow the host's
-  accessibility settings and can be disabled.
+The full headed accessibility baseline is defined in
+[Accessibility baseline](#accessibility-baseline). For the avatar specifically:
+
+- **Alternative content and state equivalence.** An informative avatar exposes
+  an accessible name and description plus a text state equivalent for
+  `idle`, `thinking`, `speaking`, `waiting`, `error`, `suspended`, and
+  `detached`. A decorative avatar is hidden from assistive technology and adds
+  no announcement. No session state, approval need, or error is conveyed by
+  animation alone; the same information is always available as text.
+- **State announcements.** A state transition that changes what the user must
+  know announces once through the bounded announcement path; animation frames
+  and viseme changes never announce.
 - The avatar does not read the transcript, capture camera or microphone input,
   perform face or voice recognition, or persist biometric data.
 - Viseme timelines and avatar state are derived from speech text. They inherit
@@ -1195,10 +1555,210 @@ pipeline is authorized by this document.
 - Audio buffers, decoded PCM, and viseme payloads are cleared before release on
   cancel, detach, suspend, takeover, or session end.
 - Avatar assets are untrusted input. Decoding, texture upload, and shader
-  composition follow the media extension's bounded, isolated implementation and
-  the `P0-AC-005` deny-by-default loader policy.
+  composition follow the media presentation's bounded, isolated implementation
+  and the `P0-AC-005` deny-by-default loader policy.
 - GPU memory and textures are released on detach, suspend, or session end and
   are not reused across principals without clearing.
+
+## Accessibility baseline
+
+### Consumed accepted baseline
+
+Accessibility is a Core-retained normative obligation, not an optional plugin
+effect. The headed surface consumes the accepted baseline unchanged and does not
+reopen it. `OQ-078` remains open only on the accessibility API/tree shape and its
+exact v1 versus post-v1 scope; it does not reopen the obligations below.
+
+| Source                                               | Obligation consumed here                                                                                                                                                                                                                      |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ADR-0016 Boundary 3 (accepted 2026-10-02)            | Core retains the accessibility baseline, the projection mechanism, focus/terminal-state association, the focus-order rule, bounded announcements, reduced-motion and contrast respect, and the privacy rule that the projection is host-side. |
+| `W-134` accessibility extraction contract (accepted) | The derived semantic snapshot, stable element identity and generation, controlled action interface, AT-SPI/UIA/AX adapter responsibilities, absent/denied-adapter behavior, and the rule that an adapter is not trusted by location.          |
+| RFC-0001 (accepted)                                  | The minimum-contrast rule and fail-closed resolution: a high-contrast posture selects a compliant token pair and is not plugin-overridable.                                                                                                   |
+| RFC-0002 (accepted)                                  | `appearance.animations.reduced_motion` (`auto`/`always`/`off`), instant final-state rendering under reduced motion or `--safe`, and the rule that motion never blocks input.                                                                  |
+| OQ-078 (open)                                        | The remaining API/tree choice and surface scope. No accepted obligation above is downgraded while it is open.                                                                                                                                 |
+| P0 acceptance criteria                               | `P0-AC-005` local-resource loading, `P0-AC-009` URI/launch policy, `P0-AC-010` constrained scene, and `P0-AC-015` hot-path exclusion.                                                                                                         |
+
+### Screen-reader semantics, names, and states
+
+Every presented element that a user must understand or operate exposes a role,
+an accessible name, and its current state. The projection is derived from the
+surface's own truth, is read-only, is never persisted, and is never consulted for
+routing or dispatch.
+
+| Surface element           | Required exposure                                                                                                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session panel / root      | Role `region` or equivalent, name from the session title, state `busy` while a turn streams.                                                                     |
+| Streaming turn text       | Role `text` with an accessible name; live updates announce at a bounded cadence, never per token.                                                                |
+| Tool proposal / approval  | Role `button` or `dialog` per presentation, name naming the tool and target, state `pending`/`approved`/`denied`, description carrying the bound digest summary. |
+| Status and error          | Role `status` or `alert`; typed failure announced once per transition, not on render.                                                                            |
+| Speech controls           | Role `button`/`slider` with name, state (`playing`, `paused`, `stopped`), and value for volume/rate.                                                             |
+| Captions / transcript     | Role `text` region with a stable name; caption changes exposed as text; transcript inspectable and scrollable.                                                   |
+| Avatar                    | Decorative: hidden. Informative: role `img` or `status` with name, description, and the text state equivalent.                                                   |
+| Modal approval or consent | Role `dialog`, modal state, labelled title and description, focus confined to the dialog.                                                                        |
+
+Rules:
+
+- A state is never conveyed by color, animation, avatar posture, or audio alone.
+  Every such state has a text or accessible-name equivalent.
+- The accessible name is stable across projection generations for the same
+  element identity; a renamed element is a new identity, not a silent rename.
+- An unmapped element kind fails closed at the bound rather than being exposed
+  with a guessed role.
+
+### Focus order, announcements, and modal confinement
+
+- **Focus order.** Assistive focus follows the visible reading and interaction
+  order: session root, turn text, pending approval or status, speech controls,
+  captions/transcript, then avatar only when it is interactive. Chrome is
+  excluded from the tab order by default under `W-134`. Focus moves between
+  panels, views, or overlays report the destination that actually holds focus.
+- **Announcements.** One coalesced, rate-limited announcement per focus or async
+  state transition. No announcement on render, per token, per animation frame,
+  or per viseme. A burst of streaming updates collapses to a bounded cadence.
+  An approval request and an error announce once and remain inspectable.
+- **Modal confinement.** A modal approval or consent dialog confines focus to
+  the dialog, excludes the underlying session content while modal, and restores
+  focus to the invoking control on close or cancellation. Escape or the
+  documented cancel path closes it without approving. A modal never traps focus
+  after the dialog is gone.
+- **Focus restoration.** Detach, suspend, panel rebuild, or failed follow-up
+  restores focus to a defined safe target (the session root or the last valid
+  control), never to a destroyed element or a stale projection generation.
+
+### Keyboard equivalence
+
+Every function has a keyboard path with no pointer-only action. The table is the
+minimum v1 equivalence set; the exact bindings are product/UI decisions, not
+contract spellings.
+
+| Function                      | Keyboard-equivalent requirement                                                                   |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| Read streaming output         | Focus the stream, move by line/paragraph, reach the latest output without losing position.        |
+| Approve, deny, or defer       | Reach the pending approval, read the bound prompt, choose each verdict, confirm, cancel.          |
+| Stop or cancel                | A documented stop path that works from the session and from the active control.                   |
+| Attach, detach, reconnect     | Reachable from the session surface; reconnect reports the outcome and does not auto-approve.      |
+| Speech control                | Play, pause, stop, mute, volume, rate, and caption/transcript toggles, each with a visible state. |
+| Caption and transcript access | Toggle captions, open and scroll the transcript, return focus to the prior control.               |
+| Avatar state                  | Read the text state equivalent; no action requires interpreting the avatar.                       |
+| Modal dismissal               | Cancel/close without granting, with focus restored.                                               |
+
+### Motion, contrast, and flashing
+
+- **Reduced motion.** `reduced_motion` collapses animation to the final
+  committed state. The default `auto` follows the platform signal; `always`
+  forces instant transitions; `--safe` behaves as reduced motion. This setting
+  is Core-owned and **cannot be overridden by a plugin, theme, avatar, or media
+  presentation**.
+- **Contrast.** The high-contrast posture selects a RFC-0001 compliant token
+  pair and fails closed on a violating configuration. A plugin cannot lower the
+  contrast floor, and a media or avatar surface cannot opt out of the resolved
+  pair for text it presents.
+- **Flashing.** Flashing and rapid motion respect the host flash threshold; no
+  surface exceeds it, and no plugin setting may re-enable a disallowed rate.
+  Animation never delays exposure of the final state.
+- **Safe mode.** `bitty --safe` starts with zero AT adapters and no animation;
+  the Core baseline, text, and captions still function.
+
+### Captions and transcript
+
+Synchronized captions plus an inspectable transcript are a baseline obligation
+whenever speech is presented, not an optional alternative:
+
+| Property    | Requirement                                                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Text source | The same post-validation, post-redaction text authorized for synthesis; no hidden or sibling-panel content.                       |
+| Timing      | Captions follow the audio clock within a declared tolerance and bounded added latency; captions never lead the audio.             |
+| Locale      | The transcript records the synthesis locale; a locale change starts a new transcript segment rather than relabeling old text.     |
+| Bounds      | Caption lines and transcript length are bounded by named policy constants; overflow is visible and never silently truncated.      |
+| Redaction   | Same redaction policy as speech text; presence markers for removed secrets; no raw environment or credential values.              |
+| Retention   | Ephemeral by default; deleted with the source history under R3; retained only under explicit, consented recording.                |
+| AT exposure | Captions and transcript are text regions with stable names and states; changes announce at sentence/declarative boundaries.       |
+| Toggle      | Captions can be turned off without removing transcript access; both can be reached by keyboard.                                   |
+| Ownership   | The Headed Agent surface presents them; the playback implementation is transcript-free and never renders or reads the transcript. |
+
+### Avatar alternative content and state equivalence
+
+An informative avatar has an accessible name and description and a text state
+equivalent for every semantic state. A decorative avatar is hidden from
+assistive technology and adds no announcement. No approval need, error, busy
+state, or waiting state is conveyed only by animation or posture. The avatar
+state is derived from session events and never from model-authored text.
+
+### Accessible media controls
+
+Any speech or avatar playback control exposes a label, role, state, and value,
+is keyboard reachable, and reports changes to assistive technology:
+
+- Play, pause, stop, replay-at-safe-boundary, mute, volume, and rate.
+- Caption toggle and transcript open/close, with state and focus restoration.
+- A stop that takes effect at the next safe boundary and never leaves partial
+  audio presented as complete.
+- A visible and announced degraded state when the device is lost or playback
+  falls back to text.
+
+### Platform AT ownership and absent-adapter behavior
+
+| Platform | Adapter owner and mechanism                                                              | Absent, denied, or crashed adapter                                                                                               |
+| -------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Linux    | `bitty-a11y` backend over AT-SPI/D-Bus, capability-gated by Core.                        | Removes platform exposure only; the Core baseline, text, keyboard operation, and captions continue; safe mode has zero adapters. |
+| Windows  | `bitty-a11y` backend over Windows UI Automation, capability-gated by Core.               | Same: no exposure, no terminal degradation, no security downgrade, and the missing adapter is reported honestly.                 |
+| macOS    | `bitty-a11y` backend over the macOS Accessibility (AX) bridge, capability-gated by Core. | Same.                                                                                                                            |
+| Other    | A platform model admitted by a future focused contract; no generic fallback is claimed.  | Text and keyboard paths remain; the surface does not claim AT support it does not have.                                          |
+
+- Core owns the baseline and the projection; `bitty-a11y` owns the platform
+  adapters and their permission state. The Headed Agent surface owns conformance
+  for its own content and owns no AT backend.
+- The platform's own accessibility permission is surfaced and consent-gated. A
+  denied permission is reported, not bypassed.
+- An absent backend is never described as working AT support. No AT backend
+  exists today beyond a headless test backend; the honest status is "not
+  implemented".
+
+### AT-action authority
+
+The presentation-never-authority rule extends to assistive technology:
+
+- An AT adapter is **not a principal**. It has no `(UID, AgentId)` authority of
+  its own and is not trusted by location or by the fact that it is first-party.
+- An AT action is a typed, bounded request through the **Core controlled action
+  interface**, resolving through the accepted command registry under the target
+  owner's capability grants. The host revalidates the element identity and
+  projection generation before dispatch; an unknown, expired, or stale element
+  fails closed.
+- An AT action cannot write the PTY, mutate grid/cursor/modes/scrollback, move
+  focus outside the accepted routing path, or call an internal renderer or
+  compositor API.
+- An AT action cannot grant or approve consent, a tool call, a speech egress, or
+  a panel lease. Activating a control is not approval; approval requires the
+  explicit Core authorization path and the bound decision. An AT "activate" on
+  an approval dialog may open or focus the decision surface but cannot record a
+  verdict by itself.
+- The projection, element identities, focus associations, and action outcomes
+  are host-side and are **never published on the Event Bus**. Exposing one
+  surface to assistive technology must not become a cross-panel read path for
+  plugins.
+- A compromised adapter gains only the bounded action interface; it cannot mint
+  a generation, impersonate a principal, or publish a reserved topic.
+
+### Accessibility verification and acceptance criteria
+
+| Criterion                   | Acceptance evidence                                                                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Complete semantics map      | Every presented element kind has a role, name, and state mapping; an unmapped kind fails closed.                                          |
+| Focus order and restoration | Keyboard/AT traversal matches the defined order; chrome is excluded; modal confinement and focus restoration pass.                        |
+| Announcement discipline     | One bounded announcement per transition; no per-token, per-frame, or per-viseme announcement; duplicate coalescing passes.                |
+| Keyboard equivalence        | The full function table is reachable and operable without a pointer.                                                                      |
+| Reduced motion and contrast | `always`/`--safe` render final state instantly; a plugin override attempt fails; high contrast resolves a compliant pair or fails closed. |
+| Flash threshold             | A flash-rate corpus confirms no surface exceeds the threshold and no plugin setting re-enables it.                                        |
+| Captions and transcript     | Timing tolerance, locale tagging, bounds, redaction, retention, toggle, and AT exposure pass on every speech path.                        |
+| Avatar equivalence          | Decorative avatar is hidden; informative avatar exposes name, description, and every state as text.                                       |
+| Media controls              | Labels, roles, states, values, keyboard reachability, and focus restoration pass for every control.                                       |
+| Adapter absence             | Absent, denied, and crashed adapters on Linux, Windows, and macOS leave the baseline and keyboard paths intact and report honestly.       |
+| AT-action non-authority     | An AT action cannot approve, grant, mutate terminal state, or publish on the Event Bus; a stale element fails closed.                     |
+| No single-channel state     | No required state is conveyed only by color, animation, audio, or avatar posture.                                                         |
+
+These criteria are future implementation evidence. This document records them
+as acceptance conditions; it does not claim any of them has been run.
 
 ## Resource budgets
 
@@ -1208,18 +1768,29 @@ pipeline is authorized by this document.
 policy, requested by the plugin, and enforced at the owning layer. A plugin
 cannot raise its own envelope, and a project or model cannot widen it.
 
-| Dimension       | Examples                                                                 | Accountable enforcement owner(s)                                               | Exhaustion action                                    |
-| --------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------- |
-| Tokens and cost | Context tokens, output tokens, model cost, speech characters or seconds. | Core owner + AI owner                                                          | Truncate under CP-5, refuse a new job, or stop.      |
-| CPU             | Turn processing, rendering, animation, decoding threads.                 | Core owner (host); Headed Agent owner (render); Media extension owner (decode) | Coalesce, lower quality, or suspend presentation.    |
-| Memory          | Event queues, history, snapshots, decoded audio, textures, meshes.       | Owner of the allocation: Core, AI, Headed Agent, or Media extension            | Evict oldest, drop ephemeral state, or stop the job. |
-| GPU             | Texture memory, render targets, mesh and animation buffers.              | Media extension owner                                                          | Release surfaces, fall back to 2D, or text-only.     |
-| Audio           | Buffer duration, decoded bytes, concurrent playback, device handles.     | Media extension owner                                                          | Stop or restart at a safe boundary; degrade to text. |
-| Network         | Provider calls, retries, concurrent streams, media downloads.            | Core owner + AI owner                                                          | Refuse, back off, or fail closed.                    |
-| Wall clock      | Turn duration, speech duration, animation duration, reconnect window.    | Core owner + AI owner + Headed Agent owner                                     | Typed timeout or terminal state; no unbounded wait.  |
-| Storage         | Snapshots, cached audio, logs, avatar assets.                            | Core owner + AI owner                                                          | Ephemeral default; consent-gated retention only.     |
+| Dimension       | Examples                                                                 | Accountable enforcement owner(s)                                                                 | Exhaustion action                                    |
+| --------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Tokens and cost | Context tokens, output tokens, model cost, speech characters or seconds. | Core owner (shared client quota and ledger) + AI owner (pre-I/O gates)                           | Truncate under CP-5, refuse a new job, or stop.      |
+| CPU             | Turn processing, rendering, animation, decoding threads.                 | Core owner (host); Headed Agent owner (render); media presentation owner (decode, owner-pending) | Coalesce, lower quality, or suspend presentation.    |
+| Memory          | Event queues, history, snapshots, decoded audio, textures, meshes.       | Owner of the allocation: Core, AI, Headed Agent, or media presentation                           | Evict oldest, drop ephemeral state, or stop the job. |
+| GPU             | Texture memory, render targets, mesh and animation buffers.              | Media presentation owner (owner-pending)                                                         | Release surfaces, fall back to 2D, or text-only.     |
+| Audio           | Buffer duration, decoded bytes, concurrent playback, device handles.     | Media presentation owner (owner-pending)                                                         | Stop or restart at a safe boundary; degrade to text. |
+| Network         | Provider calls, retries, concurrent streams, media downloads.            | Core owner + AI owner                                                                            | Refuse, back off, or fail closed.                    |
+| Wall clock      | Turn duration, speech duration, animation duration, reconnect window.    | Core owner + AI owner + Headed Agent owner                                                       | Typed timeout or terminal state; no unbounded wait.  |
+| Storage         | Snapshots, cached audio, logs, avatar assets.                            | Core owner (host storage and consent) + AI owner (record semantics); R3 owns retention policy    | Ephemeral default; consent-gated retention only.     |
 
 ### Enforcement rules
+
+- There is **no separate AI budget**. Model and speech I/O consume the shared
+  per-client quota and appear in the Core ledger; the AI helper applies
+  pre-I/O gates before any provider call but does not mint a parallel budget or
+  a private quota. Speech character and duration limits are the same envelope's
+  token and cost dimensions, attributed to the session and principal.
+- Every stored artifact names a retention class: `ephemeral`, `session`, or
+  `explicit`. `ephemeral` is the default and dies with the attachment or job;
+  `session` is bounded by the session lifetime; `explicit` requires a consented
+  recording grant and R3 deletion propagation. An `AssetRef` without a declared
+  class is non-conformant.
 
 - Every budget has a hard cap and, where useful, a soft target. A soft target
   produces a degradation or warning; a hard cap refuses or stops. Neither is
@@ -1256,12 +1827,12 @@ support tiers in
 [ADR-0002](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0002-platform-support-tiers.md):
 a presentation class never upgrades a platform's support tier.
 
-| Presentation class | Capability                                           | Required behavior                                                      |
-| ------------------ | ---------------------------------------------------- | ---------------------------------------------------------------------- |
-| `P-A`              | Audio playback plus GPU-accelerated 2D or 3D avatar. | Full presentation within the declared budgets.                         |
-| `P-B`              | Audio playback plus 2D or software-rendered avatar.  | Reduced animation and resolution; no 3D requirement.                   |
-| `P-C`              | Text and captions only; no audio device or no GPU.   | Full session function; speech may produce an asset for later playback. |
-| `P-D`              | Headless or no presentation attachment.              | Session and tools continue; no rendering, audio, or avatar resources.  |
+| Presentation class | Capability                                           | Required behavior                                                                                                                                                                                        |
+| ------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `P-A`              | Audio playback plus GPU-accelerated 2D or 3D avatar. | Full presentation within the declared budgets.                                                                                                                                                           |
+| `P-B`              | Audio playback plus 2D or software-rendered avatar.  | Reduced animation and resolution; no 3D requirement.                                                                                                                                                     |
+| `P-C`              | Text and captions only; no audio device or no GPU.   | Full session function; speech may produce an `AssetRef` for later playback only when its declared retention class permits and retention was explicitly consented; otherwise the surface stays text-only. |
+| `P-D`              | Headless or no presentation attachment.              | Session and tools continue; no rendering, audio, or avatar resources.                                                                                                                                    |
 
 Class selection is explicit, visible, and reversible on device change. A lower
 class never weakens consent, redaction, approval, or retention rules. It only
@@ -1276,19 +1847,24 @@ support commitments are the three tiers accepted by
 authoritative support matrix, and cross-platform claims require CI or reviewed
 test evidence.
 
-| Platform | Expected baseline                                                                                                                                   | Audio                                                    | GPU / avatar                                    | Notes                                                                            |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------- |
-| Linux    | ADR-0002 `Tier 1` on x86_64; presentation class `P-A` or `P-B` where devices exist.                                                                 | Native audio stack through Core or a media extension.    | Native GPU surface through the media extension. | Device loss and compositor restart must degrade without killing the session.     |
-| macOS    | ADR-0002 `Tier 1` on ARM64, `Tier 2` on x86_64; presentation class `P-A` or `P-B` where devices exist.                                              | Native platform audio through Core or a media extension. | Native GPU surface through the media extension. | App suspension and audio device changes must be handled explicitly.              |
-| Windows  | ADR-0002 `Tier 1` on x86_64 with ConPTY; presentation class `P-A` or `P-B` where devices exist.                                                     | Native platform audio through Core or a media extension. | Native GPU surface through the media extension. | Audio session and device-change behavior require platform evidence.              |
-| FreeBSD  | ADR-0002 `Tier 2` best-effort on x86_64; presentation class `P-C` or `P-D` by default, `P-B` only with detected audio and software or 2D rendering. | Only when a supported audio path is detected.            | Not assumed; software or 2D fallback.           | Missing audio or GPU must fall back to text or headless, never fail the session. |
+| Platform | Expected baseline                                                                                                                                   | Audio                                                       | GPU / avatar                                       | Notes                                                                            |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Linux    | ADR-0002 `Tier 1` on x86_64; presentation class `P-A` or `P-B` where devices exist.                                                                 | Native audio stack through Core or a media presentation.    | Native GPU surface through the media presentation. | Device loss and compositor restart must degrade without killing the session.     |
+| macOS    | ADR-0002 `Tier 1` on ARM64, `Tier 2` on x86_64; presentation class `P-A` or `P-B` where devices exist.                                              | Native platform audio through Core or a media presentation. | Native GPU surface through the media presentation. | App suspension and audio device changes must be handled explicitly.              |
+| Windows  | ADR-0002 `Tier 1` on x86_64 with ConPTY; presentation class `P-A` or `P-B` where devices exist.                                                     | Native platform audio through Core or a media presentation. | Native GPU surface through the media presentation. | Audio session and device-change behavior require platform evidence.              |
+| FreeBSD  | ADR-0002 `Tier 2` best-effort on x86_64; presentation class `P-C` or `P-D` by default, `P-B` only with detected audio and software or 2D rendering. | Only when a supported audio path is detected.               | Not assumed; software or 2D fallback.              | Missing audio or GPU must fall back to text or headless, never fail the session. |
+
+Presentation class and assistive-technology availability are separate axes. The
+AT-SPI/D-Bus, Windows UI Automation, and macOS AX adapters are owned by
+`bitty-a11y` under `W-134`; their absence or denial changes no presentation
+class, no support tier, and none of the Core baseline.
 
 Platform rules:
 
 - No operating-system API, device path, driver, or GPU backend is named or
   embedded by `bitty-ai`. The Core owner owns host integration where a host
-  adapter exists; the Media extension owner owns device-specific audio, GPU, and
-  decoder adapters.
+  adapter exists; the owner-pending media presentation owns device-specific
+  audio, GPU, and decoder adapters; `bitty-a11y` owns AT adapters under `W-134`.
 - Missing audio, missing GPU, a lost device, a context loss, an unsupported
   codec, or unavailable decoder isolation falls back to the next lower
   presentation class with a user-visible reason. A class that requires isolated
@@ -1327,8 +1903,10 @@ Consent rules:
 
 - Consent is per authenticated principal, per session generation and, for
   provider egress, per provider and privacy class, per scope, time bound,
-  visible, and revocable. A plugin install, a model choice, a project file, a
-  panel attachment, or an avatar state never implies consent.
+  visible, and revocable. The accepted IPC ledger binds the `(UID, AgentId)`
+  pair for the instance; revocation is recorded and survives reconnect. A
+  plugin install, a model choice, a project file, a panel attachment, or an
+  avatar state never implies consent.
 - No bundled admin grant, wildcard consent, or "allow all" control. A new
   provider or a raised privacy class requires a fresh decision.
 - Revocation takes effect at the next dispatch or chunk boundary. It detaches
@@ -1344,6 +1922,12 @@ Consent rules:
   policy, otherwise requiring a fresh user gesture. No model, agent, plugin
   default, or unattended host policy may start audio on its own.
 
+The **consent surface** — prompt placement, prompt content, grant review,
+revocation UI, and how clearly speech egress is distinguished from model egress
+— is product decision `D6`. This draft fixes the authorization and revocation
+semantics above; it does not claim a prompt design, and consent fatigue is an
+explicit input to that decision, not a reason to weaken the floor.
+
 ### Data rules
 
 - Minimize before egress: send only the text or context the user approved, at
@@ -1357,6 +1941,12 @@ Consent rules:
 - Audio, viseme timelines, animation state, and attachment snapshots are
   ephemeral by default. Recording requires explicit retention consent and still
   passes redaction.
+- The contract floor is fixed: recording is off by default, any recording is
+  consented and redacted, and deletion propagates. Whether the **v1 product**
+  exposes record/export controls, and which retention class it offers, is
+  product decision `D3`; the two are not in tension. An export path, if one is
+  offered, must show a redacted preview before writing and must carry the
+  retention class with the artifact.
 - Deleting source history propagates deletion to derived audio, visemes, and
   derived avatar state under draft R3. The only exception is an explicit,
   consented retention exception that names the derived artifact. Partial
@@ -1379,12 +1969,20 @@ untrusted. They are data, never instructions or authority.
   sandbox, with bounded input, depth limits, and fuzzed parsing. A decoder fault
   is contained to its media job only when that isolation is present.
 - If the required isolation is unavailable or cannot be verified, the media
-  extension fails closed to the next lower presentation class or text-only. It
-  does not decode untrusted media in-process and does not claim containment.
+  presentation fails closed to the next lower presentation class or text-only.
+  It does not decode untrusted media in-process and does not claim containment.
+  A v1 Lua plugin cannot host this decoder: native in-process plugins and native
+  module loading are forbidden (`R-017`), and direct `wgpu` device, queue, or
+  texture access is outside the plugin boundary.
 - No shell command, file path, URL, or environment value from an untrusted
   media payload is executed or resolved by `bitty-ai`.
 - A malicious or spoofed panel cannot publish into a reserved topic, forge a
   producer identity, or read another plugin's stream.
+- Assistive-technology projection and actions are host-side and bounded. An AT
+  adapter cannot publish the projection on the Event Bus, cannot approve or
+  grant, and cannot mutate terminal state; its only write path is the Core
+  controlled action interface described in
+  [AT-action authority](#at-action-authority).
 
 ### Rich rendering controls
 
@@ -1415,11 +2013,13 @@ floor:
 ## Ownership matrix
 
 Owner labels are repository roles, not team names: **Core owner** is
-`bitty`/future `bittyd`; **AI owner** is `bitty-ai`; **Wheel owner** is `wheel`;
-**Headed Agent owner** is the future sibling plugin repository; **Media
-extension owner** is the future audio/avatar/3D extension repository; **Provider
-plugin owner** is the provider adapter repository. Each row is a review item for
-the named owner.
+`bitty`/`bittyd`; **execution owner** is `bitty-execution` under the accepted
+`W-132` direction; **accessibility adapter owner** is `bitty-a11y` under
+`W-134`; **AI owner** is `bitty-ai`; **Wheel owner** is `wheel`; **Headed Agent
+owner** is `bitty-ai` as product owner, consuming the `bitty-plugins-docs`
+plugin-platform contract; **media presentation owner** is owner-pending; and
+**Provider plugin owner** is the provider adapter repository. Each row is a
+review item for the named owner.
 
 Review roles are cross-cutting, not additional implementation repositories:
 **Security owner** is the security reviewer role, **Product owner** is the
@@ -1436,29 +2036,32 @@ packaging, and no credential-handle consumption (Wheel owner decisions D1, D2,
 D6). Every Wheel cell below is a post-0.1.0 sibling design target, not a
 current role, and the column header says so.
 
-| Concern                                     | Core owner (`bitty`; future `bittyd`)                                                 | AI owner (`bitty-ai`)                                                                                                                                   | Wheel owner (post-0.1.0 target)       | Headed Agent owner                     | Media extension owner             | Provider plugin owner                     |
-| ------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------- | --------------------------------- | ----------------------------------------- |
-| IPC framing, auth, instance, rate limits    | Owner                                                                                 | Consumer                                                                                                                                                | None in 0.1.0; post-0.1.0 target      | Consumer                               | Consumer through Core             | Consumer through AI and Core              |
-| Consent ledger and revocation               | Owner                                                                                 | Requests verdicts; never stores grants                                                                                                                  | None in 0.1.0; post-0.1.0 target      | Presents prompts; never grants         | Consumes verdicts                 | Consumes verdicts                         |
-| Agent session state machine                 | Host-side transport; state-machine placement open                                     | Consumes the RFC state names; `bitty-agent-api` supplies only `AgentId`/`AgentError`; runtime has its own states including `Canceled`; consumption open | None in 0.1.0; post-0.1.0 target      | Projects sanitized view                | None                              | None                                      |
-| Session handle and generation               | Owner of issuance placement target; sequencer under the issuer-as-sequencer invariant | Binds model-facing state to the session generation                                                                                                      | None in 0.1.0; post-0.1.0 target      | Consumer                               | None                              | None                                      |
-| Event sequencing and replay window          | Issuer-as-sequencer for the session stream                                            | Owns AI event schemas and nested turn sequencing                                                                                                        | None in 0.1.0; post-0.1.0 target      | Consumer                               | Consumes media events             | None                                      |
-| Provider registry and routing               | Owns publication authority, scopes, and transport                                     | Owns the authoritative registry, resolution, and opaque proof                                                                                           | None in 0.1.0; post-0.1.0 target      | Consumer; no provider selection        | None                              | Registers; never widens                   |
-| Credentials and secret storage              | Host-owned storage and grants                                                         | Uses opaque handles; never reads values                                                                                                                 | None in 0.1.0; post-0.1.0 target only | Never receives values                  | Never receives values             | Resolves at the adapter edge only         |
-| Context compilation and token budget        | Enforces quotas                                                                       | Owner                                                                                                                                                   | None in 0.1.0; post-0.1.0 target      | Consumer                               | None                              | None                                      |
-| Context and session snapshots               | Owns host record and retention policy                                                 | Owns compilation, redaction, and snapshot view                                                                                                          | None in 0.1.0; post-0.1.0 target      | Reads sanitized view                   | None                              | None                                      |
-| Tool proposal                               | Receives and validates                                                                | Owner of model proposal relay                                                                                                                           | None in 0.1.0; post-0.1.0 target      | Presents                               | None                              | None                                      |
-| Tool approval, execution, result            | Owner of ledger and execution                                                         | Consumes result as untrusted observation                                                                                                                | None in 0.1.0; post-0.1.0 target      | Presents request and collects decision | None                              | None; tool providers are separate plugins |
-| Panel identity, lifecycle, focus            | Owner under the accepted Panel Runtime RFC                                            | Reads references only                                                                                                                                   | None in 0.1.0; post-0.1.0 target      | Requests panel and composes UI         | Renderer consumes a panel surface | None                                      |
-| Event Bus transport and reserved topics     | Owner under the accepted Panel Runtime RFC                                            | Publishes AI-domain topics                                                                                                                              | None in 0.1.0; post-0.1.0 target      | Publishes only its private topics      | Publishes declared media topics   | None                                      |
-| Speech job lifecycle                        | Enforces consent and transport                                                        | Owner of request, stream, cancel, asset ref                                                                                                             | None                                  | Owns eligibility and controls          | Owns playback                     | Synthesizes under the speech contract     |
-| Audio device and playback                   | May provide a presentation primitive; none claimed                                    | No ownership                                                                                                                                            | None                                  | Requests playback                      | Owner of the device               | None                                      |
-| Avatar semantic state and viseme vocabulary | No ownership                                                                          | Owner of neutral event vocabulary                                                                                                                       | None                                  | Maps to appearance and animation       | Renders 2D/3D                     | May emit timing metadata                  |
-| 3D rig, shaders, and GPU surfaces           | No ownership                                                                          | No ownership                                                                                                                                            | None                                  | May request                            | Owner                             | None                                      |
-| CPU, memory, GPU, audio budgets             | Host and transport budgets                                                            | AI and media-job budgets                                                                                                                                | None in 0.1.0; post-0.1.0 target      | Presentation budgets                   | Device and decoder budgets        | Provider quota reporting                  |
-| Platform audio/GPU adapters                 | Host integration where a host adapter exists                                          | No platform API                                                                                                                                         | None in 0.1.0; post-0.1.0 target      | No platform API                        | Device-specific adapter owner     | No platform API                           |
-| Coding workflow and task graph              | No ownership                                                                          | No ownership                                                                                                                                            | Owner                                 | No `wheel.*` dependency                | None                              | None                                      |
-| Retention and deletion                      | Host evidence and consent                                                             | AI record semantics under draft R3                                                                                                                      | Its own records                       | Ephemeral local media by default       | No persistent media by default    | Not owned here; provider policy governs   |
+| Concern                                          | Core / `bittyd` / `bitty-execution` / `bitty-a11y`                                                                                               | AI owner (`bitty-ai`)                                                                                                                                                   | Wheel owner (post-0.1.0 target)       | Headed Agent owner (`bitty-ai` product)                       | Media presentation (owner-pending)            | Provider plugin owner                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------- |
+| IPC framing, auth, instance, rate limits         | Core owner                                                                                                                                       | Consumer                                                                                                                                                                | None in 0.1.0; post-0.1.0 target      | Consumer                                                      | Consumer through Core                         | Consumer through AI and Core              |
+| Consent ledger and revocation                    | Core owner                                                                                                                                       | Requests verdicts; never stores grants                                                                                                                                  | None in 0.1.0; post-0.1.0 target      | Presents prompts; never grants                                | Consumes verdicts                             | Consumes verdicts                         |
+| Execution authorization and supervision          | Core authorizes, fences, and retains PTY/permission/resource enforcement; `bitty-execution` supervises and executes under `W-132`.               | Owns semantic task model, binding, claims, retry policy, and model-facing execution intent.                                                                             | None in 0.1.0; post-0.1.0 target      | Requests work through the session; never executes or approves | None                                          | None                                      |
+| Agent session, `bittyd` session, app handle      | `bittyd` is sole writer of registry/lifecycle/generation/lease if `bitty#2546` places the record there; placement open.                          | Consumes the RFC state names; `bitty-agent-api` is test-only/report-only; runtime has its own vocabulary including `Canceled`.                                          | None in 0.1.0; post-0.1.0 target      | Holds the application handle and projects the sanitized view  | None                                          | None                                      |
+| Session handle and generation                    | Owner of the placement target pending `bitty#2546`; single-writer invariant applies.                                                             | Binds model-facing state to the session generation                                                                                                                      | None in 0.1.0; post-0.1.0 target      | Consumer                                                      | None                                          | None                                      |
+| Event sequencing and replay window               | Sequencer is the authority designated by `bitty#2546`; Event Bus transport and observation queues are Core.                                      | Owns AI event schemas and nested turn sequencing                                                                                                                        | None in 0.1.0; post-0.1.0 target      | Consumer of the control stream                                | Consumes media events                         | None                                      |
+| Provider registry and routing                    | Core owns publication authority, scopes, and transport.                                                                                          | Owns the authoritative registry, resolution, opaque proof, provider descriptor, capability labels, and privacy classes.                                                 | None in 0.1.0; post-0.1.0 target      | Consumer; no provider selection                               | None                                          | Registers; never widens                   |
+| Credentials and secret storage                   | Host-owned storage and grants                                                                                                                    | Uses opaque handles; never reads values                                                                                                                                 | None in 0.1.0; post-0.1.0 target only | Never receives values                                         | Never receives values                         | Resolves at the adapter edge only         |
+| Context compilation, quotas, and retention       | Core enforces shared per-client quota and ledger; R3 owns the retention policy.                                                                  | Owns context compilation, pre-I/O gates, AI record semantics, and the speech `AssetRef` instance.                                                                       | None in 0.1.0; post-0.1.0 target      | Consumer                                                      | None                                          | None                                      |
+| Context and session snapshots                    | Core owns the host record, consent, and storage.                                                                                                 | Owns compilation, redaction, and snapshot view                                                                                                                          | None in 0.1.0; post-0.1.0 target      | Reads sanitized view                                          | None                                          | None                                      |
+| Tool proposal                                    | Core receives and validates                                                                                                                      | Owner of model proposal relay                                                                                                                                           | None in 0.1.0; post-0.1.0 target      | Presents                                                      | None                                          | None                                      |
+| Tool approval, execution, result                 | Core owns ledger, verdict, and authorization; `bitty-execution` executes and reports the structured outcome.                                     | Consumes result as untrusted observation                                                                                                                                | None in 0.1.0; post-0.1.0 target      | Presents request and collects decision                        | None                                          | None; tool providers are separate plugins |
+| Panel identity, lifecycle, focus                 | Core owner under the accepted Panel Runtime RFC                                                                                                  | Reads references only                                                                                                                                                   | None in 0.1.0; post-0.1.0 target      | Requests panel and composes UI                                | Consumes a panel surface                      | None                                      |
+| Event Bus transport and observation topics       | Core owner under the accepted Panel Runtime RFC; the bus does not carry approval/stop/tool-result control.                                       | Publishes AI-domain observation topics                                                                                                                                  | None in 0.1.0; post-0.1.0 target      | Publishes only its private observation topics                 | Publishes declared observation topics         | None                                      |
+| Accessibility baseline and AT adapters           | Core retains the baseline, projection, focus order, announcements, motion, and contrast; `bitty-a11y` owns AT-SPI/UIA/AX adapters under `W-134`. | Supplies semantic state for its own content; no AT authority.                                                                                                           | None in 0.1.0; post-0.1.0 target      | Conforms; owns no AT backend or terminal mutation             | No AT backend                                 | None                                      |
+| Speech job lifecycle                             | Core enforces consent and transport; owns the shared `AssetRef` contract.                                                                        | Owns request, stream, cancel, and the speech-job asset-reference instance.                                                                                              | None                                  | Owns eligibility, controls, captions, and transcript          | Owns playback only                            | Synthesizes under the speech contract     |
+| Audio device and playback                        | Core may provide a neutral primitive; none claimed.                                                                                              | No ownership                                                                                                                                                            | None                                  | Requests playback                                             | Owner (owner-pending)                         | None                                      |
+| Avatar semantic state and viseme vocabulary      | No ownership                                                                                                                                     | Owns the new candidate vocabulary; not accepted                                                                                                                         | None                                  | Maps to appearance and animation                              | Renders 2D/3D (owner-pending)                 | May emit timing metadata                  |
+| 3D rig, shaders, and GPU surfaces                | No ownership                                                                                                                                     | No ownership                                                                                                                                                            | None                                  | May request                                                   | Owner (owner-pending)                         | None                                      |
+| CPU, memory, GPU, audio budgets                  | Core host and transport budgets; shared per-client quota and ledger.                                                                             | Pre-I/O gates and AI record attribution; no separate AI budget.                                                                                                         | None in 0.1.0; post-0.1.0 target      | Presentation budgets                                          | Device and decoder budgets                    | Provider quota reporting                  |
+| Platform audio/GPU/AT adapters                   | Core host integration; `bitty-a11y` owns AT adapters under `W-134`.                                                                              | No platform API                                                                                                                                                         | None in 0.1.0; post-0.1.0 target      | No platform API                                               | Device-specific adapter owner (owner-pending) | No platform API                           |
+| Plugin identity, category, distribution, signing | No ownership.                                                                                                                                    | Headed Agent product owner chooses whether to publish a package (identity, distribution presence); `bitty-plugins-docs` owns package category and signing/update rules. | None in 0.1.0; post-0.1.0 target      | Consumes the accepted plugin-platform contract                | None                                          | None                                      |
+| Coding workflow and task graph                   | No ownership                                                                                                                                     | No ownership                                                                                                                                                            | Owner                                 | No `wheel.*` dependency                                       | None                                          | None                                      |
+| Retention and deletion                           | Core owns host evidence, consent, storage, and deletion mechanics.                                                                               | Owns AI record semantics and the speech asset-reference instance under draft R3.                                                                                        | Its own records                       | Ephemeral media by default                                    | No persistent media by default                | Not owned here; provider policy governs   |
 
 ## Security review
 
@@ -1471,63 +2074,79 @@ smaller or alternate role list.
 
 ### Threat analysis
 
-| Threat                                      | Impact                                                                                  | Required gate                                                                                                                                  | Accountable owner(s)                          |
-| ------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Presentation becomes authority              | A panel, avatar, or attachment can approve or execute without consent.                  | Presentation-never-authority: every effect re-checks the caller's grants.                                                                      | Core owner + Headed Agent owner               |
-| Stale session or attachment generation      | Old approval, stop, or attachment revives a newer session.                              | Session and attachment generation fencing on every mutating operation and event.                                                               | Core owner + AI owner                         |
-| Approval substitution                       | A user approves one call and a different call executes.                                 | Tool identity and version, canonical argument digest, Core-authored prompt, target, scope, expiry, and session-generation binding.             | Core owner                                    |
-| Same-UID principal confusion                | A process under the same UID presents another `AgentId` or takes over a session.        | `AgentId` is a validated declaration, not transport authentication; attach and takeover re-authorize grants and consent; cross-principal test. | Core owner + Security owner                   |
-| Speech egress substitution or replay        | Text, provider, or privacy class changes after approval, or an authorization is reused. | Core-issued one-shot authorization bound to text digest, provider, privacy class, session generation, principal, and expiry; per-use audit.    | Core owner + AI owner                         |
-| Approval prompt spoofing                    | A presentation surface rewrites the prompt while the bound call differs.                | Core-authored canonical prompt bound to the digest; a mismatch fails closed before the verdict is recorded.                                    | Core owner + Headed Agent owner               |
-| Rich rendering escape                       | Hostile Markdown, URI, or local resource reaches a desktop capability.                  | `P0-AC-005`, `P0-AC-009`, and `P0-AC-010` controls plus an adversarial corpus.                                                                 | Headed Agent owner + security reviewer        |
-| Secret leakage through snapshots or events  | Credentials or environment values reach a model, log, or UI.                            | Typed redaction before queueing and writing; presence markers only.                                                                            | Core owner + AI owner                         |
-| Unbounded media parsing                     | A malicious audio or avatar asset exhausts memory or executes code.                     | Mandatory isolated decode, depth limits, and fuzzed decoders; fail closed when isolation is unavailable.                                       | Media extension owner                         |
-| Prompt injection into speech or approval    | Model output causes an egress or an approval.                                           | Egress filtering; approval requires explicit user action, never model text.                                                                    | AI owner + Core owner + Headed Agent owner    |
-| Cross-panel eavesdropping or topic spoofing | One plugin reads or forges another plugin's stream.                                     | Reserved namespaces, per-topic authorization, producer identity checks.                                                                        | Core owner                                    |
-| Privacy downgrade on fallback               | A local-only request silently goes remote.                                              | Privacy class is a hard constraint; fallback stays within it and never bypasses Core publication authority.                                    | AI owner                                      |
-| Resource exhaustion or denial of service    | One session starves audio, GPU, or the host.                                            | Hard caps, per-session attribution, containment, and slow-consumer shed.                                                                       | Core owner + AI owner + Media extension owner |
-| GPU or audio device data retention          | One principal's media remains in device memory for another.                             | Release and clear on detach, suspend, and session end.                                                                                         | Media extension owner                         |
-| `wheel.*` coupling                          | The Headed Agent plugin reaches into Wheel private state.                               | Dependency review; no `wheel.*` import, call, config, or environment key.                                                                      | Headed Agent owner + security reviewer        |
+| Threat                                         | Impact                                                                                             | Required gate                                                                                                                                  | Accountable owner(s)                             |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Presentation becomes authority                 | A panel, avatar, or attachment can approve or execute without consent.                             | Presentation-never-authority: every effect re-checks the caller's grants.                                                                      | Core owner + Headed Agent owner                  |
+| AT projection or action becomes authority      | An assistive-technology adapter approves, grants, mutates terminal state, or publishes on the bus. | Adapter is not a principal; actions resolve through the Core controlled action interface under target-owner grants; no Event Bus publication.  | Core owner + accessibility adapter owner         |
+| Stale session, panel, or attachment generation | An old approval, stop, or attachment revives a newer session or writes into a destroyed panel.     | Session, panel, `(PanelId, generation)`, and attachment fencing on every mutating operation and event.                                         | Core owner + AI owner                            |
+| Approval substitution                          | A user approves one call and a different call executes.                                            | Tool identity and version, canonical argument digest, Core-authored prompt, target, scope, expiry, and session-generation binding.             | Core owner                                       |
+| Same-UID principal confusion                   | A process under the same UID presents another `AgentId` or takes over a session.                   | `AgentId` is a validated declaration, not transport authentication; attach and takeover re-authorize grants and consent; cross-principal test. | Core owner + Security owner                      |
+| Speech egress substitution or replay           | Text, provider, or privacy class changes after approval, or an authorization is reused.            | Core-issued one-shot authorization bound to text digest, provider, privacy class, session generation, principal, and expiry; per-use audit.    | Core owner + AI owner                            |
+| Approval prompt spoofing                       | A presentation surface rewrites the prompt while the bound call differs.                           | Core-authored canonical prompt bound to the digest; a mismatch fails closed before the verdict is recorded.                                    | Core owner + Headed Agent owner                  |
+| Rich rendering escape                          | Hostile Markdown, URI, or local resource reaches a desktop capability.                             | `P0-AC-005`, `P0-AC-009`, and `P0-AC-010` controls plus an adversarial corpus.                                                                 | Headed Agent owner + security reviewer           |
+| Secret leakage through snapshots or events     | Credentials or environment values reach a model, log, or UI.                                       | Typed redaction before queueing and writing; presence markers only.                                                                            | Core owner + AI owner                            |
+| Unbounded media parsing                        | A malicious audio or avatar asset exhausts memory or executes code.                                | Mandatory isolated decode, depth limits, and fuzzed decoders; fail closed when isolation is unavailable; no v1 Lua decoder.                    | Media presentation owner (owner-pending)         |
+| Caption or transcript leakage                  | Hidden context or a secret appears in captions, transcript, or export.                             | Same post-redaction text as speech; bounded transcript; redacted export preview; retention class recorded.                                     | Headed Agent owner + AI owner                    |
+| Prompt injection into speech or approval       | Model output causes an egress or an approval.                                                      | Egress filtering; approval requires explicit user action, never model text.                                                                    | AI owner + Core owner + Headed Agent owner       |
+| Cross-panel eavesdropping or topic spoofing    | One plugin reads or forges another plugin's stream.                                                | Reserved namespaces, per-topic authorization, producer identity checks.                                                                        | Core owner                                       |
+| Privacy downgrade on fallback                  | A local-only request silently goes remote.                                                         | Privacy class is a hard constraint; fallback stays within it and never bypasses Core publication authority.                                    | AI owner                                         |
+| Resource exhaustion or denial of service       | One session starves audio, GPU, or the host.                                                       | Hard caps, per-session attribution, containment, and slow-consumer shed.                                                                       | Core owner + AI owner + media presentation owner |
+| GPU or audio device data retention             | One principal's media remains in device memory for another.                                        | Release and clear on detach, suspend, and session end.                                                                                         | Media presentation owner (owner-pending)         |
+| `wheel.*` coupling                             | The Headed Agent surface reaches into Wheel private state.                                         | Dependency review; no `wheel.*` import, call, config, or environment key.                                                                      | Headed Agent owner + security reviewer           |
 
 ### Security gates
 
-| Gate                             | Requirement                                                                                                                                                                                         | Evidence required before implementation                                                                                                           |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Presentation-never-authority     | A panel, attachment, avatar state, animation, or speech control cannot approve, execute, or broaden a scope.                                                                                        | Adversarial tests that attempt approval and execution from every presentation surface.                                                            |
-| Generation fencing               | Stale session, attachment, approval binding, and media-job identities fail closed before effects.                                                                                                   | Property tests and replay corpus across suspend, reconnect, takeover, and restart.                                                                |
-| Approval binding                 | Approval binds the exact tool identity and version, validated call digest, Core-authored prompt, target, scope, expiry, session generation, and principal.                                          | Mutation, prompt-rewrite, replay, expiry, and cross-principal test matrix.                                                                        |
-| Speech authorization             | Every speech egress consumes one Core-issued authorization bound to the text digest, provider, privacy class, session generation, principal, and expiry.                                            | Reuse, digest-mismatch, provider-change, privacy-change, stale-generation, cross-principal, and compromised-plugin tests; per-use audit evidence. |
-| Same-UID boundary                | `AgentId` is a validated declaration inside the UID trust domain; attach and takeover re-authorize grants, and no confidentiality between same-UID processes is claimed.                            | Cross-principal attach and takeover tests, plus a documented same-UID confidentiality boundary.                                                   |
-| Secret-free surfaces             | Snapshots, events, speech text, avatar state, and traces contain no raw secret or unapproved environment value.                                                                                     | Seeded-secret negative tests on every producer and every write path.                                                                              |
-| Bounded media                    | Audio, viseme, animation, and avatar inputs are size-, depth-, and time-bounded; decode is mandatorily isolated or fails closed.                                                                    | Fuzz corpus, malformed asset suite, isolation proof, and fail-closed presentation-class tests.                                                    |
-| Consent before egress            | Model, speech, and tool egress require the matching grant; autoplay is off unless an explicit user-owned policy enables it; revocation stops the next chunk.                                        | Consent matrix and revocation lifecycle tests.                                                                                                    |
-| Retention and erasure            | Media and snapshots are ephemeral by default; recording is consented and redacted; source-history deletion propagates to derived media.                                                             | Retention, export-preview, and deletion-propagation tests.                                                                                        |
-| Rich rendering controls          | Any Markdown, rich-block, image, or scene surface uses the `P0-AC-005` loader, the `P0-AC-009` URI and launch policy, and the `P0-AC-010` constrained AST/scene with no WebView script.             | Script, local-resource, hostile-URI, and constrained-scene corpus on every rich surface.                                                          |
-| Capability fallback fails closed | A missing or unverified platform capability lowers presentation only; it never weakens security, consent, or redaction.                                                                             | Platform matrix tests and capability-detection negative tests.                                                                                    |
-| No Wheel coupling                | The Headed Agent plugin has no `wheel.*` import, service call, CLI spawn/wrapper, `.wheel/init.lua` or Wheel config/state read, configuration dependency, environment key, or private state access. | Dependency graph review, path-access review, and a negative integration test per forbidden path.                                                  |
-| Independent review               | Every row in [P0 Review Sign-off](#p0-review-sign-off) differs from the implementer and records a disposition before implementation tasks open.                                                     | Nine review records linked from the owning task.                                                                                                  |
+| Gate                             | Requirement                                                                                                                                                                                                  | Evidence required before implementation                                                                                                           |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Presentation-never-authority     | A panel, attachment, avatar state, animation, or speech control cannot approve, execute, or broaden a scope.                                                                                                 | Adversarial tests that attempt approval and execution from every presentation surface.                                                            |
+| AT action non-authority          | An AT adapter cannot approve, grant, mutate terminal state, or publish the projection or action outcome on the Event Bus.                                                                                    | Adapter action corpus, stale-element rejection, Event-Bus negative test, and a grant/approval attempt from the adapter.                           |
+| Accessibility baseline           | Roles, names, states, focus order, announcements, modal confinement, keyboard equivalence, reduced motion, contrast, captions/transcript, avatar equivalence, and media controls meet the accepted baseline. | Semantics map, focus/announcement corpus, reduced-motion and contrast fail-closed tests, caption/transcript bounds, and missing-adapter tests.    |
+| Control/observation separation   | Approval, stop, tool-result, and speech-job control events are never carried by the DropOldest observation Event Bus.                                                                                        | Transport assertion tests and a negative test that a control event cannot be declared as a bus topic.                                             |
+| Session authority mapping        | A `bittyd` session, an AgentSession, and the application handle are not conflated; `start` creates only what `bitty#2546` permits and daemon-absent operation is supported.                                  | Lifecycle mapping tests for daemon-present, daemon-absent, hosted-worker, and terminal-session paths.                                             |
+| Generation fencing               | Stale session, panel, attachment, approval binding, and media-job identities fail closed before effects.                                                                                                     | Property tests and replay corpus across suspend, reconnect, takeover, panel rebuild, and restart.                                                 |
+| Approval binding                 | Approval binds the exact tool identity and version, validated call digest, Core-authored prompt, target, scope, expiry, session generation, and principal.                                                   | Mutation, prompt-rewrite, replay, expiry, and cross-principal test matrix.                                                                        |
+| Speech authorization             | Every speech egress consumes one Core-issued authorization bound to the text digest, provider, privacy class, session generation, principal, and expiry.                                                     | Reuse, digest-mismatch, provider-change, privacy-change, stale-generation, cross-principal, and compromised-plugin tests; per-use audit evidence. |
+| Same-UID boundary                | `AgentId` is a validated declaration inside the UID trust domain; attach and takeover re-authorize grants, and no confidentiality between same-UID processes is claimed.                                     | Cross-principal attach and takeover tests, plus a documented same-UID confidentiality boundary.                                                   |
+| Secret-free surfaces             | Snapshots, events, speech text, avatar state, and traces contain no raw secret or unapproved environment value.                                                                                              | Seeded-secret negative tests on every producer and every write path.                                                                              |
+| Bounded media                    | Audio, viseme, animation, and avatar inputs are size-, depth-, and time-bounded; decode is mandatorily isolated or fails closed; no v1 Lua decoder or native module load.                                    | Fuzz corpus, malformed asset suite, isolation proof, and fail-closed presentation-class tests.                                                    |
+| Consent before egress            | Model, speech, and tool egress require the matching grant; autoplay is off unless an explicit user-owned policy enables it; revocation stops the next chunk.                                                 | Consent matrix and revocation lifecycle tests.                                                                                                    |
+| Retention and erasure            | Media and snapshots are ephemeral by default and name a retention class; recording is consented and redacted; source-history deletion propagates to derived media.                                           | Retention-class, export-preview, and deletion-propagation tests.                                                                                  |
+| Rich rendering controls          | Any Markdown, rich-block, image, or scene surface uses the `P0-AC-005` loader, the `P0-AC-009` URI and launch policy, and the `P0-AC-010` constrained AST/scene with no WebView script.                      | Script, local-resource, hostile-URI, and constrained-scene corpus on every rich surface.                                                          |
+| Capability fallback fails closed | A missing or unverified platform capability lowers presentation only; it never weakens security, consent, or redaction.                                                                                      | Platform matrix tests and capability-detection negative tests.                                                                                    |
+| No Wheel coupling                | The Headed Agent surface has no `wheel.*` import, service call, CLI spawn/wrapper, `.wheel/init.lua` or Wheel config/state read, configuration dependency, environment key, or private state access.         | Dependency graph review, path-access review, and a negative integration test per forbidden path.                                                  |
+| Independent review               | Every row in [P0 Review Sign-off](#p0-review-sign-off) differs from the implementer and records a disposition before implementation tasks open.                                                              | Nine review records linked from the owning task.                                                                                                  |
 
 ### Residual risks
 
 - No implementation exists, so every gate above is unverified.
+- No platform accessibility adapter exists today beyond a headless test backend.
+  An absent, denied, or crashed adapter removes platform exposure only; it is
+  reported honestly and never described as working AT support.
 - Media sandboxing and GPU memory isolation are platform-dependent. A
   presentation class that cannot verify the required isolation is disabled
   rather than treated as contained, so the residual risk is reduced
   presentation, not unaudited media parsing.
-- Voice provenance, watermarking, and synthetic-speech disclosure are not
-  defined; a future speech contract must decide them.
+- Synthetic-speech disclosure is not decided at product level (`D2`). The
+  document requires disclosure to exist and forbids silently presenting
+  synthetic audio as human; the minimum form remains an owner decision.
 - Multi-user, multi-device, and remote headed clients are deferred. They would
   need their own authentication and consent ledger review.
-- The exact Core-versus-`bitty-ai` split for session identity and durable
-  records remains open; the issuer-as-sequencer invariant prevents two
-  components from advancing one generation, but a wrong durable placement could
-  still duplicate records.
+- The `bittyd` session record, generation issuance, and hosted-worker scope are
+  the subject of `bitty#2546`. `ADR-0019` accepts the v0.2.0 staging and
+  `R-B09` fixes the single-writer rule; neither decides the field set, the API,
+  or whether a headed agent worker is hosted. A wrong placement would still be
+  a contract violation even though it cannot produce two writers silently.
 - The accepted transport authenticates the UID, not the `AgentId`. Processes
   under the same UID are not isolated from each other, and this draft claims no
   confidentiality between them; that boundary needs its own accepted decision
   if same-UID isolation is required.
-- The plugin packaging model for media extensions is not decided, so supply
-  chain and permission review for those extensions remain future work.
+- The media presentation category and its packaging are not decided. A v1 Lua
+  package, a Core extension component, and a post-1.0 native helper are
+  different supply-chain and permission stories; only the last two are
+  compatible with `R-017`, and neither is authorized here.
+- The caption timing tolerance, transcript bounds, and retention classes are
+  named policy constants in a future accepted contract; this draft fixes the
+  obligations, not the numeric values.
 
 ## Verification plan
 
@@ -1545,14 +2164,17 @@ Future implementation tasks must add, per contract family once it is accepted:
 - Lifecycle property tests for `start`, `attach`, `detach`, `stop`, session
   `resume`, `takeover`, generation mismatch, idempotency-key replay and expiry,
   issuer-to-sequencer handoff, panel/attachment lifecycle mapping, and
-  cancellation before and after dispatch.
+  cancellation before and after dispatch. Session-mapping tests cover
+  daemon-present, daemon-absent, bittyd-hosted worker, plain AgentSession, and
+  application-handle-only paths without conflating them.
 - Event-ordering and resynchronization tests: non-lossy gaps, lossy lost-count
   recovery, duplicates, snapshot barriers, replay-window boundaries, and
   reconnect during a turn.
 - Event Bus tests: accepted `owner.name:topic` grammar, manifest-declared
   produce/consume, `UndisclosedTopic`, PR-3 through PR-9 bounds, `DropOldest`
-  counting and attribution, per-principal ledgers, and the stricter control
-  class refusal.
+  counting and attribution, per-principal ledgers, and a negative test that an
+  approval, stop, tool-result, or speech-job control event cannot be declared or
+  delivered as an observation topic.
 - Backpressure and soak tests: slow consumer, bounded queues, counted drops,
   audio underflow, and no unbounded memory growth.
 - Approval tests: exact tool identity and version, digest binding, Core-authored
@@ -1565,22 +2187,35 @@ Future implementation tasks must add, per contract family once it is accepted:
   class, session generation, principal, and expiry; reuse, digest mismatch,
   provider or privacy change, cross-principal, and compromised-plugin failures;
   per-use audit; redaction; first-chunk timeout; cancellation at every boundary;
-  exact eight-state status set; `Unknown` reconciliation; asset expiry and
-  idempotency; and no auto-play after reconnect without a user-owned policy.
+  exact eight-state status set; `Unknown` reconciliation; asset expiry,
+  retention class, and idempotency; no auto-play after reconnect without a
+  user-owned policy; and synchronized captions plus an inspectable transcript
+  with locale, bounds, redaction, retention, AT exposure, and toggle coverage.
 - Takeover tests: target grants and consent re-authorization, old-generation
   media-job reconciliation, and a cross-principal attempt from the same UID and
   from a different UID.
 - Avatar and viseme tests: latest-wins state, bounded animation queue, clock
-  tolerance, loss degradation, reduced motion, egress prohibition, buffer
-  clearing, and release on suspend.
+  tolerance, loss degradation, reduced motion, decorative-versus-informative
+  alternative content, state-equivalence announcements, egress prohibition,
+  buffer clearing, and release on suspend.
+- Accessibility tests: the full verification table in
+  [Accessibility verification and acceptance criteria](#accessibility-verification-and-acceptance-criteria),
+  including semantics mapping, focus order and restoration, announcement
+  coalescing, keyboard equivalence, contrast and flash fail-closed behavior,
+  missing/denied/crashed AT adapters, and AT-action non-authority.
+- Media presentation tests: category conformance (Core extension component or
+  post-1.0 helper, never a v1 Lua package), no GPU/window/PTY/host-Rust handle,
+  transcript-free playback, bounded decode, and fail-closed isolation.
 - Budget tests: per-dimension hard and soft limits, `FS-AI4` attribution
-  fields, `RC-9`/`RC-10` and PR-7 through PR-9 inheritance, degradation, and
-  isolation between sessions.
+  fields, shared per-client quota with no separate AI budget, `RC-9`/`RC-10`
+  and PR-7 through PR-9 inheritance, retention-class enforcement, degradation,
+  and isolation between sessions.
 - Rich rendering tests: the `P0-AC-005`, `P0-AC-009`, and `P0-AC-010`
   adversarial corpus on every Markdown, rich-block, image, and scene surface.
 - Platform matrix tests: Linux, macOS, Windows, and FreeBSD capability
-  detection, ADR-0002 support-tier alignment, missing device, device loss,
-  decode-isolation failure, and fallback to text or headless.
+  detection, ADR-0002 support-tier alignment, AT adapter availability separately
+  from presentation class, missing device, device loss, decode-isolation
+  failure, and fallback to text or headless.
 - Wheel boundary tests: a negative integration test for `wheel.*` import, CLI
   spawn or wrapper, `.wheel/init.lua`, `$XDG_CONFIG_HOME/wheel/init.lua`, and
   `$XDG_STATE_HOME/wheel/trusted_projects.json`.
@@ -1592,45 +2227,64 @@ independent review.
 
 ## Alternatives considered
 
-| Alternative                                                    | Why it is not selected                                                                                                                                                            |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Put headed UI, speech, avatars, or 3D in Wheel                 | Couples high-churn presentation and media to the coding harness, expands Wheel's product scope, and contradicts the requirement that Wheel remain a focused Coding Agent Harness. |
-| Let the Headed Agent depend on Wheel as a library or front end | Creates a private cross-consumer dependency, makes Wheel's internal API a de facto contract, and prevents independent evolution. Shared needs belong in Core or `bitty-ai`.       |
-| Put the Headed Agent inside Core                               | Makes the terminal platform own AI composition, chat policy, and media presentation, violating the Core-versus-AI boundary and the no-model-I/O rule for Core.                    |
-| One global event stream with a total order                     | Creates head-of-line blocking, scales poorly across sessions and panels, and turns unrelated plugins into a shared failure domain. Per-session and per-topic ordering suffice.    |
-| Drop-oldest delivery for approvals and tool results            | Can silently lose an approval, a denial, or a result, which is an authority and safety defect. Control events must be non-lossy.                                                  |
-| Let the plugin resolve providers and hold credentials          | Fragments routing and consent, exposes secrets to presentation code, and bypasses the draft provider boundary and secret invariant.                                               |
-| Let Core render avatars and play speech directly               | Makes platform code own media policy, GPU lifetime, and accessibility behavior that belong to media extensions and the Headed Agent owner.                                        |
-| Inline audio bytes in model context                            | Bypasses context budgets and redaction, bloats snapshots and events, and contradicts the asset-reference rule in the multimodal boundary.                                         |
-| Require 3D or audio for a headed session                       | Excludes headless, low-resource, accessibility, and FreeBSD-style environments. Text, captions, and 2D/software fallbacks are mandatory.                                          |
-| Treat panel closure as session stop                            | Conflates presentation with lifecycle and lets UI absence destroy work. Panel closure detaches; stopping is explicit.                                                             |
+| Alternative                                                    | Why it is not selected                                                                                                                                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Put headed UI, speech, avatars, or 3D in Wheel                 | Couples high-churn presentation and media to the coding harness, expands Wheel's product scope, and contradicts the requirement that Wheel remain a focused Coding Agent Harness.                                   |
+| Let the Headed Agent depend on Wheel as a library or front end | Creates a private cross-consumer dependency, makes Wheel's internal API a de facto contract, and prevents independent evolution. Shared needs belong in Core or `bitty-ai`.                                         |
+| Put the Headed Agent inside Core                               | Makes the terminal platform own AI composition, chat policy, and media presentation, violating the Core-versus-AI boundary and the no-model-I/O rule for Core.                                                      |
+| One global event stream with a total order                     | Creates head-of-line blocking, scales poorly across sessions and panels, and turns unrelated plugins into a shared failure domain. Per-session and per-topic ordering suffice.                                      |
+| Drop-oldest delivery for approvals and tool results            | Can silently lose an approval, a denial, or a result, which is an authority and safety defect. Control events must be non-lossy.                                                                                    |
+| Carry approval, stop, and tool-result control on the Event Bus | The accepted bus is an observation transport with `DropOldest`; a control event on it can be dropped or overtaken and would need its own accepted amendment. The session control stream is separate.                |
+| Ship media decode/render/audio as a v1 Lua plugin              | Native in-process plugins and native module loading are forbidden (`R-017`); direct GPU, window, and PTY access is outside the plugin boundary. The native path is a Core extension component or a post-1.0 helper. |
+| Define a new `ai.*`/`agent.*`/`mcp.*` capability catalog here  | The catalog is owned by `bitty-ai` extensions and accepted by `bitty-plugins`; a second definition would fragment authorization. This draft consumes identifiers and adds only presentation classes.                |
+| Describe the surface as a generic future sibling repository    | The recorded predecessor is `ai-panel`, and AI surfaces move to the optional `bitty-ai` extension. A generic sibling framing hides the blocked panel-provider, `bitty-ai` surface, and distribution dependencies.   |
+| Let the plugin resolve providers and hold credentials          | Fragments routing and consent, exposes secrets to presentation code, and bypasses the draft provider boundary and secret invariant.                                                                                 |
+| Let Core render avatars and play speech directly               | Makes platform code own media policy, GPU lifetime, and accessibility behavior that belong to media presentation and the Headed Agent owner.                                                                        |
+| Inline audio bytes in model context                            | Bypasses context budgets and redaction, bloats snapshots and events, and contradicts the asset-reference rule in the multimodal boundary.                                                                           |
+| Require 3D or audio for a headed session                       | Excludes headless, low-resource, accessibility, and FreeBSD-style environments. Text, captions, and 2D/software fallbacks are mandatory.                                                                            |
+| Treat panel closure as session stop                            | Conflates presentation with lifecycle and lets UI absence destroy work. Panel closure detaches; stopping is explicit.                                                                                               |
 
 ## Affected contracts
 
 No contract is changed by this draft. The table records the expected
 relationship for the owning documents and repositories.
 
-| Contract or surface                                                                                                                          | Owner                            | Effect of this draft                                                                                                     | Status                                          |
-| -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
-| [IPC and Agent RFC](../specifications/ipc-agent-rfc.md)                                                                                      | Core owner                       | Consumed unchanged for framing, auth, scopes, bounded messages, consent, streaming, and versioning.                      | Accepted; no change                             |
-| [Panel Runtime RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-rfc.md)                     | Core owner                       | Consumed unchanged for panel identity, lifecycle, focus, Event Bus grammar, and PR-1 through PR-12.                      | Accepted; no change                             |
-| [RFC-0006](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0006-panel-provider-registration-mount.md)         | Core owner                       | Consumed unchanged for plugin-facing registration, mount placement, and the closed `panel.*` capability mapping.         | Accepted; no change                             |
-| [Provider-routing snapshot binding](../architecture/execution-ownership-r1.md#providerrouting-snapshot-binding-contract-accepted-2026-10-17) | Core owner + AI owner            | Consumed unchanged for routing snapshot domain, bytes, digest, publication authority, and ownership proof.               | Accepted section; no change                     |
-| [ADR-0013](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0013-core-ontology-identity.md)                    | bitty-docs decision owner        | Consumed for ontology, `AgentId`, `GenerationId`, and the Panel/Execution separation.                                    | Accepted; no change                             |
-| [ADR-0002](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0002-platform-support-tiers.md)                    | bitty-docs decision owner        | Consumed for support tiers; presentation classes never upgrade a support tier.                                           | Accepted; no change                             |
-| [P0 acceptance criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)                     | Security owner                   | Rich, avatar, and media surfaces inherit `P0-AC-005`, `P0-AC-009`, and `P0-AC-010`.                                      | Normative; no change                            |
-| [Isolation and Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/runtime/isolation-resource-rfc.md)               | Security owner                   | Inherits `RC-1`, `RC-2`, `RC-9`, and `RC-10`; this draft adds no weaker bound.                                           | Accepted; no change                             |
-| [Unified authorization backend](../architecture/tool-transport-r2.md#unified-authorization-backend)                                          | Core owner                       | Tool approval events must map to the existing gate order; no new authorization path.                                     | Draft; no change                                |
-| [Context retention R3](../architecture/context-retention-r3.md)                                                                              | Core owner                       | Speech, viseme, avatar, and attachment data follow the draft consent, retention, and deletion rules.                     | Draft; no change                                |
-| [Provider plugin boundary](../providers/provider-plugin-boundary.md)                                                                         | AI owner + Provider plugin owner | Consumed unchanged for privacy classes, capabilities, secret invariant, and project overrides.                           | Draft; no change                                |
-| [Multimodal inference boundary](../providers/multimodal-inference-boundary.md)                                                               | AI owner                         | Draft speech and generation-job lifecycle reused; this draft adds only headed request, playback, and cancellation rules. | Draft; review follow-up                         |
-| [Agent coordination architecture](agent-coordination.md)                                                                                     | AI owner + Core owner            | Aligns panel attachment, suspend, and lifecycle outcomes with the existing reconciliation.                               | Draft; candidate alignment                      |
-| [Panel environment awareness](../interfaces/panel-environment-awareness.md)                                                                  | AI owner + Core owner            | Sanitized Agent View and no-persistence defaults continue to apply to headed presentation.                               | Draft; no change                                |
-| [Execution-projection binding](../specifications/execution-projection-binding-candidate.md)                                                  | Core owner + AI owner            | Candidate design reference only; session attachment is distinguished from execution projection.                          | Draft; no change                                |
-| [Wheel core and plugin boundary](../specifications/wheel-core-plugin-boundary-candidate.md)                                                  | Wheel owner + AI owner           | Wheel's internal composition candidate, not this sibling boundary; no Wheel work is assigned.                            | Draft; no change to Wheel                       |
-| Core panel and Event Bus implementation                                                                                                      | Core owner                       | The panel and Event Bus contracts are accepted by the Panel Runtime RFC and RFC-0006; implementation is not claimed.     | Accepted contract; implementation owner-pending |
-| Plugin packaging for media extensions                                                                                                        | Plugin ecosystem owner           | Would need registry, manifest, capability, and supply-chain review; not defined here.                                    | Owner-pending                                   |
-| Speech and avatar event schemas                                                                                                              | AI owner                         | Candidate families only; no wire schema, field list, or compatibility promise is accepted.                               | Draft                                           |
+| Contract or surface                                                                                                                                                                                                                                                                 | Owner                                                    | Effect of this draft                                                                                                                                     | Status                                          |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [IPC and Agent RFC](../specifications/ipc-agent-rfc.md)                                                                                                                                                                                                                             | Core owner                                               | Consumed unchanged for framing, auth, scopes, bounded messages, consent, streaming, and versioning.                                                      | Accepted; no change                             |
+| [Panel Runtime RFC](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/panel-runtime-rfc.md)                                                                                                                                                            | Core owner                                               | Consumed unchanged for panel identity, lifecycle, focus, Event Bus grammar, and PR-1 through PR-12.                                                      | Accepted; no change                             |
+| [RFC-0006](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0006-panel-provider-registration-mount.md)                                                                                                                                                | Core owner                                               | Consumed unchanged for plugin-facing registration, mount placement, and the closed `panel.*` capability mapping.                                         | Accepted; no change                             |
+| [Provider-routing snapshot binding](../architecture/execution-ownership-r1.md#providerrouting-snapshot-binding-contract-accepted-2026-10-17)                                                                                                                                        | Core owner + AI owner                                    | Consumed unchanged for routing snapshot domain, bytes, digest, publication authority, and ownership proof.                                               | Accepted section; no change                     |
+| [ADR-0013](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0013-core-ontology-identity.md)                                                                                                                                                           | bitty-docs decision owner                                | Consumed for ontology, `AgentId`, `GenerationId`, and the Panel/Execution separation.                                                                    | Accepted; no change                             |
+| [ADR-0002](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0002-platform-support-tiers.md)                                                                                                                                                           | bitty-docs decision owner                                | Consumed for support tiers; presentation classes never upgrade a support tier.                                                                           | Accepted; no change                             |
+| [P0 acceptance criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)                                                                                                                                                            | Security owner                                           | Rich, avatar, and media surfaces inherit `P0-AC-005`, `P0-AC-009`, and `P0-AC-010`.                                                                      | Normative; no change                            |
+| [Isolation and Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/runtime/isolation-resource-rfc.md)                                                                                                                                                      | Security owner                                           | Inherits `RC-1`, `RC-2`, `RC-9`, and `RC-10`; this draft adds no weaker bound.                                                                           | Accepted; no change                             |
+| [Unified authorization backend](../architecture/tool-transport-r2.md#unified-authorization-backend)                                                                                                                                                                                 | Core owner                                               | Tool approval events must map to the existing gate order; no new authorization path.                                                                     | Draft; no change                                |
+| [Context retention R3](../architecture/context-retention-r3.md)                                                                                                                                                                                                                     | Core owner                                               | Speech, viseme, avatar, and attachment data follow the draft consent, retention, and deletion rules.                                                     | Draft; no change                                |
+| [Provider plugin boundary](../providers/provider-plugin-boundary.md)                                                                                                                                                                                                                | AI owner + Provider plugin owner                         | Consumed unchanged for privacy classes, capabilities, secret invariant, and project overrides.                                                           | Draft; no change                                |
+| [Multimodal inference boundary](../providers/multimodal-inference-boundary.md)                                                                                                                                                                                                      | AI owner                                                 | Draft speech and generation-job lifecycle reused; this draft adds only headed request, playback, and cancellation rules.                                 | Draft; review follow-up                         |
+| [Agent coordination architecture](agent-coordination.md)                                                                                                                                                                                                                            | AI owner + Core owner                                    | Aligns panel attachment, suspend, and lifecycle outcomes with the existing reconciliation.                                                               | Draft; candidate alignment                      |
+| [Panel environment awareness](../interfaces/panel-environment-awareness.md)                                                                                                                                                                                                         | AI owner + Core owner                                    | Sanitized Agent View and no-persistence defaults continue to apply to headed presentation.                                                               | Draft; no change                                |
+| [Execution-projection binding](../specifications/execution-projection-binding-candidate.md)                                                                                                                                                                                         | Core owner + AI owner                                    | Candidate design reference only; session attachment is distinguished from execution projection.                                                          | Draft; no change                                |
+| [Wheel core and plugin boundary](../specifications/wheel-core-plugin-boundary-candidate.md)                                                                                                                                                                                         | Wheel owner + AI owner                                   | Wheel's internal composition candidate, not this sibling boundary; no Wheel work is assigned.                                                            | Draft; no change to Wheel                       |
+| Core panel and Event Bus implementation                                                                                                                                                                                                                                             | Core owner                                               | The panel and Event Bus contracts are accepted by the Panel Runtime RFC and RFC-0006; implementation is not claimed.                                     | Accepted contract; implementation owner-pending |
+| [ADR-0019](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0019-bittyd-v0-2-0-staging.md)                                                                                                                                                            | bitty-docs decision owner                                | Consumed for the `bittyd` v0.2.0 staging, session-grained attach/detach, and no restart persistence.                                                     | Accepted; no change                             |
+| [bitty#2546](https://github.com/bitty-terminal/bitty/issues/2546) and [bittyd session host requirements](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/bittyd-session-host-requirements-candidate.md)                                              | Core owner                                               | Session fields, lifecycle, API, trust, crash/reattach, and single-writer requirements; consumed as open consumer input.                                  | Open; no change                                 |
+| [ADR-0016](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0016-execution-graphics-accessibility-storage-platform-boundaries.md) Boundaries 1 and 3                                                                                                  | bitty-docs decision owner                                | Consumed for Core authorization/fencing plus `bitty-execution` supervision, and for the Core-retained accessibility baseline plus `bitty-a11y` adapters. | Accepted; no change                             |
+| [Accessibility Extraction Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/accessibility-extraction-contract.md) (`W-134`)                                                                                                                  | terminal docs owner + accessibility adapter owner        | Consumed unchanged for projection, focus synchronization, controlled actions, and AT adapter responsibilities.                                           | Accepted; no change                             |
+| [RFC-0001](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0001-appearance-configuration.md) and [RFC-0002](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0002-panel-animations.md)                                 | bitty-docs decision owner                                | Consumed for the contrast floor and the non-overridable reduced-motion/safe-mode contract.                                                               | Accepted; no change                             |
+| [OQ-078](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)                                                                                                                                                                                   | bitty-docs decision owner + accessibility owner          | Referenced for the still-open API/tree and v1 scope; no accepted obligation is reopened.                                                                 | Open; no change                                 |
+| [OQ-083](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)                                                                                                                                                                                   | bitty-docs decision owner                                | Consumed as the accepted panel-lease direction; this draft defines no competing lease.                                                                   | Accepted; no change                             |
+| [Product Vision](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/vision.md#agent-friendly-not-agent-centric) and [AI Surface Accepted Record](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ai-surface-accepted-record.md) | terminal docs owner                                      | Consumed for agent-friendly/not-agent-centric placement and the `ai-panel` removal/AI-extension direction.                                               | Accepted; no change                             |
+| [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md)                                                                                                                                                         | Plugin ecosystem owner                                   | Consumed for the v1 Lua boundary, `R-017`, closed capabilities, declarative UI, and generation lifecycle.                                                | Accepted; no change                             |
+| [Package Lifecycle RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/packaging/package-lifecycle-rfc.md) and [Package Follow-up RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/packaging/package-followup-rfc.md)                            | Plugin ecosystem owner                                   | Consumed for activation, integrity, and rollback; signature, provenance, and registry remain draft.                                                      | Accepted core; signing draft                    |
+| `bitty-ai` extension capability catalog (`ai.*`, `agent.*`, `mcp.*`)                                                                                                                                                                                                                | AI owner + Plugin ecosystem owner                        | Consumed by reference; this draft mints no identifier and no `media.*`/`audio.*`/`gpu.*` family.                                                         | Accepted by `bitty-plugins`; no change          |
+| Plugin identity (`ai-panel` successor or new)                                                                                                                                                                                                                                       | Headed Agent product owner (`bitty-ai`)                  | Product decision `P-1`; no identity is chosen here.                                                                                                      | Owner-pending                                   |
+| Plugin package category                                                                                                                                                                                                                                                             | Plugin ecosystem owner (`bitty-plugins-docs`)            | Product decision `P-2`; the v1 Lua package is accepted, out-of-process is unaccepted, and a media category is undecided.                                 | Owner-pending                                   |
+| Distribution presence                                                                                                                                                                                                                                                               | Headed Agent product owner + Plugin ecosystem owner      | Product decision `P-3`; distribution presets are post-v1.0 and no preset is claimed.                                                                     | Owner-pending                                   |
+| Signing and update                                                                                                                                                                                                                                                                  | Plugin ecosystem owner (`bitty-plugins-docs`)            | Product decision `P-4`; staged activation/rollback accepted, signature/registry draft.                                                                   | Owner-pending                                   |
+| Media presentation packaging and category                                                                                                                                                                                                                                           | Core owner + Plugin ecosystem owner (category undecided) | Owner-pending; a v1 Lua package is excluded and a Core extension component or post-1.0 helper is the only compatible path.                               | Owner-pending                                   |
+| Speech and avatar event schemas                                                                                                                                                                                                                                                     | AI owner                                                 | Candidate families only; no wire schema, field list, or compatibility promise is accepted.                                                               | Draft                                           |
 
 ### Cross-repository references
 
@@ -1643,17 +2297,30 @@ section carries the local canonical documents and the security entry point.
   copying or reinterpreting them.
 - [bitty-terminal-docs](https://github.com/bitty-terminal/bitty-terminal-docs)
   owns the terminal platform's accepted panel runtime, panel presentation,
-  rich presentation, and platform-support contracts. Panel identity, lifecycle,
-  and Event Bus references here point at that accepted contract; audio/GPU
-  mechanism references remain owner-pending pointers to that repository.
+  rich presentation, accessibility extraction, and platform-support contracts.
+  Panel identity, lifecycle, Event Bus, and AT adapter references here point at
+  that accepted contract. The `bitty-execution`, `bitty-graphics`, and
+  platform-service focused contracts (`W-132`, `W-133`, `W-136`) also belong
+  there; media presentation mechanism references remain owner-pending pointers
+  to that repository.
 - [bitty-plugins-docs](https://github.com/bitty-terminal/bitty-plugins-docs)
-  owns the plugin platform, manifest, capability, and packaging contracts.
-  Media-extension packaging and permission review belong there. The accepted
-  isolation envelope lives at
+  owns the plugin platform, manifest, capability, package-category, and
+  signing/update contracts. It owns the platform contract, not the Headed Agent
+  product: `bitty-ai` owns the product and plugin identity choice. Media
+  presentation packaging and permission review are split accordingly, and no
+  new media package category is assumed. The accepted isolation envelope lives
+  at
   [Isolation and Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/runtime/isolation-resource-rfc.md).
 - [bitty-ai](https://github.com/bitty-terminal/bitty-ai) owns implementation
-  evidence for the AI runtime and providers. This document claims no
-  implementation status from that repository.
+  evidence for the AI runtime, providers, and the Headed Agent product. This
+  document claims no implementation status from that repository.
+- [bitty-execution](https://github.com/bitty-terminal/bitty-execution),
+  [bitty-graphics](https://github.com/bitty-terminal/bitty-graphics),
+  [bitty-a11y](https://github.com/bitty-terminal/bitty-a11y), and
+  [bitty-platform-services](https://github.com/bitty-terminal/bitty-platform-services)
+  are the reserved Core-extension component repositories for the accepted
+  ADR-0016 boundaries. Their existence is not implementation evidence and they
+  are not required for this draft.
 - [wheel](https://github.com/bitty-terminal/wheel) owns the Coding Agent
   Harness. Its
   [README](https://github.com/bitty-terminal/wheel/blob/main/README.md),
@@ -1663,8 +2330,9 @@ section carries the local canonical documents and the security entry point.
   are the authoritative sources for its 0.1.0 position; this document records
   a sibling boundary only and assigns no Wheel implementation work.
 - [bitty](https://github.com/bitty-terminal/bitty) owns Core implementation
-  evidence. Future `bittyd`, Core panel, Event Bus, and platform-adapter work
-  require their own accepted contracts; no v1.0 `bittyd` binary is claimed.
+  evidence and the `bittyd` v0.2.0 slice staging accepted by ADR-0019. Future
+  `bittyd`, Core panel, Event Bus, and platform-adapter work require their own
+  accepted contracts; no `bittyd` binary is claimed.
 
 ## Open points
 
@@ -1677,24 +2345,25 @@ route, or an explicit deferral; promotion runs through AI-0347
 ([bitty-ai#553](https://github.com/bitty-terminal/bitty-ai/issues/553)) and the
 named owner.
 
-| Open point                                     | Question                                                                                                                                                                                                       | Likely owner                                 | Disposition or deferral                                                                                                                                                          | Blocks                                                              |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Session authority split                        | Does Core or `bitty-ai` own the durable session handle, generation issuance, the reconnect record, and consumption of the accepted state machine?                                                              | Core owner + AI owner                        | [bitty#2546](https://github.com/bitty-terminal/bitty/issues/2546) (bittyd session-host contract); OQ-061 covers identity/projection only; deferred until #2546 decides placement | `headed.session`, `headed.stream`, `headed.context`, `headed.tools` |
-| Headed plugin identity and packaging           | Is the Headed Agent a Lua plugin, an out-of-process component, or a composed distribution? Who signs and updates it?                                                                                           | Plugin ecosystem owner                       | `AI-0347/#553` then plugin-ecosystem review in `bitty-plugins-docs`; deferred until a plugin packaging contract exists                                                           | Plugin packaging, media extension packaging                         |
-| Coding capability access                       | If the Headed Agent needs coding intelligence, does it use only public Core/`bitty-ai` contracts, or must the needed mechanism be promoted there? A `wheel.*` runtime dependency is not authorized either way. | AI owner + Core owner; Wheel consulted       | Promote to a public Core/`bitty-ai` contract; Wheel decisions D4/D6 record no host-brokered execution service in 0.1.0; `AI-0347/#553`; deferred                                 | `wheel.*` prohibition, product scope                                |
-| Replay retention window                        | How long are control events retained for reconnect, and what storage or memory budget applies?                                                                                                                 | Core owner + AI owner                        | `AI-0347/#553` for promotion to a Core/AI retention task; AIQ-04/55/5A are adjacent closed(partial) facets; deferred                                                             | `headed.stream`, Event Bus control retention                        |
-| Multi-user and remote headed clients           | Are remote, multi-device, or shared-panel sessions in scope? What authentication and consent model applies?                                                                                                    | Core owner + Security owner                  | ADR-0008 (`OQ-020` closed, prior decision); out of scope for 0.1.0; promotion tracked by `AI-0347/#553`                                                                          | Identity, consent, transport                                        |
-| Speech privacy classes and provider consent    | Which speech providers are local-only, which require egress consent, and what is the minimum baseline?                                                                                                         | AI owner + Security owner                    | `AI-0347/#553` plus AI/security review; deferred until an accepted speech contract defines the classes                                                                           | `headed.speech`                                                     |
-| Viseme source and accuracy                     | Is the viseme timeline provider metadata, local analysis, or both? What accuracy and tolerance claims are allowed?                                                                                             | AI owner + Media extension owner             | `AI-0347/#553` plus media/architecture review; deferred                                                                                                                          | `headed.avatar`, `headed.speech`                                    |
-| 3D renderer placement                          | Is 3D an in-process extension, a separate process, or a remote surface? How is GPU memory isolated between principals?                                                                                         | Media extension owner + Architecture owner   | `AI-0347/#553` plus plugin-ecosystem packaging review; deferred                                                                                                                  | `headed.avatar`, `headed.platform`                                  |
-| Audio focus policy                             | Is audio focus per panel, per session, or global? What happens when two sessions speak at once?                                                                                                                | Core owner + Headed Agent owner              | `AI-0347/#553` for promotion to Core host policy; per-device exclusivity is fixed, scope is deferred                                                                             | `headed.panels`, `headed.speech`                                    |
-| Platform support evidence                      | Which Linux, macOS, Windows, and FreeBSD configurations are actually supported, and who records the evidence?                                                                                                  | Core owner + terminal docs owner             | ADR-0002 accepted tiers; media-specific evidence routes to `bitty-terminal-docs`; `AI-0347/#553`; deferred                                                                       | `headed.platform`                                                   |
-| Budget defaults                                | What are the numeric CPU, memory, GPU, audio, token, and cost defaults, and who may change them?                                                                                                               | Core owner + AI owner + Security owner       | `OQ-066` for the context token profile; `AI-0347/#553` for media and host budgets; deferred                                                                                      | `headed.budget`, `headed.stream`, Event Bus queues                  |
-| Approval lifetime and standing grants          | How long does a one-shot approval live, and are session-wide or tool-wide grants allowed?                                                                                                                      | Core owner + Security owner                  | `AI-0347/#553` plus security review; OQ-018 is closed for consent scope, not approval lifetime; deferred                                                                         | `headed.tools`, `headed.session`                                    |
-| Synthetic speech disclosure                    | Is watermarking, provenance metadata, or a spoken disclosure required for synthesized audio?                                                                                                                   | Security owner + Product owner               | `AI-0347/#553` plus security/product review; deferred                                                                                                                            | `headed.speech`                                                     |
-| Recording and export of speech or avatar state | Can users record, export, or delete synthesized audio and viseme data, and under which retention class?                                                                                                        | Core owner + Security owner                  | `AI-0347/#553`; AIQ-55/5A adjacent closed(partial) facets; deferred until draft R3 is accepted                                                                                   | `headed.speech`, `headed.avatar`                                    |
-| Shared chat or transcript contract             | Do Wheel and the Headed Agent share a neutral presentation contract in Core or the plugin ecosystem, or only `bitty-ai` events plus Core panels? A `wheel.*` dependency is excluded.                           | Wheel owner + Plugin ecosystem owner         | `OQ-056` (presentation projection); otherwise `AI-0347/#553`; deferred                                                                                                           | UI composition, duplication risk                                    |
-| Accessibility baseline                         | Which reduced-motion, caption, contrast, and screen-reader behaviors are mandatory versus optional?                                                                                                            | Accessibility owner + Plugin ecosystem owner | `AI-0347/#553` plus accessibility review (`bitty-a11y`); deferred                                                                                                                | `headed.avatar`, `headed.speech`                                    |
+| Open point                                     | Question                                                                                                                                                                                                                               | Likely owner                                                        | Disposition or deferral                                                                                                                                                                                                                                                                       | Blocks                                                              |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Session authority split                        | Where do the durable `bittyd` session record, generation issuance, reconnect record, and attach leases live, and does `bittyd` host a headed agent worker? How do a `bittyd` session, an AgentSession, and the application handle map? | Core owner + AI owner                                               | [bitty#2546](https://github.com/bitty-terminal/bitty/issues/2546) is the open contract; ADR-0019 accepts the v0.2.0 staging and `R-B09` fixes the sole-writer rule. OQ-061 is adjacent (identity domains), not the primary register. Deferred until #2546 decides placement and worker scope. | `headed.session`, `headed.stream`, `headed.context`, `headed.tools` |
+| Headed plugin identity and packaging           | Four separate decisions: `P-1` identity (`ai-panel` successor/rename or new), `P-2` package category, `P-3` distribution presence, `P-4` signing/update.                                                                               | `bitty-ai` product owner (P-1/P-3) + `bitty-plugins-docs` (P-2/P-4) | The recorded predecessor is `ai-panel` (split-later hybrid, removed from Core 2026-09-30); the v1 Lua package is accepted, out-of-process is unaccepted, and distribution presets are post-v1.0. `AI-0347/#553`; deferred.                                                                    | Plugin packaging, media presentation category                       |
+| Media presentation category and ownership      | Is audio/2D/3D/avatar presentation a Core extension component or a post-1.0 native helper, and who owns it? Is any media package category accepted?                                                                                    | Core owner + Plugin ecosystem owner                                 | Owner-pending. A v1 Lua plugin/package is excluded by `R-017`; the Core-extension-component path follows `bitty-graphics`/`bitty-a11y`/`bitty-platform-services`; a post-1.0 helper excludes GPU/window/PTY/host-Rust handles. `AI-0347/#553`; deferred.                                      | `headed.avatar`, `headed.speech`, `headed.platform`                 |
+| Coding capability access                       | If the Headed Agent needs coding intelligence, does it use only public Core/`bitty-ai` contracts, or must the needed mechanism be promoted there? A `wheel.*` runtime dependency is not authorized either way.                         | AI owner + Core owner; Wheel consulted                              | Promote to a public Core/`bitty-ai` contract; Wheel decisions D4/D6 record no host-brokered execution service in 0.1.0; `AI-0347/#553`; deferred                                                                                                                                              | `wheel.*` prohibition, product scope                                |
+| Replay retention window                        | How long are control events retained for reconnect, and what storage or memory budget applies?                                                                                                                                         | Core owner + AI owner                                               | `AI-0347/#553` for promotion to a Core/AI retention task; AIQ-04/55/5A are adjacent closed(partial) facets; deferred                                                                                                                                                                          | `headed.stream` replay window                                       |
+| Multi-user and remote headed clients           | Are remote, multi-device, or shared-panel sessions in scope? What authentication and consent model applies?                                                                                                                            | Core owner + Security owner                                         | ADR-0008 (`OQ-020` closed, prior decision); out of scope for 0.1.0; promotion tracked by `AI-0347/#553`                                                                                                                                                                                       | Identity, consent, transport                                        |
+| Speech privacy classes and provider consent    | Which speech providers are local-only, which require egress consent, and what is the minimum baseline?                                                                                                                                 | AI owner + Security owner                                           | `AI-0347/#553` plus AI/security review; deferred until an accepted speech contract defines the classes                                                                                                                                                                                        | `headed.speech`                                                     |
+| Viseme source and accuracy                     | Is the viseme timeline provider metadata, local analysis, or both? What accuracy and tolerance claims are allowed?                                                                                                                     | AI owner + media presentation owner (owner-pending)                 | `AI-0347/#553` plus media/architecture review; deferred                                                                                                                                                                                                                                       | `headed.avatar`, `headed.speech`                                    |
+| 3D renderer placement                          | Is 3D an in-process extension, a separate process, or a remote surface? How is GPU memory isolated between principals?                                                                                                                 | Media presentation owner (owner-pending) + Architecture owner       | `AI-0347/#553` plus plugin-ecosystem packaging review; deferred                                                                                                                                                                                                                               | `headed.avatar`, `headed.platform`                                  |
+| Audio focus policy                             | Is audio focus per panel, per session, or global? What happens when two sessions speak at once?                                                                                                                                        | Core owner + Headed Agent owner                                     | `AI-0347/#553` for promotion to Core host policy; per-device exclusivity is fixed, scope is deferred                                                                                                                                                                                          | `headed.panels`, `headed.speech`                                    |
+| Platform support evidence                      | Which Linux, macOS, Windows, and FreeBSD configurations are actually supported, and who records the evidence for media presentation and AT adapters?                                                                                   | Core owner + terminal docs owner + `bitty-a11y`                     | ADR-0002 accepted tiers; media and AT evidence routes to `bitty-terminal-docs`; AT availability is separate from presentation class; `AI-0347/#553`; deferred.                                                                                                                                | `headed.platform`                                                   |
+| Budget defaults                                | What are the numeric CPU, memory, GPU, audio, token, and cost defaults, and who may change them? There is no separate AI budget; model and speech I/O use the shared per-client quota and Core ledger.                                 | Core owner + AI owner + Security owner                              | `OQ-066` for the context token profile; `AI-0347/#553` for media and host budgets; deferred                                                                                                                                                                                                   | `headed.budget`, `headed.stream`, Event Bus queues                  |
+| Approval lifetime and standing grants          | How long does a one-shot approval live, and are session-wide or tool-wide grants allowed?                                                                                                                                              | Core owner + Security owner                                         | `AI-0347/#553` plus security review; OQ-018 is closed for consent scope, not approval lifetime; deferred                                                                                                                                                                                      | `headed.tools`, `headed.session`                                    |
+| Synthetic speech disclosure (`D2`)             | What is the minimum disclosure for synthesized audio (spoken, visual, or metadata-only), and is provenance metadata required on export?                                                                                                | Security owner + Product owner                                      | Disclosure itself is required; the minimum form is `D2`, deferred to security/product review under `AI-0347/#553`.                                                                                                                                                                            | `headed.speech`                                                     |
+| Recording and export of speech or avatar state | Which recording, export, and delete rights does the v1 product offer, and which retention class does it name? The contract floor (off by default, consent, redaction, deletion) is fixed; the product surface is `D3`.                 | Core owner + Security owner + Product owner                         | `AI-0347/#553`; AIQ-55/5A adjacent closed(partial) facets; R3 stays draft; interface decision is `D3`, deferred.                                                                                                                                                                              | `headed.speech`, `headed.avatar`, retention                         |
+| Shared chat or transcript contract             | Do Wheel and the Headed Agent share a neutral presentation contract in Core or the plugin ecosystem, or only `bitty-ai` events plus Core panels? A `wheel.*` dependency is excluded.                                                   | Wheel owner + Plugin ecosystem owner                                | `OQ-056` (presentation projection); otherwise `AI-0347/#553`; deferred                                                                                                                                                                                                                        | UI composition, duplication risk                                    |
+| Accessibility baseline                         | Which remaining media, avatar, and caption-presentation details are v1 versus post-v1, now that reduced motion, contrast, focus, announcements, and captions/transcript are accepted baseline obligations?                             | Accessibility owner + `bitty-a11y` adapter owner                    | ADR-0016 Boundary 3, `W-134`, RFC-0001, and RFC-0002 fix the baseline; OQ-078 stays open only on API/tree shape and v1 scope; `D4` covers additions beyond the baseline. `AI-0347/#553`; deferred.                                                                                            | `headed.avatar`, `headed.speech`, `headed.platform`                 |
 
 The existing panel-identity and projection questions in the
 [AI Unresolved Questions](../product/ai-unresolved-questions.md) register remain
@@ -1707,7 +2376,37 @@ than asserted here as an authoritative decision.
 
 The following items need an owner decision or implementation evidence that this
 docs-only correction cannot supply. They remain open and are not silently
-closed:
+closed.
+
+#### Open product decisions (`D1`-`D7`)
+
+These are product decisions, not contract decisions. The accepted contract
+inputs they must respect are listed in
+[settled contract inputs](#open-product-decisions-versus-settled-contract-inputs).
+
+| ID   | Decision                                                                                                                                           | Owner                                       | Status                                                                                             |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `D1` | Product thesis and v1 scope: target user, minimum surface (text/speech/avatar), milestone, and relation to the Wheel chat UI and terminal panes.   | Product owner + `bitty-ai` owner            | Open. The candidate scope is recorded above; it is not accepted.                                   |
+| `D2` | Synthetic-speech disclosure minimum: spoken, visual, metadata-only, and provenance metadata on exported assets.                                    | Security owner + Product owner              | Open. Disclosure is mandatory; the minimum form is not chosen.                                     |
+| `D3` | Record/export/delete rights and retention class offered by the v1 product, aligned with the fixed contract floor and the export-preview gate.      | Core owner + Security owner + Product owner | Open. The floor (off by default, consent, redaction, deletion) is fixed.                           |
+| `D4` | Accessibility floor beyond the accepted baseline: any additional v1 commitments and which are aspirational.                                        | Accessibility owner                         | Open. The accepted baseline (ADR-0016, `W-134`, RFC-0001, RFC-0002) is not reopened.               |
+| `D5` | Product placement and user-facing name: `ai-panel` successor identity, optional `bitty-ai` extension, and whether a distribution is offered.       | Product owner + `bitty-ai` owner            | Open. This document's placement is a candidate, not an accepted product decision.                  |
+| `D6` | Consent surface: prompt placement/content, grant review and revocation UI, speech-versus-model egress distinction, and the consent-fatigue stance. | Product owner + Security owner              | Open. Authorization and revocation semantics are fixed; no UI is defined.                          |
+| `D7` | Gate correction: add Product and Accessibility rows and update the count references.                                                               | Documentation curator + Product owner       | **Discharged by this revision**: nine rows, all pending, all nine reviews recorded as `NEEDS-FIX`. |
+
+#### Open packaging decisions (`P-1`-`P-4`)
+
+The earlier single "packaging" question conflated four decisions. They are
+separated here; none is decided by this draft.
+
+| ID    | Decision                                                                                                    | Owner                                           | Status and dependency                                                                                                                                      |
+| ----- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `P-1` | Plugin identity: continue the recorded `ai-panel` surface under a successor name, or create a new identity. | `bitty-ai` product owner                        | Open. `ai-panel` was the recorded split-later hybrid, removed from Core on 2026-09-30.                                                                     |
+| `P-2` | Package category: Lua package, out-of-process component, or a new media category.                           | `bitty-plugins-docs`                            | Open. The v1 Lua package is accepted; out-of-process is blocked on plugin IPC open items 2/4/7 and cross-process transport; no media category is accepted. |
+| `P-3` | Distribution presence: bundled, official package, or distribution preset.                                   | `bitty-ai` product owner + `bitty-plugins-docs` | Open. Distribution presets are post-v1.0; no preset is claimed.                                                                                            |
+| `P-4` | Signing and update: signature, provenance, registry, and update channel.                                    | `bitty-plugins-docs`                            | Open. Staged activation, integrity, and rollback are accepted; signature and registry mechanics are draft.                                                 |
+
+#### Other review follow-ups
 
 - The [AI Architecture](../architecture/ai-architecture.md) still labels
   SMO-1 through SMO-6 as candidate while the OQ-058 owner ruling accepted the
@@ -1723,10 +2422,14 @@ closed:
 - Wheel's post-0.1.0 host IPC client, consumer roles, and credential-handle use
   are design targets only; they need Wheel owner decisions before any consumer
   cell becomes current.
+- The caption timing tolerance, transcript bounds, and retention classes need
+  named policy constants in an accepted speech contract; this draft fixes the
+  obligations only.
 - These tests cannot exist before implementation and are owned by future
   implementation tasks: the `wheel.*` CLI/config negative test, cross-principal
   attach/takeover, compromised-plugin speech authorization, rich-rendering
-  adversarial corpus, and the nine P0 review records.
+  adversarial corpus, accessibility verification table, and the nine P0 review
+  records.
 
 ## Acceptance criteria
 
@@ -1735,34 +2438,62 @@ This design is acceptable as a draft when all of the following hold:
 - The document lives in the `agent/` tree, follows the specification spine, and
   carries the required flat frontmatter and status qualifiers.
 - The boundary is explicit: Wheel 0.1.0 is an independent Coding Agent Harness
-  and not a Bitty plugin; the Headed Agent is a sibling plugin consuming Core
-  and `bitty-ai`; no `wheel.*` dependency is defined; no headed UI, speech,
-  avatar, or 3D work is assigned to Wheel.
+  and not a Bitty plugin; the Headed Agent is an optional `bitty-ai` extension
+  and the successor candidate to the removed `ai-panel`, consuming Core and
+  `bitty-ai`; no `wheel.*` dependency is defined; no headed UI, speech, avatar,
+  or 3D work is assigned to Wheel.
+- The product thesis, candidate v1 scope, `ai-panel` predecessor, and the open
+  product decisions `D1` through `D7` are stated; open product decisions are
+  separated from settled contract inputs.
 - Each contract family has an owner, a candidate version, versioning rules, and
   an explicit statement that it is not accepted.
 - The accepted IPC and Agent RFC, Panel Runtime RFC, RFC-0006, the scoped
-  provider-routing binding, OQ-058 SMO-1 through SMO-4, ADR-0013, ADR-0002, the
-  P0 criteria, and the Isolation and Resource RFC are consumed by reference and
-  not restated or weakened.
-- Session lifecycle, session and attachment generation, the issuer-as-sequencer
-  handoff, two-level session/job outcomes, cancellation, event ordering,
-  backpressure, and reconnect are covered without redefining the accepted
-  `AgentSession` or IPC RFC.
+  provider-routing binding, OQ-058 SMO-1 through SMO-4, OQ-083, ADR-0013,
+  ADR-0019, ADR-0016 Boundaries 1 and 3, ADR-0002, `W-134`, RFC-0001, RFC-0002,
+  the P0 criteria, and the Isolation and Resource RFC are consumed by reference
+  and not restated or weakened.
+- Session authority distinguishes the `bittyd` session, the AgentSession, and
+  the application handle; it cites `bitty#2546` and the `R-B09` sole-writer rule,
+  and it does not decide durable placement or worker scope in the body.
+- Execution ownership follows ADR-0016 Boundary 1: Core authorizes and fences
+  and retains PTY/permission/resource enforcement; `bitty-execution` (`W-132`)
+  supervises and executes; no implementation is claimed.
+- Session lifecycle, session/panel/attachment/AG-2 generation axes, the
+  single-writer handoff, two-level session/job outcomes including the runtime
+  `Canceled` mapping, cancellation, event ordering, backpressure, and reconnect
+  are covered without redefining the accepted `AgentSession` or IPC RFC.
 - Provider routing, context/session snapshots, and tool-call/approval events are
   covered without adding a provider loader, credential path, or second
-  generation-job lifecycle.
-- Panel and Event Bus topics, panel-versus-attachment lifecycle, multi-panel
-  suspend/resume, and the Core-versus-plugin split are covered by consuming the
-  accepted contracts without asserting implementation.
+  generation-job lifecycle. The routing publication/proof split and mutation
+  invalidation are explicit, and aliases stay outside the strict path.
+- Control and approval events are distinguished from observation Event Bus
+  topics; no approval, stop, tool-result, or speech-job control event is defined
+  as a `DropOldest` bus topic.
+- Panel and Event Bus topics, panel-versus-attachment lifecycle (including
+  `(PanelId, generation)` stale-handle rejection), multi-panel suspend/resume,
+  and the Core-versus-plugin split are covered by consuming the accepted
+  contracts without asserting implementation.
 - Speech and avatar contracts cover request, stream, cancel, state, animation,
-  and visemes without implementing TTS, rendering, or 3D.
+  visemes, synchronized captions, and an inspectable transcript without
+  implementing TTS, rendering, or 3D. `AssetRef` is treated as a shared Core
+  contract and playback as an owner-pending media category.
+- The accessibility baseline is explicit: roles/names/states, focus order,
+  announcements, modal confinement, keyboard equivalence, reduced motion,
+  contrast, captions/transcript, avatar alternative content, media controls,
+  platform AT ownership, absent-adapter behavior, and AT-action non-authority
+  are covered with verification criteria.
+- Plugin-platform contract ownership (`bitty-plugins-docs`) is separated from
+  Headed Agent product ownership (`bitty-ai`); no plugin category, package
+  class, capability identifier, or AI capability catalog is newly defined.
 - Resource budgets, platform fallback, security, privacy, and consent are
-  covered, with security gates and residual risks explicit.
+  covered, with security gates and residual risks explicit; there is no separate
+  AI budget, and every stored artifact names a retention class.
 - The ownership matrix and cross-repository references are complete enough for
   the owning repositories to review their own rows.
 - Open points are explicit, and none is silently decided across a public
   contract boundary. Each entry names a register, a tracked issue, a review
-  route, or an explicit deferral, and the review follow-ups are listed.
+  route, or an explicit deferral; open product and packaging decisions are in
+  the review follow-ups.
 - The local documentation gate passes, and every row in
   [P0 Review Sign-off](#p0-review-sign-off) records a disposition before any
   implementation task is opened.
@@ -1776,22 +2507,22 @@ This nine-row table is the **single authoritative sign-off set** for this
 document. Earlier and later summaries that mention approval, review, or a gate
 refer to these rows and do not define a smaller role list.
 
-| Role                         | Reviewer | Status                        | Evidence                                                                                                                                               |
-| ---------------------------- | -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Architecture owner           | Pending  | Pending — NEEDS-FIX (PX-1552) | Independent architecture review of accepted-source citations, R1 routing split, CP-5/AG-2 binding, session outcomes, and Event Bus. Re-review pending. |
-| Security reviewer            | Pending  | Pending — NEEDS-FIX (PX-1553) | Threat model, gates, alias routing, speech authorization, attach/takeover, and rich-rendering controls. Re-review pending.                             |
-| Core / future `bittyd` owner | Pending  | Pending                       | Panel, Event Bus, consent, transport, and session issuance/sequencer rows.                                                                             |
-| `bitty-ai` owner             | Pending  | Pending                       | Routing publication/proof split, context, speech, avatar, and budget rows.                                                                             |
-| Wheel owner                  | Pending  | Pending — NEEDS-FIX (PX-1550) | Sibling boundary, authoritative Wheel citations, and the `wheel.*` prohibition including CLI and config/state paths. Re-review pending.                |
-| Plugin ecosystem owner       | Pending  | Pending                       | Packaging, media extension, and capability rows.                                                                                                       |
-| Product owner                | Pending  | Pending                       | Product scope, open-point dispositions, and the no-acceptance claim.                                                                                   |
-| Accessibility owner          | Pending  | Pending                       | Captions, reduced motion, contrast, and screen-reader baseline.                                                                                        |
-| Documentation curator        | Pending  | Pending — NEEDS-FIX (PX-1551) | Structure, metadata, links, self-containment, terminology, taxonomy, navigation, and work-register sync. Re-review pending.                            |
+| Role                   | Reviewer | Status                                  | Evidence                                                                                                                                                                                                                                                                         |
+| ---------------------- | -------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Architecture owner     | Pending  | Pending — NEEDS-FIX (PX-1552)           | Accepted-source citations, R1 routing split, CP-5/AG-2 binding, session outcomes, and Event Bus. Re-review pending.                                                                                                                                                              |
+| Security reviewer      | Pending  | Pending — NEEDS-FIX (PX-1553)           | Threat model, gates, alias routing, speech authorization, attach/takeover, and rich-rendering controls. Re-review pending.                                                                                                                                                       |
+| Core / `bittyd` owner  | Pending  | Pending — NEEDS-FIX (PX-1564 / AI-0350) | Event Bus taxonomy and DropOldest, `bittyd` session authority (`bitty#2546`, ADR-0019, `R-B09`), ADR-0016 execution ownership (`bitty-execution`/`W-132`), generation-axis mapping, and the withdrawn Core-sequencer claim. Conditional final sign-off on accepted `bitty#2546`. |
+| `bitty-ai` owner       | Pending  | Pending — NEEDS-FIX (PX-1565 / AI-0351) | Routing publication/proof separation, strict-path alias removal and mutation invalidation, CP-5/AG-2, eight-state speech status, runtime `Canceled` mapping, shared `AssetRef`, `bitty-agent-api` test-only/report-only precision, retention ownership, and OQ-061 routing.      |
+| Wheel owner            | Pending  | Pending — NEEDS-FIX (PX-1550)           | Sibling boundary, authoritative Wheel citations, and the `wheel.*` prohibition including CLI and config/state paths. Re-review pending.                                                                                                                                          |
+| Plugin ecosystem owner | Pending  | Pending — NEEDS-FIX (PX-1566 / AI-0352) | Media presentation category, four packaging decisions, plugin-platform vs product ownership, capability-catalog dependency, and control-stream versus Event Bus separation.                                                                                                      |
+| Product owner          | Pending  | Pending — NEEDS-FIX (PX-1563 / AI-0353) | Product thesis and v1 scope, `ai-panel` placement, settled-versus-open decisions, recording/export consistency, consent surface, and synthetic-speech disclosure.                                                                                                                |
+| Accessibility owner    | Pending  | Pending — NEEDS-FIX (PX-1562 / AI-0354) | Accepted baseline citations, screen-reader semantics/focus/keyboard, platform AT ownership and absent-adapter behavior, captions/transcript, avatar equivalence, media controls, and AT-action authority.                                                                        |
+| Documentation curator  | Pending  | Pending — NEEDS-FIX (PX-1551)           | Structure, metadata, links, self-containment, terminology, taxonomy, navigation, and work-register sync. Re-review pending.                                                                                                                                                      |
 
-No P0 sign-off has been recorded. The four `NEEDS-FIX` entries are review
-evidence only, not approvals; re-review is pending. The document remains
-`draft` until all nine rows record dispositions and any defects are resolved or
-tracked.
+No P0 sign-off has been recorded. All nine entries are `NEEDS-FIX` review
+evidence, not approvals; re-review is pending. The Core row's final sign-off is
+conditional on accepted `bitty#2546`. The document remains `draft` until all
+nine rows record dispositions and any defects are resolved or tracked.
 
 ## References
 
@@ -1807,6 +2538,33 @@ Accepted and normative sources outside this repository:
   — accepted (2026-09-23).
 - [ADR-0002 Platform Support Tiers](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0002-platform-support-tiers.md)
   — accepted (2026-08-26).
+- [ADR-0016 Execution, Graphics, Accessibility, Storage, and Platform-Service Boundaries](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0016-execution-graphics-accessibility-storage-platform-boundaries.md)
+  — accepted (2026-10-02), Boundaries 1 and 3.
+- [ADR-0019 bittyd Staging Advance to the v0.2.0 Slice](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/adrs/ADR-0019-bittyd-v0-2-0-staging.md)
+  — accepted (2026-10-22).
+- [bittyd session host requirements (candidate)](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/bittyd-session-host-requirements-candidate.md)
+  — draft consumer requirements; `R-B09` sole-writer rule.
+- [bitty#2546](https://github.com/bitty-terminal/bitty/issues/2546) — open
+  `bittyd` session-host contract; no implementation claim.
+- [Accessibility Extraction Contract](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/accessibility-extraction-contract.md)
+  — accepted (`W-134`).
+- [RFC-0001 Appearance Configuration](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0001-appearance-configuration.md)
+  — accepted; minimum-contrast rule.
+- [RFC-0002 Panel Animations](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/rfcs/RFC-0002-panel-animations.md)
+  — accepted; reduced-motion and safe-mode contract.
+- [OQ-078 in the open-question register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)
+  — open on accessibility API/tree and v1 scope only.
+- [OQ-083 in the open-question register](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md)
+  — accepted panel-lease direction.
+- [Product Vision § Agent-friendly, not Agent-centric](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/product/vision.md#agent-friendly-not-agent-centric)
+  — accepted product constraint.
+- [AI Surface Accepted Record](https://github.com/bitty-terminal/bitty-terminal-docs/blob/main/specifications/ai-surface-accepted-record.md)
+  — accepted; `ai-panel` removal and AI-surface movement.
+- [Plugin Platform RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/plugin-platform-rfc.md)
+  — accepted; `R-017` native in-process prohibition.
+- [Package Lifecycle RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/packaging/package-lifecycle-rfc.md)
+  and [Package Follow-up RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/packaging/package-followup-rfc.md)
+  — accepted activation/rollback; signing and registry draft.
 - [P0 Security Acceptance Criteria](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/p0-acceptance-criteria.md)
   — normative.
 - [Isolation and Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/runtime/isolation-resource-rfc.md)
