@@ -942,7 +942,11 @@ repositories (`bitty-ipc` and `bitty-agent`). Current-state note
   errors (`IpcError`/`ErrorClass`), and the posture that MCP responses are
   untrusted observation data. There is intentionally no real `Unix socket`/
   `named pipe` endpoint, no peer-credential check, and no `unsafe` in this
-  crate — the crate is headlessly testable.
+  crate — the crate is headlessly testable. Current-state note (2026-10-26): the
+  experimental in-memory MCP stub described above (`McpClientStub`,
+  `MCP_REQ`/`MCP_RESP`) was retired with the `bitty-ipc-mcp` crate
+  (bitty-terminal/bitty-ipc#33); `DEFAULT_MCP_TIMEOUT_MS` now lives with the real
+  MCP client in `bitty-ai` (`crates/bitty-ai-mcp`).
 - `crates/bitty-agent`: owned `AgentId` (owner-qualified `owner.name`,
   `MAX_AGENT_ID_LEN = 128`, segment grammar `^[a-z][a-z0-9_-]*$`), bounded
   `AgentMessage`s (content `<= 32 KiB`, frame `<= 64 KiB`, tool calls/results
@@ -1174,7 +1178,11 @@ crate presence does not imply shipped behavior.
 - Bitty crate evidence: `crates/bitty-ipc/src/{lib,frame,channel,transport,mcp,error}.rs`
   and `crates/bitty-agent/src/{lib,agent_id,message,tool,observation,session,side_queue,error}.rs`
   (both crates `draft`/`proposed`, headlessly testable, `forbid(unsafe_code)` in
-  `bitty-agent`, no `unsafe` in `bitty-ipc`).
+  `bitty-agent`, no `unsafe` in `bitty-ipc`). Current-state note (2026-10-26):
+  this list records the pre-extraction layout; the experimental in-memory MCP
+  stub (`mcp.rs`) was retired with the `bitty-ipc-mcp` crate
+  (bitty-terminal/bitty-ipc#33), and `DEFAULT_MCP_TIMEOUT_MS` is now defined by
+  the real MCP client in `bitty-ai` (`crates/bitty-ai-mcp`).
 - Isolation resource ceilings: [Isolation Resource RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/specifications/isolation-resource-rfc.md)
   IR-D3, RC-9, RC-10 (accepted, this RFC adopts them as the IPC/Agent
   contribution to that table).
