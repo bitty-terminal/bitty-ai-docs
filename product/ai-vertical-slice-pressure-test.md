@@ -92,6 +92,10 @@ Every operation takes a caller-supplied `now_ms`; there is no wall-clock,
 thread, async runtime, or OS handle. The test host is a deterministic loopback
 peer, explicitly a **test double**, not a claim about live data.
 
+Current-state note (2026-10-26): `bitty-ipc-mcp` was retired
+(bitty-terminal/bitty-ipc#33); no live code references `bitty_ipc::mcp`, and the
+reuse map and flow above remain the historical slice record.
+
 ## Verification and evidence
 
 `cargo test -p bitty-ai-slice` (10 tests, all passing) proves:
