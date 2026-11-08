@@ -924,12 +924,14 @@ Every provider/model/capability/context/cost mutation and every alias-table
 mutation performs the following under one helper mutation gate:
 
 1. Revoke the shared lifetime and all pending ack, proof, receipt, and request
-   reservations **before** changing registry state or allowing another strict
-   read. Increment the checked feed revision even if canonical projected bytes
-   happen to remain equal, as with an alias-only mutation.
-2. Apply the atomic mutation, create a fresh lifetime, and emit
-   `Invalidate(old lifetime) → Lifetime(new lifetime) → Projection(new revision)`.
-   If output cannot be queued within budgets, revoke/close rather than omit it.
+   reservations, and enqueue `Invalidate(L1,R1)` **before** changing registry
+   state or allowing another strict read. If the invalidation cannot be queued
+   within budgets, revoke and close without mutating.
+2. Apply the atomic mutation, increment the checked feed revision to `R2`
+   (even if canonical projected bytes happen to remain equal, as with an
+   alias-only mutation), create a fresh lifetime `L2`, and emit
+   `Lifetime(L2,R2) → Projection(L2,R2)`. If output cannot be queued within
+   budgets, revoke/close rather than omit it.
 3. Core immediately invalidates its accepted view, pending publication, ack,
    and receipt on the invalidation/lifetime change; it adopts only the newest
    authenticated feed and publishes a new ID with a greater version.
@@ -1397,6 +1399,9 @@ authorize a Core/IPC/helper implementation by its existence.
 
 - [Execution ownership R1](execution-ownership-r1.md), accepted provider/routing
   subsection at AI-docs `abb820bdbb663d7ed1ae061a2ed7551208af02cb`.
+- [Authenticated provider publication ingress](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/security/authenticated-provider-publication-ingress.md),
+  canonical security-corpus companion synchronizing ingress, replay, lifetime,
+  and helper registry mutation ordering.
 - [Core #2199](https://github.com/bitty-terminal/bitty/issues/2199), design request;
   [AI-docs #287](https://github.com/bitty-terminal/bitty-ai-docs/issues/287).
 - [Core supervisor baseline](https://github.com/bitty-terminal/bitty/tree/aceb327e16ff0f2fafe9c3915c9b26a313355514),
