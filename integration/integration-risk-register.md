@@ -37,7 +37,7 @@ repeat or amend their normative wording.
 
 ## Source identity
 
-Evidence anchors name a revision and a file line at that revision. Two source
+Evidence anchors name a revision and a file line at that revision. Three source
 revisions are used:
 
 - `bitty-ai@1bc2456` - local `bitty-ai` `main` head inspected for this register.
@@ -45,6 +45,9 @@ revisions are used:
   `bitty-ai@1bc2456 crates/bitty-ai-slice/Cargo.toml:18`, part of the `bitty`
   repository.
 - `bitty@main@06bc1f4` - local `bitty` `main` head inspected for this register.
+
+These anchors are historical: each names the revision read when this register
+was written, not the current head of either repository.
 
 ## Disposition
 
