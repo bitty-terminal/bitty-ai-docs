@@ -811,10 +811,12 @@ facet.
   archive the converge question if the OWNER rejects both, through a separate
   OWNER decision with its own task. Sharper edge, as a candidate: the
   `bitty-plugin-host` pin from the `bitty` repository would be re-owned helper-side
-  (described in the task as route B) under the owner-approved host-helper schedule
-  (Phase 1 crate-first `crates/bitty-ai-host` in the `bitty-ai` repository per
-  `architecture/host-boundary-trait-design.md` and CTX-0136), rather than lingering
-  as a cross-repo Core pin; mechanism selection stays open under AIQ-36 and AIQ-38.
+  (described in the task as route B) under the owner-approved host-helper schedule;
+  the Phase 1 `crates/bitty-ai-host` crate now exists in the `bitty-ai` workspace
+  as a behavior-free skeleton (per `architecture/host-boundary-trait-design.md` and
+  CTX-0136), so the cross-repo `bitty-plugin-host` pin at `271d662` remains until a
+  Phase 2 seam migration re-homes the dependency. Mechanism selection stays open
+  under AIQ-36 and AIQ-38.
   Numbering rationale: this file admits no task-level minting — it preserves a fixed
   identifier set, assigns no owners or milestones, requires the canonical OQ admission
   rule for promotion, and keeps alias mappings stable — so the owner numbers any future
