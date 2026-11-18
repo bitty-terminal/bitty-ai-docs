@@ -347,6 +347,38 @@ cross-repository handoff scope is owned by
 Tracked as
 [OQ-067](https://github.com/bitty-terminal/bitty-docs/blob/main/docs/decisions/open-questions.md).
 
+### Wheel boundary: `ai.*` semantics versus harness transport (recorded 2026-11-18)
+
+Status: **direction, non-normative**. This records the split between this
+corpus' `ai.*` contracts and the independent Wheel harness. It does not change
+any mandate above.
+
+- **WB-1 `bitty-ai` owns method semantics.** Method resolution, the
+  scope/consent/deadline/JSON gates, exact-byte request binding, and
+  publication-state lifetime belong to the `bitty-ai` native component (the
+  six-gate dispatcher skeleton in `bitty-ai-endpoint` is the current shape).
+- **WB-2 Wheel owns transport and harness presentation.** The Wheel harness
+  owns HTTP transport, streaming, retries, thinking gears, provider templates,
+  and its own tool loop. Wheel is a separate repository with its own Git,
+  CarryCtx state, and release cadence; its provider layer
+  (`lua/wheel/provider.lua`) is the only working provider path today, because
+  `bitty-ai-endpoint` and `bitty-ai-host` remain skeletons that stop before
+  handler or transport wiring.
+- **WB-3 No second authority.** `bitty-ai` must not grow provider transport,
+  retry policy, or a model catalogue; Wheel must not grow a second
+  authorization path (its permission gate governs tool execution only and does
+  not authorize `ai.*` calls). A future independent repository may own the
+  model/provider catalogue, at which point Wheel becomes a consumer and this
+  bullet is superseded rather than edited.
+- **WB-4 Platform support follows the harness.** Wheel targets POSIX hosts
+  natively (Linux, macOS) and Windows only through WSL2; no native Windows
+  process backend is planned, so the sandbox question is not the blocker
+  there.
+
+Recorded in the Wheel repository as `DEC-0002` (provider/model boundary) and
+`DEC-0001` (platform support). The shipped-state claims above are dated
+2026-11-18 and must be re-verified before they are relied on later.
+
 ## Candidate runtime contracts (candidate)
 
 Status: **candidate, non-normative, post-v1.0**. The following contracts
